@@ -5,6 +5,23 @@ User journeys for account creation, relationships, and day-one workflows.
 Source:
 - `businessPlan.md` — Section 10, Section 14, Section 18 (Phase 11)
 - `mvpScope.md` — Phase 1A boundaries
+- `stack.md` — technical implementation
+
+---
+
+## Technical mapping (implementation)
+
+| Flow step | Backend |
+|-----------|---------|
+| Signup / login | Auth.js (web) or `POST /api/v1/auth/*` (mobile) |
+| Create horse / stable / trainer | REST API + Zod validation + `lib/services` |
+| Relationship request / invite | `Relationship` collection (`invitedEmail` when provider not registered) |
+| Accept / decline | `PATCH /api/v1/relationships/:id` |
+| Chat | REST messages (1A); Socket.io when realtime ships |
+| Uploads | Cloudinary via API route |
+| Reviews | `Rating` tied to `relationshipId` + `horseId` |
+
+Provider links (vet, stable, trainer, etc.) are **not** stored on `Horse` directly — query accepted `Relationship` documents by `horseId`.
 
 ---
 
@@ -37,7 +54,7 @@ Sign up (email/password or auth provider)
 Owner opens horse profile
   → Search stable in platform
       → If found: send relationship request (horse ↔ stable)
-      → If not found: add stable name + email → invitation sent with reference code
+      → If not found: add stable name + email → pending `Relationship` + invitation email with reference code
   → Stable receives notification
   → Stable accepts or declines
   → If accepted: stable appears on horse relationships + shared ops unlock
@@ -195,9 +212,10 @@ Requester initiates link
 
 ```
 Requester enters minimal profile data + email
+  → Create pending Relationship (invitedName, invitedEmail, referralReference)
   → Invitation email with referral reference
   → Invitee signs up
-  → Invitee accepts/declines proposed relationship
+  → On accept: receiverAccountId set on Relationship; operational access unlocks
 ```
 
 ---

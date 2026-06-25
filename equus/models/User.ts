@@ -1,6 +1,6 @@
-import mongoose, { Schema, model } from "mongoose";
+﻿import mongoose, { Schema, model } from "mongoose";
 import { personalDetailsSchema } from "./PersonalDetails.ts";
-import * as enums from "../packages/enums.ts";
+import * as enums from "../utils/enums.ts";
 
 const { accountTypeEnums, visibilityEnums } = enums;
 
@@ -52,17 +52,9 @@ const userSchema = new Schema(
      */
     ownerPreferences: { type: ownerPreferencesSchema, default: undefined },
 
-    /** Business profile collections owned by this user (multi-account model) */
+    /** Business profiles owned by this user (multi-account model) */
     stableProfileIds: {
       type: [{ type: Schema.Types.ObjectId, ref: "Stable" }],
-      default: undefined,
-    },
-    trainerProfileIds: {
-      type: [{ type: Schema.Types.ObjectId, ref: "Trainer" }],
-      default: undefined,
-    },
-    veterinaryProfileIds: {
-      type: [{ type: Schema.Types.ObjectId, ref: "Veterinary" }],
       default: undefined,
     },
     breederProfileIds: {
@@ -77,9 +69,25 @@ const userSchema = new Schema(
       type: [{ type: Schema.Types.ObjectId, ref: "Transport" }],
       default: undefined,
     },
-    coachProfileIds: {
-      type: [{ type: Schema.Types.ObjectId, ref: "Coach" }],
+
+    /** Position-linked profiles â€” one per user (personal professional role) */
+    trainerProfileId: {
+      type: Schema.Types.ObjectId,
+      ref: "Trainer",
       default: undefined,
+      index: true,
+    },
+    veterinaryProfileId: {
+      type: Schema.Types.ObjectId,
+      ref: "Veterinary",
+      default: undefined,
+      index: true,
+    },
+    coachProfileId: {
+      type: Schema.Types.ObjectId,
+      ref: "Coach",
+      default: undefined,
+      index: true,
     },
 
     /** UI context switching between account types */
@@ -93,6 +101,12 @@ const userSchema = new Schema(
     resetPasswordToken: { type: String, default: undefined },
     resetPasswordExpires: { type: Date, default: undefined },
     refreshSessionVersion: { type: Number, default: 0 },
+    googleSubjectId: { type: String, default: undefined, index: true },
+    authProvider: {
+      type: String,
+      enum: ["credentials", "google"],
+      default: "credentials",
+    },
 
     lastLoginAt: { type: Date },
     lastActiveAt: { type: Date },
@@ -108,6 +122,8 @@ userSchema.index({ "personalDetails.email": 1 }, { unique: true });
 userSchema.index({ "notifications.notificationId": 1 });
 userSchema.index({ verificationToken: 1 }, { sparse: true });
 userSchema.index({ resetPasswordToken: 1 }, { sparse: true });
+userSchema.index({ googleSubjectId: 1 }, { unique: true, sparse: true });
 
 const User = mongoose.models.User || model("User", userSchema);
 export default User;
+

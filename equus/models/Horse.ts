@@ -1,6 +1,6 @@
 import mongoose, { Schema, model } from "mongoose";
 import { mediaAssetSchema, pedigreeSchema } from "./sharedSchemas/index.ts";
-import * as enums from "../packages/enums.ts";
+import * as enums from "../utils/enums.ts";
 
 const {
   horseSexEnums,

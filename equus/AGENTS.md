@@ -104,6 +104,7 @@ Your primary goals are:
 * After any code change, write or update unit tests for the affected behavior.
 * Run the relevant unit tests and confirm they pass before considering the work complete.
 * Do not skip testing for small changes; if behavior changed, it must be covered and verified.
+* **Equus test runner:** Vitest (`npm test`). Test files live under `tests/` and mirror `lib/` (e.g. `tests/lib/services/authService.test.ts`). Integration tests use `mongodb-memory-server` via `tests/setup.ts`.
 
 ## Expected Workflow
 

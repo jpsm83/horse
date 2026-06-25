@@ -5,6 +5,7 @@ Private metrics layer for founders/developers to monitor product and business he
 Source:
 - `businessPlan.md` — Section 18 (Phase 9)
 - `businessPlan.md` — Section 11 and Section 19 (monetization and commissions)
+- `stack.md` — internal admin UI (Next.js + shadcn)
 
 Access policy:
 - **Internal/private only** (developer/admin role)
@@ -141,12 +142,12 @@ Commission rules reflected in metrics:
 ## MVP implementation note (Phase 1B)
 
 Phase 1A:
-- Track events in database tables (minimal analytics schema)
-- Manual SQL or simple admin page acceptable
+- Track events in MongoDB (minimal analytics collection or event log)
+- Manual aggregation or simple internal page acceptable
 
 Phase 1B:
-- Private `/admin/metrics` dashboard
-- Read-only aggregates
+- Private `/admin/metrics` dashboard (Next.js + shadcn/ui)
+- Read-only aggregates via REST or server components
 - Role-restricted access (developer/admin)
 
 ---

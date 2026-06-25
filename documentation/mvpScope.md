@@ -4,7 +4,24 @@ This document defines what we build first, what comes immediately after, and wha
 
 Source of truth:
 - `businessPlan.md` — Section 0, Section 18 (Phase 1)
-- `stack.md` — technical direction
+- `stack.md` — technical stack (canonical)
+
+---
+
+## Technical implementation (Phase 1)
+
+Aligned with `stack.md`:
+
+| Area | Approach |
+|------|----------|
+| Web app | Next.js (App Router) + shadcn/ui + Tailwind + Zod |
+| API | REST `/api/v1/*` Route Handlers + `lib/services` |
+| Auth | Auth.js (web); JWT login/refresh endpoints (mobile-ready) |
+| Validation | Zod at API boundary and web forms |
+| Database | MongoDB Atlas + Mongoose (`equus/models/`) |
+| Uploads | Cloudinary |
+| Chat (1A) | REST messages; realtime via Socket.io in `server.ts` when needed (§9.3 in `stack.md`) |
+| Mobile app | React Native (Expo) — Phase 1 can be web-first; API designed for mobile from day one |
 
 ---
 
@@ -23,9 +40,9 @@ Target timeline: ~8–10 weeks after validation (see `validationPlaybook.md`).
 ### In scope
 
 #### Identity and accounts
-- User signup/login
+- User signup/login (Auth.js on web; JWT API for mobile clients)
 - Personal profile creation
-- Create account types: **Owner**, **Stable**, **Trainer**, **Horse**
+- Create profiles: **horse**, **stable**, **trainer** (owner = user role via horse ownership, not a separate collection)
 - Switch context between account types under one user login
 
 #### Horse core
@@ -35,15 +52,16 @@ Target timeline: ~8–10 weeks after validation (see `validationPlaybook.md`).
 
 #### Relationships
 - Search existing accounts (stable/trainer)
-- Send relationship request (horse ↔ stable, horse ↔ trainer, owner ↔ business)
+- Send relationship request via `Relationship` model (horse ↔ stable, horse ↔ trainer)
 - Accept / decline requests
-- Invite non-registered party by email (name + email minimum)
+- Invite non-registered party by email (`invitedName` + `invitedEmail` on pending relationship; link to account on signup)
 - Referral reference number on invitation emails (for Section 19 attribution)
 - Rejection handling: no active connection, notify requester
 
 #### Communication
 - Open live chat between users (WhatsApp-style)
 - In-app + push notifications for messages and relationship events
+- Phase 1A: REST message send + polling acceptable; Socket.io realtime when chat UX requires it
 
 #### Booking (basic)
 - Create booking request (owner → stable/trainer)
@@ -54,7 +72,7 @@ Target timeline: ~8–10 weeks after validation (see `validationPlaybook.md`).
 #### Operations (basic)
 - Create and view invoices per horse (stable/trainer → owner visibility)
 - Owner expense summary per horse (total + invoice list)
-- Upload/view basic documents (passport, contracts, PDFs/images)
+- Upload/view basic documents via Cloudinary (passport, contracts, PDFs/images)
 
 #### Owner billing (MVP-ready)
 - 30-day trial per horse
@@ -125,6 +143,8 @@ Target timeline: ~4–6 weeks after 1A pilot feedback.
 - Complex syndicate billing splits
 - Automated dispute resolution for reviews
 - Full GDPR/legal portal (baseline privacy only in MVP)
+- Redis, separate backend service (NestJS/Fastify), Python services
+- React Native app (API ready in 1A; native app can follow 1B if web-first)
 
 ---
 

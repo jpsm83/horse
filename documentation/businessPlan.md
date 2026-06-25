@@ -19,12 +19,12 @@ This document is the working business plan for the app we will build. It starts 
 - **Section 19**: partner revenue share program (business referral commissions)
 
 Related context:
-- `niche.md` — market research, niche analysis, and strategic tradeoffs
-- `stack.md` — technical stack discussion and recommendations
+- `stack.md` — canonical technical stack (Next.js, REST API, MongoDB, Auth.js, shadcn, Zod)
 - `mvpScope.md` — Phase 1A/1B scope and explicit exclusions
 - `validationPlaybook.md` — pre-build interview script and scoring
 - `productFlows.md` — onboarding and core user journeys
 - `metricsSpec.md` — internal business metrics definitions
+- `README.md` — documentation index
 
 ---
 
@@ -313,7 +313,9 @@ Each stable operates as a business on the platform.
 
 ---
 
-### 4.8 Horse owner account
+### 4.8 Horse owner (user role)
+
+Owner is not a separate account collection. A user becomes an owner when they create or own horses (`Horse.mainOwnerUserId`).
 
 **Profile details:**
 - Name, photo, location
@@ -507,7 +509,7 @@ Already covered in this document:
 - MVP scope and phased roadmap → Section 18 + `mvpScope.md`
 - Monetization and partner commissions → Sections 11 and 19
 - Validation and GTM → Section 18 (Phases 3 and 4) + `validationPlaybook.md`
-- Technical stack direction → `stack.md`
+- Technical stack → `stack.md` (Next.js REST API, MongoDB, Auth.js, React Native, Cloudinary)
 - Product flows → Section 18 (Phase 11) + `productFlows.md`
 - Business metrics → Section 18 (Phase 9) + `metricsSpec.md`
 
@@ -547,16 +549,17 @@ Core rule:
 Conceptual model:
 
 ```
-User (root identity; owner role when they own/pay for horses — no separate Owner collection)
+User (root identity; owner role when they own/pay for horses)
   ├── Horse profile(s) owned or managed
-  ├── Trainer account(s)
-  ├── Vet account(s)
-  ├── Stable account(s)
-  ├── Riding club account(s)
-  ├── Breeder account(s)
-  ├── Transport provider account(s)
-  ├── Racing owner/syndicate account(s)
-  └── Other provider account(s)
+  ├── Trainer profile (one position-linked profile per user)
+  ├── Veterinary profile (one position-linked profile per user)
+  ├── Coach profile (one position-linked profile per user)
+  ├── Stable profile(s) (business — multiple allowed)
+  ├── Riding club profile(s)
+  ├── Breeder profile(s)
+  ├── Transport provider profile(s)
+  ├── Racing owner/syndicate profile(s)
+  └── Other provider profile(s)
 ```
 
 Why this model matters:
@@ -1309,8 +1312,10 @@ Minimum booking events for notifications:
 
 Channels:
 - In-app notification
-- Mobile push notification
+- Mobile push notification (FCM)
 - Optional email notification for critical booking events
+
+Realtime delivery: see `stack.md` §9.3 (REST first, Socket.io in Equus when live chat requires it).
 
 ### 16.5 Shared schedule visibility
 
@@ -1562,9 +1567,9 @@ Suggested core metrics:
 Access policy:
 - Private/internal access only (not public user-facing)
 
-### Phase 10 — Strategic pull from `niche.md`
+### Phase 10 — Strategic principles
 
-Core strategy pulled from niche research:
+Core strategy:
 
 - Start narrow, then expand
 - Become indispensable in one painful workflow first
@@ -1578,15 +1583,18 @@ Positioning reminder:
 ### Phase 11 — Correct signup and account creation flows
 
 Canonical flow:
-- User signs up -> creates personal profile -> adds horse -> invites stable
-- Stable owner signs up -> creates personal profile -> adds stable -> invites horse
-- Horse owner signs up -> creates personal profile -> adds horse -> invites vet
-- Single vet signs up -> creates personal profile -> adds vet business -> invites horse
-- Transport operator signs up -> creates personal profile -> adds transport business -> invites horse/owner
+- User signs up → personal profile → add horse (owner role) → invite stable via relationship
+- Stable owner signs up → personal profile → create stable → invite/link horse
+- Horse owner signs up → personal profile → add horse → invite vet via relationship (Phase 2+)
+- Vet signs up → personal profile → create veterinary profile → invite/link horse (Phase 2+)
+- Transport operator signs up → personal profile → create transport business → invite horse/owner (post-MVP)
 
 Policy:
 - User identity always comes first
-- Domain account types are added after personal profile creation
+- Domain profiles are added after personal profile creation
+- Provider links use the `Relationship` model (pending invites store email until account exists)
+
+Technical implementation: see `stack.md` and `productFlows.md`.
 
 ### Phase 12 — Transport module rollout
 

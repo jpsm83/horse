@@ -7,7 +7,7 @@ import {
   verificationProfileSchema,
   weeklyAvailabilitySchema,
 } from "./sharedSchemas/index.ts";
-import * as enums from "../packages/enums.ts";
+import * as enums from "../utils/enums.ts";
 
 const { horseDisciplineEnums, currencyEnums } = enums;
 

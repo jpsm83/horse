@@ -4,7 +4,7 @@ Run this playbook **before** starting Phase 1A development (`mvpScope.md`).
 
 Sources:
 - `businessPlan.md` — Section 18 (Phases 3 and 4)
-- `niche.md` — market validation context
+- `stack.md` — build only after validation passes
 
 ---
 

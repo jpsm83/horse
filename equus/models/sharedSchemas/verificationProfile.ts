@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import * as enums from "../../packages/enums.ts";
+import * as enums from "../../utils/enums.ts";
 
 const { verificationStatusEnums } = enums;
 
