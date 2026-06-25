@@ -1,0 +1,27 @@
+{
+  "name": "restaurant-pos-packages",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "packages": "packages"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpsm83/restaurant-pos.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jpsm83/restaurant-pos/issues"
+  },
+  "homepage": "https://github.com/jpsm83/restaurant-pos#readme",
+  "description": "",
+  "dependencies": {
+    "mongoose": "^9.3.1"
+  }
+}

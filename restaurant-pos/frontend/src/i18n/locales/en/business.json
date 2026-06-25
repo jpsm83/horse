@@ -1,0 +1,224 @@
+{
+  "dashboard": {
+    "title": "Business dashboard",
+    "tenantCardTitle": "Tenant workspace",
+    "signedInPrefix": "Signed in as",
+    "sessionUnavailable": "Session details unavailable.",
+    "accountMenuHint": "Use the account menu (top right) for profile, favorites, dashboard, or to sign out."
+  },
+  "profile": {
+    "title": "Business profile",
+    "notBuiltYet": "This page is not built yet.",
+    "validationSummary": "Fix the highlighted fields before saving."
+  },
+  "profileForm": {
+    "validation": {
+      "required": "This field is required.",
+      "invalidEmail": "Please enter a valid email address.",
+      "emailMismatch": "Email confirmation does not match.",
+      "passwordMismatch": "Password confirmation does not match.",
+      "invalidSubscription": "Invalid subscription.",
+      "invalidCurrency": "Invalid currency.",
+      "invalidTime": "Time must be in HH:MM format.",
+      "invalidDayOfWeek": "Day of week must be an integer from 0 to 6.",
+      "invalidNonNegative": "Value must be a non-negative number.",
+      "invalidWeeklyStartDay": "Weekly report start day must be between 0 and 6."
+    }
+  },
+  "profileSettings": {
+    "cardDescription": "Update your public-facing business identity, logo, and how customers discover you.",
+    "logo": {
+      "sectionTitle": "Logo",
+      "sectionDescription": "Shown in discovery, receipts, and other customer-facing surfaces.",
+      "uploadLabel": "Upload",
+      "logoAlt": "Business logo",
+      "hintSelectedFile": "Selected file: {{fileName}}",
+      "hintCurrentCloud": "Current logo comes from the last saved cloud image URL.",
+      "hintDefault": "Hover or tap the logo area and upload an image file."
+    },
+    "selects": {
+      "currencyPlaceholder": "Select currency",
+      "contactNone": "No primary contact",
+      "contactPlaceholder": "Select a manager",
+      "multiEmpty": "Select…",
+      "multiSummary": "{{count}} selected",
+      "noneSelected": "None selected"
+    },
+    "core": {
+      "sectionTitle": "Core business info",
+      "sectionDescription": "Legal and contact details used for billing, support, and account records.",
+      "emailVerification": {
+        "confirmed": "Email confirmed",
+        "confirmCta": "Click to confirm email"
+      },
+      "fields": {
+        "tradeName": "Trade name",
+        "legalName": "Legal name",
+        "email": "Business email",
+        "phoneNumber": "Phone number",
+        "taxNumber": "Tax number",
+        "currencyTrade": "Currency",
+        "contactPerson": "Contact person"
+      }
+    },
+    "discovery": {
+      "sectionTitle": "Discovery",
+      "sectionDescription": "Help customers find you when browsing or searching.",
+      "fields": {
+        "cuisineType": "Cuisine type",
+        "categories": "Categories (comma separated)"
+      }
+    }
+  },
+  "advancedTable": {
+    "section": {
+      "title": "Advanced table integration target",
+      "description": "First production wiring will use this section as the integration boundary.",
+      "businessId": "Business ID",
+      "businessEmail": "Business Email",
+      "unavailable": "Unavailable"
+    },
+    "fields": {
+      "ticket": "Ticket",
+      "table": "Table",
+      "status": "Status",
+      "total": "Total"
+    },
+    "status": {
+      "open": "Open",
+      "inPrep": "In prep",
+      "paid": "Paid"
+    },
+    "states": {
+      "loading": "Loading table data...",
+      "error": "Failed to load table data.",
+      "retry": "Retry",
+      "emptyMessage": "No business records available.",
+      "emptySubMessage": "Try changing filters or check back later."
+    },
+    "filters": {
+      "all": "All",
+      "selectedCount": "{{count}} selected",
+      "selectAll": "Select all",
+      "typeToFilter": "Type to filter",
+      "pressEnterToFilter": "Press Enter to filter"
+    },
+    "header": {
+      "dragToReorder": "Drag to reorder column",
+      "sortRowsByColumn": "Sort rows by this column",
+      "sortByAriaLabel": "Sort by {{column}}"
+    },
+    "pagination": {
+      "selectedCount": "{{selected}} of {{total}} selected",
+      "pageLabel": "Page {{page}} of {{totalPages}}",
+      "goFirstPage": "Go to first page",
+      "goPreviousPage": "Go to previous page",
+      "goNextPage": "Go to next page",
+      "goLastPage": "Go to last page",
+      "clearFilters": "Clear filters",
+      "openColumnMenu": "Open column visibility menu",
+      "columns": "Columns",
+      "resetOrderVisibility": "Reset order & visibility",
+      "exportAria": "Export filtered table data",
+      "exportingAria": "Exporting filtered table data",
+      "exportFiltered": "Export filtered",
+      "exporting": "Exporting...",
+      "exportSuccess": "Export completed successfully.",
+      "exportError": "Failed to export filtered data."
+    },
+    "config": {
+      "editEditor": "Edit table config",
+      "closeEditor": "Close config editor",
+      "saveDisabled": "Save is disabled when configuration is unavailable.",
+      "validationVisibleColumn": "At least one enabled and visible column is required."
+    },
+    "configEditor": {
+      "order": "Order",
+      "enable": "Enable",
+      "columnKey": "Column key",
+      "columnName": "Column name",
+      "visible": "Visible",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "configManager": {
+      "noColumnsToSave": "No columns available to save."
+    },
+    "modal": {
+      "recordCounter": "Record {{index}} of {{total}}",
+      "previousRecord": "Previous record",
+      "nextRecord": "Next record",
+      "closeDetailsModal": "Close details modal",
+      "close": "Close",
+      "resizeHandle": "Resize modal"
+    },
+    "export": {
+      "defaultFileName": "table-export.xlsx",
+      "defaultSheetName": "Table"
+    },
+    "body": {
+      "emptyMessage": "No data found",
+      "emptySubMessage": "Try adjusting your filters"
+    }
+  },
+  "addressMap": {
+    "geoNotFound": "Could not find that address on the map.",
+    "geoFailed": "Geocoding request failed. Try again later.",
+    "loadingAriaLabel": "Loading map location",
+    "shortQueryHint": "Add a bit more address detail to locate on the map.",
+    "footerNotice": "Map data © OpenStreetMap contributors. Geocoding uses the public Nominatim service—use sparingly in production or host your own instance."
+  },
+  "addressSettings": {
+    "cardDescription": "Postal and location details used on records and discovery.",
+    "sectionTitle": "Address",
+    "sectionDescription": "Postal and location details used on records and delivery orders.",
+    "locationPreview": "Location preview",
+    "fields": {
+      "country": "Country",
+      "state": "State",
+      "region": "Region",
+      "city": "City",
+      "postCode": "Post code",
+      "street": "Street",
+      "buildingNumber": "Building number",
+      "doorNumber": "Door number",
+      "complement": "Complement",
+      "complementPlaceholder": "Floor, wing, unit details…"
+    }
+  },
+  "credentialsSettings": {
+    "cardDescription": "Change your sign-in password using a secure link we send to your business email. To update the email itself, edit it on the profile page (you will sign in again after saving).",
+    "sectionTitle": "Sign-in credentials",
+    "sectionDescription": "Confirm your business email if prompted, then use the action column to receive a time-limited link. Edit the sign-in email from the profile settings page.",
+    "actionsColumnTitle": "Password reset",
+    "validation": {
+      "currentPasswordRequired": "Enter your current password to set a new sign-in password."
+    },
+    "emailVerify": {
+      "bannerTitle": "Confirm your business email",
+      "bannerDescription": "We sent a link to your sign-in email. Resend if you did not receive it (rate limits may apply).",
+      "resendButton": "Resend confirmation email",
+      "resendSending": "Sending…",
+      "resendSuccessFallback": "If an account needs verification, we sent instructions."
+    },
+    "passwordChangeEmail": {
+      "introBody": "For security, we do not collect a new password on this screen. Use the button in the right column to send one email to your current business sign-in address with a time-limited link.",
+      "stepCheckInbox": "Open your inbox (and spam folder) for that address.",
+      "stepOpenLink": "Use the link in the email — it opens a dedicated page in this app.",
+      "stepChoosePassword": "On that page, choose a strong new password and submit. The link works once and expires after a short time.",
+      "signInEmailLabel": "We will send the link to: {{email}}",
+      "button": "Email me a link to change password",
+      "sending": "Sending…",
+      "successFallback": "If an account exists for that address, we sent reset instructions.",
+      "errorFallback": "Could not send the email. Try again later.",
+      "missingEmail": "No sign-in email is available for this session."
+    }
+  },
+  "subscriptionSettings": {
+    "sectionTitle": "Subscription",
+    "planGroupAriaLabel": "Subscription plan",
+    "selectPlanAriaLabel": "Select {{plan}} plan",
+    "selectedPlanDescription": "Selected plan for this business."
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "mainNav": {
+    "ariaLabel": "Main navigation"
+  },
+  "brand": {
+    "title": "Project Imperium POS",
+    "logoAlt": "Project Imperium POS"
+  },
+  "audience": {
+    "switchToBusiness": "Switch to Business",
+    "switchToUser": "Switch to User"
+  },
+  "loading": "Loading...",
+  "auth": {
+    "signUp": "Sign up",
+    "signIn": "Sign in"
+  },
+  "account": {
+    "menuAriaLabel": "Account menu",
+    "actorType": {
+      "business": "Business",
+      "customer": "Customer",
+      "employee": "Employee"
+    },
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "favorites": "Favorites",
+    "employeeArea": "Employee area",
+    "customerHome": "Customer home",
+    "language": "Language",
+    "logOut": "Log out"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "subscriptions": "Subscriptions",
+    "address": "Address",
+    "openHours": "Open hours",
+    "credentials": "Credentials",
+    "delivery": "Delivery",
+    "metrics": "Metrics",
+    "settings": "Settings"
+  },
+  "sidebar": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "toggleSidebar": "Toggle sidebar"
+  },
+  "footer": {
+    "srOnly": "Footer"
+  },
+  "marketing": {
+    "customer": {
+      "title": "For customers",
+      "description": "Discover restaurants, place orders quickly, and follow your service flow in one place.",
+      "highlights": {
+        "explore": "Browse businesses and choose where you want to order.",
+        "selfOrder": "Use self-ordering when available and track your order status in real time.",
+        "notifications": "Receive confirmations and updates directly in the app."
+      },
+      "footer": "Create your account to save your profile and start ordering faster."
+    },
+    "business": {
+      "title": "For restaurants and bars",
+      "description": "Run daily operations from one POS platform built for service speed and business control.",
+      "highlights": {
+        "pos": "Manage tables, sessions, and orders with a real-time POS workflow.",
+        "inventory": "Track inventory, purchases, and supplier data connected to what you sell.",
+        "reports": "Monitor performance with daily and monthly reporting dashboards."
+      },
+      "footer": "Create your business account to centralize operations, staff flow, and reporting."
+    }
+  }
+}

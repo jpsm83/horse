@@ -1,0 +1,452 @@
+/**
+ * aggregateDailyReportsIntoWeekly - Aggregates daily sales reports into weekly report
+ *
+ * Sums all calculated daily sales reports for a given week into the
+ * weekly business report. Also sums labour cost from Schedules.
+ */
+
+import mongoose, { Types } from "mongoose";
+import DailySalesReport from "../models/dailySalesReport.ts";
+import WeeklyBusinessReport from "../models/weeklyBusinessReport.ts";
+import Schedule from "../models/schedule.ts";
+import Business from "../models/business.ts";
+import isObjectIdValid from "../utils/isObjectIdValid.ts";
+import {
+  getWeekReference,
+  createWeeklyBusinessReport,
+} from "./createWeeklyBusinessReport.ts";
+import sendWeeklyReportReadyNotification from "./sendWeeklyReportReadyNotification.ts";
+import type {
+  IMetrics,
+  WeeklyReportOpen,
+} from "../../../packages/interfaces/IWeeklyBusinessReport.ts";
+import type { IGoodsReduced } from "../../../packages/interfaces/IDailySalesReport.ts";
+import type { IPaymentMethod } from "../../../packages/interfaces/IPaymentMethod.ts";
+import getWasteByBudgetImpactForMonth from "../inventories/getWasteByBudgetImpactForMonth.ts";
+import {
+  avgSpendPerCustomer,
+  calculateCostRatiosByTotalSales,
+  calculateFinancialPercentages,
+  contributionMarginRatio,
+  grossProfit,
+} from "../reports/businessMetrics/calculations.ts";
+import {
+  getVariableCostsV1,
+  mapDailyReportToCanonicalInputs,
+} from "../reports/businessMetrics/dataContract.ts";
+
+function getWeekEnd(weekStart: Date): Date {
+  const end = new Date(weekStart);
+  end.setDate(end.getDate() + 6);
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
+
+function getPreviousWeekStart(weekStart: Date): Date {
+  const prev = new Date(weekStart);
+  prev.setDate(prev.getDate() - 7);
+  return prev;
+}
+
+function mergeGoodsByBusinessGoodId(
+  acc: IGoodsReduced[],
+  items: IGoodsReduced[] | undefined,
+): void {
+  if (!items?.length) return;
+  items.forEach((item) => {
+    const idStr =
+      typeof item.businessGoodId === "object" && item.businessGoodId != null
+        ? (item.businessGoodId as Types.ObjectId).toString()
+        : String(item.businessGoodId);
+    const existing = acc.find(
+      (x) =>
+        (typeof x.businessGoodId === "object" && x.businessGoodId != null
+          ? (x.businessGoodId as Types.ObjectId).toString()
+          : String(x.businessGoodId)) === idStr,
+    );
+    if (existing) {
+      existing.quantity += item.quantity ?? 1;
+      existing.totalPrice = (existing.totalPrice ?? 0) + (item.totalPrice ?? 0);
+      existing.totalCostPrice =
+        (existing.totalCostPrice ?? 0) + (item.totalCostPrice ?? 0);
+    } else {
+      acc.push({
+        businessGoodId: item.businessGoodId as Types.ObjectId,
+        quantity: item.quantity ?? 1,
+        totalPrice: item.totalPrice ?? 0,
+        totalCostPrice: item.totalCostPrice ?? 0,
+      });
+    }
+  });
+}
+
+function mergePaymentMethods(
+  acc: IPaymentMethod[],
+  methods: IPaymentMethod[] | undefined,
+): void {
+  if (!methods?.length) return;
+  methods.forEach((pm) => {
+    const existing = acc.find(
+      (p) =>
+        p.paymentMethodType === pm.paymentMethodType &&
+        p.methodBranch === pm.methodBranch,
+    );
+    if (existing) {
+      existing.methodSalesTotal += pm.methodSalesTotal ?? 0;
+    } else {
+      acc.push({
+        paymentMethodType: pm.paymentMethodType,
+        methodBranch: pm.methodBranch,
+        methodSalesTotal: pm.methodSalesTotal ?? 0,
+      });
+    }
+  });
+}
+
+/**
+ * Aggregates calculated daily sales reports for a given week into the
+ * weekly business report. Also sums labour cost from Schedules.
+ * Weekly reports ignore fixed/extra costs and focus on variable performance.
+ */
+const aggregateDailyReportsIntoWeekly = async (
+  businessId: Types.ObjectId,
+  anyDateInWeek: Date,
+  weeklyReportStartDay: number,
+): Promise<void> => {
+  if (isObjectIdValid([businessId]) !== true) {
+    return;
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  let shouldSendReadyNotification = false;
+  let closedWeekLabel: string | null = null;
+
+  try {
+    const weekReference = getWeekReference(anyDateInWeek, weeklyReportStartDay);
+    const report = await createWeeklyBusinessReport(
+      businessId,
+      weekReference,
+      session,
+    );
+    if (!report) {
+      await session.abortTransaction();
+      return;
+    }
+
+    const reportId = (report as WeeklyReportOpen)._id;
+    const weekStart = weekReference;
+    const weekEnd = getWeekEnd(weekStart);
+    const previousWeekStart = getPreviousWeekStart(weekStart);
+    const previousWeekEnd = getWeekEnd(previousWeekStart);
+
+    const openPreviousWeekReport = (await WeeklyBusinessReport.findOne({
+      businessId,
+      weekReference: previousWeekStart,
+      isReportOpen: true,
+    })
+      .select("_id weekReference isReportOpen")
+      .session(session)
+      .lean()) as {
+      _id: Types.ObjectId;
+      weekReference: Date;
+      isReportOpen?: boolean;
+    } | null;
+
+    if (openPreviousWeekReport) {
+      const openDailyInPreviousWeek = await DailySalesReport.exists({
+        businessId,
+        createdAt: { $gte: previousWeekStart, $lte: previousWeekEnd },
+        isDailyReportOpen: true,
+      }).session(session);
+
+      if (!openDailyInPreviousWeek) {
+        const closeResult = await WeeklyBusinessReport.updateOne(
+          { _id: openPreviousWeekReport._id, isReportOpen: true },
+          { $set: { isReportOpen: false } },
+          { session },
+        );
+        // Send ready-notification only when this execution actually closes
+        // the previous weekly report (idempotent close gate).
+        if (closeResult.modifiedCount === 1) {
+          shouldSendReadyNotification = true;
+          closedWeekLabel = previousWeekStart.toISOString().slice(0, 10);
+        }
+      }
+    }
+
+    // Sequential reads on `session`: one ClientSession must not run operations in parallel.
+    const dailyReports = await DailySalesReport.find({
+      businessId,
+      createdAt: { $gte: weekStart, $lte: weekEnd },
+      dailyNetPaidAmount: { $exists: true, $ne: null },
+    })
+      .select(
+        "dailyTotalSalesBeforeAdjustments dailyNetPaidAmount dailyCostOfGoodsSold dailyTipsReceived dailyTotalVoidValue dailyTotalInvitedValue dailyCustomersServed dailyPosSystemCommission businessPaymentMethods dailySoldGoods dailyVoidedGoods dailyInvitedGoods",
+      )
+      .session(session)
+      .lean();
+
+    const schedules = await Schedule.find({
+      businessId,
+      date: { $gte: weekStart, $lte: weekEnd },
+    })
+      .select("totalDayEmployeesCost")
+      .session(session)
+      .lean();
+
+    const supplierWasteAnalysis = await getWasteByBudgetImpactForMonth(
+      businessId,
+      weekStart,
+    );
+
+    const businessDoc = await Business.findById(businessId)
+      .select("metrics")
+      .session(session)
+      .lean();
+
+    let totalSalesForWeek = 0;
+    let totalNetRevenue = 0;
+    let totalCostOfGoodsSold = 0;
+    let totalTips = 0;
+    let totalVoidSales = 0;
+    let totalInvitedSales = 0;
+    let totalCustomersServed = 0;
+    let posSystemCommission = 0;
+    const paymentMethodsAcc: IPaymentMethod[] = [];
+    const goodsSoldAcc: IGoodsReduced[] = [];
+    const goodsVoidedAcc: IGoodsReduced[] = [];
+    const goodsComplimentaryAcc: IGoodsReduced[] = [];
+
+    for (const d of dailyReports) {
+      const mapped = mapDailyReportToCanonicalInputs(d as any);
+      totalSalesForWeek += mapped.totalSales;
+      totalNetRevenue += mapped.netRevenue;
+      totalCostOfGoodsSold += mapped.cogs;
+      totalTips += mapped.tips;
+      totalVoidSales += mapped.voidSales;
+      totalInvitedSales += mapped.invitedSales;
+      totalCustomersServed += mapped.customersServed;
+      posSystemCommission += mapped.posSystemCommission;
+      mergePaymentMethods(paymentMethodsAcc, mapped.paymentMethods);
+      mergeGoodsByBusinessGoodId(goodsSoldAcc, mapped.soldGoods);
+      mergeGoodsByBusinessGoodId(goodsVoidedAcc, mapped.voidedGoods);
+      mergeGoodsByBusinessGoodId(goodsComplimentaryAcc, mapped.invitedGoods);
+    }
+
+    const totalGrossProfit = grossProfit(totalNetRevenue, totalCostOfGoodsSold);
+    const totalLaborCost = (
+      schedules as { totalDayEmployeesCost?: number }[]
+    ).reduce((sum, s) => sum + (s.totalDayEmployeesCost ?? 0), 0);
+
+    const totalFoodCost = totalCostOfGoodsSold;
+    const totalBeverageCost = 0;
+    const totalOperatingCost =
+      totalFoodCost + totalBeverageCost + totalLaborCost;
+
+    const { foodCostRatio, beverageCostRatio, laborCostRatio } =
+      calculateCostRatiosByTotalSales({
+        totalSales: totalSalesForWeek,
+        totalFoodCost,
+        totalBeverageCost,
+        totalLaborCost,
+      });
+
+    const {
+      profitMarginPercentage,
+      voidSalesPercentage,
+      invitedSalesPercentage,
+      salesPaymentCompletionPercentage,
+      tipsToCostOfGoodsPercentage,
+    } = calculateFinancialPercentages({
+      totalSales: totalSalesForWeek,
+      totalNetRevenue,
+      totalGrossProfit,
+      totalVoidSales,
+      totalInvitedSales,
+      totalTips,
+      totalCostOfGoodsSold,
+    });
+
+    const averageSpendingPerCustomer = avgSpendPerCustomer(
+      totalNetRevenue,
+      totalCustomersServed,
+    );
+
+    // Phase-3 data contract: V1 variable costs are COGS + labor.
+    // Utilities are intentionally excluded until explicit source fields exist.
+    const _v1VariableCosts = getVariableCostsV1(totalCostOfGoodsSold, totalLaborCost);
+    const _v1ContributionMarginRatio = contributionMarginRatio(
+      totalSalesForWeek,
+      _v1VariableCosts,
+    );
+    void _v1ContributionMarginRatio;
+
+    const metrics = (businessDoc as { metrics?: IMetrics | null } | null)
+      ?.metrics;
+
+    const metricsComparison =
+      metrics && totalOperatingCost > 0
+        ? {
+            foodCostPercentage: {
+              targetValue: metrics.foodCostPercentage,
+              actualValue: foodCostRatio * 100,
+              delta: foodCostRatio * 100 - metrics.foodCostPercentage,
+              isOverTarget: foodCostRatio * 100 > metrics.foodCostPercentage,
+              isUnderTarget: foodCostRatio * 100 < metrics.foodCostPercentage,
+            },
+            laborCostPercentage: {
+              targetValue: metrics.laborCostPercentage,
+              actualValue: laborCostRatio * 100,
+              delta: laborCostRatio * 100 - metrics.laborCostPercentage,
+              isOverTarget: laborCostRatio * 100 > metrics.laborCostPercentage,
+              isUnderTarget: laborCostRatio * 100 < metrics.laborCostPercentage,
+            },
+            supplierGoodWastePercentage: supplierWasteAnalysis
+              ? {
+                  veryLowBudgetImpact: {
+                    targetValue:
+                      metrics.supplierGoodWastePercentage.veryLowBudgetImpact,
+                    actualValue:
+                      supplierWasteAnalysis.veryLowImpactWastePercentage ?? 0,
+                    delta:
+                      (supplierWasteAnalysis.veryLowImpactWastePercentage ??
+                        0) -
+                      metrics.supplierGoodWastePercentage.veryLowBudgetImpact,
+                    isOverTarget:
+                      (supplierWasteAnalysis.veryLowImpactWastePercentage ??
+                        0) >
+                      metrics.supplierGoodWastePercentage.veryLowBudgetImpact,
+                    isUnderTarget:
+                      (supplierWasteAnalysis.veryLowImpactWastePercentage ??
+                        0) <
+                      metrics.supplierGoodWastePercentage.veryLowBudgetImpact,
+                  },
+                  lowBudgetImpact: {
+                    targetValue:
+                      metrics.supplierGoodWastePercentage.lowBudgetImpact,
+                    actualValue:
+                      supplierWasteAnalysis.lowImpactWastePercentage ?? 0,
+                    delta:
+                      (supplierWasteAnalysis.lowImpactWastePercentage ?? 0) -
+                      metrics.supplierGoodWastePercentage.lowBudgetImpact,
+                    isOverTarget:
+                      (supplierWasteAnalysis.lowImpactWastePercentage ?? 0) >
+                      metrics.supplierGoodWastePercentage.lowBudgetImpact,
+                    isUnderTarget:
+                      (supplierWasteAnalysis.lowImpactWastePercentage ?? 0) <
+                      metrics.supplierGoodWastePercentage.lowBudgetImpact,
+                  },
+                  mediumBudgetImpact: {
+                    targetValue:
+                      metrics.supplierGoodWastePercentage.mediumBudgetImpact,
+                    actualValue:
+                      supplierWasteAnalysis.mediumImpactWastePercentage ?? 0,
+                    delta:
+                      (supplierWasteAnalysis.mediumImpactWastePercentage ?? 0) -
+                      metrics.supplierGoodWastePercentage.mediumBudgetImpact,
+                    isOverTarget:
+                      (supplierWasteAnalysis.mediumImpactWastePercentage ?? 0) >
+                      metrics.supplierGoodWastePercentage.mediumBudgetImpact,
+                    isUnderTarget:
+                      (supplierWasteAnalysis.mediumImpactWastePercentage ?? 0) <
+                      metrics.supplierGoodWastePercentage.mediumBudgetImpact,
+                  },
+                  hightBudgetImpact: {
+                    targetValue:
+                      metrics.supplierGoodWastePercentage.hightBudgetImpact,
+                    actualValue:
+                      supplierWasteAnalysis.highImpactWastePercentage ?? 0,
+                    delta:
+                      (supplierWasteAnalysis.highImpactWastePercentage ?? 0) -
+                      metrics.supplierGoodWastePercentage.hightBudgetImpact,
+                    isOverTarget:
+                      (supplierWasteAnalysis.highImpactWastePercentage ?? 0) >
+                      metrics.supplierGoodWastePercentage.hightBudgetImpact,
+                    isUnderTarget:
+                      (supplierWasteAnalysis.highImpactWastePercentage ?? 0) <
+                      metrics.supplierGoodWastePercentage.hightBudgetImpact,
+                  },
+                  veryHightBudgetImpact: {
+                    targetValue:
+                      metrics.supplierGoodWastePercentage.veryHightBudgetImpact,
+                    actualValue:
+                      supplierWasteAnalysis.veryHighImpactWastePercentage ?? 0,
+                    delta:
+                      (supplierWasteAnalysis.veryHighImpactWastePercentage ??
+                        0) -
+                      metrics.supplierGoodWastePercentage.veryHightBudgetImpact,
+                    isOverTarget:
+                      (supplierWasteAnalysis.veryHighImpactWastePercentage ??
+                        0) >
+                      metrics.supplierGoodWastePercentage.veryHightBudgetImpact,
+                    isUnderTarget:
+                      (supplierWasteAnalysis.veryHighImpactWastePercentage ??
+                        0) <
+                      metrics.supplierGoodWastePercentage.veryHightBudgetImpact,
+                  },
+                }
+              : undefined,
+          }
+        : undefined;
+
+    await WeeklyBusinessReport.updateOne(
+      { _id: reportId },
+      {
+        $set: {
+          financialSummary: {
+            totalSalesForWeek,
+            totalCostOfGoodsSold,
+            totalNetRevenue,
+            totalGrossProfit,
+            totalVoidSales,
+            totalInvitedSales,
+            totalTips,
+            financialPercentages: {
+              salesPaymentCompletionPercentage,
+              profitMarginPercentage,
+              voidSalesPercentage,
+              invitedSalesPercentage,
+              tipsToCostOfGoodsPercentage,
+            },
+          },
+          costBreakdown: {
+            totalFoodCost,
+            totalBeverageCost,
+            totalLaborCost,
+            totalOperatingCost,
+            costPercentages: {
+              foodCostRatio,
+              beverageCostRatio,
+              laborCostRatio,
+            },
+          },
+          goodsSold: goodsSoldAcc,
+          goodsVoided: goodsVoidedAcc,
+          goodsComplimentary: goodsComplimentaryAcc,
+          supplierWasteAnalysis,
+          metricsComparison,
+          totalCustomersServed,
+          averageSpendingPerCustomer,
+          paymentMethods: paymentMethodsAcc,
+          posSystemCommission,
+        },
+      },
+      { session },
+    );
+
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+
+  if (shouldSendReadyNotification && closedWeekLabel) {
+    // Product requirement: notify managers when a weekly report is finalized.
+    await sendWeeklyReportReadyNotification(businessId, closedWeekLabel);
+  }
+};
+
+export default aggregateDailyReportsIntoWeekly;
