@@ -3,7 +3,7 @@ import connectDb from "@/lib/db.ts";
 import { withRoute, ok } from "@/lib/api/response.ts";
 import { refreshSchema } from "@/lib/validations/auth.ts";
 import { AUTH_CONFIG } from "@/lib/auth/config.ts";
-import { setRefreshCookie } from "@/lib/auth/jwt.ts";
+import { attachSessionCookies } from "@/lib/auth/establishSession.ts";
 import * as authService from "@/lib/services/authService.ts";
 
 export async function POST(request: Request) {
@@ -23,11 +23,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await authService.refresh(refreshToken);
-    const response = ok(result);
-    if ("refreshToken" in result && result.refreshToken) {
-      setRefreshCookie(response, result.refreshToken);
-    }
+    const tokens = await authService.refresh(refreshToken);
+    const response = ok(tokens);
+    attachSessionCookies(response, tokens);
     return response;
   });
 }

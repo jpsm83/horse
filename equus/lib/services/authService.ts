@@ -1,14 +1,20 @@
-﻿import bcrypt from "bcrypt";
+﻿/**
+ * Auth service — authentication use cases (login, register, refresh, logout).
+ *
+ * Called by:
+ * - REST routes under `app/api/v1/auth/*` (login, register, refresh, logout)
+ * - NextAuth callbacks in `lib/auth/auth.ts` (validateCredentials, buildSessionForUserId)
+ *
+ * Does not set HTTP cookies here. Route handlers call `establishSession` then
+ * `attachSessionCookies` on the response. Token signing lives in `lib/auth/establishSession.ts`.
+ */
+
+import bcrypt from "bcrypt";
 import type { NextResponse } from "next/server";
 import { ApiError } from "../api/errors.ts";
 import User from "../../models/User.ts";
-import {
-  signAccessToken,
-  signRefreshToken,
-  verifyRefreshToken,
-  setRefreshCookie,
-  clearRefreshCookie,
-} from "../auth/jwt.ts";
+import { verifyRefreshToken, clearAuthCookies } from "../auth/jwt.ts";
+import { establishSession, type SessionTokens } from "../auth/establishSession.ts";
 import {
   buildAuthUserSessionFromUserId,
   readRefreshSessionVersionForUser,
@@ -18,31 +24,11 @@ import { handleRequestEmailConfirmation } from "../auth/requestEmailConfirmation
 import type { AuthUser } from "../auth/types.ts";
 import * as userService from "./userService.ts";
 
-export type AuthTokensResult = {
-  accessToken: string;
-  refreshToken: string;
-  user: AuthUser;
-};
+export type AuthTokensResult = SessionTokens;
 
-async function issueTokens(
-  session: AuthUser,
-  refreshSessionVersion: number,
-  response?: NextResponse,
-): Promise<AuthTokensResult> {
-  const accessToken = await signAccessToken(session);
-  const refreshToken = await signRefreshToken({
-    id: session.id,
-    type: "user",
-    v: refreshSessionVersion,
-  });
+// --- Session helpers (used by NextAuth and token verification) ---
 
-  if (response) {
-    setRefreshCookie(response, refreshToken);
-  }
-
-  return { accessToken, refreshToken, user: session };
-}
-
+/** Load the JWT/session payload for a user id; throws if the user is missing or inactive. */
 export async function buildSessionForUserId(userId: string): Promise<AuthUser> {
   const session = await buildAuthUserSessionFromUserId(userId);
   if (!session) {
@@ -51,11 +37,19 @@ export async function buildSessionForUserId(userId: string): Promise<AuthUser> {
   return session;
 }
 
+/** Decode and validate an access JWT string into an AuthUser. */
 export async function getSessionFromAccessToken(token: string): Promise<AuthUser> {
   const { verifyAccessToken } = await import("../auth/jwt.ts");
   return verifyAccessToken(token);
 }
 
+// --- Credential validation (email + password) ---
+
+/**
+ * Check email/password against the database.
+ * Returns the auth user on success, or `null` if credentials are wrong or the account cannot sign in.
+ * Updates `lastLoginAt` on success.
+ */
 export async function validateCredentials(email: string, password: string) {
   const normalizedEmail = email.toLowerCase().trim();
   const user = await User.findOne({ "personalDetails.email": normalizedEmail })
@@ -78,22 +72,19 @@ export async function validateCredentials(email: string, password: string) {
 
   await User.updateOne({ _id: user._id }, { $set: { lastLoginAt: new Date() } });
 
-  return {
-    ...session,
-    refreshSessionVersion: user.refreshSessionVersion ?? 0,
-  };
+  return session;
 }
 
-export async function register(
-  input: {
-    email: string;
-    password: string;
-    username?: string;
-    firstName?: string;
-    lastName?: string;
-  },
-  response?: NextResponse,
-) {
+// --- Public auth flows (REST API) ---
+
+/** Create a new credentials user, issue tokens, and queue the confirmation email. */
+export async function register(input: {
+  email: string;
+  password: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+}) {
   const normalizedEmail = input.email.toLowerCase().trim();
   const existing = await userService.findByEmail(normalizedEmail);
   if (existing) {
@@ -101,29 +92,29 @@ export async function register(
   }
 
   const createdUser = await userService.createMinimalUser(input);
-  const session = await buildAuthUserSessionFromUserId(String(createdUser._id));
-  if (!session) {
-    throw new ApiError(500, "Failed to create session", "INTERNAL_ERROR");
-  }
+  const tokens = await establishSession(String(createdUser._id));
 
-  const tokens = await issueTokens(session, createdUser.refreshSessionVersion ?? 0, response);
-
+  // Fire-and-forget; registration should not fail if email delivery fails.
   handleRequestEmailConfirmation(normalizedEmail).catch(() => undefined);
 
   return tokens;
 }
 
-export async function login(email: string, password: string, response?: NextResponse) {
-  const result = await validateCredentials(email, password);
-  if (!result) {
+/** Validate credentials and issue a new access + refresh token pair. */
+export async function login(email: string, password: string) {
+  const session = await validateCredentials(email, password);
+  if (!session) {
     throw new ApiError(401, "Invalid credentials", "UNAUTHORIZED");
   }
 
-  const { refreshSessionVersion, ...session } = result;
-  return issueTokens(session, refreshSessionVersion ?? 0, response);
+  return establishSession(session.id);
 }
 
-export async function refresh(refreshToken: string, response?: NextResponse) {
+/**
+ * Validate a refresh token and issue new tokens.
+ * Rejects tokens whose version no longer matches the DB (e.g. after password reset).
+ */
+export async function refresh(refreshToken: string) {
   let payload;
   try {
     payload = await verifyRefreshToken(refreshToken);
@@ -140,20 +131,10 @@ export async function refresh(refreshToken: string, response?: NextResponse) {
     throw new ApiError(401, "Invalid or expired refresh token", "UNAUTHORIZED");
   }
 
-  const session = await buildAuthUserSessionFromUserId(payload.id);
-  if (!session) {
-    throw new ApiError(401, "User not found", "UNAUTHORIZED");
-  }
-
-  const accessToken = await signAccessToken(session);
-  const newRefresh = await signRefreshToken({ id: session.id, type: "user", v: dbVersion });
-  if (response) {
-    setRefreshCookie(response, newRefresh);
-  }
-  return { accessToken, refreshToken: newRefresh, user: session };
+  return establishSession(payload.id);
 }
 
+/** Clear httpOnly auth cookies on the response. */
 export function logout(response: NextResponse) {
-  clearRefreshCookie(response);
+  clearAuthCookies(response);
 }
-

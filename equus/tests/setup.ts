@@ -7,6 +7,7 @@ let mongoServer: MongoMemoryServer | null = null;
 beforeAll(async () => {
   process.env.AUTH_SECRET ??= "test-auth-secret";
   process.env.REFRESH_SECRET ??= "test-refresh-secret";
+  process.env.AUTH_URL ??= "http://localhost:3000";
 
   mongoServer = await MongoMemoryServer.create();
   await mongoose.connect(mongoServer.getUri(), { dbName: "equus-test" });

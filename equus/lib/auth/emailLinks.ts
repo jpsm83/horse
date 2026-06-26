@@ -1,4 +1,4 @@
-﻿const BASE_ENV_KEYS = ["AUTH_URL", "APP_BASE_URL", "PUBLIC_APP_URL", "NEXTAUTH_URL"] as const;
+﻿import { AUTH_CONFIG } from "./config.ts";
 
 export const AUTH_EMAIL_PATH_CONFIRM_EMAIL = "confirm-email";
 export const AUTH_EMAIL_PATH_RESET_PASSWORD = "reset-password";
@@ -35,20 +35,7 @@ export function normalizeAppBaseUrl(input: string): string | null {
 }
 
 export function resolveAppBaseUrl(): string {
-  if (process.env.NODE_ENV === "development") {
-    return process.env.AUTH_URL?.trim() || "http://localhost:3000";
-  }
-
-  for (const key of BASE_ENV_KEYS) {
-    const raw = process.env[key]?.trim();
-    if (!raw) continue;
-    const base = normalizeAppBaseUrl(raw);
-    if (base) return base;
-  }
-
-  throw new Error(
-    "Auth email links: no trusted app base URL. Set AUTH_URL (or APP_BASE_URL, PUBLIC_APP_URL).",
-  );
+  return normalizeAppBaseUrl(AUTH_CONFIG.APP_URL) ?? AUTH_CONFIG.APP_URL;
 }
 
 function buildAuthPageLink(pathSegment: string, rawToken: string): string {

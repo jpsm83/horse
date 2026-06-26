@@ -1,15 +1,13 @@
 ﻿import { ApiError } from "../api/errors.ts";
-import { verifyAccessToken } from "./jwt.ts";
+import { getAccessTokenFromRequest, verifyAccessToken } from "./jwt.ts";
 import type { AuthUser } from "./types.ts";
 
 export async function requireAuthFromRequest(request: Request): Promise<AuthUser> {
-  const authHeader = request.headers.get("authorization");
+  const token = getAccessTokenFromRequest(request);
 
-  if (!authHeader?.startsWith("Bearer ")) {
+  if (!token) {
     throw new ApiError(401, "No access token provided", "UNAUTHORIZED");
   }
-
-  const token = authHeader.slice(7);
 
   try {
     return await verifyAccessToken(token);

@@ -1,17 +1,18 @@
 ﻿import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { AUTH_CONFIG } from "./config.ts";
 import connectDb from "../db.ts";
 import * as authService from "../services/authService.ts";
 import * as userService from "../services/userService.ts";
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.AUTH_SECRET,
+  secret: AUTH_CONFIG.SECRET,
   session: { strategy: "jwt" },
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      clientId: AUTH_CONFIG.GOOGLE_CLIENT_ID,
+      clientSecret: AUTH_CONFIG.GOOGLE_CLIENT_SECRET,
     }),
     CredentialsProvider({
       name: "Credentials",
