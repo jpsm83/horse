@@ -1,4 +1,5 @@
 ﻿import { AUTH_CONFIG } from "./config.ts";
+import { buildLocalizedAppLink } from "@/i18n/appLinks.ts";
 
 export const AUTH_EMAIL_PATH_CONFIRM_EMAIL = "confirm-email";
 export const AUTH_EMAIL_PATH_RESET_PASSWORD = "reset-password";
@@ -38,22 +39,18 @@ export function resolveAppBaseUrl(): string {
   return normalizeAppBaseUrl(AUTH_CONFIG.APP_URL) ?? AUTH_CONFIG.APP_URL;
 }
 
-function buildAuthPageLink(pathSegment: string, rawToken: string): string {
+export function buildConfirmEmailLink(rawToken: string, locale?: string): string {
   const token = rawToken.trim();
   if (!token) {
     throw new Error("Token is required");
   }
-
-  const base = resolveAppBaseUrl();
-  const baseForResolve = base.endsWith("/") ? base : `${base}/`;
-  const query = new URLSearchParams({ token }).toString();
-  return new URL(`${pathSegment}?${query}`, baseForResolve).href;
+  return buildLocalizedAppLink(locale, AUTH_EMAIL_PATH_CONFIRM_EMAIL, { token });
 }
 
-export function buildConfirmEmailLink(rawToken: string): string {
-  return buildAuthPageLink(AUTH_EMAIL_PATH_CONFIRM_EMAIL, rawToken);
-}
-
-export function buildResetPasswordLink(rawToken: string): string {
-  return buildAuthPageLink(AUTH_EMAIL_PATH_RESET_PASSWORD, rawToken);
+export function buildResetPasswordLink(rawToken: string, locale?: string): string {
+  const token = rawToken.trim();
+  if (!token) {
+    throw new Error("Token is required");
+  }
+  return buildLocalizedAppLink(locale, AUTH_EMAIL_PATH_RESET_PASSWORD, { token });
 }

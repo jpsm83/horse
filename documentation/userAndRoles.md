@@ -73,10 +73,10 @@ Preset levels on `RoleMembership.staffRole`:
 | Capability | Owner | admin | manager | staff |
 |------------|-------|-------|---------|-------|
 | `manage_staff` | yes | yes | no | no |
-| `edit_profile` | yes | yes | no | no |
+| `edit_profile` | yes | yes | yes | no |
 | `view_profile` | yes | yes | yes | yes |
 
-Only **owner** or **admin** staff may edit the business profile document. Future `PATCH` routes for stables/breeders/etc. use `requireRoleProfileAccess(..., "edit_profile")`.
+Owner, **admin**, or **manager** staff may edit the business profile document. Only **owner** or **admin** staff may manage other staff. Future `PATCH` routes for stables/breeders/etc. use `requireRoleProfileAccess(..., "edit_profile")`.
 
 ### Staff API
 

@@ -12,6 +12,7 @@
 
 import bcrypt from "bcrypt";
 import User from "../../models/User.ts";
+import { normalizeLocale } from "@/i18n/resolveLocale.ts";
 import { isProfileComplete } from "../auth/session.ts";
 import type { AuthProvider, GoogleProfileInput } from "../auth/types.ts";
 import uploadFilesCloudinary from "../cloudinary/uploadFilesCloudinary.ts";
@@ -24,6 +25,7 @@ import type { UploadInputFile } from "../cloudinary/types.ts";
 import type { z } from "zod";
 import type { updatePersonalDetailsSchema } from "../validations/user.ts";
 import { linkInvitesByEmail } from "./roleMembershipService.ts";
+import { linkRelationshipByReferral } from "./relationshipService.ts";
 
 export type UpdatePersonalDetailsInput = z.infer<typeof updatePersonalDetailsSchema>;
 
@@ -108,6 +110,8 @@ export async function createCredentialsUser(input: {
   username?: string;
   firstName?: string;
   lastName?: string;
+  referralReference?: string;
+  preferredLanguage?: string;
 }) {
   const normalizedEmail = input.email.toLowerCase().trim();
   const hashedPassword = await bcrypt.hash(input.password, 10);
@@ -124,6 +128,7 @@ export async function createCredentialsUser(input: {
   if (username) personalDetails.username = username.slice(0, 50);
   if (firstName) personalDetails.firstName = firstName.slice(0, 50);
   if (lastName) personalDetails.lastName = lastName.slice(0, 50);
+  personalDetails.preferredLanguage = normalizeLocale(input.preferredLanguage);
 
   const user = await User.create({
     authProvider: "credentials",
@@ -131,6 +136,14 @@ export async function createCredentialsUser(input: {
   });
 
   await linkInvitesByEmail(normalizedEmail, String(user._id));
+
+  if (input.referralReference?.trim()) {
+    await linkRelationshipByReferral(
+      input.referralReference.trim(),
+      String(user._id),
+      normalizedEmail,
+    );
+  }
 
   return user;
 }

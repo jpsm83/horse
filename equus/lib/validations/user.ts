@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import { genderEnums, idTypeEnums } from "../../utils/enums.ts";
+import { genderEnums, idTypeEnums, appLocaleEnums } from "../../utils/enums.ts";
 
 export const addressSchema = z.object({
   country: z.string().trim().min(1),
@@ -34,6 +34,6 @@ export const updatePersonalDetailsSchema = z.object({
   birthDate: z.coerce.date().optional(),
   phoneNumber: z.string().trim().min(1).optional(),
   bio: z.string().trim().max(2000).optional(),
-  preferredLanguage: z.string().trim().min(2).max(10).optional(),
+  preferredLanguage: z.enum(appLocaleEnums).optional(),
   timezone: z.string().trim().min(1).optional(),
 });

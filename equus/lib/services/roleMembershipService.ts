@@ -20,6 +20,7 @@ import {
 } from "../roleProfiles/businessRoleProfile.ts";
 import type { z } from "zod";
 import type { inviteStaffSchema, updateStaffRoleSchema } from "../validations/roleMembership.ts";
+import { sendStaffInviteEmail } from "../email/sendStaffInviteEmail.ts";
 
 export type InviteStaffInput = z.infer<typeof inviteStaffSchema>;
 export type UpdateStaffRoleInput = z.infer<typeof updateStaffRoleSchema>;
@@ -217,6 +218,32 @@ export async function inviteStaff(
     status: "invited",
     invitedByUserId: actorUserId,
   });
+
+  const profileName =
+    (await getProfileDisplayName(roleType, roleProfileId)) ?? "your organization";
+
+  try {
+    const inviteeLocale = invitee
+      ? (
+          invitee.personalDetails as { preferredLanguage?: string } | undefined
+        )?.preferredLanguage
+      : undefined;
+
+    await sendStaffInviteEmail({
+      membershipId: String(membership._id),
+      invitedEmail: normalizedEmail,
+      profileName,
+      roleType,
+      staffRole: input.staffRole,
+      invitedByUserId: actorUserId,
+      inviteeUserId: invitee ? String(invitee._id) : undefined,
+      locale: inviteeLocale,
+    });
+  } catch (error) {
+    await RoleMembership.deleteOne({ _id: membership._id });
+    console.error("Failed to send staff invite email:", error);
+    throw new ApiError(500, "Failed to send invitation email. Please try again later.", "INTERNAL_ERROR");
+  }
 
   return toPublicMembership(membership.toObject() as Record<string, unknown>);
 }

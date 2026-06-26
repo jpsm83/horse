@@ -12,7 +12,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 |-------|--------|
 | Framework | **Next.js 16** (App Router) |
 | **Backend API** | Versioned REST under `app/api/v1/` (route handlers) |
-| UI (web client) | **React 19**, TypeScript, TailwindCSS (`app/`) |
+| UI (web client) | **React 19**, TypeScript, TailwindCSS (`app/`), **next-intl** (`en` / `es`) |
 | Auth | httpOnly cookies (web) + JWT Bearer (mobile/API); `lib/auth/establishSession.ts`; Google via NextAuth + `POST /api/v1/auth/session` bridge |
 | Data | MongoDB via Mongoose (`models/`, `lib/db.ts`) |
 | Tests | Vitest (`npm test`) |
@@ -45,9 +45,18 @@ tests/         → Vitest tests mirroring lib/
 * **App Router only** — pages and layouts live in `app/` (`page.tsx`, `layout.tsx`). There is no `pages/` directory.
 * **Route Handlers** — REST endpoints are `app/api/**/route.ts` files exporting HTTP method functions (`GET`, `POST`, etc.). Prefer `app/api/v1/` for product APIs consumed by web and mobile.
 * **Server vs client** — default to Server Components; add `"use client"` only when the component needs browser APIs, hooks, or event handlers.
+* **Global chrome** — all locale UI pages under `app/[locale]/` render inside `AppShell` (`components/layout/app-shell.tsx`): a **discover sidebar icon rail** on desktop (`DiscoverSidebar`, expands on hover; Equus brand in sidebar header) plus a separate sticky `AppHeader` (locale switcher, user menu; `DiscoverMobileMenu` on small screens). New screens should not add duplicate side nav, top nav, or locale switchers.
 * **Imports** — use the `@/` path alias for project modules (e.g. `@/lib/services/authService.ts`).
 * **Env vars** — auth secrets and URLs are read in `lib/auth/config.ts` (`AUTH_SECRET`, `REFRESH_SECRET`, `AUTH_URL`, Google OAuth). Other server-only vars are read in route handlers or `lib/`. Never expose secrets to client components.
 * **Docs** — when unsure about a Next.js API for this version, check `node_modules/next/dist/docs/` before guessing.
+
+### Web UI i18n
+
+* **Locales** — `en` (default, unprefixed URLs) and `es` (`/es/…`). See [`documentation/i18n.md`](../documentation/i18n.md).
+* **Strings** — `messages/en.json` and `messages/es.json`; use `useTranslations` / `getTranslations`. No hardcoded user-facing copy in components.
+* **Navigation** — use `@/i18n/navigation` (`Link`, `useRouter`, `redirect`), not `next/link`, for in-app routes under `app/[locale]/`.
+* **User preference** — `personalDetails.preferredLanguage`; sync `NEXT_LOCALE` cookie on register, login, switcher, and profile save.
+* **API** — keep route handlers locale-agnostic; clients translate `error.code`.
 
 # Senior Next.js / React Engineer Agent
 
@@ -133,6 +142,14 @@ Your primary goals are:
 * Use TailwindCSS utilities consistently.
 * Prefer reusable UI primitives already available in the project.
 * Avoid custom styling solutions when existing project patterns cover the requirement.
+
+#### Forms (web UI)
+
+* Use **React Hook Form** + **Zod** (`zodResolver`) + shadcn **Field** primitives per [shadcn React Hook Form](https://ui.shadcn.com/docs/forms/react-hook-form).
+* Each input: `Controller` → `Field` + `FieldLabel` + control + `FieldError` under the input when invalid; set `data-invalid` and `aria-invalid` on errors.
+* Client schemas live in `lib/validations/*Forms.ts` (or shared `lib/validations/`); do not rely on native HTML `required` for Zod-managed fields (use `noValidate` on `<form>`).
+* **Field-level** messages for validation; **top Alert** (or `form.setError` when API returns `error.fields`) for server/auth failures.
+* Reuse [`components/forms/text-field.tsx`](components/forms/text-field.tsx) for simple text inputs when it fits.
 
 ### 10. Performance
 
@@ -243,6 +260,6 @@ models/
 ### User and roles
 
 - One `User` per email; **roles** are linked profile documents (`stableProfileIds`, `trainerProfileId`, horses via `mainOwnerUserId`, etc.).
-- **Staff** on business profiles (stable, breeder, riding club, transport) use `RoleMembership` — workers are regular users invited by email; never add staff to `User.*ProfileIds`. Only owner or `admin` staff may `edit_profile`.
+- **Staff** on business profiles (stable, breeder, riding club, transport) use `RoleMembership` — workers are regular users invited by email; never add staff to `User.*ProfileIds`. Owner, `admin`, or `manager` staff may `edit_profile`; only owner or `admin` staff may `manage_staff`.
 - No `activeAccountContext`; no user-level `ownerPreferences`. Horse discovery is per-horse. See [`documentation/userAndRoles.md`](../documentation/userAndRoles.md).
 - **Horse discovery:** `profileVisibility` (default `public`) and `contactDisplay` on `Horse`; validated by `lib/validations/horse.ts` for future `PATCH /api/v1/horses/:id/discovery`.

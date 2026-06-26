@@ -138,7 +138,7 @@ Stable owner opens staff management
       → If email exists on platform: user sees pending invite on GET /users/me/workplaces
       → If email not registered: invite stored; user signs up with same email → invite linked
   → Invitee accepts or declines (POST .../memberships/:id/accept or /decline)
-  → On accept: staff can view stable; only owner or admin staff can edit profile or manage other staff
+  → On accept: staff can view stable; owner, admin, or manager staff can edit profile; only owner or admin staff can manage other staff
 ```
 
 Example: owner invites an existing veterinarian (already on the app) to help manage the stable page — vet keeps their own profile; workplace access is via `RoleMembership` only.

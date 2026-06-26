@@ -1,6 +1,7 @@
 ﻿import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { ApiError } from "../api/errors.ts";
 import { AUTH_CONFIG } from "./config.ts";
 import connectDb from "../db.ts";
 import * as authService from "../services/authService.ts";
@@ -26,18 +27,25 @@ export const authOptions: NextAuthOptions = {
         }
 
         await connectDb();
-        const result = await authService.validateCredentials(
-          credentials.email,
-          credentials.password,
-        );
-        if (!result) return null;
+        try {
+          const result = await authService.validateCredentials(
+            credentials.email,
+            credentials.password,
+          );
+          if (!result) return null;
 
-        return {
-          id: result.id,
-          email: result.email,
-          emailVerified: result.emailVerified,
-          authProvider: result.authProvider,
-        };
+          return {
+            id: result.id,
+            email: result.email,
+            emailVerified: result.emailVerified,
+            authProvider: result.authProvider,
+          };
+        } catch (error) {
+          if (error instanceof ApiError && error.code === "EMAIL_NOT_VERIFIED") {
+            throw new Error(error.message);
+          }
+          return null;
+        }
       },
     }),
   ],

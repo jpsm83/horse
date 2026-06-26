@@ -25,6 +25,7 @@
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
+  --color-input-background: var(--input-background);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
@@ -48,7 +49,49 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Theme tokens:
+ * :root           — Equus earth palette (default): #0F0C0A #3D1E10 #914D21 #BE8450 #715B49 #4D4A44
+ * .theme-neutral  — previous shadcn neutral light (opt-in on html)
+ * .dark           — neutral dark (unchanged)
+ */
+
 :root {
+  --background: #f7f2ec;
+  --foreground: #0f0c0a;
+  --card: #f0e8df;
+  --card-foreground: #3d1e10;
+  --popover: #f0e8df;
+  --popover-foreground: #3d1e10;
+  --primary: #914d21;
+  --primary-foreground: #f7f2ec;
+  --secondary: #e8dfd6;
+  --secondary-foreground: #3d1e10;
+  --muted: #ede7e1;
+  --muted-foreground: #715b49;
+  --accent: #be8450;
+  --accent-foreground: #0f0c0a;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #ddd4cb;
+  --input: #ddd4cb;
+  --input-background: #ffffff;
+  --ring: #be8450;
+  --chart-1: #be8450;
+  --chart-2: #914d21;
+  --chart-3: #715b49;
+  --chart-4: #3d1e10;
+  --chart-5: #4d4a44;
+  --radius: 0.625rem;
+  --sidebar: #3d1e10;
+  --sidebar-foreground: #f7f2ec;
+  --sidebar-primary: #be8450;
+  --sidebar-primary-foreground: #0f0c0a;
+  --sidebar-accent: #4d4a44;
+  --sidebar-accent-foreground: #be8450;
+  --sidebar-border: #4d4a44;
+  --sidebar-ring: #be8450;
+}
+
+.theme-neutral {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -66,6 +109,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
+  --input-background: #ffffff;
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -101,6 +145,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
+  --input-background: oklch(0.269 0 0);
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -126,5 +171,35 @@
   }
   html {
     @apply font-sans;
+  }
+
+  /* Form inputs — white fill in every state (incl. browser autofill blue on focus). */
+  [data-slot="input"] {
+    color-scheme: light;
+    background-color: var(--input-background);
+  }
+
+  [data-slot="input"]:hover,
+  [data-slot="input"]:focus,
+  [data-slot="input"]:focus-visible,
+  [data-slot="input"]:active {
+    background-color: var(--input-background);
+  }
+
+  [data-slot="input"]:-webkit-autofill,
+  [data-slot="input"]:-webkit-autofill:hover,
+  [data-slot="input"]:-webkit-autofill:focus,
+  [data-slot="input"]:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px var(--input-background) inset !important;
+    box-shadow: 0 0 0 1000px var(--input-background) inset !important;
+    -webkit-text-fill-color: var(--foreground) !important;
+    caret-color: var(--foreground);
+    transition: background-color 99999s ease-in-out 0s;
+  }
+
+  [data-slot="input"]:-moz-autofill,
+  [data-slot="input"]:-moz-autofill-preview {
+    background-color: var(--input-background) !important;
+    color: var(--foreground) !important;
   }
 }

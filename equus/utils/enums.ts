@@ -46,6 +46,9 @@ export const accountTypeEnums = [
   "horse",
 ] as const;
 
+/** Supported UI and email locales for Equus web and mobile clients. */
+export const appLocaleEnums = ["en", "es"] as const;
+
 /** Business role profiles that support staff memberships (subset of accountTypeEnums). */
 export const businessRoleTypeEnums = [
   "stable",

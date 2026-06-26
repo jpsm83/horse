@@ -5,8 +5,9 @@ import * as authService from "@/lib/services/authService.ts";
 import { verifyAccessToken, verifyRefreshToken } from "@/lib/auth/jwt.ts";
 import { handleResetPassword } from "@/lib/auth/resetPassword.ts";
 
-vi.mock("@/lib/auth/sendAuthEmail.ts", () => ({
-  sendAuthTransactionalEmail: vi.fn().mockResolvedValue(undefined),
+vi.mock("@/lib/email/sendEmail.ts", () => ({
+  sendTemplateEmail: vi.fn().mockResolvedValue(undefined),
+  sendEmail: vi.fn().mockResolvedValue({ messageId: "test" }),
 }));
 
 describe("authService", () => {
@@ -51,9 +52,25 @@ describe("authService", () => {
       password: "TestPass1!",
     });
 
+    await User.updateOne(
+      { "personalDetails.email": "login@example.com" },
+      { $set: { "personalDetails.emailVerified": true, emailVerified: true } },
+    );
+
     const result = await authService.login("login@example.com", "TestPass1!");
     expect(result.user.email).toBe("login@example.com");
     expect(result.accessToken).toBeTruthy();
+  });
+
+  it("login rejects unverified credentials users", async () => {
+    await authService.register({
+      email: "unverified@example.com",
+      password: "TestPass1!",
+    });
+
+    await expect(
+      authService.login("unverified@example.com", "TestPass1!"),
+    ).rejects.toMatchObject({ statusCode: 403, code: "EMAIL_NOT_VERIFIED" });
   });
 
   it("login rejects invalid credentials", async () => {

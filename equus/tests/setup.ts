@@ -8,6 +8,8 @@ beforeAll(async () => {
   process.env.AUTH_SECRET ??= "test-auth-secret";
   process.env.REFRESH_SECRET ??= "test-refresh-secret";
   process.env.AUTH_URL ??= "http://localhost:3000";
+  process.env.EMAIL_USER ??= "test@example.com";
+  process.env.EMAIL_PASSWORD ??= "test-password";
 
   mongoServer = await MongoMemoryServer.create();
   await mongoose.connect(mongoServer.getUri(), { dbName: "equus-test" });

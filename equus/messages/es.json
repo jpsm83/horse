@@ -1,0 +1,184 @@
+{
+  "common": {
+    "home": "Ir al inicio",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "loading": "Cargando…",
+    "tryAgain": "Reintentar",
+    "signOut": "Cerrar sesión",
+    "signingOut": "Cerrando sesión...",
+    "email": "Email",
+    "password": "Contraseña",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "owner": "Propietario",
+    "from": "De {label}",
+    "horseFallback": "Caballo",
+    "or": "O"
+  },
+  "localeSwitcher": {
+    "label": "Idioma",
+    "en": "English",
+    "es": "Español"
+  },
+  "header": {
+    "profile": "Perfil",
+    "notifications": "Notificaciones",
+    "openUserMenu": "Abrir menú de usuario",
+    "comingSoon": "Próximamente",
+    "discoverDescription": "Explorar todos los {entity} en Equus",
+    "myOwnDescription": "Tus {entity}",
+    "discover": {
+      "sectionLabel": "Explorar",
+      "menuLabel": "Explorar Equus",
+      "stables": "Establos",
+      "veterinaries": "Veterinarias",
+      "transport": "Transporte",
+      "breeders": "Criadores",
+      "coaches": "Entrenadores",
+      "horses": "Caballos",
+      "ridingClubs": "Clubes hípicos",
+      "trainers": "Preparadores"
+    },
+    "myOwn": {
+      "sectionLabel": "Lo mío",
+      "stables": "Mis establos",
+      "veterinaries": "Mi veterinaria",
+      "transport": "Mi transporte",
+      "breeders": "Mis criadores",
+      "coaches": "Mi entrenador",
+      "horses": "Mis caballos",
+      "ridingClubs": "Mi club hípico",
+      "trainers": "Mi preparador"
+    }
+  },
+  "home": {
+    "welcomeTitle": "Bienvenido a Equus",
+    "welcomeDescription": "Pruebe la autenticación con email/contraseña o Google.",
+    "loadingSession": "Cargando sesión...",
+    "signedInTitle": "Ha iniciado sesión",
+    "signedInDescription": "Autenticado mediante la sesión de la API REST",
+    "emailLabel": "Email:",
+    "userIdLabel": "ID de usuario:",
+    "providerLabel": "Proveedor:",
+    "emailVerifiedLabel": "Email verificado:",
+    "profileCompleteLabel": "Perfil completo:",
+    "yes": "Sí",
+    "no": "No",
+    "getStartedTitle": "Comenzar",
+    "getStartedDescription": "Inicie sesión o cree una cuenta para verificar los flujos de autenticación.",
+    "loadSessionFailed": "Error al cargar la sesión",
+    "logoutFailed": "Error al cerrar sesión"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Iniciar sesión",
+      "description": "Use su email y contraseña o continúe con Google.",
+      "submit": "Iniciar sesión",
+      "submitting": "Iniciando sesión...",
+      "noAccount": "¿No tiene una cuenta?",
+      "forgotPassword": "¿Olvidó su contraseña?",
+      "resendConfirmation": "Reenviar email de confirmación",
+      "emailNotVerified": "Verifique su email antes de iniciar sesión.",
+      "failed": "Error al iniciar sesión"
+    },
+    "signUp": {
+      "title": "Crear una cuenta",
+      "description": "Regístrese con email y contraseña o continúe con Google.",
+      "submit": "Crear cuenta",
+      "submitting": "Creando cuenta...",
+      "hasAccount": "¿Ya tiene una cuenta?",
+      "failed": "Error al registrarse",
+      "horseLabel": "Caballo: {name}"
+    },
+    "confirmEmail": {
+      "title": "Confirmar email",
+      "verifying": "Verificando su dirección de email…",
+      "success": "Su email ha sido verificado. Ya puede iniciar sesión.",
+      "missingToken": "Este enlace de confirmación no tiene token.",
+      "error": "Este enlace no es válido o ha expirado.",
+      "resend": "Solicitar nuevo email de confirmación"
+    },
+    "resetPassword": {
+      "title": "Restablecer contraseña",
+      "description": "Introduzca una nueva contraseña para su cuenta.",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "submit": "Restablecer contraseña",
+      "success": "Su contraseña ha sido restablecida. Ya puede iniciar sesión.",
+      "missingToken": "Este enlace de restablecimiento no tiene token."
+    },
+    "forgotPassword": {
+      "title": "Olvidé mi contraseña",
+      "description": "Introduzca su email y le enviaremos instrucciones si existe una cuenta.",
+      "submit": "Enviar enlace",
+      "success": "Si existe una cuenta para este email, recibirá instrucciones en breve.",
+      "backToSignIn": "Volver al inicio de sesión"
+    },
+    "resendConfirmation": {
+      "title": "Reenviar confirmación",
+      "description": "Introduzca su email para recibir un nuevo enlace.",
+      "submit": "Enviar email de confirmación",
+      "success": "Si existe una cuenta para este email, recibirá instrucciones en breve.",
+      "alreadyVerified": "Este email ya está verificado. Puede iniciar sesión.",
+      "backToSignIn": "Volver al inicio de sesión"
+    },
+    "google": {
+      "continue": "Continuar con Google",
+      "failed": "Error al iniciar sesión con Google"
+    },
+    "passwordPolicy": "La contraseña debe tener al menos 8 caracteres e incluir una minúscula, una mayúscula, un número y un símbolo."
+  },
+  "status": {
+    "notFound": {
+      "title": "Página no encontrada",
+      "description": "La página que busca no existe o se ha movido."
+    },
+    "notAllowed": {
+      "title": "Acceso no permitido",
+      "description": "No tiene permiso para ver esta página o realizar esta acción.",
+      "forbidden": "No tiene permiso para realizar esta acción.",
+      "wrongAccount": "Esta invitación es para otra cuenta. Inicie sesión con el email invitado.",
+      "emailUnverified": "Verifique su email antes de iniciar sesión."
+    },
+    "requestFailed": "La solicitud falló"
+  },
+  "invites": {
+    "workplaces": {
+      "title": "Sus lugares de trabajo",
+      "description": "Perfiles que posee o membresías de staff, incluyendo invitaciones pendientes.",
+      "empty": "Aún no tiene lugares de trabajo.",
+      "invited": "Invitación pendiente",
+      "accept": "Aceptar",
+      "decline": "Rechazar",
+      "accepted": "Invitación aceptada.",
+      "declined": "Invitación rechazada."
+    },
+    "relationships": {
+      "title": "Invitaciones de relación",
+      "description": "Solicitudes de relación con caballos pendientes de su respuesta.",
+      "empty": "No tiene invitaciones de relación pendientes.",
+      "accept": "Aceptar",
+      "decline": "Rechazar",
+      "accepted": "Relación aceptada.",
+      "declined": "Relación rechazada."
+    },
+    "signup": {
+      "staffBanner": "Fue invitado a un lugar de trabajo en Equus. Regístrese con el email invitado.",
+      "relationshipBanner": "Fue invitado a una relación con caballo en Equus. Regístrese con el email invitado."
+    }
+  },
+  "validation": {
+    "emailRequired": "El email es obligatorio",
+    "emailInvalid": "Proporcione una dirección de email válida",
+    "passwordRequired": "La contraseña es obligatoria",
+    "passwordPolicy": "La contraseña debe tener al menos 8 caracteres e incluir una minúscula, una mayúscula, un número y un símbolo.",
+    "confirmPasswordRequired": "Confirme su contraseña",
+    "passwordsMismatch": "Las contraseñas no coinciden"
+  },
+  "errors": {
+    "EMAIL_NOT_VERIFIED": "Verifique su email antes de iniciar sesión.",
+    "FORBIDDEN": "No tiene permiso para realizar esta acción.",
+    "UNAUTHORIZED": "Credenciales inválidas"
+  }
+}

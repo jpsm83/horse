@@ -141,5 +141,9 @@ export async function buildAuthUserSessionFromUserId(userId: string): Promise<Au
     profileComplete: isProfileComplete(
       user.personalDetails as Record<string, unknown> | undefined,
     ),
+    preferredLanguage:
+      typeof user.personalDetails?.preferredLanguage === "string"
+        ? user.personalDetails.preferredLanguage
+        : undefined,
   };
 }

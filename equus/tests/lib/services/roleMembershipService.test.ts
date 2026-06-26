@@ -1,9 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import User from "@/models/User.ts";
 import * as userService from "@/lib/services/userService.ts";
 import * as roleMembershipService from "@/lib/services/roleMembershipService.ts";
 import { canAccessRoleProfile } from "@/lib/auth/requireRoleProfileAccess.ts";
 import { createTestStable } from "@/tests/helpers/businessRoleFixtures.ts";
+
+vi.mock("@/lib/email/sendStaffInviteEmail.ts", () => ({
+  sendStaffInviteEmail: vi.fn().mockResolvedValue(undefined),
+}));
 
 async function createOwner(email: string) {
   return userService.createCredentialsUser({
@@ -64,7 +68,7 @@ describe("roleMembershipService", () => {
     );
 
     expect(canView).toBe(true);
-    expect(canEdit).toBe(false);
+    expect(canEdit).toBe(true);
   });
 
   it("allows an existing user to decline an invite", async () => {

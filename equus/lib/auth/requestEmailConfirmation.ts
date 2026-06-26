@@ -1,9 +1,9 @@
 ﻿import crypto from "crypto";
 import emailRegex from "../utils/emailRegex.ts";
 import User from "../../models/User.ts";
-import { sendAuthTransactionalEmail } from "./sendAuthEmail.ts";
 import { buildConfirmEmailLink } from "./emailLinks.ts";
-import { buildEmailConfirmationContent } from "./emailTemplates.ts";
+import { buildEmailConfirmationContent } from "@/lib/email/templates/emailConfirmation.ts";
+import { sendTemplateEmail } from "@/lib/email/sendEmail.ts";
 
 export const GENERIC_REQUEST_EMAIL_CONFIRMATION_MESSAGE =
   "If an account exists for this email, you will receive instructions shortly.";
@@ -30,7 +30,9 @@ export async function handleRequestEmailConfirmation(
   normalizedEmail: string,
 ): Promise<RequestEmailConfirmationHandlerResult> {
   const user = await User.findOne({ "personalDetails.email": normalizedEmail })
-    .select("_id personalDetails.username personalDetails.firstName personalDetails.emailVerified emailVerified authProvider")
+    .select(
+      "_id personalDetails.username personalDetails.firstName personalDetails.preferredLanguage personalDetails.emailVerified emailVerified authProvider",
+    )
     .lean();
 
   if (!user) {
@@ -44,15 +46,20 @@ export async function handleRequestEmailConfirmation(
   }
 
   const verificationToken = crypto.randomBytes(32).toString("hex");
-  const pd = user.personalDetails as { username?: string; firstName?: string } | undefined;
+  const pd = user.personalDetails as {
+    username?: string;
+    firstName?: string;
+    preferredLanguage?: string;
+  } | undefined;
   const greetingName = pd?.username?.trim() || pd?.firstName?.trim() || undefined;
+  const locale = pd?.preferredLanguage;
 
   await User.updateOne({ _id: user._id }, { $set: { verificationToken } });
 
   try {
-    const confirmUrl = buildConfirmEmailLink(verificationToken);
-    const content = buildEmailConfirmationContent({ confirmUrl, greetingName });
-    await sendAuthTransactionalEmail({ to: normalizedEmail, content });
+    const confirmUrl = buildConfirmEmailLink(verificationToken, locale);
+    const content = buildEmailConfirmationContent({ confirmUrl, greetingName, locale });
+    await sendTemplateEmail({ to: normalizedEmail, content });
   } catch {
     await User.updateOne({ _id: user._id }, { $unset: { verificationToken: "" } });
     return {

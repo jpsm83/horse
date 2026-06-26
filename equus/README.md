@@ -1,5 +1,15 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment variables
+
+See `lib/auth/config.ts` for auth secrets and `lib/email/README.md` for email configuration:
+
+| Variable | Purpose |
+|----------|---------|
+| `EMAIL_USER` | Gmail address for transactional email |
+| `EMAIL_PASSWORD` | Gmail app password |
+| `AUTH_URL` | Base URL for links in auth and invite emails |
+
 ## Getting Started
 
 First, run the development server:

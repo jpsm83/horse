@@ -1,0 +1,184 @@
+{
+  "common": {
+    "home": "Go home",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "loading": "Loading…",
+    "tryAgain": "Try again",
+    "signOut": "Sign out",
+    "signingOut": "Signing out...",
+    "email": "Email",
+    "password": "Password",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "owner": "Owner",
+    "from": "From {label}",
+    "horseFallback": "Horse",
+    "or": "Or"
+  },
+  "localeSwitcher": {
+    "label": "Language",
+    "en": "English",
+    "es": "Español"
+  },
+  "header": {
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "openUserMenu": "Open user menu",
+    "comingSoon": "Coming soon",
+    "discoverDescription": "Browse all {entity} in Equus",
+    "myOwnDescription": "Your {entity}",
+    "discover": {
+      "sectionLabel": "Discover",
+      "menuLabel": "Browse Equus",
+      "stables": "Stables",
+      "veterinaries": "Veterinaries",
+      "transport": "Transport",
+      "breeders": "Breeders",
+      "coaches": "Coaches",
+      "horses": "Horses",
+      "ridingClubs": "Riding clubs",
+      "trainers": "Trainers"
+    },
+    "myOwn": {
+      "sectionLabel": "My own",
+      "stables": "My stables",
+      "veterinaries": "My veterinary",
+      "transport": "My transport",
+      "breeders": "My breeders",
+      "coaches": "My coach",
+      "horses": "My horses",
+      "ridingClubs": "My riding club",
+      "trainers": "My trainer"
+    }
+  },
+  "home": {
+    "welcomeTitle": "Welcome to Equus",
+    "welcomeDescription": "Test authentication with email/password or Google sign-in.",
+    "loadingSession": "Loading session...",
+    "signedInTitle": "You are signed in",
+    "signedInDescription": "Authenticated via the REST API session",
+    "emailLabel": "Email:",
+    "userIdLabel": "User ID:",
+    "providerLabel": "Provider:",
+    "emailVerifiedLabel": "Email verified:",
+    "profileCompleteLabel": "Profile complete:",
+    "yes": "Yes",
+    "no": "No",
+    "getStartedTitle": "Get started",
+    "getStartedDescription": "Sign in or create an account to verify the auth flows.",
+    "loadSessionFailed": "Failed to load session",
+    "logoutFailed": "Logout failed"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in",
+      "description": "Use your email and password or continue with Google.",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "forgotPassword": "Forgot password?",
+      "resendConfirmation": "Resend confirmation email",
+      "emailNotVerified": "Please verify your email before signing in.",
+      "failed": "Sign in failed"
+    },
+    "signUp": {
+      "title": "Create an account",
+      "description": "Register with email and password or continue with Google.",
+      "submit": "Create account",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "failed": "Sign up failed",
+      "horseLabel": "Horse: {name}"
+    },
+    "confirmEmail": {
+      "title": "Confirm your email",
+      "verifying": "Verifying your email address…",
+      "success": "Your email has been verified. You can now sign in.",
+      "missingToken": "This confirmation link is missing a token.",
+      "error": "This link is invalid or has expired.",
+      "resend": "Request a new confirmation email"
+    },
+    "resetPassword": {
+      "title": "Reset your password",
+      "description": "Enter a new password for your account.",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "submit": "Reset password",
+      "success": "Your password has been reset. You can now sign in.",
+      "missingToken": "This reset link is missing a token."
+    },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "description": "Enter your email and we will send reset instructions if an account exists.",
+      "submit": "Send reset link",
+      "success": "If an account exists for this email, you will receive instructions shortly.",
+      "backToSignIn": "Back to sign in"
+    },
+    "resendConfirmation": {
+      "title": "Resend confirmation",
+      "description": "Enter your email to receive a new confirmation link.",
+      "submit": "Send confirmation email",
+      "success": "If an account exists for this email, you will receive instructions shortly.",
+      "alreadyVerified": "This email is already verified. You can sign in.",
+      "backToSignIn": "Back to sign in"
+    },
+    "google": {
+      "continue": "Continue with Google",
+      "failed": "Google sign-in failed"
+    },
+    "passwordPolicy": "Password must be at least 8 characters and include a lowercase letter, an uppercase letter, a number, and a symbol."
+  },
+  "status": {
+    "notFound": {
+      "title": "Page not found",
+      "description": "The page you are looking for does not exist or has been moved."
+    },
+    "notAllowed": {
+      "title": "Access not allowed",
+      "description": "You do not have permission to view this page or perform this action.",
+      "forbidden": "You do not have permission to perform this action.",
+      "wrongAccount": "This invitation is for a different account. Sign in with the invited email address.",
+      "emailUnverified": "Please verify your email before signing in."
+    },
+    "requestFailed": "Request failed"
+  },
+  "invites": {
+    "workplaces": {
+      "title": "Your workplaces",
+      "description": "Business profiles you own or staff memberships, including pending invitations.",
+      "empty": "You have no workplaces yet.",
+      "invited": "Pending invitation",
+      "accept": "Accept",
+      "decline": "Decline",
+      "accepted": "Invitation accepted.",
+      "declined": "Invitation declined."
+    },
+    "relationships": {
+      "title": "Relationship invitations",
+      "description": "Pending horse relationship requests waiting for your response.",
+      "empty": "You have no pending relationship invitations.",
+      "accept": "Accept",
+      "decline": "Decline",
+      "accepted": "Relationship accepted.",
+      "declined": "Relationship declined."
+    },
+    "signup": {
+      "staffBanner": "You were invited to join a workplace on Equus. Sign up with the invited email address.",
+      "relationshipBanner": "You were invited to a horse relationship on Equus. Sign up with the invited email address."
+    }
+  },
+  "validation": {
+    "emailRequired": "Email is required",
+    "emailInvalid": "Please provide a valid email address",
+    "passwordRequired": "Password is required",
+    "passwordPolicy": "Password must be at least 8 characters and include a lowercase letter, an uppercase letter, a number, and a symbol.",
+    "confirmPasswordRequired": "Please confirm your password",
+    "passwordsMismatch": "Passwords do not match"
+  },
+  "errors": {
+    "EMAIL_NOT_VERIFIED": "Please verify your email before signing in.",
+    "FORBIDDEN": "You do not have permission to perform this action.",
+    "UNAUTHORIZED": "Invalid credentials"
+  }
+}

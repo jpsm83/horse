@@ -1,8 +1,8 @@
 ﻿import crypto from "crypto";
 import User from "../../models/User.ts";
-import { sendAuthTransactionalEmail } from "./sendAuthEmail.ts";
 import { buildResetPasswordLink } from "./emailLinks.ts";
-import { buildPasswordResetEmailContent } from "./emailTemplates.ts";
+import { buildPasswordResetEmailContent } from "@/lib/email/templates/passwordReset.ts";
+import { sendTemplateEmail } from "@/lib/email/sendEmail.ts";
 import { GENERIC_REQUEST_EMAIL_CONFIRMATION_MESSAGE } from "./requestEmailConfirmation.ts";
 
 export type RequestPasswordResetHandlerResult =
@@ -13,7 +13,7 @@ export async function handleRequestPasswordReset(
   normalizedEmail: string,
 ): Promise<RequestPasswordResetHandlerResult> {
   const user = await User.findOne({ "personalDetails.email": normalizedEmail })
-    .select("_id personalDetails.username personalDetails.firstName")
+    .select("_id personalDetails.username personalDetails.firstName personalDetails.preferredLanguage")
     .lean();
 
   if (!user) {
@@ -23,8 +23,13 @@ export async function handleRequestPasswordReset(
   const resetToken = crypto.randomBytes(32).toString("hex");
   const resetTokenExpiry = new Date(Date.now() + 3600000);
 
-  const pd = user.personalDetails as { username?: string; firstName?: string } | undefined;
+  const pd = user.personalDetails as {
+    username?: string;
+    firstName?: string;
+    preferredLanguage?: string;
+  } | undefined;
   const greetingName = pd?.username?.trim() || pd?.firstName?.trim() || undefined;
+  const locale = pd?.preferredLanguage;
 
   await User.updateOne(
     { _id: user._id },
@@ -32,9 +37,9 @@ export async function handleRequestPasswordReset(
   );
 
   try {
-    const resetUrl = buildResetPasswordLink(resetToken);
-    const content = buildPasswordResetEmailContent({ resetUrl, greetingName });
-    await sendAuthTransactionalEmail({ to: normalizedEmail, content });
+    const resetUrl = buildResetPasswordLink(resetToken, locale);
+    const content = buildPasswordResetEmailContent({ resetUrl, greetingName, locale });
+    await sendTemplateEmail({ to: normalizedEmail, content });
   } catch {
     await User.updateOne(
       { _id: user._id },

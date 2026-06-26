@@ -1,7 +1,7 @@
 /**
  * Role membership capabilities — derived from staffRole preset levels.
  *
- * Business rule: only profile owner or staff admin may edit_profile.
+ * Business rule: owner, admin, and manager staff may edit_profile; only owner and admin may manage_staff.
  * Used by `requireRoleProfileAccess` and future profile PATCH routes.
  */
 

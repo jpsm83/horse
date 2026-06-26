@@ -12,6 +12,7 @@
 import bcrypt from "bcrypt";
 import type { NextResponse } from "next/server";
 import { ApiError } from "../api/errors.ts";
+import { normalizeLocale } from "@/i18n/resolveLocale.ts";
 import User from "../../models/User.ts";
 import { verifyRefreshToken, clearAuthCookies } from "../auth/jwt.ts";
 import { establishSession, type SessionTokens } from "../auth/establishSession.ts";
@@ -67,6 +68,16 @@ export async function validateCredentials(email: string, password: string) {
     return null;
   }
 
+  const emailVerified =
+    user.personalDetails?.emailVerified === true || user.emailVerified === true;
+  if (user.authProvider === "credentials" && !emailVerified) {
+    throw new ApiError(
+      403,
+      "Please verify your email before signing in.",
+      "EMAIL_NOT_VERIFIED",
+    );
+  }
+
   const session = await buildAuthUserSessionFromUserId(String(user._id));
   if (!session) return null;
 
@@ -84,6 +95,8 @@ export async function register(input: {
   username?: string;
   firstName?: string;
   lastName?: string;
+  referralReference?: string;
+  preferredLanguage?: string;
 }) {
   const normalizedEmail = input.email.toLowerCase().trim();
   const existing = await userService.findByEmail(normalizedEmail);
@@ -91,7 +104,10 @@ export async function register(input: {
     throw new ApiError(409, "Account with this email already exists", "CONFLICT");
   }
 
-  const createdUser = await userService.createCredentialsUser(input);
+  const createdUser = await userService.createCredentialsUser({
+    ...input,
+    preferredLanguage: normalizeLocale(input.preferredLanguage),
+  });
   const tokens = await establishSession(String(createdUser._id));
 
   // Fire-and-forget; registration should not fail if email delivery fails.

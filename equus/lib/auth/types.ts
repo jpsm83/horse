@@ -7,6 +7,7 @@ export interface AuthUser {
   emailVerified?: boolean;
   authProvider?: AuthProvider;
   profileComplete?: boolean;
+  preferredLanguage?: string;
 }
 
 export interface JwtPayload extends AuthUser {

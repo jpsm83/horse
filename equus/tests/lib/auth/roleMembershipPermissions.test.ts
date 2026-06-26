@@ -18,9 +18,9 @@ describe("roleMembershipPermissions", () => {
     }
   });
 
-  it("grants manager view only — not edit_profile or manage_staff", () => {
+  it("grants manager view and edit — not manage_staff", () => {
     expect(hasStaffCapability("manager", "view_profile")).toBe(true);
-    expect(hasStaffCapability("manager", "edit_profile")).toBe(false);
+    expect(hasStaffCapability("manager", "edit_profile")).toBe(true);
     expect(hasStaffCapability("manager", "manage_staff")).toBe(false);
   });
 
