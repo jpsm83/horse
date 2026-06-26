@@ -220,7 +220,7 @@ If a decision conflicts with this order, follow the higher-priority item.
 
 ```
 models/
-  User.ts, Horse.ts, Stable.ts, ...   ← top-level Mongoose models
+  User.ts, Horse.ts, Stable.ts, RoleMembership.ts, ...   ← top-level Mongoose models
   PersonalDetails.ts                  ← user identity embed (used only by User)
   sharedSchemas/                      ← embeds reused across 2+ models
     address.ts, mediaAsset.ts, ...
@@ -232,3 +232,17 @@ models/
 
 - Used in **one** parent only → keep inline in that parent model
 - Used in **two or more** parents → `sharedSchemas/<name>.ts`
+
+### User validation
+
+- **Mongoose models** define persisted field types, enums, and `required` rules at the schema level.
+- **Zod** (`lib/validations/user.ts`, `lib/validations/auth.ts`) sanitizes and validates API input before it reaches services.
+- **Never** insert placeholder profile values in services; optional fields stay unset until the user updates their profile.
+- `isProfileComplete` in `lib/auth/session.ts` checks every `personalDetails` profile field and every `address` subfield (excluding auth-only `password` and `emailVerified`).
+
+### User and roles
+
+- One `User` per email; **roles** are linked profile documents (`stableProfileIds`, `trainerProfileId`, horses via `mainOwnerUserId`, etc.).
+- **Staff** on business profiles (stable, breeder, riding club, transport) use `RoleMembership` — workers are regular users invited by email; never add staff to `User.*ProfileIds`. Only owner or `admin` staff may `edit_profile`.
+- No `activeAccountContext`; no user-level `ownerPreferences`. Horse discovery is per-horse. See [`documentation/userAndRoles.md`](../documentation/userAndRoles.md).
+- **Horse discovery:** `profileVisibility` (default `public`) and `contactDisplay` on `Horse`; validated by `lib/validations/horse.ts` for future `PATCH /api/v1/horses/:id/discovery`.

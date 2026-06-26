@@ -42,8 +42,14 @@ Target timeline: ~8–10 weeks after validation (see `validationPlaybook.md`).
 #### Identity and accounts
 - User signup/login (Auth.js on web; JWT API for mobile clients)
 - Personal profile creation
-- Create profiles: **horse**, **stable**, **trainer** (owner = user role via horse ownership, not a separate collection)
-- Switch context between account types under one user login
+- **Browse-first signup** — new users have no roles; they can search stables, trainers, vets, horses, etc.
+- Create role profiles when ready: **horse** (owner), **stable**, **trainer**, and others (each role has its own model)
+- One login; navigate between roles in the app (no persisted account context)
+
+#### Horse discovery
+- Per-horse visibility (`Horse.profileVisibility`, default `public`)
+- Per-horse public contact (`Horse.contactDisplay` — owner contact or delegate)
+- See [`userAndRoles.md`](userAndRoles.md)
 
 #### Horse core
 - Create horse profile (name, breed, age/sex, photos, basic details)

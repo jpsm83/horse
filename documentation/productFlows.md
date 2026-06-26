@@ -17,6 +17,7 @@ Source:
 | Create horse / stable / trainer | REST API + Zod validation + `lib/services` |
 | Relationship request / invite | `Relationship` collection (`invitedEmail` when provider not registered) |
 | Accept / decline | `PATCH /api/v1/relationships/:id` |
+| Staff invite / accept | `RoleMembership` + `/api/v1/role-profiles/:roleType/:id/staff`, `/api/v1/users/me/memberships/:id/accept` |
 | Chat | REST messages (1A); Socket.io when realtime ships |
 | Uploads | Cloudinary via API route |
 | Reviews | `Rating` tied to `relationshipId` + `horseId` |
@@ -27,13 +28,15 @@ Provider links (vet, stable, trainer, etc.) are **not** stored on `Horse` direct
 
 ## Global rules (all roles)
 
-1. **User first** — everyone signs up as a User, then creates domain account types
-2. **Personal profile required** before creating business/horse accounts
-3. **Relationships require acceptance** by the receptor
-4. **Live chat is open** between users (WhatsApp-style), independent of relationship status
-5. **Operational data** (records, invoices tied to workflows) requires accepted horse relationship
-6. **Reviews are horse-scoped** and only allowed on verified horse ↔ provider relationships
-7. **Invitations include referral reference number** — first reference used at owner signup wins attribution
+1. **User first** — everyone signs up as a User with one login; roles are optional profiles linked later
+2. **Browse without roles** — new users can search stables, trainers, vets, horses before creating any role
+3. **Personal profile required** before creating provider role profiles (stable, trainer, etc.)
+4. **Relationships require acceptance** by the receptor
+5. **Live chat is open** between users (WhatsApp-style), independent of relationship status
+6. **Operational data** (records, invoices tied to workflows) requires accepted horse relationship
+7. **Reviews are horse-scoped** and only allowed on verified horse ↔ provider relationships
+8. **Invitations include referral reference number** — first reference used at owner signup wins attribution
+9. **Horse discovery is per horse** — `profileVisibility` and `contactDisplay` on each `Horse`; user profile is always visible (see [`userAndRoles.md`](userAndRoles.md))
 
 ---
 
@@ -43,8 +46,9 @@ Provider links (vet, stable, trainer, etc.) are **not** stored on `Horse` direct
 
 ```
 Sign up (email/password or auth provider)
-  → Create personal profile (owner preferences optional)
-  → Add first horse profile (sets mainOwnerUserId on Horse)
+  → Browse app (search stables, trainers, vets, horses — no role required)
+  → Complete personal profile when ready
+  → Add first horse profile (sets mainOwnerUserId on Horse; per-horse visibility/contact defaults apply)
   → Start 30-day trial for that horse
 ```
 
@@ -126,7 +130,20 @@ Stable dashboard
   → Chat with owners/users (open chat)
 ```
 
-### 2.4 Growth / commission
+### 2.4 Invite staff to manage the stable
+
+```
+Stable owner opens staff management
+  → Invite person by email (admin | manager | staff)
+      → If email exists on platform: user sees pending invite on GET /users/me/workplaces
+      → If email not registered: invite stored; user signs up with same email → invite linked
+  → Invitee accepts or declines (POST .../memberships/:id/accept or /decline)
+  → On accept: staff can view stable; only owner or admin staff can edit profile or manage other staff
+```
+
+Example: owner invites an existing veterinarian (already on the app) to help manage the stable page — vet keeps their own profile; workplace access is via `RoleMembership` only.
+
+### 2.5 Growth / commission
 
 ```
 Invite owners to join for horse visibility

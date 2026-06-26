@@ -13,9 +13,38 @@ vi.mock("@/lib/cloudinary/deleteFilesCloudinary.ts", () => ({
   default: vi.fn().mockResolvedValue(true),
 }));
 
+const completeProfilePatch = {
+  username: "jane",
+  firstName: "Jane",
+  lastName: "Doe",
+  idType: "Passport" as const,
+  idNumber: "P123456",
+  address: {
+    country: "Portugal",
+    state: "Lisbon",
+    city: "Lisbon",
+    street: "Main",
+    buildingNumber: "1",
+    doorNumber: "2A",
+    complement: "Floor 2",
+    postCode: "1000",
+    region: "Lisbon",
+    additionalDetails: "Near the park",
+    coordinates: [-9.1393, 38.7223] as [number, number],
+  },
+  nationality: "Portuguese",
+  gender: "Woman" as const,
+  birthDate: new Date("1990-01-01"),
+  phoneNumber: "+351912345678",
+  imageUrl: "https://example.com/avatar.png",
+  bio: "Horse owner",
+  preferredLanguage: "en",
+  timezone: "UTC",
+};
+
 describe("userService", () => {
-  it("createMinimalUser stores placeholder profile and hashes password", async () => {
-    const user = await userService.createMinimalUser({
+  it("createCredentialsUser stores only provided auth fields and hashes password", async () => {
+    const user = await userService.createCredentialsUser({
       email: "owner@example.com",
       password: "TestPass1!",
       firstName: "Jane",
@@ -23,7 +52,15 @@ describe("userService", () => {
     });
 
     expect(user.personalDetails.email).toBe("owner@example.com");
-    expect(user.personalDetails.address.country).toBe("Unknown");
+    expect(user.personalDetails.firstName).toBe("Jane");
+    expect(user.personalDetails.lastName).toBe("Doe");
+    expect(user.personalDetails.address).toBeUndefined();
+    expect(user.personalDetails.username).toBeUndefined();
+    expect(user.personalDetails.idNumber).toBeUndefined();
+    expect(user.ownerPreferences).toBeUndefined();
+    expect(user.activeAccountContext).toBeUndefined();
+    expect(user.stableProfileIds).toBeUndefined();
+    expect(user.trainerProfileId).toBeUndefined();
     expect(user.authProvider).toBe("credentials");
     expect(user.personalDetails.password).not.toBe("TestPass1!");
 
@@ -32,30 +69,22 @@ describe("userService", () => {
     expect(publicUser.profileComplete).toBe(false);
   });
 
-  it("updatePersonalDetails marks profile complete when address is real", async () => {
-    const created = await userService.createMinimalUser({
+  it("updatePersonalDetails marks profile complete when all personalDetails and address fields are set", async () => {
+    const created = await userService.createCredentialsUser({
       email: "patch@example.com",
       password: "TestPass1!",
     });
 
-    const updated = await userService.updatePersonalDetails(String(created._id), {
-      address: {
-        country: "Portugal",
-        state: "Lisbon",
-        city: "Lisbon",
-        street: "Main",
-        buildingNumber: "1",
-        postCode: "1000",
-      },
-      phoneNumber: "+351912345678",
-      nationality: "Portuguese",
-    });
+    const updated = await userService.updatePersonalDetails(
+      String(created._id),
+      completeProfilePatch,
+    );
 
     expect(updated?.profileComplete).toBe(true);
     expect(updated?.personalDetails.phoneNumber).toBe("+351912345678");
   });
 
-  it("findOrCreateFromGoogle creates a new user", async () => {
+  it("findOrCreateFromGoogle creates a user with only Google-provided data", async () => {
     const { user, created } = await userService.findOrCreateFromGoogle({
       sub: "google-sub-1",
       email: "google@example.com",
@@ -68,10 +97,21 @@ describe("userService", () => {
     expect(user.googleSubjectId).toBe("google-sub-1");
     expect(user.authProvider).toBe("google");
     expect(user.emailVerified).toBe(true);
+    expect(user.personalDetails.email).toBe("google@example.com");
+    expect(user.personalDetails.firstName).toBe("Google");
+    expect(user.personalDetails.lastName).toBe("User");
+    expect(user.personalDetails.imageUrl).toBe("https://example.com/avatar.png");
+    expect(user.personalDetails.password).toBeUndefined();
+    expect(user.personalDetails.username).toBeUndefined();
+    expect(user.personalDetails.idNumber).toBeUndefined();
+    expect(user.personalDetails.address).toBeUndefined();
+
+    const publicUser = userService.toPublicUser(user.toObject() as Record<string, unknown>);
+    expect(publicUser.profileComplete).toBe(false);
   });
 
   it("findOrCreateFromGoogle links an existing email account", async () => {
-    await userService.createMinimalUser({
+    await userService.createCredentialsUser({
       email: "link@example.com",
       password: "TestPass1!",
     });
@@ -87,7 +127,7 @@ describe("userService", () => {
   });
 
   it("softDelete sets isActive to false", async () => {
-    const created = await userService.createMinimalUser({
+    const created = await userService.createCredentialsUser({
       email: "delete@example.com",
       password: "TestPass1!",
     });
@@ -100,7 +140,7 @@ describe("userService", () => {
   });
 
   it("updateProfileImage uploads to Cloudinary and stores secure URL", async () => {
-    const created = await userService.createMinimalUser({
+    const created = await userService.createCredentialsUser({
       email: "image@example.com",
       password: "TestPass1!",
     });
@@ -120,7 +160,7 @@ describe("handleConfirmEmail", () => {
   });
 
   it("verifies email when token matches", async () => {
-    const user = await userService.createMinimalUser({
+    const user = await userService.createCredentialsUser({
       email: "confirm@example.com",
       password: "TestPass1!",
     });

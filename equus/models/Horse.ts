@@ -1,3 +1,10 @@
+/**
+ * Horse model — horse profiles owned by users.
+ *
+ * Discovery visibility and public contact are per horse (`profileVisibility`, `contactDisplay`),
+ * not on the User document.
+ */
+
 import mongoose, { Schema, model } from "mongoose";
 import { mediaAssetSchema, pedigreeSchema } from "./sharedSchemas/index.ts";
 import * as enums from "../utils/enums.ts";
@@ -69,6 +76,17 @@ const competitionResultSchema = new Schema(
   { _id: true, timestamps: true }
 );
 
+/** Public contact shown for this horse when discovered (defaults to main owner contact). */
+const horseContactDisplaySchema = new Schema(
+  {
+    useOwnerContact: { type: Boolean, default: true },
+    name: { type: String },
+    phone: { type: String },
+    email: { type: String },
+  },
+  { _id: false }
+);
+
 const horseSchema = new Schema(
   {
     /** Identity */
@@ -125,8 +143,12 @@ const horseSchema = new Schema(
     /** Competition */
     competitionResults: { type: [competitionResultSchema], default: undefined },
 
-    /** Visibility */
-    profileVisibility: { type: String, enum: visibilityEnums, default: "relationship" },
+    /** Discovery — per horse, not per user */
+    profileVisibility: { type: String, enum: visibilityEnums, default: "public" },
+    contactDisplay: {
+      type: horseContactDisplaySchema,
+      default: () => ({ useOwnerContact: true }),
+    },
     showValuePublicly: { type: Boolean, default: false },
 
     /** Operational flags */

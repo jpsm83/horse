@@ -8,14 +8,64 @@ import {
   CONFIRM_EMAIL_CONSUMPTION_ERROR_MESSAGE,
 } from "@/lib/auth/confirmEmail.ts";
 
+const completePersonalDetails = {
+  username: "jane",
+  email: "jane@example.com",
+  firstName: "Jane",
+  lastName: "Doe",
+  idType: "Passport",
+  idNumber: "P1",
+  nationality: "Portuguese",
+  gender: "Woman",
+  birthDate: new Date("1990-01-01"),
+  phoneNumber: "+351912345678",
+  imageUrl: "https://example.com/avatar.png",
+  bio: "Horse owner",
+  preferredLanguage: "en",
+  timezone: "UTC",
+  address: {
+    country: "Portugal",
+    state: "Lisbon",
+    city: "Lisbon",
+    street: "Main",
+    buildingNumber: "1",
+    doorNumber: "2A",
+    complement: "Floor 2",
+    postCode: "1000",
+    region: "Lisbon",
+    additionalDetails: "Near the park",
+    coordinates: [-9.1393, 38.7223],
+  },
+};
+
 describe("session helpers", () => {
-  it("isProfileComplete is false for placeholder address", () => {
-    expect(isProfileComplete({ address: { country: "Unknown" } })).toBe(false);
+  it("isProfileComplete is false when profile fields are incomplete", () => {
     expect(isProfileComplete(null)).toBe(false);
+    expect(isProfileComplete({ email: "a@b.com" })).toBe(false);
+    expect(
+      isProfileComplete({
+        ...completePersonalDetails,
+        bio: "",
+      }),
+    ).toBe(false);
+    expect(
+      isProfileComplete({
+        ...completePersonalDetails,
+        address: {
+          ...(completePersonalDetails.address as Record<string, unknown>),
+          coordinates: undefined,
+        },
+      }),
+    ).toBe(false);
+    expect(
+      isProfileComplete({
+        address: { country: "Portugal" },
+      }),
+    ).toBe(false);
   });
 
-  it("isProfileComplete is true when country is set", () => {
-    expect(isProfileComplete({ address: { country: "Portugal" } })).toBe(true);
+  it("isProfileComplete is true when all personalDetails and address fields are set", () => {
+    expect(isProfileComplete(completePersonalDetails)).toBe(true);
   });
 
   it("refreshTokenPayloadVersionMatchesDb treats missing token version as 0", () => {

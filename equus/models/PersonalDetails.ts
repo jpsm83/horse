@@ -1,3 +1,11 @@
+/**
+ * Personal details embed schema — used only on `User.personalDetails`.
+ *
+ * Only `email` is required at account creation. Profile fields (name, address, ID, etc.)
+ * are optional until the user completes them via `PATCH /api/v1/users/me`.
+ * Do not insert placeholder values in services; leave unset fields undefined.
+ */
+
 import { Schema } from "mongoose";
 import { addressSchema } from "./sharedSchemas/address.ts";
 import * as enums from "../utils/enums.ts";
@@ -6,7 +14,7 @@ const { idTypeEnums, genderEnums } = enums;
 
 export const personalDetailsSchema = new Schema(
   {
-    username: { type: String, required: [true, "Username is required!"] },
+    username: { type: String },
     email: {
       type: String,
       required: [true, "Email is required!"],
@@ -18,23 +26,23 @@ export const personalDetailsSchema = new Schema(
       lowercase: true,
     },
     emailVerified: { type: Boolean, default: false },
-    password: { type: String, required: [true, "Password is required!"] },
-    idType: { type: String, enum: idTypeEnums, required: [true, "Id type is required!"] },
-    idNumber: { type: String, required: [true, "Id number is required!"] },
-    address: { type: addressSchema, required: [true, "Address is required!"] },
-    firstName: { type: String, required: [true, "First name is required!"] },
-    lastName: { type: String, required: [true, "Last name is required!"] },
-    nationality: { type: String, required: true },
-    gender: { type: String, enum: genderEnums, required: true },
-    birthDate: { type: Date, required: true },
-    phoneNumber: { type: String, required: true },
+    password: { type: String },
+    idType: { type: String, enum: idTypeEnums },
+    idNumber: { type: String },
+    address: { type: addressSchema },
+    firstName: { type: String },
+    lastName: { type: String },
+    nationality: { type: String },
+    gender: { type: String, enum: genderEnums },
+    birthDate: { type: Date },
+    phoneNumber: { type: String },
     imageUrl: { type: String },
     bio: { type: String },
-    preferredLanguage: { type: String, default: "en" },
-    timezone: { type: String, default: "UTC" },
+    preferredLanguage: { type: String },
+    timezone: { type: String },
   },
   {
     timestamps: true,
     trim: true,
-  }
+  },
 );

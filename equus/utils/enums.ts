@@ -46,6 +46,26 @@ export const accountTypeEnums = [
   "horse",
 ] as const;
 
+/** Business role profiles that support staff memberships (subset of accountTypeEnums). */
+export const businessRoleTypeEnums = [
+  "stable",
+  "breeder",
+  "ridingClub",
+  "transport",
+] as const;
+
+/** Staff level on a business role profile. */
+export const roleStaffLevelEnums = ["admin", "manager", "staff"] as const;
+
+/** Lifecycle status for RoleMembership documents. */
+export const roleMembershipStatusEnums = [
+  "invited",
+  "active",
+  "suspended",
+  "declined",
+  "removed",
+] as const;
+
 export const relationshipTypeEnums = [
   "stable",
   "trainer",

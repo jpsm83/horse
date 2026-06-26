@@ -6,15 +6,14 @@
  * - NextAuth Google flow in `lib/auth/auth.ts` (findOrCreateFromGoogle)
  * - REST routes under `app/api/v1/users/me/*`
  *
- * User creation uses placeholder profile fields where the schema requires values;
- * clients complete the profile later via `updatePersonalDetails`.
+ * Account creation sets only provider-specific data (no placeholder profile values).
+ * Profile fields are completed later via `updatePersonalDetails` + Zod sanitization.
  */
 
-import crypto from "crypto";
 import bcrypt from "bcrypt";
 import User from "../../models/User.ts";
-import type { AuthProvider, GoogleProfileInput } from "../auth/types.ts";
 import { isProfileComplete } from "../auth/session.ts";
+import type { AuthProvider, GoogleProfileInput } from "../auth/types.ts";
 import uploadFilesCloudinary from "../cloudinary/uploadFilesCloudinary.ts";
 import deleteFilesCloudinary from "../cloudinary/deleteFilesCloudinary.ts";
 import {
@@ -24,6 +23,7 @@ import {
 import type { UploadInputFile } from "../cloudinary/types.ts";
 import type { z } from "zod";
 import type { updatePersonalDetailsSchema } from "../validations/user.ts";
+import { linkInvitesByEmail } from "./roleMembershipService.ts";
 
 export type UpdatePersonalDetailsInput = z.infer<typeof updatePersonalDetailsSchema>;
 
@@ -35,39 +35,29 @@ export type PublicUser = {
   authProvider: AuthProvider;
   profileComplete: boolean;
   isActive: boolean;
-  ownerPreferences?: unknown;
-  activeAccountContext?: unknown;
   createdAt?: Date;
   updatedAt?: Date;
   lastLoginAt?: Date;
   lastActiveAt?: Date;
 };
 
-// --- Defaults and internal helpers ---
+// --- Internal helpers ---
 
-/** Satisfies required address fields until the user completes their profile. */
-const PLACEHOLDER_ADDRESS = {
-  country: "Unknown",
-  state: "Unknown",
-  city: "Unknown",
-  street: "Unknown",
-  buildingNumber: "0",
-  postCode: "0000",
-};
+/** Split a display name from Google into first/last when present. */
+function splitNameIfPresent(name?: string | null): { firstName?: string; lastName?: string } {
+  const trimmed = name?.trim();
+  if (!trimmed) {
+    return {};
+  }
 
-/** Google-only accounts still need a password field in the schema; this hash cannot be guessed. */
-async function createUnusablePasswordHash(): Promise<string> {
-  const random = crypto.randomBytes(32).toString("hex");
-  return bcrypt.hash(random, 10);
-}
-
-/** Split a display name from Google into first/last for personalDetails. */
-function splitName(name?: string | null): { firstName: string; lastName: string } {
-  const trimmed = name?.trim() || "User";
   const parts = trimmed.split(/\s+/);
-  const firstName = parts[0] || "User";
-  const lastName = parts.slice(1).join(" ") || "User";
-  return { firstName, lastName };
+  const firstName = parts[0];
+  const lastName = parts.slice(1).join(" ");
+
+  return {
+    ...(firstName ? { firstName } : {}),
+    ...(lastName ? { lastName } : {}),
+  };
 }
 
 // --- API mapping ---
@@ -83,12 +73,8 @@ export function toPublicUser(doc: Record<string, unknown>): PublicUser {
     emailVerified:
       personalDetails.emailVerified === true || doc.emailVerified === true,
     authProvider: (doc.authProvider as AuthProvider) ?? "credentials",
-    profileComplete: isProfileComplete(
-      personalDetails as { address?: { country?: string } },
-    ),
+    profileComplete: isProfileComplete(personalDetails),
     isActive: doc.isActive !== false,
-    ownerPreferences: doc.ownerPreferences,
-    activeAccountContext: doc.activeAccountContext,
     createdAt: doc.createdAt as Date | undefined,
     updatedAt: doc.updatedAt as Date | undefined,
     lastLoginAt: doc.lastLoginAt as Date | undefined,
@@ -113,10 +99,10 @@ export async function findByGoogleSubjectId(sub: string) {
 // --- User creation ---
 
 /**
- * Register a new email/password user with minimal required fields.
+ * Register a new email/password user with only auth-required fields.
  * Used by `authService.register`.
  */
-export async function createMinimalUser(input: {
+export async function createCredentialsUser(input: {
   email: string;
   password: string;
   username?: string;
@@ -125,25 +111,26 @@ export async function createMinimalUser(input: {
 }) {
   const normalizedEmail = input.email.toLowerCase().trim();
   const hashedPassword = await bcrypt.hash(input.password, 10);
-  const emailPrefix = normalizedEmail.split("@")[0] || "user";
+
+  const personalDetails: Record<string, unknown> = {
+    email: normalizedEmail,
+    password: hashedPassword,
+  };
+
+  const username = input.username?.trim();
+  const firstName = input.firstName?.trim();
+  const lastName = input.lastName?.trim();
+
+  if (username) personalDetails.username = username.slice(0, 50);
+  if (firstName) personalDetails.firstName = firstName.slice(0, 50);
+  if (lastName) personalDetails.lastName = lastName.slice(0, 50);
 
   const user = await User.create({
     authProvider: "credentials",
-    personalDetails: {
-      username: (input.username?.trim() || emailPrefix).slice(0, 50),
-      email: normalizedEmail,
-      password: hashedPassword,
-      idType: "Passport",
-      idNumber: `AUTO-${Date.now()}`,
-      address: PLACEHOLDER_ADDRESS,
-      firstName: (input.firstName?.trim() || "New").slice(0, 50),
-      lastName: (input.lastName?.trim() || "User").slice(0, 50),
-      nationality: "Unknown",
-      gender: "Other",
-      birthDate: new Date("2000-01-01T00:00:00.000Z"),
-      phoneNumber: "0000000000",
-    },
+    personalDetails,
   });
+
+  await linkInvitesByEmail(normalizedEmail, String(user._id));
 
   return user;
 }
@@ -178,31 +165,24 @@ export async function findOrCreateFromGoogle(profile: GoogleProfileInput) {
     return { user: existingByEmail, created: false };
   }
 
-  const unusableHash = await createUnusablePasswordHash();
-  const { firstName, lastName } = splitName(profile.name);
-  const emailPrefix = normalizedEmail.split("@")[0] || "user";
+  const personalDetails: Record<string, unknown> = {
+    email: normalizedEmail,
+    emailVerified: profile.emailVerified,
+    ...splitNameIfPresent(profile.name),
+  };
+
+  if (profile.image) {
+    personalDetails.imageUrl = profile.image;
+  }
 
   const user = await User.create({
     authProvider: "google",
     googleSubjectId: profile.sub,
     emailVerified: profile.emailVerified,
-    personalDetails: {
-      username: emailPrefix.slice(0, 50),
-      email: normalizedEmail,
-      password: unusableHash,
-      emailVerified: profile.emailVerified,
-      idType: "Passport",
-      idNumber: `AUTO-${Date.now()}`,
-      address: PLACEHOLDER_ADDRESS,
-      firstName,
-      lastName,
-      nationality: "Unknown",
-      gender: "Other",
-      birthDate: new Date("2000-01-01T00:00:00.000Z"),
-      phoneNumber: "0000000000",
-      imageUrl: profile.image || undefined,
-    },
+    personalDetails,
   });
+
+  await linkInvitesByEmail(normalizedEmail, String(user._id));
 
   return { user, created: true };
 }

@@ -1,4 +1,11 @@
-﻿import connectDb from "@/lib/db.ts";
+﻿/**
+ * Current user REST routes — `GET`, `PATCH`, and `DELETE` on `/api/v1/users/me`.
+ *
+ * PATCH accepts JSON (`updatePersonalDetailsSchema`) or multipart form data
+ * (`parseProfileFormData` for fields + optional avatar).
+ */
+
+import connectDb from "@/lib/db.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { withRoute, ok } from "@/lib/api/response.ts";
 import { requireAuthFromRequest } from "@/lib/auth/requireAuth.ts";

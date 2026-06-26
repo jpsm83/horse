@@ -1,9 +1,17 @@
+/**
+ * Multipart profile form parser — used by `PATCH /api/v1/users/me` when `Content-Type`
+ * is `multipart/form-data` (profile fields + optional avatar upload).
+ *
+ * Builds a raw object from form fields, then sanitizes via `updatePersonalDetailsSchema`.
+ */
+
 import type { z } from "zod";
 import type { UploadInputFile } from "@/lib/cloudinary/types.ts";
 import { updatePersonalDetailsSchema } from "@/lib/validations/user.ts";
 
 type UpdatePersonalDetailsInput = z.infer<typeof updatePersonalDetailsSchema>;
 
+/** Form field names accepted for text profile updates (address is JSON in `address`). */
 const PROFILE_FIELD_KEYS = [
   "username",
   "idType",
@@ -58,6 +66,7 @@ export async function parseProfileFormData(request: Request): Promise<{
   return { profile, imageFile };
 }
 
+/** Parse a multipart request that contains only a profile image (`imageUrl` field). */
 export async function parseProfileImageFormData(request: Request): Promise<UploadInputFile> {
   const formData = await request.formData();
   const fileEntry = formData.get("imageUrl");

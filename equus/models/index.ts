@@ -19,6 +19,7 @@ export { default as Transport } from "./Transport.ts";
 export { default as Coach } from "./Coach.ts";
 
 export { default as Relationship } from "./Relationship.ts";
+export { default as RoleMembership } from "./RoleMembership.ts";
 export { default as Rating } from "./Rating.ts";
 export { default as Booking } from "./Booking.ts";
 export { default as Invoice } from "./Invoice.ts";

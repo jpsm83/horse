@@ -535,38 +535,39 @@ This section defines how accounts are created and how each area gets dedicated f
 
 An account is always created as a **User** first.
 
-After signup, the same user can create and manage **multiple account types** under the same login.
+After signup, the same user can create and manage **multiple role profiles** under the same login (stable, trainer, owner-via-horses, etc.). There is no separate login per role and no persisted “active account” switch — the app navigates between roles in the UI.
 
 Examples:
-- One user can be an **Owner** and also a **Breeder**
+- One user can be an **Owner** (via owned horses) and also a **Breeder**
 - One user can be a **Trainer** and also represent a **Riding Club**
-- One user can manage multiple **Horse** profiles and multiple **Business** profiles
+- One user can manage multiple **Horse** profiles and multiple **Stable** role profiles
 
 Core rule:
 - **User** = authentication identity (login, permissions, security)
-- **Account types** = domain profiles (Horse, Vet, Trainer, Stable, Club, Breeder, Racing, Transport, etc.)
+- **Role profiles** = domain profiles (Horse, Vet, Trainer, Stable, Club, Breeder, Racing, Transport, etc.)
 
 Conceptual model:
 
 ```
-User (root identity; owner role when they own/pay for horses)
-  ├── Horse profile(s) owned or managed
-  ├── Trainer profile (one position-linked profile per user)
-  ├── Veterinary profile (one position-linked profile per user)
-  ├── Coach profile (one position-linked profile per user)
-  ├── Stable profile(s) (business — multiple allowed)
-  ├── Riding club profile(s)
-  ├── Breeder profile(s)
-  ├── Transport provider profile(s)
-  ├── Racing owner/syndicate profile(s)
-  └── Other provider profile(s)
+User (root identity; one login per email)
+  ├── Horse profile(s) owned or managed (owner role via mainOwnerUserId)
+  ├── Trainer role profile (one per user)
+  ├── Veterinary role profile (one per user)
+  ├── Coach role profile (one per user)
+  ├── Stable role profile(s) (multiple allowed)
+  ├── Riding club role profile(s)
+  ├── Breeder role profile(s)
+  ├── Transport provider role profile(s)
+  └── Other provider role profile(s)
 ```
+
+**Discovery:** user personal profile is always visible. Each horse has its own `profileVisibility` and `contactDisplay` (public contact may be the owner or a delegate). See `documentation/userAndRoles.md`.
 
 Why this model matters:
 - Supports real-world roles (people wear multiple hats in the horse industry)
 - Keeps one secure login with role-based access
-- Enables switching contexts without creating duplicate users
-- Allows scalable permissions per account type and per entity relationship
+- Users browse the app before creating any role; navigation between roles does not require account switching
+- Allows scalable permissions per role type and per entity relationship
 
 ### 10.2 Product principle: owner has complete horse access
 

@@ -1,4 +1,11 @@
-﻿import { z } from "zod";
+﻿/**
+ * User profile validation — Zod schemas for sanitizing `PATCH /api/v1/users/me` input.
+ *
+ * Trims strings, coerces dates, and validates enums before data reaches `userService`.
+ * Mongoose models define persistence rules; Zod handles API input shaping.
+ */
+
+import { z } from "zod";
 import { genderEnums, idTypeEnums } from "../../utils/enums.ts";
 
 export const addressSchema = z.object({

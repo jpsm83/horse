@@ -11,6 +11,7 @@ Canonical docs for product and engineering decisions.
 | [`mvpScope.md`](mvpScope.md) | Phase 1A/1B scope and explicit exclusions |
 | [`validationPlaybook.md`](validationPlaybook.md) | Pre-build customer interviews and go/no-go |
 | [`productFlows.md`](productFlows.md) | Onboarding and core user journeys |
+| [`userAndRoles.md`](userAndRoles.md) | One login, optional roles, per-horse discovery |
 | [`metricsSpec.md`](metricsSpec.md) | Internal business metrics (Phase 1B) |
 
 ## Technical stack (summary)

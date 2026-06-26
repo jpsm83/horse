@@ -91,7 +91,7 @@ export async function register(input: {
     throw new ApiError(409, "Account with this email already exists", "CONFLICT");
   }
 
-  const createdUser = await userService.createMinimalUser(input);
+  const createdUser = await userService.createCredentialsUser(input);
   const tokens = await establishSession(String(createdUser._id));
 
   // Fire-and-forget; registration should not fail if email delivery fails.

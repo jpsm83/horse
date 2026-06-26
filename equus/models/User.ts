@@ -1,22 +1,5 @@
 ﻿import mongoose, { Schema, model } from "mongoose";
 import { personalDetailsSchema } from "./PersonalDetails.ts";
-import * as enums from "../utils/enums.ts";
-
-const { accountTypeEnums, visibilityEnums } = enums;
-
-/** Owner visibility and discovery preferences (owner is a role, not a separate account) */
-const ownerPreferencesSchema = new Schema(
-  {
-    profileVisibility: {
-      type: String,
-      enum: visibilityEnums,
-      default: "relationship",
-    },
-    showOwnedHorsesPublicly: { type: Boolean, default: false },
-    showContactPublicly: { type: Boolean, default: false },
-  },
-  { _id: false }
-);
 
 const notificationEntrySchema = new Schema(
   {
@@ -31,14 +14,6 @@ const notificationEntrySchema = new Schema(
   { _id: false }
 );
 
-const activeAccountContextSchema = new Schema(
-  {
-    accountType: { type: String, enum: accountTypeEnums, required: true },
-    accountId: { type: Schema.Types.ObjectId, required: true },
-  },
-  { _id: false }
-);
-
 const userSchema = new Schema(
   {
     personalDetails: {
@@ -47,12 +22,11 @@ const userSchema = new Schema(
     },
 
     /**
-     * Owner is a user role, not a separate account collection.
+     * Owner is a role on this user, not a separate collection.
      * Horses owned by this user are queried via Horse.mainOwnerUserId.
      */
-    ownerPreferences: { type: ownerPreferencesSchema, default: undefined },
 
-    /** Business profiles owned by this user (multi-account model) */
+    /** Role profiles — stable, breeder, club, transport (user may have multiple) */
     stableProfileIds: {
       type: [{ type: Schema.Types.ObjectId, ref: "Stable" }],
       default: undefined,
@@ -70,7 +44,7 @@ const userSchema = new Schema(
       default: undefined,
     },
 
-    /** Position-linked profiles â€” one per user (personal professional role) */
+    /** Position-linked role profiles — one per user */
     trainerProfileId: {
       type: Schema.Types.ObjectId,
       ref: "Trainer",
@@ -89,9 +63,6 @@ const userSchema = new Schema(
       default: undefined,
       index: true,
     },
-
-    /** UI context switching between account types */
-    activeAccountContext: { type: activeAccountContextSchema, default: undefined },
 
     notifications: { type: [notificationEntrySchema], default: undefined },
 
@@ -126,4 +97,3 @@ userSchema.index({ googleSubjectId: 1 }, { unique: true, sparse: true });
 
 const User = mongoose.models.User || model("User", userSchema);
 export default User;
-

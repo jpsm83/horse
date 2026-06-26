@@ -5,6 +5,7 @@ Canonical technical direction for the horse ecosystem app. All other documentati
 Related docs:
 - `README.md` — documentation index
 - `businessPlan.md` — product vision and domain rules
+- `userAndRoles.md` — one login, optional roles, per-horse discovery
 - `mvpScope.md` — what to build first
 - `productFlows.md` — user journeys
 - `equus/AGENTS.md` — coding conventions for the app repo
@@ -132,8 +133,8 @@ Versioned REST under `equus/app/api/v1/`:
 | Area | Prefix | Examples |
 |------|--------|----------|
 | Auth | `/api/v1/auth` | `login`, `register`, `refresh`, `logout` |
-| Users | `/api/v1/users` | profile, account context |
-| Horses | `/api/v1/horses` | CRUD, gallery |
+| Users | `/api/v1/users` | profile (`GET`/`PATCH` `/me`) |
+| Horses | `/api/v1/horses` | CRUD, gallery, `PATCH .../discovery` (visibility + contact) |
 | Relationships | `/api/v1/relationships` | request, accept, decline, invite |
 | Bookings | `/api/v1/bookings` | create, accept, decline |
 | Notifications | `/api/v1/notifications` | list, mark read |
@@ -166,6 +167,7 @@ Zod is the single validation layer for API input and shared forms.
 equus/lib/validations/
   auth.ts
   horse.ts
+  user.ts
   relationship.ts
   booking.ts
   common.ts              # shared primitives (objectId, email, pagination)
