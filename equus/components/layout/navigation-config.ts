@@ -5,7 +5,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Building2,
-  CircleDot,
+  ChessKnight,
   Dumbbell,
   GraduationCap,
   Sprout,
@@ -38,7 +38,7 @@ export const DISCOVER_LINKS: NavigationLinkItem[] = [
   { key: "transport", href: "/transport", icon: Truck },
   { key: "breeders", href: "/breeders", icon: Sprout },
   { key: "coaches", href: "/coaches", icon: GraduationCap },
-  { key: "horses", href: "/horses", icon: CircleDot },
+  { key: "horses", href: "/horses", icon: ChessKnight  },
   { key: "ridingClubs", href: "/riding-clubs", icon: Users },
   { key: "trainers", href: "/trainers", icon: Dumbbell },
 ];
@@ -49,7 +49,7 @@ const MY_OWN_LINKS: NavigationLinkItem[] = [
   { key: "transport", href: "/my/transport", icon: Truck },
   { key: "breeders", href: "/my/breeders", icon: Sprout },
   { key: "coaches", href: "/my/coaches", icon: GraduationCap },
-  { key: "horses", href: "/my/horses", icon: CircleDot },
+  { key: "horses", href: "/my/horses", icon: ChessKnight  },
   { key: "ridingClubs", href: "/my/riding-clubs", icon: Users },
   { key: "trainers", href: "/my/trainers", icon: Dumbbell },
 ];

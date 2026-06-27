@@ -1,7 +1,13 @@
-﻿import type { NextAuthOptions } from "next-auth";
+﻿/**
+ * NextAuth configuration — OAuth transport for Google sign-in only.
+ *
+ * Web session truth lives in REST httpOnly cookies (`access_token` / `refresh_token`).
+ * After Google OAuth, the client bridges via `POST /api/v1/auth/session`.
+ * Email/password sign-in uses `POST /api/v1/auth/login` directly (no NextAuth).
+ */
+
+import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { ApiError } from "../api/errors.ts";
 import { AUTH_CONFIG } from "./config.ts";
 import connectDb from "../db.ts";
 import * as authService from "../services/authService.ts";
@@ -14,39 +20,6 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: AUTH_CONFIG.GOOGLE_CLIENT_ID,
       clientSecret: AUTH_CONFIG.GOOGLE_CLIENT_SECRET,
-    }),
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
-        await connectDb();
-        try {
-          const result = await authService.validateCredentials(
-            credentials.email,
-            credentials.password,
-          );
-          if (!result) return null;
-
-          return {
-            id: result.id,
-            email: result.email,
-            emailVerified: result.emailVerified,
-            authProvider: result.authProvider,
-          };
-        } catch (error) {
-          if (error instanceof ApiError && error.code === "EMAIL_NOT_VERIFIED") {
-            throw new Error(error.message);
-          }
-          return null;
-        }
-      },
     }),
   ],
   callbacks: {

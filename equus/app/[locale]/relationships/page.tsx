@@ -6,6 +6,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { Link, useRouter } from "@/i18n/navigation.ts";
 import {
   acceptRelationship,
@@ -21,15 +22,13 @@ function RelationshipsContent() {
   const t = useTranslations("invites.relationships");
   const tCommon = useTranslations("common");
   const tStatus = useTranslations("status");
+  const toast = useAppToast();
 
   const [relationships, setRelationships] = useState<PublicRelationship[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
   const [actingId, setActingId] = useState<string | null>(null);
 
   const loadRelationships = useCallback(async () => {
-    setError(null);
     try {
       await fetchCurrentUser();
       const data = await fetchPendingRelationships();
@@ -47,19 +46,17 @@ function RelationshipsContent() {
 
   async function handleAccept(relationshipId: string) {
     setActingId(relationshipId);
-    setFeedback(null);
-    setError(null);
 
     try {
       await acceptRelationship(relationshipId);
-      setFeedback(t("accepted"));
+      toast.success(t("accepted"));
       await loadRelationships();
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
         return;
       }
-      setError(err instanceof Error ? err.message : tStatus("requestFailed"));
+      toast.error(err instanceof Error ? err.message : tStatus("requestFailed"));
     } finally {
       setActingId(null);
     }
@@ -67,19 +64,17 @@ function RelationshipsContent() {
 
   async function handleDecline(relationshipId: string) {
     setActingId(relationshipId);
-    setFeedback(null);
-    setError(null);
 
     try {
       await declineRelationship(relationshipId);
-      setFeedback(t("declined"));
+      toast.success(t("declined"));
       await loadRelationships();
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
         return;
       }
-      setError(err instanceof Error ? err.message : tStatus("requestFailed"));
+      toast.error(err instanceof Error ? err.message : tStatus("requestFailed"));
     } finally {
       setActingId(null);
     }
@@ -109,18 +104,6 @@ function RelationshipsContent() {
         </Link>
       }
     >
-      {feedback ? (
-        <Alert>
-          <AlertDescription>{feedback}</AlertDescription>
-        </Alert>
-      ) : null}
-
-      {error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      ) : null}
-
       {relationships.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("empty")}</p>
       ) : (

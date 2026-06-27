@@ -7,9 +7,16 @@
 
 import { z } from "zod";
 import { genderEnums, idTypeEnums, appLocaleEnums } from "../../utils/enums.ts";
+import { isKnownCountryCode } from "../data/countries.ts";
+
+const countryCodeSchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .refine((code) => isKnownCountryCode(code), { message: "Invalid country code" });
 
 export const addressSchema = z.object({
-  country: z.string().trim().min(1),
+  country: countryCodeSchema,
   state: z.string().trim().min(1),
   city: z.string().trim().min(1),
   street: z.string().trim().min(1),
@@ -29,7 +36,7 @@ export const updatePersonalDetailsSchema = z.object({
   address: addressSchema.optional(),
   firstName: z.string().trim().min(1).max(50).optional(),
   lastName: z.string().trim().min(1).max(50).optional(),
-  nationality: z.string().trim().min(1).optional(),
+  nationality: countryCodeSchema.optional(),
   gender: z.enum(genderEnums).optional(),
   birthDate: z.coerce.date().optional(),
   phoneNumber: z.string().trim().min(1).optional(),

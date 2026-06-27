@@ -24,7 +24,7 @@ Links are **locale-prefixed** when the recipient’s `preferredLanguage` is `es`
 | `buildStaffInviteAcceptLink` | `/workplaces?membership={id}` | `/es/workplaces?membership=…` | workplaces accept/decline |
 | `buildRelationshipSignupLink` | `/signup?ref={referralReference}` | `/es/signup?ref=…` | register + `/relationships` |
 
-Non-prefixed links in already-sent emails still work: next-intl middleware resolves locale from `NEXT_LOCALE` cookie or `Accept-Language`.
+Non-prefixed links in already-sent emails still work: next-intl proxy resolves locale from `NEXT_LOCALE` cookie or `Accept-Language`.
 
 ## Module layout
 

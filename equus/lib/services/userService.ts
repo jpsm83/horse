@@ -12,7 +12,7 @@
 
 import bcrypt from "bcrypt";
 import User from "../../models/User.ts";
-import { normalizeLocale } from "@/i18n/resolveLocale.ts";
+import { normalizeLocale, type AppLocale } from "@/i18n/resolveLocale.ts";
 import { isProfileComplete } from "../auth/session.ts";
 import type { AuthProvider, GoogleProfileInput } from "../auth/types.ts";
 import uploadFilesCloudinary from "../cloudinary/uploadFilesCloudinary.ts";
@@ -36,6 +36,7 @@ export type PublicUser = {
   emailVerified: boolean;
   authProvider: AuthProvider;
   profileComplete: boolean;
+  hasPassword: boolean;
   isActive: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -64,10 +65,22 @@ function splitNameIfPresent(name?: string | null): { firstName?: string; lastNam
 
 // --- API mapping ---
 
+/** Whether the user document has a stored password hash (never expose the hash). */
+export function userHasPassword(doc: Record<string, unknown>): boolean {
+  const personalDetails = doc.personalDetails as Record<string, unknown> | undefined;
+  const password = personalDetails?.password;
+  return typeof password === "string" && password.length > 0;
+}
+
 /** Map a Mongoose user document to the public API user type (no secrets). */
-export function toPublicUser(doc: Record<string, unknown>): PublicUser {
+export function toPublicUser(
+  doc: Record<string, unknown>,
+  options?: { hasPassword?: boolean },
+): PublicUser {
   const personalDetails = { ...(doc.personalDetails as Record<string, unknown>) };
   delete personalDetails.password;
+
+  const hasPassword = options?.hasPassword ?? userHasPassword(doc);
 
   return {
     id: String(doc._id),
@@ -76,6 +89,7 @@ export function toPublicUser(doc: Record<string, unknown>): PublicUser {
       personalDetails.emailVerified === true || doc.emailVerified === true,
     authProvider: (doc.authProvider as AuthProvider) ?? "credentials",
     profileComplete: isProfileComplete(personalDetails),
+    hasPassword,
     isActive: doc.isActive !== false,
     createdAt: doc.createdAt as Date | undefined,
     updatedAt: doc.updatedAt as Date | undefined,
@@ -92,6 +106,11 @@ export async function findByEmail(email: string) {
 
 export async function findById(id: string) {
   return User.findById(id).select("-personalDetails.password -verificationToken -resetPasswordToken -resetPasswordExpires");
+}
+
+/** Load the current user document including password hash for `hasPassword` (route strips before response). */
+export async function findByIdForMe(id: string) {
+  return User.findById(id).select("-verificationToken -resetPasswordToken -resetPasswordExpires").lean();
 }
 
 export async function findByGoogleSubjectId(sub: string) {
@@ -188,6 +207,8 @@ export async function findOrCreateFromGoogle(profile: GoogleProfileInput) {
     personalDetails.imageUrl = profile.image;
   }
 
+  personalDetails.preferredLanguage = normalizeLocale(profile.preferredLanguage);
+
   const user = await User.create({
     authProvider: "google",
     googleSubjectId: profile.sub,
@@ -198,6 +219,25 @@ export async function findOrCreateFromGoogle(profile: GoogleProfileInput) {
   await linkInvitesByEmail(normalizedEmail, String(user._id));
 
   return { user, created: true };
+}
+
+/**
+ * Ensure `personalDetails.preferredLanguage` is set (e.g. Google bridge before cookies).
+ * No-op when the user already has a saved preference.
+ */
+export async function ensurePreferredLanguage(userId: string, fallback: AppLocale) {
+  const user = await User.findById(userId).select("personalDetails.preferredLanguage");
+  if (!user) return;
+
+  const current = user.personalDetails?.preferredLanguage;
+  if (typeof current === "string" && current.trim()) {
+    return;
+  }
+
+  await User.updateOne(
+    { _id: userId },
+    { $set: { "personalDetails.preferredLanguage": normalizeLocale(fallback) } },
+  );
 }
 
 // --- Profile updates ---

@@ -1,5 +1,5 @@
-import { ProfilePlaceholderPage } from "@/components/layout/profile-placeholder-page.tsx";
+import { ProfilePage } from "@/components/profile/profile-page.tsx";
 
-export default function ProfilePage() {
-  return <ProfilePlaceholderPage />;
+export default function Page() {
+  return <ProfilePage />;
 }

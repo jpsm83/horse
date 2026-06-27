@@ -17,11 +17,13 @@ export async function GET(request: Request) {
   return withRoute(async () => {
     await connectDb();
     const session = await requireAuthFromRequest(request);
-    const user = await userService.findById(session.id);
+    const user = await userService.findByIdForMe(session.id);
     if (!user) {
       throw new ApiError(404, "User not found", "NOT_FOUND");
     }
-    return ok({ user: userService.toPublicUser(user.toObject() as Record<string, unknown>) });
+    return ok({
+      user: userService.toPublicUser(user as Record<string, unknown>),
+    });
   });
 }
 

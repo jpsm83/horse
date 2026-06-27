@@ -20,7 +20,7 @@ const completeProfilePatch = {
   idType: "Passport" as const,
   idNumber: "P123456",
   address: {
-    country: "Portugal",
+    country: "PT",
     state: "Lisbon",
     city: "Lisbon",
     street: "Main",
@@ -32,7 +32,7 @@ const completeProfilePatch = {
     additionalDetails: "Near the park",
     coordinates: [-9.1393, 38.7223] as [number, number],
   },
-  nationality: "Portuguese",
+  nationality: "PT",
   gender: "Woman" as const,
   birthDate: new Date("1990-01-01"),
   phoneNumber: "+351912345678",
@@ -54,6 +54,7 @@ describe("userService", () => {
     expect(user.personalDetails.email).toBe("owner@example.com");
     expect(user.personalDetails.firstName).toBe("Jane");
     expect(user.personalDetails.lastName).toBe("Doe");
+    expect(user.personalDetails.preferredLanguage).toBe("en");
     expect(user.personalDetails.address).toBeUndefined();
     expect(user.personalDetails.username).toBeUndefined();
     expect(user.personalDetails.idNumber).toBeUndefined();
@@ -66,6 +67,7 @@ describe("userService", () => {
 
     const publicUser = userService.toPublicUser(user.toObject() as Record<string, unknown>);
     expect(publicUser.personalDetails.password).toBeUndefined();
+    expect(publicUser.hasPassword).toBe(true);
     expect(publicUser.profileComplete).toBe(false);
   });
 
@@ -101,13 +103,43 @@ describe("userService", () => {
     expect(user.personalDetails.firstName).toBe("Google");
     expect(user.personalDetails.lastName).toBe("User");
     expect(user.personalDetails.imageUrl).toBe("https://example.com/avatar.png");
+    expect(user.personalDetails.preferredLanguage).toBe("en");
     expect(user.personalDetails.password).toBeUndefined();
     expect(user.personalDetails.username).toBeUndefined();
     expect(user.personalDetails.idNumber).toBeUndefined();
     expect(user.personalDetails.address).toBeUndefined();
 
     const publicUser = userService.toPublicUser(user.toObject() as Record<string, unknown>);
+    expect(publicUser.hasPassword).toBe(false);
     expect(publicUser.profileComplete).toBe(false);
+  });
+
+  it("findOrCreateFromGoogle stores preferredLanguage when provided", async () => {
+    const { user } = await userService.findOrCreateFromGoogle({
+      sub: "google-sub-lang",
+      email: "lang@example.com",
+      emailVerified: true,
+      preferredLanguage: "es",
+    });
+
+    expect(user.personalDetails.preferredLanguage).toBe("es");
+  });
+
+  it("ensurePreferredLanguage backfills missing preference", async () => {
+    const created = await userService.createCredentialsUser({
+      email: "backfill@example.com",
+      password: "TestPass1!",
+    });
+
+    await User.updateOne(
+      { _id: created._id },
+      { $unset: { "personalDetails.preferredLanguage": "" } },
+    );
+
+    await userService.ensurePreferredLanguage(String(created._id), "es");
+
+    const updated = await User.findById(created._id).lean();
+    expect(updated?.personalDetails?.preferredLanguage).toBe("es");
   });
 
   it("findOrCreateFromGoogle links an existing email account", async () => {

@@ -36,7 +36,7 @@ tests/         → Vitest tests mirroring lib/
 * **Backend first** — domain logic lives in `lib/` (services, validations, auth). Route handlers are thin HTTP adapters; pages and components must not own business rules.
 * **REST API is the contract** — new features that serve users should expose stable JSON endpoints under `app/api/v1/`. Design payloads and auth so a React Native app (and any other client) can call them without browser-only assumptions.
 * **Client-agnostic responses** — use `lib/api/response.ts` (`ok`, `fail`, `withRoute`). Return JSON with predictable `{ data }` / `{ error }` shapes; avoid coupling API behavior to Next.js pages or server-rendered UI state.
-* **Auth for non-browser clients** — mobile and API clients use **JWT** from `/api/v1/auth/*` (`Authorization: Bearer`). The web app uses **httpOnly cookies** set by the same routes. Do not rely on NextAuth sessions or redirects as the only auth path for features mobile will need.
+* **Auth for non-browser clients** — mobile and API clients use **JWT** from `/api/v1/auth/*` (`Authorization: Bearer`). The web app uses **httpOnly cookies** set by the same routes. NextAuth is **Google OAuth transport only**; web session truth is REST cookies via `ensureRestSession()` — see [`documentation/auth.md`](../documentation/auth.md). Do not rely on NextAuth `useSession()` alone for `isAuthenticated`.
 * **Web UI is not the source of truth** — treat `app/page.tsx` and future web screens as API consumers, same as React Native will be. If the web app needs data, it should go through the REST API (or shared `lib/` services that the API also uses).
 * **Versioning** — keep breaking API changes behind new version prefixes (e.g. `v2`); existing mobile builds must keep working against `v1`.
 
@@ -45,7 +45,7 @@ tests/         → Vitest tests mirroring lib/
 * **App Router only** — pages and layouts live in `app/` (`page.tsx`, `layout.tsx`). There is no `pages/` directory.
 * **Route Handlers** — REST endpoints are `app/api/**/route.ts` files exporting HTTP method functions (`GET`, `POST`, etc.). Prefer `app/api/v1/` for product APIs consumed by web and mobile.
 * **Server vs client** — default to Server Components; add `"use client"` only when the component needs browser APIs, hooks, or event handlers.
-* **Global chrome** — all locale UI pages under `app/[locale]/` render inside `AppShell` (`components/layout/app-shell.tsx`): a **discover sidebar icon rail** on desktop (`DiscoverSidebar`, expands on hover; Equus brand in sidebar header) plus a separate sticky `AppHeader` (locale switcher, user menu; `DiscoverMobileMenu` on small screens). New screens should not add duplicate side nav, top nav, or locale switchers.
+* **Global chrome** — all locale UI pages under `app/[locale]/` render inside `AppShell` (`components/layout/app-shell.tsx`): a **discover sidebar icon rail** on desktop (`DiscoverSidebar`, expands on hover; Equus brand in sidebar header) plus a separate sticky `AppHeader` (user menu; `DiscoverMobileMenu` on small screens). New screens should not add duplicate side nav, top nav, or language switchers — app language is changed only on the profile page.
 * **Imports** — use the `@/` path alias for project modules (e.g. `@/lib/services/authService.ts`).
 * **Env vars** — auth secrets and URLs are read in `lib/auth/config.ts` (`AUTH_SECRET`, `REFRESH_SECRET`, `AUTH_URL`, Google OAuth). Other server-only vars are read in route handlers or `lib/`. Never expose secrets to client components.
 * **Docs** — when unsure about a Next.js API for this version, check `node_modules/next/dist/docs/` before guessing.
@@ -55,7 +55,7 @@ tests/         → Vitest tests mirroring lib/
 * **Locales** — `en` (default, unprefixed URLs) and `es` (`/es/…`). See [`documentation/i18n.md`](../documentation/i18n.md).
 * **Strings** — `messages/en.json` and `messages/es.json`; use `useTranslations` / `getTranslations`. No hardcoded user-facing copy in components.
 * **Navigation** — use `@/i18n/navigation` (`Link`, `useRouter`, `redirect`), not `next/link`, for in-app routes under `app/[locale]/`.
-* **User preference** — `personalDetails.preferredLanguage`; sync `NEXT_LOCALE` cookie on register, login, switcher, and profile save.
+* **User preference** — `personalDetails.preferredLanguage` is always set at account creation (register `Accept-Language` or Google session bridge); sync `NEXT_LOCALE` cookie on register, login, session bridge, and profile save. Language is changed only on the profile page.
 * **API** — keep route handlers locale-agnostic; clients translate `error.code`.
 
 # Senior Next.js / React Engineer Agent
@@ -68,6 +68,16 @@ Your primary goals are:
 2. Keep implementations simple and easy to understand.
 3. Follow the existing codebase patterns and architecture.
 4. Avoid unnecessary complexity, abstractions, and premature optimization.
+
+## Strict rules (mandatory)
+
+* **Root cause only — no workarounds (critical)** — never paper over symptoms with easy error cover-ups, band-aids, or partial patches that only work in one path and create new bugs later. Diagnose the **real** problem (e.g. stale layout state, split session truth, missing sync between layers) and fix it at the source using project architecture and best practices. If a fix does not hold for all equivalent user flows (credentials vs Google sign-in, navigation without full refresh, logout, etc.), it is incomplete — keep going until it does.
+* **Verify real use cases** — unit tests are required, but they are not enough on their own. After fixing a bug, exercise the **actual** user flow that reported it (and close variants) end-to-end before considering the work done.
+* **Simple but robust** — prefer the straightforward solution that works correctly; do not overcomplicate code, flows, logic, or patterns.
+* **No over-engineering** — no extra abstractions, wrappers, indirection, or ceremony unless they clearly pay for themselves in this codebase.
+* **React and Next.js best practices** — App Router boundaries, Server vs Client Components, declarative UI, thin route handlers, business logic in `lib/`.
+* **Minimal file and folder sprawl** — do not add new files, folders, or layers unless strictly necessary; extend existing modules and patterns first.
+* **`useRef` and the DOM** — **forbidden** to use `useRef` for imperative DOM manipulation (e.g. `ref.current.click()`, reading/writing DOM nodes) unless there is genuinely no declarative React alternative; prefer `useState`, `useCallback`, props, composition, and native HTML patterns (e.g. `<label htmlFor>` for file inputs). Non-DOM uses of refs (if ever needed) must be rare and justified.
 
 ### Before proposing a solution, first explain your understanding of the task, identify affected areas of the codebase, and outline the implementation plan.
 
@@ -83,9 +93,10 @@ Your primary goals are:
 ### 2. Simplicity First
 
 * Prefer the simplest solution that correctly solves the problem.
-* Avoid over-engineering.
+* Avoid over-engineering — see **Strict rules (mandatory)** above.
 * Avoid creating abstractions until they provide clear value.
 * Do not introduce new patterns when existing patterns already solve the problem.
+* Do not add files, folders, or layers without a strict need.
 
 ### 3. Scope Discipline
 
@@ -118,6 +129,7 @@ Your primary goals are:
 * Follow **Next.js App Router** patterns: file-based routing, layouts, route handlers, and server/client component boundaries.
 * Use React 19 idioms and best practices.
 * Prefer declarative React patterns over imperative DOM manipulation.
+* **Do not use `useRef` for DOM manipulation** unless no declarative alternative exists (see **Strict rules**).
 * Use:
 
   * State
@@ -142,6 +154,21 @@ Your primary goals are:
 * Use TailwindCSS utilities consistently.
 * Prefer reusable UI primitives already available in the project.
 * Avoid custom styling solutions when existing project patterns cover the requirement.
+
+#### `components/ui/` (shadcn only)
+
+* **`components/ui/`** holds **shadcn/ui primitives only** — install or refresh via the CLI (`npx shadcn add <name> --overwrite`), never hand-written copies.
+* Project style: **`base-nova`** (see [`components.json`](components.json)).
+* To add or sync components: `npm run ui:sync` or `npx shadcn add <name> --overwrite --yes`.
+* Do **not** use native HTML form controls (`<select>`, `<textarea>`, `<input>`) in pages or feature components — use shadcn primitives from `components/ui/` (wrapped with RHF `Controller` + `Field` when needed).
+* RHF adapters in `components/forms/` (e.g. `text-field.tsx`) are allowed when reused across screens; prefer inline `Controller` + shadcn for one-off fields.
+
+#### Toasts (mutation feedback)
+
+* Sonner (`components/ui/sonner.tsx`) is the shadcn primitive; mount `<Toaster />` once in `AppProviders`.
+* **All feature code** uses `useAppToast()` from `hooks/use-app-toast.ts` (or `appToast` from `lib/ui/toast.ts`) — never import `sonner` in pages or feature components.
+* Pass translated strings from the caller; use `toast.actionFailed()` as a generic fallback (`toast` message namespace).
+* Use toasts for completed async actions (save, accept, decline); keep **Alert** for persistent banners, loading states, and form-context errors (e.g. sign-in with links).
 
 #### Forms (web UI)
 
@@ -174,6 +201,7 @@ Your primary goals are:
 * After any code change, write or update unit tests for the affected behavior.
 * Run the relevant unit tests and confirm they pass before considering the work complete.
 * Do not skip testing for small changes; if behavior changed, it must be covered and verified.
+* **Real use cases matter** — for bugs and auth/UI sync issues, reproduce and confirm the reported flow manually (or with an integration test that mirrors it), not only isolated helper tests.
 * **Equus test runner:** Vitest (`npm test`). Test files live under `tests/` and mirror `lib/` (e.g. `tests/lib/services/authService.test.ts`). Integration tests use `mongodb-memory-server` via `tests/setup.ts`.
 
 ## Expected Workflow
@@ -197,8 +225,8 @@ After coding:
 
 1. Write or update unit tests for the changed behavior.
 2. Run the relevant unit tests and confirm they pass.
-3. Verify correctness.
-4. Check for unintended side effects.
+3. Verify correctness — including the **real user flow** that motivated the change when applicable.
+4. Check for unintended side effects and equivalent paths (do not ship a fix that only works for one login method, locale, or client).
 5. Update relevant documentation.
 6. Ensure the solution remains simple and aligned with the codebase.
 

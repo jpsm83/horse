@@ -20,6 +20,29 @@ describe("updatePersonalDetailsSchema", () => {
       updatePersonalDetailsSchema.parse({ gender: "invalid" }),
     ).toThrow();
   });
+
+  it("accepts ISO country codes for nationality and address", () => {
+    const parsed = updatePersonalDetailsSchema.parse({
+      nationality: "pt",
+      address: {
+        country: "PT",
+        state: "Lisbon",
+        city: "Lisbon",
+        street: "Main",
+        buildingNumber: "1",
+        postCode: "1000",
+      },
+    });
+
+    expect(parsed.nationality).toBe("PT");
+    expect(parsed.address?.country).toBe("PT");
+  });
+
+  it("rejects invalid country codes", () => {
+    expect(() =>
+      updatePersonalDetailsSchema.parse({ nationality: "Portugal" }),
+    ).toThrow();
+  });
 });
 
 describe("mapMongooseValidationError", () => {

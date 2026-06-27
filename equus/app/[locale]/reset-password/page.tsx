@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
@@ -13,6 +13,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { Link, useRouter } from "@/i18n/navigation.ts";
 import { resetPassword } from "@/lib/api/authClient.ts";
+import { clearClientAuthSession } from "@/lib/auth/clearClientAuthSession.ts";
 import { cn } from "@/lib/utils";
 import {
   authFormMessagesFromTranslations,
@@ -32,6 +33,24 @@ function ResetPasswordContent() {
   const token = searchParams.get("token");
   const [apiError, setApiError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [sessionCleared, setSessionCleared] = useState(!token);
+
+  useEffect(() => {
+    if (!token) return;
+
+    let cancelled = false;
+    void (async () => {
+      await clearClientAuthSession();
+      if (!cancelled) {
+        router.refresh();
+        setSessionCleared(true);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, router]);
 
   const { resetPasswordFormSchema } = useMemo(
     () =>
@@ -55,11 +74,26 @@ function ResetPasswordContent() {
 
     try {
       await resetPassword(token, data.newPassword);
+      await clearClientAuthSession();
       setSuccess(true);
-      router.refresh();
+      router.replace("/signin");
     } catch (err) {
       setApiError(err instanceof Error ? err.message : tStatus("requestFailed"));
     }
+  }
+
+  if (!sessionCleared) {
+    return (
+      <AuthPageShell
+        title={t("title")}
+        description={tCommon("loading")}
+        footer={<span>{tCommon("loading")}</span>}
+      >
+        <Alert>
+          <AlertDescription>{tCommon("loading")}</AlertDescription>
+        </Alert>
+      </AuthPageShell>
+    );
   }
 
   if (!token) {

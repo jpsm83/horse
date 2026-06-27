@@ -1,16 +1,17 @@
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 
+import { useRouter } from "@/i18n/navigation.ts";
 import {
+  ensureRestSession,
   fetchUserNavigation,
   fetchUserProfile,
-  logoutFromApi,
-  syncApiSession,
-  tryFetchCurrentUser,
+  subscribeAuthStateChanged,
   type UserOwnedNavigation,
 } from "@/lib/api/authClient.ts";
+import { clearClientAuthSession } from "@/lib/auth/clearClientAuthSession.ts";
 import type { AuthUser } from "@/lib/auth/types.ts";
 
 export type AppAuthProfile = {
@@ -60,20 +61,20 @@ function buildDisplayName(profile: AppAuthProfile | null, email: string): string
 
 /** Shared auth state for the global header — REST session, profile, and owned nav flags. */
 export function useAppAuth(): AppAuthState {
+  const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [profile, setProfile] = useState<AppAuthProfile | null>(null);
   const [ownedNavigation, setOwnedNavigation] = useState<UserOwnedNavigation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [authRevision, setAuthRevision] = useState(0);
 
   const loadAuthState = useCallback(async () => {
     try {
-      if (session?.user?.id) {
-        await syncApiSession();
-      }
-
-      const currentUser = await tryFetchCurrentUser(Boolean(session?.user?.id));
+      const currentUser = await ensureRestSession({
+        nextAuthUserId: session?.user?.id,
+      });
       setUser(currentUser);
 
       if (!currentUser) {
@@ -97,6 +98,14 @@ export function useAppAuth(): AppAuthState {
     }
   }, [session?.user?.id]);
 
+  useEffect(
+    () =>
+      subscribeAuthStateChanged(() => {
+        setAuthRevision((revision) => revision + 1);
+      }),
+    [],
+  );
+
   useEffect(() => {
     if (sessionStatus === "loading") return;
 
@@ -108,25 +117,23 @@ export function useAppAuth(): AppAuthState {
         setIsLoading(false);
       }
     })();
-  }, [loadAuthState, sessionStatus]);
+  }, [loadAuthState, sessionStatus, authRevision]);
 
   const logout = useCallback(async () => {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
 
     try {
-      await logoutFromApi();
-      if (session) {
-        await signOut({ callbackUrl: "/signin" });
-        return;
-      }
+      await clearClientAuthSession();
+
       setUser(null);
       setProfile(null);
       setOwnedNavigation(null);
+      router.replace("/signin");
     } finally {
       setIsLoggingOut(false);
     }
-  }, [isLoggingOut, session]);
+  }, [isLoggingOut, router]);
 
   const displayName = user ? buildDisplayName(profile, user.email) : null;
   const profileImageUrl = profile?.imageUrl?.trim() || null;

@@ -2,10 +2,9 @@
 
 import { DiscoverMobileMenu } from "@/components/layout/discover-mobile-menu.tsx";
 import { UserMenu } from "@/components/layout/user-menu.tsx";
-import { LocaleSwitcher } from "@/components/locale-switcher.tsx";
 import { useAppAuth } from "@/hooks/use-app-auth.ts";
 
-/** Sticky global header — locale switcher and user menu; discover on mobile only. */
+/** Sticky global header — user menu; discover on mobile only. */
 export function AppHeader() {
   const auth = useAppAuth();
 
@@ -18,7 +17,6 @@ export function AppHeader() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <LocaleSwitcher isAuthenticated={auth.isAuthenticated} />
           <UserMenu auth={auth} />
         </div>
       </div>

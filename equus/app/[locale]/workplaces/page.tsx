@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { Link, useRouter } from "@/i18n/navigation.ts";
 import {
   acceptMembership,
@@ -24,16 +25,14 @@ function WorkplacesContent() {
   const t = useTranslations("invites.workplaces");
   const tCommon = useTranslations("common");
   const tStatus = useTranslations("status");
+  const toast = useAppToast();
   const highlightMembershipId = searchParams.get("membership");
 
   const [workplaces, setWorkplaces] = useState<PublicWorkplace[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
   const [actingId, setActingId] = useState<string | null>(null);
 
   const loadWorkplaces = useCallback(async () => {
-    setError(null);
     try {
       await fetchCurrentUser();
       const data = await fetchWorkplaces();
@@ -54,19 +53,17 @@ function WorkplacesContent() {
 
   async function handleAccept(membershipId: string) {
     setActingId(membershipId);
-    setFeedback(null);
-    setError(null);
 
     try {
       await acceptMembership(membershipId);
-      setFeedback(t("accepted"));
+      toast.success(t("accepted"));
       await loadWorkplaces();
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
         return;
       }
-      setError(err instanceof Error ? err.message : tStatus("requestFailed"));
+      toast.error(err instanceof Error ? err.message : tStatus("requestFailed"));
     } finally {
       setActingId(null);
     }
@@ -74,19 +71,17 @@ function WorkplacesContent() {
 
   async function handleDecline(membershipId: string) {
     setActingId(membershipId);
-    setFeedback(null);
-    setError(null);
 
     try {
       await declineMembership(membershipId);
-      setFeedback(t("declined"));
+      toast.success(t("declined"));
       await loadWorkplaces();
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
         return;
       }
-      setError(err instanceof Error ? err.message : tStatus("requestFailed"));
+      toast.error(err instanceof Error ? err.message : tStatus("requestFailed"));
     } finally {
       setActingId(null);
     }
@@ -116,18 +111,6 @@ function WorkplacesContent() {
         </Link>
       }
     >
-      {feedback ? (
-        <Alert>
-          <AlertDescription>{feedback}</AlertDescription>
-        </Alert>
-      ) : null}
-
-      {error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      ) : null}
-
       {workplaces.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("empty")}</p>
       ) : (

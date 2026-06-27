@@ -1,4 +1,5 @@
 import type { AuthProvider, AuthUser } from "@/lib/auth/types.ts";
+import type { PublicUser, UpdatePersonalDetailsInput } from "@/lib/services/userService.ts";
 import type { UserOwnedNavigation } from "@/lib/services/navigationService.ts";
 import type { PublicWorkplace } from "@/lib/services/roleMembershipService.ts";
 
@@ -61,20 +62,125 @@ async function parseApiResponse<T>(response: Response): Promise<T> {
   return (body as ApiSuccess<T>).data;
 }
 
-const apiFetch = (input: string, init?: RequestInit) =>
-  fetch(input, { ...init, credentials: "include" });
+/** Auth routes where 401 means invalid credentials — do not attempt cookie refresh. */
+const AUTH_NO_REFRESH_PATHS = [
+  "/api/v1/auth/login",
+  "/api/v1/auth/register",
+  "/api/v1/auth/refresh",
+  "/api/v1/auth/logout",
+  "/api/v1/auth/session",
+] as const;
+
+function shouldAttemptTokenRefresh(url: string): boolean {
+  return !AUTH_NO_REFRESH_PATHS.some((path) => url.startsWith(path));
+}
+
+let refreshInFlight: Promise<boolean> | null = null;
+let silentAuthFailure = false;
+let sessionExpiredHandler: (() => void) | null = null;
+
+/** Register a client handler for unrecoverable auth failure (e.g. redirect to sign-in). */
+export function setSessionExpiredHandler(handler: (() => void) | null): void {
+  sessionExpiredHandler = handler;
+}
+
+function notifySessionExpired(): void {
+  sessionExpiredHandler?.();
+}
+
+/** Suppress session-expired redirect for optional auth probes on public pages. */
+export async function runWithSilentAuthFailure<T>(fn: () => Promise<T>): Promise<T> {
+  const previous = silentAuthFailure;
+  silentAuthFailure = true;
+  try {
+    return await fn();
+  } finally {
+    silentAuthFailure = previous;
+  }
+}
+
+/** Exchange refresh cookie for a new access token (deduped when multiple requests 401). */
+async function refreshAccessToken(): Promise<boolean> {
+  if (refreshInFlight) {
+    return refreshInFlight;
+  }
+
+  refreshInFlight = (async () => {
+    try {
+      const response = await fetch("/api/v1/auth/refresh", {
+        method: "POST",
+        credentials: "include",
+      });
+      return response.ok;
+    } catch {
+      return false;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+
+  return refreshInFlight;
+}
+
+const apiFetch = async (input: string, init?: RequestInit): Promise<Response> => {
+  let response = await fetch(input, { ...init, credentials: "include" });
+
+  if (response.status === 401 && shouldAttemptTokenRefresh(input)) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+      response = await fetch(input, { ...init, credentials: "include" });
+    } else {
+      resetOptionalUserCache();
+      if (!silentAuthFailure) {
+        notifySessionExpired();
+      }
+    }
+  }
+
+  return response;
+};
 
 /** In-memory cache so public pages (e.g. home) do not re-hit /auth/me on locale navigation. */
 let optionalUserCache: AuthUser | null | undefined;
 let navigationCache: UserOwnedNavigation | undefined;
+const authStateListeners = new Set<() => void>();
+
+/** Subscribe to REST session cache changes (login, logout, bridge). Used by `useAppAuth`. */
+export function subscribeAuthStateChanged(listener: () => void): () => void {
+  authStateListeners.add(listener);
+  return () => {
+    authStateListeners.delete(listener);
+  };
+}
+
+function notifyAuthStateChanged(): void {
+  for (const listener of authStateListeners) {
+    listener();
+  }
+}
+
+function isAuthenticatedCache(value: AuthUser | null | undefined): boolean {
+  return value != null;
+}
 
 export function resetOptionalUserCache(): void {
+  const wasAuthenticated = isAuthenticatedCache(optionalUserCache);
   optionalUserCache = undefined;
   navigationCache = undefined;
+  if (wasAuthenticated) {
+    notifyAuthStateChanged();
+  }
 }
 
 function setOptionalUserCache(user: AuthUser | null): AuthUser | null {
+  const wasAuthenticated = isAuthenticatedCache(optionalUserCache);
+  const willBeAuthenticated = isAuthenticatedCache(user);
+  const userIdChanged =
+    optionalUserCache != null && user != null && optionalUserCache.id !== user.id;
   optionalUserCache = user;
+  if (wasAuthenticated !== willBeAuthenticated || userIdChanged) {
+    notifyAuthStateChanged();
+  }
   return user;
 }
 
@@ -128,6 +234,15 @@ export async function requestPasswordReset(email: string): Promise<{ message: st
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
+  });
+
+  return parseApiResponse<{ message: string }>(response);
+}
+
+/** Send a password set/reset email for the signed-in user (session email only). */
+export async function requestPasswordResetForCurrentUser(): Promise<{ message: string }> {
+  const response = await apiFetch("/api/v1/users/me/request-password-reset", {
+    method: "POST",
   });
 
   return parseApiResponse<{ message: string }>(response);
@@ -219,9 +334,7 @@ export async function resolveInviteRef(ref: string): Promise<InviteRefPreview | 
   return data.preview;
 }
 
-export async function fetchUserProfile(): Promise<{
-  user: { personalDetails: Record<string, unknown> };
-}> {
+export async function fetchUserProfile(): Promise<{ user: PublicUser }> {
   return parseApiResponse(await apiFetch("/api/v1/users/me"));
 }
 
@@ -239,51 +352,131 @@ export async function fetchUserNavigation(force = false): Promise<UserOwnedNavig
 
 export type { UserOwnedNavigation };
 
-export async function updatePreferredLanguage(preferredLanguage: string): Promise<void> {
-  await parseApiResponse(
-    await apiFetch("/api/v1/users/me", {
+/** Update profile fields; optional avatar upload uses multipart PATCH. */
+export async function updateUserProfile(
+  input: UpdatePersonalDetailsInput,
+  imageFile?: File,
+): Promise<{ user: PublicUser }> {
+  let response: Response;
+
+  if (imageFile) {
+    const formData = new FormData();
+    formData.append("imageUrl", imageFile);
+
+    for (const [key, value] of Object.entries(input)) {
+      if (value === undefined) continue;
+      if (key === "address") {
+        formData.append("address", JSON.stringify(value));
+      } else if (key === "birthDate" && value instanceof Date) {
+        formData.append("birthDate", value.toISOString());
+      } else {
+        formData.append(key, String(value));
+      }
+    }
+
+    response = await apiFetch("/api/v1/users/me", {
+      method: "PATCH",
+      body: formData,
+    });
+  } else {
+    response = await apiFetch("/api/v1/users/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ preferredLanguage }),
-    }),
-  );
-}
-
-/** Bridge NextAuth (Google) sign-in to REST API httpOnly cookies. */
-export async function syncApiSession(): Promise<void> {
-  const response = await apiFetch("/api/v1/auth/session", { method: "POST" });
-  if (!response.ok) {
-    throw new Error("Failed to sync session");
+      body: JSON.stringify(input),
+    });
   }
+
+  const data = await parseApiResponse<{ user: PublicUser }>(response);
+  resetOptionalUserCache();
+  return data;
 }
 
-/** Optional auth probe for public pages — returns null when not signed in (no refresh retry). */
+async function probeAuthMe(): Promise<AuthUser | null> {
+  const response = await apiFetch("/api/v1/auth/me");
+  if (response.status === 401) {
+    return null;
+  }
+  const data = await parseApiResponse<{ user: AuthUser }>(response);
+  return data.user;
+}
+
+/** Bridge NextAuth (Google) to REST httpOnly cookies — internal; use `ensureRestSession`. */
+async function bridgeFromNextAuth(): Promise<AuthUser | null> {
+  const response = await fetch("/api/v1/auth/session", {
+    method: "POST",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const body = (await response.json()) as ApiSuccess<AuthSessionResult> | ApiErrorBody;
+  if (!("data" in body) || !body.data?.user) {
+    return null;
+  }
+
+  return setOptionalUserCache(body.data.user);
+}
+
+export type EnsureRestSessionOptions = {
+  /** Present when NextAuth Google OAuth completed but REST cookies may be missing. */
+  nextAuthUserId?: string;
+  /** When true, notify session-expired handler if REST session cannot be established. */
+  required?: boolean;
+};
+
+/**
+ * Ensure a valid REST session exists. Probes `/auth/me`, bridges from NextAuth only when needed.
+ * Web auth truth is REST cookies — not NextAuth session alone.
+ */
+export async function ensureRestSession(
+  options: EnsureRestSessionOptions = {},
+): Promise<AuthUser | null> {
+  const { nextAuthUserId, required = false } = options;
+
+  const existing = await runWithSilentAuthFailure(() => probeAuthMe());
+  if (existing) {
+    return setOptionalUserCache(existing);
+  }
+
+  if (nextAuthUserId) {
+    const bridged = await bridgeFromNextAuth();
+    if (bridged) {
+      return bridged;
+    }
+
+    const afterBridge = await runWithSilentAuthFailure(() => probeAuthMe());
+    if (afterBridge) {
+      return setOptionalUserCache(afterBridge);
+    }
+  }
+
+  resetOptionalUserCache();
+
+  if (required || nextAuthUserId) {
+    notifySessionExpired();
+  }
+
+  return null;
+}
+
+/** Optional auth probe for public pages — returns null when not signed in. */
 export async function tryFetchCurrentUser(force = false): Promise<AuthUser | null> {
   if (!force && optionalUserCache !== undefined) {
     return optionalUserCache;
   }
 
-  const response = await apiFetch("/api/v1/auth/me");
-  if (response.status === 401) {
-    return setOptionalUserCache(null);
-  }
-  const data = await parseApiResponse<{ user: AuthUser }>(response);
-  return setOptionalUserCache(data.user);
+  const user = await runWithSilentAuthFailure(() => probeAuthMe());
+  return setOptionalUserCache(user);
 }
 
 export async function fetchCurrentUser(): Promise<AuthUser> {
-  let response = await apiFetch("/api/v1/auth/me");
-
-  if (response.status === 401) {
-    const refreshResponse = await apiFetch("/api/v1/auth/refresh", { method: "POST" });
-    if (refreshResponse.ok) {
-      response = await apiFetch("/api/v1/auth/me");
-    }
+  const user = await ensureRestSession({ required: true });
+  if (!user) {
+    throw new ApiClientError(401, "Not authenticated", "UNAUTHORIZED");
   }
-
-  const data = await parseApiResponse<{ user: AuthUser }>(response);
-  setOptionalUserCache(data.user);
-  return data.user;
+  return user;
 }
 
 export async function logoutFromApi(): Promise<void> {

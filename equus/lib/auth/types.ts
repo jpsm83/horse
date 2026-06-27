@@ -8,6 +8,7 @@ export interface AuthUser {
   authProvider?: AuthProvider;
   profileComplete?: boolean;
   preferredLanguage?: string;
+  hasPassword?: boolean;
 }
 
 export interface JwtPayload extends AuthUser {
@@ -29,4 +30,5 @@ export interface GoogleProfileInput {
   emailVerified: boolean;
   name?: string | null;
   image?: string | null;
+  preferredLanguage?: string;
 }

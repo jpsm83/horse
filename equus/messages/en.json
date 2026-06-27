@@ -16,10 +16,8 @@
     "horseFallback": "Horse",
     "or": "Or"
   },
-  "localeSwitcher": {
-    "label": "Language",
-    "en": "English",
-    "es": "Español"
+  "toast": {
+    "actionFailed": "Something went wrong. Please try again."
   },
   "header": {
     "profile": "Profile",
@@ -174,7 +172,82 @@
     "passwordRequired": "Password is required",
     "passwordPolicy": "Password must be at least 8 characters and include a lowercase letter, an uppercase letter, a number, and a symbol.",
     "confirmPasswordRequired": "Please confirm your password",
-    "passwordsMismatch": "Passwords do not match"
+    "passwordsMismatch": "Passwords do not match",
+    "fieldRequired": "This field cannot be empty when provided",
+    "invalidDate": "Please enter a valid date",
+    "invalidEnum": "Please select a valid option",
+    "invalidCoordinates": "Please enter valid longitude and latitude",
+    "addressFieldRequired": "This address field is required when address is provided"
+  },
+  "profile": {
+    "title": "Your profile",
+    "description": "Update your personal details and preferences.",
+    "incompleteBanner": "Your profile is incomplete. You can save changes at any time and finish the rest later.",
+    "submit": "Save profile",
+    "submitting": "Saving…",
+    "saved": "Profile saved.",
+    "saveFailed": "Failed to save profile",
+    "emailVerified": "Email verified",
+    "emailNotVerified": "Email not verified",
+    "authProvider": "Sign-in method",
+    "sections": {
+      "account": "Account",
+      "personal": "Personal",
+      "identity": "Identity",
+      "address": "Address",
+      "photo": "Photo",
+      "security": "Security"
+    },
+    "username": "Username",
+    "preferredLanguage": "Preferred language",
+    "timezone": "Timezone",
+    "gender": "Gender",
+    "birthDate": "Date of birth",
+    "nationality": "Nationality",
+    "phoneNumber": "Phone number",
+    "bio": "Bio",
+    "idType": "ID type",
+    "idNumber": "ID number",
+    "country": "Country",
+    "state": "State / province",
+    "city": "City",
+    "street": "Street",
+    "buildingNumber": "Building number",
+    "doorNumber": "Door / unit",
+    "complement": "Complement",
+    "postCode": "Post code",
+    "region": "Region",
+    "additionalDetails": "Additional details",
+    "longitude": "Longitude",
+    "latitude": "Latitude",
+    "photoLabel": "Profile photo",
+    "photoHint": "JPG or PNG, up to 5 MB. Hover the photo to change it.",
+    "photoChange": "Change photo",
+    "photoRemovePreview": "Remove selected photo",
+    "photoInvalidType": "Please choose an image file.",
+    "photoTooLarge": "Image must be 5 MB or smaller.",
+    "passwordSet": "Set a password",
+    "passwordSetDescription": "We will email you a link to set a password for this account.",
+    "passwordChange": "Change password",
+    "passwordChangeDescription": "We will email you a link to reset your password.",
+    "passwordEmailFailed": "Could not send password email. Please try again.",
+    "selectPlaceholder": "Select…",
+    "genderOptions": {
+      "Man": "Man",
+      "Woman": "Woman",
+      "Other": "Other"
+    },
+    "idTypeOptions": {
+      "passport": "Passport",
+      "nationalId": "National ID",
+      "driverLicense": "Driver license",
+      "taxId": "Tax ID",
+      "other": "Other"
+    },
+    "languageOptions": {
+      "en": "English",
+      "es": "Español"
+    }
   },
   "errors": {
     "EMAIL_NOT_VERIFIED": "Please verify your email before signing in.",

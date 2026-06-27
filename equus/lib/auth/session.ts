@@ -8,7 +8,9 @@
  */
 
 import User from "../../models/User.ts";
+import { normalizeLocale } from "@/i18n/resolveLocale.ts";
 import type { AuthProvider, AuthUser } from "./types.ts";
+import { userHasPassword } from "../services/userService.ts";
 
 /**
  * Personal-details fields that must be filled for `profileComplete`.
@@ -119,9 +121,7 @@ export function refreshTokenPayloadVersionMatchesDb(
 /** Build the `AuthUser` shape stored in access tokens and returned by `/auth/me`. */
 export async function buildAuthUserSessionFromUserId(userId: string): Promise<AuthUser | null> {
   const user = await User.findById(userId)
-    .select(
-      "-personalDetails.password -verificationToken -resetPasswordToken -resetPasswordExpires",
-    )
+    .select("-verificationToken -resetPasswordToken -resetPasswordExpires")
     .lean();
 
   if (!user || user.isActive === false) return null;
@@ -142,8 +142,11 @@ export async function buildAuthUserSessionFromUserId(userId: string): Promise<Au
       user.personalDetails as Record<string, unknown> | undefined,
     ),
     preferredLanguage:
-      typeof user.personalDetails?.preferredLanguage === "string"
-        ? user.personalDetails.preferredLanguage
-        : undefined,
+      normalizeLocale(
+        typeof user.personalDetails?.preferredLanguage === "string"
+          ? user.personalDetails.preferredLanguage
+          : undefined,
+      ),
+    hasPassword: userHasPassword(user as Record<string, unknown>),
   };
 }

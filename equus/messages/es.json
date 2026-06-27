@@ -16,10 +16,8 @@
     "horseFallback": "Caballo",
     "or": "O"
   },
-  "localeSwitcher": {
-    "label": "Idioma",
-    "en": "English",
-    "es": "Español"
+  "toast": {
+    "actionFailed": "Algo salió mal. Inténtelo de nuevo."
   },
   "header": {
     "profile": "Perfil",
@@ -174,7 +172,82 @@
     "passwordRequired": "La contraseña es obligatoria",
     "passwordPolicy": "La contraseña debe tener al menos 8 caracteres e incluir una minúscula, una mayúscula, un número y un símbolo.",
     "confirmPasswordRequired": "Confirme su contraseña",
-    "passwordsMismatch": "Las contraseñas no coinciden"
+    "passwordsMismatch": "Las contraseñas no coinciden",
+    "fieldRequired": "Este campo no puede estar vacío si se proporciona",
+    "invalidDate": "Introduzca una fecha válida",
+    "invalidEnum": "Seleccione una opción válida",
+    "invalidCoordinates": "Introduzca longitud y latitud válidas",
+    "addressFieldRequired": "Este campo de dirección es obligatorio si se proporciona una dirección"
+  },
+  "profile": {
+    "title": "Su perfil",
+    "description": "Actualice sus datos personales y preferencias.",
+    "incompleteBanner": "Su perfil está incompleto. Puede guardar cambios en cualquier momento y completar el resto más tarde.",
+    "submit": "Guardar perfil",
+    "submitting": "Guardando…",
+    "saved": "Perfil guardado.",
+    "saveFailed": "Error al guardar el perfil",
+    "emailVerified": "Email verificado",
+    "emailNotVerified": "Email no verificado",
+    "authProvider": "Método de acceso",
+    "sections": {
+      "account": "Cuenta",
+      "personal": "Personal",
+      "identity": "Identidad",
+      "address": "Dirección",
+      "photo": "Foto",
+      "security": "Seguridad"
+    },
+    "username": "Nombre de usuario",
+    "preferredLanguage": "Idioma preferido",
+    "timezone": "Zona horaria",
+    "gender": "Género",
+    "birthDate": "Fecha de nacimiento",
+    "nationality": "Nacionalidad",
+    "phoneNumber": "Teléfono",
+    "bio": "Biografía",
+    "idType": "Tipo de documento",
+    "idNumber": "Número de documento",
+    "country": "País",
+    "state": "Estado / provincia",
+    "city": "Ciudad",
+    "street": "Calle",
+    "buildingNumber": "Número",
+    "doorNumber": "Puerta / unidad",
+    "complement": "Complemento",
+    "postCode": "Código postal",
+    "region": "Región",
+    "additionalDetails": "Detalles adicionales",
+    "longitude": "Longitud",
+    "latitude": "Latitud",
+    "photoLabel": "Foto de perfil",
+    "photoHint": "JPG o PNG, hasta 5 MB. Pase el cursor sobre la foto para cambiarla.",
+    "photoChange": "Cambiar foto",
+    "photoRemovePreview": "Quitar foto seleccionada",
+    "photoInvalidType": "Elija un archivo de imagen.",
+    "photoTooLarge": "La imagen debe pesar 5 MB o menos.",
+    "passwordSet": "Establecer contraseña",
+    "passwordSetDescription": "Le enviaremos un enlace por email para establecer una contraseña.",
+    "passwordChange": "Cambiar contraseña",
+    "passwordChangeDescription": "Le enviaremos un enlace por email para restablecer su contraseña.",
+    "passwordEmailFailed": "No se pudo enviar el email. Inténtelo de nuevo.",
+    "selectPlaceholder": "Seleccionar…",
+    "genderOptions": {
+      "Man": "Hombre",
+      "Woman": "Mujer",
+      "Other": "Otro"
+    },
+    "idTypeOptions": {
+      "passport": "Pasaporte",
+      "nationalId": "Documento nacional",
+      "driverLicense": "Licencia de conducir",
+      "taxId": "NIF / CIF",
+      "other": "Otro"
+    },
+    "languageOptions": {
+      "en": "English",
+      "es": "Español"
+    }
   },
   "errors": {
     "EMAIL_NOT_VERIFIED": "Verifique su email antes de iniciar sesión.",
