@@ -14,6 +14,14 @@ Canonical docs for product and engineering decisions.
 | [`userAndRoles.md`](userAndRoles.md) | One login, optional roles, per-horse discovery |
 | [`metricsSpec.md`](metricsSpec.md) | Internal business metrics (Phase 1B) |
 
+## Equus app docs (`equus/documentation/`)
+
+| Document | Purpose |
+|----------|---------|
+| [`equus/documentation/auth.md`](../equus/documentation/auth.md) | Web + API session, token refresh, Google bridge |
+| [`equus/documentation/i18n.md`](../equus/documentation/i18n.md) | Locales, routing, `NEXT_LOCALE` cookie |
+| [`equus/documentation/profile.md`](../equus/documentation/profile.md) | Profile page UI, loading/skeleton, `PATCH /me`, clear fields |
+
 ## Technical stack (summary)
 
 See [`stack.md`](stack.md) for full detail.

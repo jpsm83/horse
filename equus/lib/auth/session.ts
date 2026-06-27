@@ -29,7 +29,6 @@ const PERSONAL_DETAILS_PROFILE_FIELDS = [
   "imageUrl",
   "bio",
   "preferredLanguage",
-  "timezone",
 ] as const;
 
 /** Address subfields that must be filled when checking `profileComplete`. Align with `models/sharedSchemas/address.ts`. */
@@ -39,11 +38,7 @@ const ADDRESS_PROFILE_FIELDS = [
   "city",
   "street",
   "buildingNumber",
-  "doorNumber",
-  "complement",
   "postCode",
-  "region",
-  "additionalDetails",
 ] as const;
 
 // --- Profile completion ---

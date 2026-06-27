@@ -133,7 +133,7 @@ Versioned REST under `equus/app/api/v1/`:
 | Area | Prefix | Examples |
 |------|--------|----------|
 | Auth | `/api/v1/auth` | `login`, `register`, `refresh`, `logout` |
-| Users | `/api/v1/users` | profile (`GET`/`PATCH` `/me`) |
+| Users | `/api/v1/users` | profile (`GET`/`PATCH` `/me`) — see [`equus/documentation/profile.md`](../equus/documentation/profile.md) for PATCH clear-field semantics and web UI |
 | Horses | `/api/v1/horses` | CRUD, gallery, `PATCH .../discovery` (visibility + contact) |
 | Relationships | `/api/v1/relationships` | request, accept, decline, invite |
 | Bookings | `/api/v1/bookings` | create, accept, decline |
@@ -180,6 +180,7 @@ equus/lib/validations/
 - Reject unknown keys with `.strict()` on object schemas where appropriate
 - Share the same schema (or `pick`/`omit` variants) between API and web forms via `@hookform/resolvers/zod`
 - Do not trust client input; Mongoose validates persistence shape, Zod validates API boundary
+- **Profile PATCH** (`user.ts`): omitted field = no change; `""` = clear stored value (`$unset` in `userService`) — details in [`equus/documentation/profile.md`](../equus/documentation/profile.md)
 
 ### 6.3 Example pattern
 

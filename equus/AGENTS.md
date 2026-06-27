@@ -50,6 +50,14 @@ tests/         → Vitest tests mirroring lib/
 * **Env vars** — auth secrets and URLs are read in `lib/auth/config.ts` (`AUTH_SECRET`, `REFRESH_SECRET`, `AUTH_URL`, Google OAuth). Other server-only vars are read in route handlers or `lib/`. Never expose secrets to client components.
 * **Docs** — when unsure about a Next.js API for this version, check `node_modules/next/dist/docs/` before guessing.
 
+#### Loading states (web UI)
+
+* **Every locale page** should have a **Suspense** boundary and a **skeleton** that mirrors the loaded layout (shadcn [`Skeleton`](https://ui.shadcn.com/docs/components/radix/skeleton)). Profile is the reference — see [`documentation/profile.md`](documentation/profile.md).
+* **Route `loading.tsx`** — use the same skeleton component for segment navigations.
+* **Client-only REST fetches** (cookie auth) — load after mount (`useEffect` + skeleton), not `use()` during SSR. True data Suspense on the server requires fetching in a Server Component with `cookies()`.
+* **`LoadingOverlay`** — in-flight **mutations** (e.g. profile save), not initial page load. Spinner is viewport-centered; header/sidebar stay visible.
+* **Do not** use `Alert` for page-level loading — use skeleton or `loading.tsx`.
+
 ### Web UI i18n
 
 * **Locales** — `en` (default, unprefixed URLs) and `es` (`/es/…`). See [`documentation/i18n.md`](../documentation/i18n.md).
@@ -168,7 +176,7 @@ Your primary goals are:
 * Sonner (`components/ui/sonner.tsx`) is the shadcn primitive; mount `<Toaster />` once in `AppProviders`.
 * **All feature code** uses `useAppToast()` from `hooks/use-app-toast.ts` (or `appToast` from `lib/ui/toast.ts`) — never import `sonner` in pages or feature components.
 * Pass translated strings from the caller; use `toast.actionFailed()` as a generic fallback (`toast` message namespace).
-* Use toasts for completed async actions (save, accept, decline); keep **Alert** for persistent banners, loading states, and form-context errors (e.g. sign-in with links).
+* Use toasts for completed async actions (save, accept, decline, no-op save via `toast.info`); keep **Alert** for persistent banners and form-context errors (e.g. sign-in with links, incomplete profile banner) — not for page loading or save spinners.
 
 #### Forms (web UI)
 
@@ -177,6 +185,7 @@ Your primary goals are:
 * Client schemas live in `lib/validations/*Forms.ts` (or shared `lib/validations/`); do not rely on native HTML `required` for Zod-managed fields (use `noValidate` on `<form>`).
 * **Field-level** messages for validation; **top Alert** (or `form.setError` when API returns `error.fields`) for server/auth failures.
 * Reuse [`components/forms/text-field.tsx`](components/forms/text-field.tsx) for simple text inputs when it fits.
+* **Profile PATCH** — only dirty fields; optional clears send `""` → `$unset` in MongoDB. See [`documentation/profile.md`](documentation/profile.md).
 
 ### 10. Performance
 
@@ -283,7 +292,7 @@ models/
 - **Mongoose models** define persisted field types, enums, and `required` rules at the schema level.
 - **Zod** (`lib/validations/user.ts`, `lib/validations/auth.ts`) sanitizes and validates API input before it reaches services.
 - **Never** insert placeholder profile values in services; optional fields stay unset until the user updates their profile.
-- `isProfileComplete` in `lib/auth/session.ts` checks every `personalDetails` profile field and every `address` subfield (excluding auth-only `password` and `emailVerified`).
+- `isProfileComplete` in `lib/auth/session.ts` checks every `personalDetails` profile field, required address subfields (`country`, `state`, `city`, `street`, `buildingNumber`, `postCode`), and valid `coordinates` (excluding auth-only `password` and `emailVerified`, and optional address fields like `doorNumber`, `complement`, `region`, `additionalDetails`).
 
 ### User and roles
 

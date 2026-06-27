@@ -362,17 +362,7 @@ export async function updateUserProfile(
   if (imageFile) {
     const formData = new FormData();
     formData.append("imageUrl", imageFile);
-
-    for (const [key, value] of Object.entries(input)) {
-      if (value === undefined) continue;
-      if (key === "address") {
-        formData.append("address", JSON.stringify(value));
-      } else if (key === "birthDate" && value instanceof Date) {
-        formData.append("birthDate", value.toISOString());
-      } else {
-        formData.append(key, String(value));
-      }
-    }
+    formData.append("profile", JSON.stringify(input));
 
     response = await apiFetch("/api/v1/users/me", {
       method: "PATCH",

@@ -1,8 +1,7 @@
 ﻿/**
- * User profile validation — Zod schemas for sanitizing `PATCH /api/v1/users/me` input.
+ * User profile validation — Zod schemas for `PATCH /api/v1/users/me`.
  *
- * Trims strings, coerces dates, and validates enums before data reaches `userService`.
- * Mongoose models define persistence rules; Zod handles API input shaping.
+ * Omitted field = no change. Empty string (`""`) = remove stored value (`$unset` in userService).
  */
 
 import { z } from "zod";
@@ -15,32 +14,47 @@ const countryCodeSchema = z
   .toUpperCase()
   .refine((code) => isKnownCountryCode(code), { message: "Invalid country code" });
 
+/** Trimmed non-empty value, or `""` to clear. */
+function patchString(max?: number) {
+  const filled = max ? z.string().trim().min(1).max(max) : z.string().trim().min(1);
+  return z.union([filled, z.literal("")]);
+}
+
+function patchCountryCode() {
+  return z.union([countryCodeSchema, z.literal("")]);
+}
+
+function patchEnum<T extends readonly [string, ...string[]]>(values: T) {
+  return z.union([z.enum(values), z.literal("")]);
+}
+
 export const addressSchema = z.object({
-  country: countryCodeSchema,
-  state: z.string().trim().min(1),
-  city: z.string().trim().min(1),
-  street: z.string().trim().min(1),
-  buildingNumber: z.string().trim().min(1),
-  doorNumber: z.string().trim().optional(),
-  complement: z.string().trim().optional(),
-  postCode: z.string().trim().min(1),
-  region: z.string().trim().optional(),
-  additionalDetails: z.string().trim().optional(),
-  coordinates: z.tuple([z.number(), z.number()]).optional(),
+  country: patchCountryCode().optional(),
+  state: patchString().optional(),
+  city: patchString().optional(),
+  street: patchString().optional(),
+  buildingNumber: patchString().optional(),
+  postCode: patchString().optional(),
+  doorNumber: patchString().optional(),
+  complement: patchString().optional(),
+  region: patchString().optional(),
+  additionalDetails: patchString().optional(),
+  coordinates: z
+    .union([z.tuple([z.number(), z.number()]), z.literal("")])
+    .optional(),
 });
 
 export const updatePersonalDetailsSchema = z.object({
-  username: z.string().trim().min(1).max(50).optional(),
-  idType: z.enum(idTypeEnums).optional(),
-  idNumber: z.string().trim().min(1).optional(),
-  address: addressSchema.optional(),
-  firstName: z.string().trim().min(1).max(50).optional(),
-  lastName: z.string().trim().min(1).max(50).optional(),
-  nationality: countryCodeSchema.optional(),
-  gender: z.enum(genderEnums).optional(),
-  birthDate: z.coerce.date().optional(),
-  phoneNumber: z.string().trim().min(1).optional(),
-  bio: z.string().trim().max(2000).optional(),
+  username: patchString(50).optional(),
+  idType: patchEnum(idTypeEnums).optional(),
+  idNumber: patchString().optional(),
+  address: z.union([addressSchema, z.null()]).optional(),
+  firstName: patchString(50).optional(),
+  lastName: patchString(50).optional(),
+  nationality: patchCountryCode().optional(),
+  gender: patchEnum(genderEnums).optional(),
+  birthDate: z.union([z.literal(""), z.coerce.date()]).optional(),
+  phoneNumber: patchString().optional(),
+  bio: z.union([z.string().trim().max(2000), z.literal("")]).optional(),
   preferredLanguage: z.enum(appLocaleEnums).optional(),
-  timezone: z.string().trim().min(1).optional(),
 });

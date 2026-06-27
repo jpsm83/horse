@@ -49,6 +49,8 @@ sequenceDiagram
 | `ensureRestSession({ nextAuthUserId? })` | Load auth state; bridge from Google only when REST missing |
 | `tryFetchCurrentUser()` | Optional probe on public pages (silent 401) |
 | `fetchCurrentUser()` | Protected pages; throws if no REST session |
+| `fetchUserProfile()` | `GET /api/v1/users/me` — full `PublicUser` for profile form |
+| `createProfilePageDataPromise()` | Profile route — chains the two calls after client mount ([`profile.md`](./profile.md)) |
 | `runWithSilentAuthFailure()` | Internal — no redirect on optional probes |
 | `setSessionExpiredHandler()` | Registered by `AuthSessionProvider` — redirect + toast |
 
@@ -73,5 +75,6 @@ If refresh fails on a protected call, cache is cleared and the session-expired h
 
 ## Related docs
 
+- [profile.md](./profile.md) — profile page loading, save flow, `PATCH /me` clear-field semantics
 - [i18n.md](./i18n.md) — locale cookie on auth responses
 - [AGENTS.md](../AGENTS.md) — architecture overview

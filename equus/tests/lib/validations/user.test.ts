@@ -43,6 +43,27 @@ describe("updatePersonalDetailsSchema", () => {
       updatePersonalDetailsSchema.parse({ nationality: "Portugal" }),
     ).toThrow();
   });
+
+  it("accepts empty string to clear optional profile fields", () => {
+    const parsed = updatePersonalDetailsSchema.parse({
+      phoneNumber: "",
+      bio: "",
+      firstName: "",
+    });
+
+    expect(parsed.phoneNumber).toBe("");
+    expect(parsed.bio).toBe("");
+    expect(parsed.firstName).toBe("");
+  });
+
+  it("accepts partial address patch to clear one field", () => {
+    const parsed = updatePersonalDetailsSchema.parse({
+      address: { state: "", complement: "" },
+    });
+
+    expect(parsed.address?.state).toBe("");
+    expect(parsed.address?.complement).toBe("");
+  });
 });
 
 describe("mapMongooseValidationError", () => {

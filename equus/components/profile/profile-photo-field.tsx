@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Profile photo picker — circular preview, hover camera overlay, local file validation.
+ * Profile photo picker — circular preview, hover overlay on desktop, tap-to-change on mobile.
  * Parent owns upload state and submits via `updateUserProfile`.
  */
 
@@ -71,11 +71,11 @@ export function ProfilePhotoField({
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start sm:gap-6">
+    <div className="flex flex-col items-center gap-3 sm:items-start sm:gap-6">
       <div className="relative">
         <div
           className={cn(
-            "size-24 overflow-hidden rounded-full sm:size-32",
+            "size-32 overflow-hidden rounded-full",
             !displayImageUrl && "bg-muted",
           )}
         >
@@ -87,7 +87,7 @@ export function ProfilePhotoField({
           ) : (
             <div className="flex size-full items-center justify-center">
               <Avatar className="size-full rounded-full">
-                <AvatarFallback className="text-lg sm:text-xl">{initials}</AvatarFallback>
+                <AvatarFallback className="text-xl">{initials}</AvatarFallback>
               </Avatar>
             </div>
           )}
@@ -96,7 +96,7 @@ export function ProfilePhotoField({
         <div
           className={cn(
             "absolute inset-0 flex flex-col items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity",
-            !disabled && "hover:opacity-100",
+            !disabled && "sm:hover:opacity-100",
           )}
         >
           <input
@@ -109,12 +109,13 @@ export function ProfilePhotoField({
           />
           <label
             htmlFor={inputId}
+            aria-label={t("photoChange")}
             className={cn(
               "flex size-full cursor-pointer flex-col items-center justify-center gap-1 text-center",
               disabled && "cursor-not-allowed",
             )}
           >
-            <Camera className="size-8 sm:size-9" aria-hidden />
+            <Camera className="size-9" aria-hidden />
             <span className="text-xs font-medium">{t("photoChange")}</span>
           </label>
         </div>
@@ -133,11 +134,6 @@ export function ProfilePhotoField({
             <Trash2 className="size-4" />
           </Button>
         ) : null}
-      </div>
-
-      <div className="space-y-1 text-center sm:text-left">
-        <p className="text-sm font-medium">{t("photoLabel")}</p>
-        <p className="text-sm text-muted-foreground">{t("photoHint")}</p>
       </div>
     </div>
   );

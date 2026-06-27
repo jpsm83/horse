@@ -16,6 +16,7 @@ export function useAppToast() {
   return {
     success: appToast.success,
     error: appToast.error,
+    info: appToast.info,
     actionFailed,
   };
 }

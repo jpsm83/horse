@@ -22,18 +22,13 @@ const completePersonalDetails = {
   imageUrl: "https://example.com/avatar.png",
   bio: "Horse owner",
   preferredLanguage: "en",
-  timezone: "UTC",
   address: {
     country: "Portugal",
     state: "Lisbon",
     city: "Lisbon",
     street: "Main",
     buildingNumber: "1",
-    doorNumber: "2A",
-    complement: "Floor 2",
     postCode: "1000",
-    region: "Lisbon",
-    additionalDetails: "Near the park",
     coordinates: [-9.1393, 38.7223],
   },
 };
@@ -66,6 +61,17 @@ describe("session helpers", () => {
 
   it("isProfileComplete is true when all personalDetails and address fields are set", () => {
     expect(isProfileComplete(completePersonalDetails)).toBe(true);
+  });
+
+  it("isProfileComplete is true without optional address fields", () => {
+    expect(
+      isProfileComplete({
+        ...completePersonalDetails,
+        address: {
+          ...(completePersonalDetails.address as Record<string, unknown>),
+        },
+      }),
+    ).toBe(true);
   });
 
   it("refreshTokenPayloadVersionMatchesDb treats missing token version as 0", () => {

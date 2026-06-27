@@ -39,7 +39,6 @@ export const personalDetailsSchema = new Schema(
     imageUrl: { type: String },
     bio: { type: String },
     preferredLanguage: { type: String },
-    timezone: { type: String },
   },
   {
     timestamps: true,

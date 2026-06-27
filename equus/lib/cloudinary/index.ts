@@ -1,5 +1,5 @@
 export { default as configureCloudinary } from "./cloudinaryConfig.ts";
-export { CLOUDINARY_UPLOAD_PRESET } from "./constants.ts";
+export { buildCloudinaryPath, CLOUDINARY_UPLOAD_PRESET } from "./constants.ts";
 export {
   assertCloudinaryDeleteSuccess,
   assertCloudinaryUploadUrls,

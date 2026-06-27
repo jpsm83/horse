@@ -1,8 +1,6 @@
 /**
- * Multipart profile form parser — used by `PATCH /api/v1/users/me` when `Content-Type`
- * is `multipart/form-data` (profile fields + optional avatar upload).
- *
- * Builds a raw object from form fields, then sanitizes via `updatePersonalDetailsSchema`.
+ * Multipart profile form parser — `PATCH /api/v1/users/me` with avatar upload.
+ * Profile fields are a single JSON `profile` field; image is `imageUrl`.
  */
 
 import type { z } from "zod";
@@ -10,22 +8,6 @@ import type { UploadInputFile } from "@/lib/cloudinary/types.ts";
 import { updatePersonalDetailsSchema } from "@/lib/validations/user.ts";
 
 type UpdatePersonalDetailsInput = z.infer<typeof updatePersonalDetailsSchema>;
-
-/** Form field names accepted for text profile updates (address is JSON in `address`). */
-const PROFILE_FIELD_KEYS = [
-  "username",
-  "idType",
-  "idNumber",
-  "firstName",
-  "lastName",
-  "nationality",
-  "gender",
-  "birthDate",
-  "phoneNumber",
-  "bio",
-  "preferredLanguage",
-  "timezone",
-] as const;
 
 export async function parseProfileFormData(request: Request): Promise<{
   profile?: UpdatePersonalDetailsInput;
@@ -44,23 +26,10 @@ export async function parseProfileFormData(request: Request): Promise<{
     };
   }
 
-  const raw: Record<string, unknown> = {};
-
-  for (const key of PROFILE_FIELD_KEYS) {
-    const value = formData.get(key);
-    if (typeof value === "string" && value.trim() !== "") {
-      raw[key] = value;
-    }
-  }
-
-  const addressValue = formData.get("address");
-  if (typeof addressValue === "string" && addressValue.trim() !== "") {
-    raw.address = JSON.parse(addressValue);
-  }
-
   let profile: UpdatePersonalDetailsInput | undefined;
-  if (Object.keys(raw).length > 0) {
-    profile = updatePersonalDetailsSchema.parse(raw);
+  const profileJson = formData.get("profile");
+  if (typeof profileJson === "string" && profileJson.trim() !== "") {
+    profile = updatePersonalDetailsSchema.parse(JSON.parse(profileJson));
   }
 
   return { profile, imageFile };

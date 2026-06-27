@@ -6,12 +6,16 @@
  */
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Lock } from "lucide-react";
+import { CircleAlert, CircleCheckBig, Lock } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
-import { FlagSelectField, SelectField } from "@/components/forms/select-field.tsx";
+import {
+  FlagSelectField,
+  SelectField,
+} from "@/components/forms/select-field.tsx";
 import { TextField } from "@/components/forms/text-field.tsx";
 import { ProfilePhotoField } from "@/components/profile/profile-photo-field.tsx";
 import { Button } from "@/components/ui/button";
@@ -24,6 +28,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname, useRouter } from "@/i18n/navigation.ts";
 import type { AppLocale } from "@/i18n/resolveLocale.ts";
 import { syncLocaleCookie } from "@/i18n/syncLocaleCookie.ts";
@@ -33,10 +38,13 @@ import {
   requestPasswordResetForCurrentUser,
   updateUserProfile,
 } from "@/lib/api/authClient.ts";
+import type { PublicUser } from "@/lib/services/userService.ts";
 import {
   mapProfileFormValuesToPatch,
   mapUserToProfileFormValues,
+  readAddressCoordinates,
 } from "@/lib/utils/profileFormMapping.ts";
+import { buildAddressGeocodeQuery } from "@/lib/utils/buildAddressGeocodeQuery.ts";
 import {
   createProfileFormSchemas,
   profileFormMessagesFromTranslations,
@@ -48,6 +56,22 @@ import {
 } from "@/lib/profile/selectOptions.ts";
 
 import { genderEnums, idTypeEnums } from "@/utils/enums.ts";
+
+const ProfileAddressMap = dynamic(
+  () =>
+    import("@/components/profile/profile-address-map.tsx").then(
+      (mod) => mod.ProfileAddressMap,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-36" />
+        <Skeleton className="h-56 w-full rounded-lg sm:h-64 md:min-h-72" />
+      </div>
+    ),
+  },
+);
 
 const ID_TYPE_TRANSLATION_KEYS: Record<(typeof idTypeEnums)[number], string> = {
   Passport: "passport",
@@ -64,6 +88,8 @@ type ProfileFormProps = {
   authProvider: string;
   hasPassword: boolean;
   imageUrl?: string;
+  onSaved?: (user: PublicUser) => void;
+  onSavingChange?: (isSaving: boolean) => void;
 };
 
 export function ProfileForm({
@@ -73,6 +99,8 @@ export function ProfileForm({
   authProvider,
   hasPassword,
   imageUrl,
+  onSaved,
+  onSavingChange,
 }: ProfileFormProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -80,21 +108,29 @@ export function ProfileForm({
   const t = useTranslations("profile");
   const tCommon = useTranslations("common");
   const tValidation = useTranslations("validation");
-  const tHome = useTranslations("home");
   const toast = useAppToast();
 
   const [imageFile, setImageFile] = useState<File | undefined>();
   const [previewUrl, setPreviewUrl] = useState<string | undefined>();
-  const [isRequestingPasswordReset, setIsRequestingPasswordReset] = useState(false);
+  const [savedImageUrl, setSavedImageUrl] = useState(imageUrl);
+  const [isRequestingPasswordReset, setIsRequestingPasswordReset] =
+    useState(false);
 
-  const initialPreferredLanguage = useMemo(
-    () => mapUserToProfileFormValues(personalDetails).preferredLanguage,
-    [personalDetails],
+  const [savedCoordinates, setSavedCoordinates] = useState<[number, number] | null>(() =>
+    readAddressCoordinates(
+      personalDetails.address as Record<string, unknown> | undefined,
+    ),
+  );
+
+  const [coordinates, setCoordinates] = useState<[number, number] | null>(
+    () => savedCoordinates,
   );
 
   const { profileFormSchema } = useMemo(
     () =>
-      createProfileFormSchemas(profileFormMessagesFromTranslations((key) => tValidation(key))),
+      createProfileFormSchemas(
+        profileFormMessagesFromTranslations((key) => tValidation(key)),
+      ),
     [tValidation],
   );
 
@@ -103,7 +139,13 @@ export function ProfileForm({
     defaultValues: mapUserToProfileFormValues(personalDetails),
   });
 
-  const isSubmitting = form.formState.isSubmitting;
+  const { dirtyFields } = form.formState;
+
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    onSavingChange?.(isSaving);
+  }, [isSaving, onSavingChange]);
 
   const genderOptions = genderEnums.map((value) => ({
     value,
@@ -130,49 +172,103 @@ export function ProfileForm({
   );
 
   async function onSubmit(values: ProfileFormValues) {
-    const patch = mapProfileFormValuesToPatch(values);
-    const hasPatch = Object.keys(patch).length > 0;
+    const patch = mapProfileFormValuesToPatch(
+      values,
+      dirtyFields,
+      { coordinates, savedCoordinates },
+    );
 
-    if (!hasPatch && !imageFile) {
-      toast.success(t("saved"));
+    if (Object.keys(patch).length === 0 && !imageFile) {
+      toast.info(t("noChanges"));
       return;
     }
 
+    let outcome: "success" | "error" = "success";
+    let errorMessage = "";
+
+    setIsSaving(true);
     try {
-      await updateUserProfile(patch, imageFile);
+      const { user: savedUser } = await updateUserProfile(patch, imageFile);
+      const savedDetails = savedUser.personalDetails;
+      const savedValues = mapUserToProfileFormValues(savedDetails);
 
-      if (
-        values.preferredLanguage !== initialPreferredLanguage ||
-        values.preferredLanguage !== currentLocale
-      ) {
-        syncLocaleCookie(values.preferredLanguage);
-        router.replace(pathname, { locale: values.preferredLanguage as AppLocale });
-      } else {
-        router.refresh();
-      }
-
+      form.reset(savedValues);
+      const savedCoords = readAddressCoordinates(
+        savedDetails.address as Record<string, unknown> | undefined,
+      );
+      setSavedCoordinates(savedCoords);
+      setCoordinates(savedCoords);
+      setSavedImageUrl(
+        typeof savedDetails.imageUrl === "string" ? savedDetails.imageUrl : undefined,
+      );
       setImageFile(undefined);
       setPreviewUrl(undefined);
-      toast.success(t("saved"));
+      onSaved?.(savedUser);
+
+      if (
+        patch.preferredLanguage &&
+        savedValues.preferredLanguage !== currentLocale
+      ) {
+        syncLocaleCookie(savedValues.preferredLanguage);
+        router.replace(pathname, {
+          locale: savedValues.preferredLanguage as AppLocale,
+        });
+      }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("saveFailed"));
+      outcome = "error";
+      errorMessage = err instanceof Error ? err.message : t("saveFailed");
+    } finally {
+      setIsSaving(false);
+    }
+
+    if (outcome === "success") {
+      toast.success(t("saved"));
+    } else {
+      toast.error(errorMessage);
     }
   }
 
   async function handlePasswordEmail() {
     setIsRequestingPasswordReset(true);
+
+    let outcome: "success" | "error" = "success";
+    let successMessage = "";
+    let errorMessage = "";
+
     try {
       const result = await requestPasswordResetForCurrentUser();
-      toast.success(result.message);
+      successMessage = result.message;
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("passwordEmailFailed"));
+      outcome = "error";
+      errorMessage =
+        err instanceof Error ? err.message : t("passwordEmailFailed");
     } finally {
       setIsRequestingPasswordReset(false);
     }
+
+    if (outcome === "success") {
+      toast.success(successMessage);
+    } else {
+      toast.error(errorMessage);
+    }
   }
 
-  const watchedFirstName = useWatch({ control: form.control, name: "firstName" });
+  const watchedFirstName = useWatch({
+    control: form.control,
+    name: "firstName",
+  });
   const watchedLastName = useWatch({ control: form.control, name: "lastName" });
+  const watchedAddress = useWatch({ control: form.control, name: "address" });
+
+  const addressQuery = useMemo(
+    () => buildAddressGeocodeQuery(watchedAddress, currentLocale),
+    [watchedAddress, currentLocale],
+  );
+
+  const mapInitialPosition = useMemo((): [number, number] | null => {
+    if (!coordinates) return null;
+    return [coordinates[1], coordinates[0]];
+  }, [coordinates?.[0], coordinates?.[1]]);
 
   const initials = [watchedFirstName, watchedLastName]
     .filter(Boolean)
@@ -180,100 +276,112 @@ export function ProfileForm({
     .join("");
 
   return (
-    <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)} noValidate>
-      <ProfilePhotoField
-        imageUrl={imageUrl}
-        previewUrl={previewUrl}
-        initials={initials || tHome("owner").charAt(0)}
-        disabled={isSubmitting || isRequestingPasswordReset}
-        onFileSelect={(file) => {
-          if (!file) return;
-          if (previewUrl?.startsWith("blob:")) {
-            URL.revokeObjectURL(previewUrl);
-          }
-          setImageFile(file);
-          setPreviewUrl(URL.createObjectURL(file));
-        }}
-        onPreviewClear={() => {
-          if (previewUrl?.startsWith("blob:")) {
-            URL.revokeObjectURL(previewUrl);
-          }
-          setImageFile(undefined);
-          setPreviewUrl(undefined);
-        }}
+    <form
+      className="space-y-6 sm:space-y-8"
+      onSubmit={form.handleSubmit(onSubmit)}
+      noValidate
+    >
+      <div className="flex w-full flex-col gap-6 sm:flex-row sm:items-start sm:gap-4">
+        <ProfilePhotoField
+          imageUrl={savedImageUrl}
+          previewUrl={previewUrl}
+          initials={initials || tCommon("owner").charAt(0)}
+          disabled={isRequestingPasswordReset}
+          onFileSelect={(file) => {
+            if (!file) return;
+            if (previewUrl?.startsWith("blob:")) {
+              URL.revokeObjectURL(previewUrl);
+            }
+            setImageFile(file);
+            setPreviewUrl(URL.createObjectURL(file));
+          }}
+          onPreviewClear={() => {
+            if (previewUrl?.startsWith("blob:")) {
+              URL.revokeObjectURL(previewUrl);
+            }
+            setImageFile(undefined);
+            setPreviewUrl(undefined);
+          }}
+        />
+
+        <FieldSet className="min-w-0 w-full">
+          <FieldGroup>
+            <TextField
+              control={form.control}
+              name="username"
+              id="profile-username"
+              label={t("username")}
+              autoComplete="username"
+            />
+            <div className="grid gap-2 text-sm">
+              <div className="flex flex-wrap items-start justify-between gap-x-5 gap-y-2">
+                <p className="min-w-0 wrap-break-word">
+                  <span className="text-muted-foreground">
+                    {tCommon("email")}:{" "}
+                  </span>
+                  <span>{email}</span>
+                </p>
+                <p className="flex shrink-0 items-center gap-1.5">
+                  {emailVerified ? (
+                    <>
+                      <CircleCheckBig
+                        className="size-4 shrink-0 text-green-600 dark:text-green-500"
+                        aria-hidden
+                      />
+                      <span className="text-green-600 dark:text-green-500">
+                        {t("emailVerified")}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <CircleAlert
+                        className="size-4 shrink-0 text-red-600 dark:text-red-500"
+                        aria-hidden
+                      />
+                      <span className="text-red-600 dark:text-red-500">
+                        {t("emailNotVerified")}
+                      </span>
+                    </>
+                  )}
+                </p>
+              </div>
+              <p>
+                <span className="text-muted-foreground">
+                  {t("authProvider")}:{" "}
+                </span>
+                <span>{formatAuthProvider(authProvider)}</span>
+              </p>
+            </div>
+          </FieldGroup>
+        </FieldSet>
+      </div>
+
+      <Controller
+        name="bio"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor="profile-bio">{t("bio")}</FieldLabel>
+            <Textarea
+              {...field}
+              value={field.value ?? ""}
+              id="profile-bio"
+              rows={4}
+              aria-invalid={fieldState.invalid}
+            />
+            {fieldState.invalid ? (
+              <FieldError errors={[fieldState.error]} />
+            ) : null}
+          </Field>
+        )}
       />
 
-      <FieldSet>
-        <FieldLegend>{t("sections.account")}</FieldLegend>
-        <FieldGroup>
-          <div className="grid gap-2 text-sm">
-            <p>
-              <span className="text-muted-foreground">{tCommon("email")}: </span>
-              <span>{email}</span>
-            </p>
-            <p>
-              <span className="text-muted-foreground">
-                {emailVerified ? t("emailVerified") : t("emailNotVerified")}
-              </span>
-            </p>
-            <p>
-              <span className="text-muted-foreground">{t("authProvider")}: </span>
-              <span>{formatAuthProvider(authProvider)}</span>
-            </p>
-          </div>
-          <TextField
-            control={form.control}
-            name="username"
-            id="profile-username"
-            label={t("username")}
-            autoComplete="username"
-          />
-          <Controller
-            name="preferredLanguage"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <FlagSelectField
-                id="profile-preferredLanguage"
-                label={t("preferredLanguage")}
-                value={field.value}
-                onChange={field.onChange}
-                invalid={fieldState.invalid}
-                error={fieldState.error}
-                options={languageOptions}
-              />
-            )}
-          />
-          <TextField
-            control={form.control}
-            name="timezone"
-            id="profile-timezone"
-            label={t("timezone")}
-          />
-        </FieldGroup>
-      </FieldSet>
+      <hr className="my-4" />
 
       <FieldSet>
-        <FieldLegend>{t("sections.security")}</FieldLegend>
-        <FieldGroup>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isSubmitting || isRequestingPasswordReset}
-              onClick={() => void handlePasswordEmail()}
-            >
-              <Lock className="size-4" aria-hidden />
-              {hasPassword ? t("passwordChange") : t("passwordSet")}
-            </Button>
-            <p className="text-sm text-muted-foreground">
-              {hasPassword ? t("passwordChangeDescription") : t("passwordSetDescription")}
-            </p>
-          </div>
-        </FieldGroup>
-      </FieldSet>
-
-      <FieldSet>
-        <FieldLegend>{t("sections.personal")}</FieldLegend>
+        <FieldLegend className="pb-3 font-semibold">
+          {t("sections.personal")}
+        </FieldLegend>
         <FieldGroup>
           <div className="grid gap-5 sm:grid-cols-2">
             <TextField
@@ -291,106 +399,53 @@ export function ProfileForm({
               autoComplete="family-name"
             />
           </div>
-          <Controller
-            name="gender"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <SelectField
-                id="profile-gender"
-                label={t("gender")}
-                placeholder={t("selectPlaceholder")}
-                value={field.value}
-                onChange={field.onChange}
-                invalid={fieldState.invalid}
-                error={fieldState.error}
-                options={genderOptions}
-              />
-            )}
-          />
-          <TextField
-            control={form.control}
-            name="birthDate"
-            id="profile-birthDate"
-            label={t("birthDate")}
-            type="date"
-          />
-          <Controller
-            name="nationality"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <FlagSelectField
-                id="profile-nationality"
-                label={t("nationality")}
-                placeholder={t("selectPlaceholder")}
-                value={field.value}
-                onChange={field.onChange}
-                invalid={fieldState.invalid}
-                error={fieldState.error}
-                options={countryOptions}
-              />
-            )}
-          />
-          <TextField
-            control={form.control}
-            name="phoneNumber"
-            id="profile-phoneNumber"
-            label={t("phoneNumber")}
-            type="tel"
-            autoComplete="tel"
-          />
-          <Controller
-            name="bio"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-bio">{t("bio")}</FieldLabel>
-                <Textarea {...field} id="profile-bio" rows={4} aria-invalid={fieldState.invalid} />
-                {fieldState.invalid ? <FieldError errors={[fieldState.error]} /> : null}
-              </Field>
-            )}
-          />
-        </FieldGroup>
-      </FieldSet>
 
-      <FieldSet>
-        <FieldLegend>{t("sections.identity")}</FieldLegend>
-        <FieldGroup>
-          <Controller
-            name="idType"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <SelectField
-                id="profile-idType"
-                label={t("idType")}
-                placeholder={t("selectPlaceholder")}
-                value={field.value}
-                onChange={field.onChange}
-                invalid={fieldState.invalid}
-                error={fieldState.error}
-                options={idTypeOptions}
-              />
-            )}
-          />
-          <TextField
-            control={form.control}
-            name="idNumber"
-            id="profile-idNumber"
-            label={t("idNumber")}
-          />
-        </FieldGroup>
-      </FieldSet>
-
-      <FieldSet>
-        <FieldLegend>{t("sections.address")}</FieldLegend>
-        <FieldGroup>
           <div className="grid gap-5 sm:grid-cols-2">
             <Controller
-              name="address.country"
+              name="gender"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <SelectField
+                  id="profile-gender"
+                  label={t("gender")}
+                  placeholder={t("selectPlaceholder")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  invalid={fieldState.invalid}
+                  error={fieldState.error}
+                  options={genderOptions}
+                />
+              )}
+            />
+            <Controller
+              name="preferredLanguage"
               control={form.control}
               render={({ field, fieldState }) => (
                 <FlagSelectField
-                  id="profile-country"
-                  label={t("country")}
+                  id="profile-preferredLanguage"
+                  label={t("preferredLanguage")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  invalid={fieldState.invalid}
+                  error={fieldState.error}
+                  options={languageOptions}
+                />
+              )}
+            />
+            <TextField
+              control={form.control}
+              name="birthDate"
+              id="profile-birthDate"
+              label={t("birthDate")}
+              type="date"
+            />
+            <Controller
+              name="nationality"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <FlagSelectField
+                  id="profile-nationality"
+                  label={t("nationality")}
                   placeholder={t("selectPlaceholder")}
                   value={field.value}
                   onChange={field.onChange}
@@ -402,89 +457,173 @@ export function ProfileForm({
             />
             <TextField
               control={form.control}
-              name="address.state"
-              id="profile-state"
-              label={t("state")}
-              autoComplete="address-level1"
+              name="phoneNumber"
+              id="profile-phoneNumber"
+              label={t("phoneNumber")}
+              type="tel"
+              autoComplete="tel"
+            />
+
+            <Controller
+              name="idType"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <SelectField
+                  id="profile-idType"
+                  label={t("idType")}
+                  placeholder={t("selectPlaceholder")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  invalid={fieldState.invalid}
+                  error={fieldState.error}
+                  options={idTypeOptions}
+                />
+              )}
+            />
+            <TextField
+              control={form.control}
+              name="idNumber"
+              id="profile-idNumber"
+              label={t("idNumber")}
             />
           </div>
-          <TextField
-            control={form.control}
-            name="address.city"
-            id="profile-city"
-            label={t("city")}
-            autoComplete="address-level2"
-          />
-          <TextField
-            control={form.control}
-            name="address.street"
-            id="profile-street"
-            label={t("street")}
-            autoComplete="street-address"
-          />
-          <div className="grid gap-5 sm:grid-cols-2">
-            <TextField
-              control={form.control}
-              name="address.buildingNumber"
-              id="profile-buildingNumber"
-              label={t("buildingNumber")}
-            />
-            <TextField
-              control={form.control}
-              name="address.doorNumber"
-              id="profile-doorNumber"
-              label={t("doorNumber")}
-            />
-          </div>
-          <TextField
-            control={form.control}
-            name="address.complement"
-            id="profile-complement"
-            label={t("complement")}
-          />
-          <div className="grid gap-5 sm:grid-cols-2">
-            <TextField
-              control={form.control}
-              name="address.postCode"
-              id="profile-postCode"
-              label={t("postCode")}
-              autoComplete="postal-code"
-            />
+        </FieldGroup>
+      </FieldSet>
+
+      <hr className="my-4" />
+
+      <FieldSet>
+        <FieldLegend className="pb-3 font-semibold">
+          {t("sections.address")}
+        </FieldLegend>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+          <FieldGroup className="min-w-0">
+            <div className="flex flex-col gap-5">
+              <Controller
+                name="address.country"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <FlagSelectField
+                    id="profile-country"
+                    label={t("country")}
+                    placeholder={t("selectPlaceholder")}
+                    value={field.value}
+                    onChange={field.onChange}
+                    invalid={fieldState.invalid}
+                    error={fieldState.error}
+                    options={countryOptions}
+                  />
+                )}
+              />
+              <TextField
+                control={form.control}
+                name="address.state"
+                id="profile-state"
+                label={t("state")}
+                autoComplete="address-level1"
+              />
+              <TextField
+                control={form.control}
+                name="address.street"
+                id="profile-street"
+                label={t("street")}
+                autoComplete="street-address"
+              />
+              <TextField
+                control={form.control}
+                name="address.buildingNumber"
+                id="profile-buildingNumber"
+                label={t("buildingNumber")}
+              />
+              <TextField
+                control={form.control}
+                name="address.doorNumber"
+                id="profile-doorNumber"
+                label={t("doorNumber")}
+              />
+              <TextField
+                control={form.control}
+                name="address.complement"
+                id="profile-complement"
+                label={t("complement")}
+              />
+              <TextField
+                control={form.control}
+                name="address.postCode"
+                id="profile-postCode"
+                label={t("postCode")}
+                autoComplete="postal-code"
+              />
+              <TextField
+                control={form.control}
+                name="address.additionalDetails"
+                id="profile-additionalDetails"
+                label={t("additionalDetails")}
+              />
+            </div>
+          </FieldGroup>
+
+          <div className="flex min-w-0 flex-col gap-5">
             <TextField
               control={form.control}
               name="address.region"
               id="profile-region"
               label={t("region")}
             />
+            <TextField
+              control={form.control}
+              name="address.city"
+              id="profile-city"
+              label={t("city")}
+              autoComplete="address-level2"
+            />
+            <ProfileAddressMap
+              addressQuery={addressQuery}
+              initialPosition={mapInitialPosition}
+              onCoordinatesChange={setCoordinates}
+              className="min-h-0 flex-1"
+            />
           </div>
-          <TextField
-            control={form.control}
-            name="address.additionalDetails"
-            id="profile-additionalDetails"
-            label={t("additionalDetails")}
-          />
-          <div className="grid gap-5 sm:grid-cols-2">
-            <TextField
-              control={form.control}
-              name="address.longitude"
-              id="profile-longitude"
-              label={t("longitude")}
-              type="number"
-            />
-            <TextField
-              control={form.control}
-              name="address.latitude"
-              id="profile-latitude"
-              label={t("latitude")}
-              type="number"
-            />
+        </div>
+      </FieldSet>
+
+      <hr className="my-4" />
+
+      <FieldSet>
+        <FieldLegend className="pb-3 font-semibold">
+          {t("sections.security")}
+        </FieldLegend>
+        <FieldGroup>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full sm:w-auto"
+              disabled={isRequestingPasswordReset}
+              onClick={() => void handlePasswordEmail()}
+            >
+              <Lock className="size-4" aria-hidden />
+              {hasPassword ? t("passwordChange") : t("passwordSet")}
+            </Button>
+            <p className="text-sm text-muted-foreground">
+              {hasPassword
+                ? t("passwordChangeDescription")
+                : t("passwordSetDescription")}
+            </p>
           </div>
         </FieldGroup>
       </FieldSet>
 
-      <Button type="submit" disabled={isSubmitting || isRequestingPasswordReset}>
-        {isSubmitting ? t("submitting") : t("submit")}
-      </Button>
+      <div className="flex">
+        <Button
+          type="submit"
+          className="w-full sm:ms-auto sm:w-auto"
+          disabled={isSaving || isRequestingPasswordReset}
+        >
+          {isSaving ? t("submitting") : t("submit")}
+        </Button>
+      </div>
     </form>
   );
 }

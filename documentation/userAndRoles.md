@@ -96,7 +96,7 @@ Owner, **admin**, or **manager** staff may edit the business profile document. O
 
 The **user profile is always visible** to other users in the platform (subject to future relationship rules). There is no user-level `ownerPreferences` or profile visibility toggle on `User`.
 
-Personal profile completion (`profileComplete` on session/API) is separate: it tracks whether `personalDetails` and address fields are filled for onboarding.
+Personal profile completion (`profileComplete` on session/API) is separate: it tracks whether `personalDetails` and address fields are filled for onboarding. The web **profile page** (`/profile`) is where users edit personal details, preferred language, avatar, and address — see [`equus/documentation/profile.md`](../equus/documentation/profile.md).
 
 ## Horse discovery (per horse)
 

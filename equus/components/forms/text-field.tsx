@@ -48,6 +48,7 @@ export function TextField<TFieldValues extends FieldValues>({
           <FieldLabel htmlFor={id}>{label}</FieldLabel>
           <Input
             {...field}
+            value={field.value ?? ""}
             id={id}
             type={type}
             autoComplete={autoComplete}

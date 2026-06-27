@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import User from "@/models/User.ts";
 import * as userService from "@/lib/services/userService.ts";
 import { handleConfirmEmail } from "@/lib/auth/confirmEmail.ts";
+import uploadFilesCloudinary from "@/lib/cloudinary/uploadFilesCloudinary.ts";
 
 vi.mock("@/lib/cloudinary/uploadFilesCloudinary.ts", () => ({
   default: vi.fn().mockResolvedValue([
@@ -39,7 +40,6 @@ const completeProfilePatch = {
   imageUrl: "https://example.com/avatar.png",
   bio: "Horse owner",
   preferredLanguage: "en",
-  timezone: "UTC",
 };
 
 describe("userService", () => {
@@ -84,6 +84,43 @@ describe("userService", () => {
 
     expect(updated?.profileComplete).toBe(true);
     expect(updated?.personalDetails.phoneNumber).toBe("+351912345678");
+  });
+
+  it("updatePersonalDetails clears optional fields when empty string is sent", async () => {
+    const created = await userService.createCredentialsUser({
+      email: "clear@example.com",
+      password: "TestPass1!",
+    });
+
+    await userService.updatePersonalDetails(String(created._id), {
+      phoneNumber: "+351912345678",
+      bio: "Horse owner",
+    });
+
+    const cleared = await userService.updatePersonalDetails(String(created._id), {
+      phoneNumber: "",
+      bio: "",
+    });
+
+    expect(cleared?.personalDetails.phoneNumber).toBeUndefined();
+    expect(cleared?.personalDetails.bio).toBeUndefined();
+  });
+
+  it("toPublicUser omits null fields from personalDetails", async () => {
+    const created = await userService.createCredentialsUser({
+      email: "legacy@example.com",
+      password: "TestPass1!",
+    });
+
+    await User.updateOne(
+      { _id: created._id },
+      { $set: { "personalDetails.bio": null } },
+    );
+
+    const reloaded = await userService.findById(String(created._id));
+    const publicUser = userService.toPublicUser(reloaded as Record<string, unknown>);
+
+    expect(publicUser.personalDetails.bio).toBeUndefined();
   });
 
   it("findOrCreateFromGoogle creates a user with only Google-provided data", async () => {
@@ -176,12 +213,18 @@ describe("userService", () => {
       email: "image@example.com",
       password: "TestPass1!",
     });
+    const userId = String(created._id);
 
-    const updated = await userService.updateProfileImage(String(created._id), {
+    const updated = await userService.updateProfileImage(userId, {
       buffer: Buffer.from("fake-image"),
       mimeType: "image/jpeg",
     });
 
+    expect(vi.mocked(uploadFilesCloudinary)).toHaveBeenCalledWith({
+      folder: `/users/${userId}`,
+      filesArr: [{ buffer: expect.any(Buffer), mimeType: "image/jpeg" }],
+      onlyImages: true,
+    });
     expect(updated?.personalDetails.imageUrl).toContain("cloudinary.com");
   });
 });

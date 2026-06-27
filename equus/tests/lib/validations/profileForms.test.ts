@@ -5,11 +5,8 @@ import {
 } from "@/lib/validations/profileForms.ts";
 
 const messages = {
-  fieldRequired: "Required",
   invalidDate: "Invalid date",
   invalidEnum: "Invalid option",
-  invalidCoordinates: "Invalid coordinates",
-  addressFieldRequired: "Address field required",
 };
 
 const { profileFormSchema } = createProfileFormSchemas(messages);
@@ -57,16 +54,15 @@ describe("profileFormSchema", () => {
     ).toThrow();
   });
 
-  it("validates address when any address field is provided", () => {
-    expect(() =>
-      profileFormSchema.parse({
-        ...emptyProfileFormValues,
-        address: {
-          ...emptyProfileFormValues.address,
-          country: "PT",
-        },
-      }),
-    ).toThrow();
+  it("accepts partial address fields on the client form", () => {
+    const parsed = profileFormSchema.parse({
+      ...emptyProfileFormValues,
+      address: {
+        ...emptyProfileFormValues.address,
+        country: "PT",
+      },
+    });
+    expect(parsed.address.country).toBe("PT");
   });
 
   it("rejects invalid country codes", () => {
@@ -86,7 +82,7 @@ describe("profileFormSchema", () => {
     expect(parsed.nationality).toBe("PT");
   });
 
-  it("accepts a complete address with coordinates", () => {
+  it("accepts a complete address without manual coordinate fields", () => {
     const parsed = profileFormSchema.parse({
       ...emptyProfileFormValues,
       address: {
@@ -95,17 +91,15 @@ describe("profileFormSchema", () => {
         city: "Lisbon",
         street: "Main",
         buildingNumber: "1",
-        doorNumber: "2A",
+        doorNumber: "",
         complement: "",
         postCode: "1000",
         region: "",
         additionalDetails: "",
-        longitude: "-9.1393",
-        latitude: "38.7223",
       },
     });
 
     expect(parsed.address.country).toBe("PT");
-    expect(parsed.address.longitude).toBe("-9.1393");
+    expect(parsed.address.street).toBe("Main");
   });
 });

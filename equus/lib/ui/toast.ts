@@ -12,4 +12,7 @@ export const appToast = {
   error(message: string) {
     toast.error(message);
   },
+  info(message: string) {
+    toast.info(message);
+  },
 };

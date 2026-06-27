@@ -65,6 +65,15 @@ function splitNameIfPresent(name?: string | null): { firstName?: string; lastNam
 
 // --- API mapping ---
 
+function omitNullishFields(details: Record<string, unknown>): Record<string, unknown> {
+  for (const [key, value] of Object.entries(details)) {
+    if (value == null) {
+      delete details[key];
+    }
+  }
+  return details;
+}
+
 /** Whether the user document has a stored password hash (never expose the hash). */
 export function userHasPassword(doc: Record<string, unknown>): boolean {
   const personalDetails = doc.personalDetails as Record<string, unknown> | undefined;
@@ -77,7 +86,9 @@ export function toPublicUser(
   doc: Record<string, unknown>,
   options?: { hasPassword?: boolean },
 ): PublicUser {
-  const personalDetails = { ...(doc.personalDetails as Record<string, unknown>) };
+  const personalDetails = omitNullishFields({
+    ...(doc.personalDetails as Record<string, unknown>),
+  });
   delete personalDetails.password;
 
   const hasPassword = options?.hasPassword ?? userHasPassword(doc);
@@ -242,19 +253,65 @@ export async function ensurePreferredLanguage(userId: string, fallback: AppLocal
 
 // --- Profile updates ---
 
+function shouldUnset(value: unknown): boolean {
+  return value === null || value === "";
+}
+
 /** Patch `personalDetails` fields validated by `updatePersonalDetailsSchema`. */
 export async function updatePersonalDetails(userId: string, data: UpdatePersonalDetailsInput) {
-  const update: Record<string, unknown> = {};
+  const set: Record<string, unknown> = {};
+  const unset: Record<string, ""> = {};
 
   for (const [key, value] of Object.entries(data)) {
-    if (value !== undefined) {
-      update[`personalDetails.${key}`] = value;
+    if (value === undefined) {
+      continue;
     }
+
+    if (key === "address") {
+      if (value === null) {
+        unset["personalDetails.address"] = "";
+        continue;
+      }
+
+      for (const [subKey, subValue] of Object.entries(value)) {
+        if (shouldUnset(subValue)) {
+          unset[`personalDetails.address.${subKey}`] = "";
+        } else if (subValue !== undefined) {
+          set[`personalDetails.address.${subKey}`] = subValue;
+        }
+      }
+      continue;
+    }
+
+    if (shouldUnset(value)) {
+      unset[`personalDetails.${key}`] = "";
+      continue;
+    }
+
+    set[`personalDetails.${key}`] = value;
+  }
+
+  const update: Record<string, unknown> = {};
+  if (Object.keys(set).length > 0) {
+    update.$set = set;
+  }
+  if (Object.keys(unset).length > 0) {
+    update.$unset = unset;
+  }
+
+  if (Object.keys(update).length === 0) {
+    const user = await User.findById(userId)
+      .select("-personalDetails.password -verificationToken -resetPasswordToken -resetPasswordExpires")
+      .lean();
+    if (!user) {
+      return null;
+    }
+    return toPublicUser(user as Record<string, unknown>);
   }
 
   const user = await User.findByIdAndUpdate(
     userId,
-    { $set: update },
+    update,
     { returnDocument: "after", runValidators: true },
   )
     .select("-personalDetails.password -verificationToken -resetPasswordToken -resetPasswordExpires")

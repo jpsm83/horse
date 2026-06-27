@@ -3,43 +3,116 @@ import { describe, expect, it } from "vitest";
 import {
   mapProfileFormValuesToPatch,
   mapUserToProfileFormValues,
+  readAddressCoordinates,
 } from "@/lib/utils/profileFormMapping.ts";
 import { emptyProfileFormValues } from "@/lib/validations/profileForms.ts";
 
-describe("profileFormMapping", () => {
-  it("defaults preferredLanguage to en when missing on user", () => {
-    const values = mapUserToProfileFormValues({ email: "a@example.com" });
-    expect(values.preferredLanguage).toBe("en");
+describe("readAddressCoordinates", () => {
+  it("returns [lng, lat] from Mongo coordinates array", () => {
+    expect(
+      readAddressCoordinates({ coordinates: [-9.1393, 38.7223] }),
+    ).toEqual([-9.1393, 38.7223]);
   });
 
-  it("always includes preferredLanguage in PATCH payload", () => {
-    const patch = mapProfileFormValuesToPatch(emptyProfileFormValues);
-    expect(patch.preferredLanguage).toBe("en");
+  it("returns null for invalid coordinates", () => {
+    expect(readAddressCoordinates({ coordinates: ["x", "y"] })).toBeNull();
+    expect(readAddressCoordinates(undefined)).toBeNull();
   });
+});
 
-  it("normalizes preferredLanguage on PATCH", () => {
-    const patch = mapProfileFormValuesToPatch({
-      ...emptyProfileFormValues,
-      preferredLanguage: "es",
-    });
-    expect(patch.preferredLanguage).toBe("es");
-  });
-
-  it("maps legacy free-text country values to empty form fields", () => {
+describe("mapUserToProfileFormValues", () => {
+  it("maps null and legacy null strings to empty form fields", () => {
     const values = mapUserToProfileFormValues({
-      nationality: "Portuguese",
-      address: { country: "Portugal" },
+      phoneNumber: "null",
+      bio: null,
+      address: { city: "null", state: null },
     });
-    expect(values.nationality).toBe("");
-    expect(values.address.country).toBe("");
+
+    expect(values.phoneNumber).toBe("");
+    expect(values.bio).toBe("");
+    expect(values.address.city).toBe("");
+    expect(values.address.state).toBe("");
+  });
+});
+
+describe("mapProfileFormValuesToPatch", () => {
+  it("includes geocoded coordinates when coordinates changed", () => {
+    const patch = mapProfileFormValuesToPatch(
+      {
+        ...emptyProfileFormValues,
+        address: {
+          ...emptyProfileFormValues.address,
+          country: "PT",
+          state: "Lisbon",
+          city: "Lisbon",
+          street: "Main",
+          buildingNumber: "1",
+          postCode: "1000",
+        },
+      },
+      {},
+      { coordinates: [-9.1393, 38.7223], savedCoordinates: null },
+    );
+
+    expect(patch.address?.coordinates).toEqual([-9.1393, 38.7223]);
   });
 
-  it("preserves ISO country codes from API", () => {
-    const values = mapUserToProfileFormValues({
-      nationality: "PT",
-      address: { country: "pt" },
-    });
-    expect(values.nationality).toBe("PT");
-    expect(values.address.country).toBe("PT");
+  it("only includes dirty address fields", () => {
+    const patch = mapProfileFormValuesToPatch(
+      {
+        ...emptyProfileFormValues,
+        address: {
+          ...emptyProfileFormValues.address,
+          country: "PT",
+          state: "Lisbon",
+          city: "Lisbon",
+          street: "Main",
+          buildingNumber: "1",
+          postCode: "1000",
+        },
+      },
+      { address: { city: true } },
+      { coordinates: [-9.1393, 38.7223], savedCoordinates: [-9.1393, 38.7223] },
+    );
+
+    expect(patch.address?.city).toBe("Lisbon");
+    expect(patch.address?.country).toBeUndefined();
+    expect(patch.address?.coordinates).toBeUndefined();
+  });
+
+  it("sends empty string when a dirty optional field is cleared", () => {
+    const patch = mapProfileFormValuesToPatch(
+      {
+        ...emptyProfileFormValues,
+        phoneNumber: "",
+        bio: "",
+      },
+      { phoneNumber: true, bio: true },
+    );
+
+    expect(patch.phoneNumber).toBe("");
+    expect(patch.bio).toBe("");
+  });
+
+  it("sends address null when dirty address fields are all cleared", () => {
+    const patch = mapProfileFormValuesToPatch(
+      {
+        ...emptyProfileFormValues,
+        address: { ...emptyProfileFormValues.address },
+      },
+      {
+        address: {
+          country: true,
+          state: true,
+          city: true,
+          street: true,
+          buildingNumber: true,
+          postCode: true,
+        },
+      },
+      { coordinates: null, savedCoordinates: [-9.1393, 38.7223] },
+    );
+
+    expect(patch.address).toBeNull();
   });
 });
