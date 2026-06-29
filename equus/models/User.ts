@@ -1,4 +1,12 @@
-﻿import mongoose, { Schema, model } from "mongoose";
+﻿/**
+ * User model — single signup identity (one person per email).
+ *
+ * `*ProfileId(s)` fields list role profiles this User **owns** (subsections).
+ * Collaboration at another user's stable is **not** stored here — use
+ * `WorkplaceRelationship` and `Stable.collaborators[]`.
+ */
+
+import mongoose, { Schema, model } from "mongoose";
 import { personalDetailsSchema } from "./PersonalDetails.ts";
 
 const notificationEntrySchema = new Schema(
@@ -63,7 +71,26 @@ const userSchema = new Schema(
       default: undefined,
       index: true,
     },
+    riderProfileId: {
+      type: Schema.Types.ObjectId,
+      ref: "Rider",
+      default: undefined,
+      index: true,
+    },
+    groomProfileId: {
+      type: Schema.Types.ObjectId,
+      ref: "Groom",
+      default: undefined,
+      index: true,
+    },
+    farrierProfileId: {
+      type: Schema.Types.ObjectId,
+      ref: "Farrier",
+      default: undefined,
+      index: true,
+    },
 
+  /** Deferred: notifications embed — use Notification collection until product needs inbox on User */
     notifications: { type: [notificationEntrySchema], default: undefined },
 
     /** Auth lifecycle */

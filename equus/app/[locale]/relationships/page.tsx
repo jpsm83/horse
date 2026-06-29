@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { Suspense, useCallback, useEffect, useState } from "react";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { InviteHubListSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { Link, useRouter } from "@/i18n/navigation.ts";
@@ -16,6 +16,25 @@ import {
   isApiClientError,
   type PublicRelationship,
 } from "@/lib/api/authClient.ts";
+
+function RelationshipsLoadingShell() {
+  const t = useTranslations("invites.relationships");
+  const tCommon = useTranslations("common");
+
+  return (
+    <AuthPageShell
+      title={t("title")}
+      description={tCommon("loading")}
+      footer={
+        <Link href="/" className="font-medium text-foreground underline-offset-4 hover:underline">
+          {tCommon("home")}
+        </Link>
+      }
+    >
+      <InviteHubListSkeleton />
+    </AuthPageShell>
+  );
+}
 
 function RelationshipsContent() {
   const router = useRouter();
@@ -29,20 +48,30 @@ function RelationshipsContent() {
   const [actingId, setActingId] = useState<string | null>(null);
 
   const loadRelationships = useCallback(async () => {
-    try {
-      await fetchCurrentUser();
-      const data = await fetchPendingRelationships();
-      setRelationships(data);
-    } catch {
-      router.replace(`/signin?next=${encodeURIComponent("/relationships")}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [router]);
+    await fetchCurrentUser();
+    return fetchPendingRelationships();
+  }, []);
 
   useEffect(() => {
-    void loadRelationships();
-  }, [loadRelationships]);
+    let cancelled = false;
+
+    loadRelationships()
+      .then((data) => {
+        if (!cancelled) setRelationships(data);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          router.replace(`/signin?next=${encodeURIComponent("/relationships")}`);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loadRelationships, router]);
 
   async function handleAccept(relationshipId: string) {
     setActingId(relationshipId);
@@ -50,7 +79,7 @@ function RelationshipsContent() {
     try {
       await acceptRelationship(relationshipId);
       toast.success(t("accepted"));
-      await loadRelationships();
+      setRelationships(await loadRelationships());
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
@@ -68,7 +97,7 @@ function RelationshipsContent() {
     try {
       await declineRelationship(relationshipId);
       toast.success(t("declined"));
-      await loadRelationships();
+      setRelationships(await loadRelationships());
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
@@ -81,17 +110,7 @@ function RelationshipsContent() {
   }
 
   if (isLoading) {
-    return (
-      <AuthPageShell
-        title={t("title")}
-        description={tCommon("loading")}
-        footer={<span>{tCommon("loading")}</span>}
-      >
-        <Alert>
-          <AlertDescription>{tCommon("loading")}</AlertDescription>
-        </Alert>
-      </AuthPageShell>
-    );
+    return <RelationshipsLoadingShell />;
   }
 
   return (
@@ -147,19 +166,8 @@ function RelationshipsContent() {
 }
 
 export default function RelationshipsPage() {
-  const t = useTranslations("invites.relationships");
-  const tCommon = useTranslations("common");
-
   return (
-    <Suspense
-      fallback={
-        <AuthPageShell
-          title={t("title")}
-          description={tCommon("loading")}
-          footer={<span>{tCommon("loading")}</span>}
-        />
-      }
-    >
+    <Suspense fallback={<RelationshipsLoadingShell />}>
       <RelationshipsContent />
     </Suspense>
   );

@@ -25,7 +25,7 @@ Validate that the pain is real, workflows are painful enough, and horse owners/b
 | Horse owners | 10 |
 | **Total** | **30** |
 
-Optional stretch: 5 vets (for Phase 2 signal only — not required for Phase 1 go/no-go).
+Optional stretch: 5 vets (signals vet module priority for production gate — not required for Phase 1A go/no-go).
 
 ---
 

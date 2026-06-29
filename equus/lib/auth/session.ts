@@ -130,8 +130,7 @@ export async function buildAuthUserSessionFromUserId(userId: string): Promise<Au
     id: String(user._id),
     email,
     type: "user",
-    emailVerified:
-      user.personalDetails?.emailVerified === true || user.emailVerified === true,
+    emailVerified: user.emailVerified === true,
     authProvider: (user.authProvider as AuthProvider | undefined) ?? "credentials",
     profileComplete: isProfileComplete(
       user.personalDetails as Record<string, unknown> | undefined,

@@ -30,6 +30,9 @@ describe("navigationService", () => {
       horses: false,
       ridingClubs: false,
       trainers: false,
+      groomers: false,
+      farriers: false,
+      riders: false,
     });
   });
 
@@ -63,5 +66,24 @@ describe("navigationService", () => {
     expect(owned.transport).toBe(false);
     expect(owned.breeders).toBe(false);
     expect(owned.ridingClubs).toBe(false);
+  });
+
+  it("reflects position-linked profile ids on the user document", async () => {
+    const user = await createUser("nav-groom@example.com");
+
+    await User.findByIdAndUpdate(user._id, {
+      $set: {
+        groomProfileId: new mongoose.Types.ObjectId(),
+        farrierProfileId: new mongoose.Types.ObjectId(),
+        riderProfileId: new mongoose.Types.ObjectId(),
+      },
+    });
+
+    const owned = await navigationService.getUserOwnedNavigation(String(user._id));
+
+    expect(owned.groomers).toBe(true);
+    expect(owned.farriers).toBe(true);
+    expect(owned.riders).toBe(true);
+    expect(owned.stables).toBe(false);
   });
 });

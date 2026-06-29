@@ -3,22 +3,31 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
+import { EntityPlaceholderSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
 import type { NavigationEntityKey } from "@/components/layout/navigation-config.ts";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CREATE_LINKS, MY_OWN_LINKS, PLURAL_OWNED_CREATE_ENTITIES } from "@/components/layout/navigation-config.ts";
 import { useRouter } from "@/i18n/navigation.ts";
 import { fetchCurrentUser } from "@/lib/api/authClient.ts";
 
+type AuthEntityPlaceholderMode = "owned" | "create";
+
 type MyPlaceholderPageProps = {
   entity: NavigationEntityKey;
+  /** `owned` = /my/* hub; `create` = /create/* subsection setup */
+  mode?: AuthEntityPlaceholderMode;
 };
 
-/** Auth-gated owned-profile placeholder — right avatar “My own” destinations. */
-export function MyPlaceholderPage({ entity }: MyPlaceholderPageProps) {
+/** Auth-gated placeholder for /my/* and /create/* entity routes. */
+export function MyPlaceholderPage({ entity, mode = "owned" }: MyPlaceholderPageProps) {
   const router = useRouter();
   const t = useTranslations("header");
   const tMyOwn = useTranslations("header.myOwn");
-  const tCommon = useTranslations("common");
-  const entityLabel = tMyOwn(entity);
+  const tCreate = useTranslations("createSubsection");
+  const tCreateEntityLabels = useTranslations("createSubsection.entityLabels");
+  const links = mode === "owned" ? MY_OWN_LINKS : CREATE_LINKS;
+  const href = links.find((item) => item.key === entity)?.href ?? "/";
+  const title = mode === "owned" ? tMyOwn(entity) : tCreate(entity);
+  const createEntityLabel = tCreateEntityLabels(entity);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -26,36 +35,31 @@ export function MyPlaceholderPage({ entity }: MyPlaceholderPageProps) {
     try {
       await fetchCurrentUser();
     } catch {
-      router.replace(`/signin?next=${encodeURIComponent(`/my/${entityPath(entity)}`)}`);
+      router.replace(`/signin?next=${encodeURIComponent(href)}`);
     } finally {
       setIsLoading(false);
     }
-  }, [entity, router]);
+  }, [href, router]);
 
   useEffect(() => {
     void verifyAuth();
   }, [verifyAuth]);
 
   if (isLoading) {
-    return (
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-12">
-        <Alert>
-          <AlertDescription>{tCommon("loading")}</AlertDescription>
-        </Alert>
-      </div>
-    );
+    return <EntityPlaceholderSkeleton />;
   }
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-12">
-      <h1 className="text-3xl font-semibold tracking-tight">{entityLabel}</h1>
-      <p className="text-muted-foreground">{t("myOwnDescription", { entity: entityLabel })}</p>
+      <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+      <p className="text-muted-foreground">
+        {mode === "owned"
+          ? t("myOwnDescription", { entity: title })
+          : PLURAL_OWNED_CREATE_ENTITIES.has(entity)
+            ? tCreate("descriptionPlural", { entity: createEntityLabel })
+            : tCreate("descriptionSingular", { entity: createEntityLabel })}
+      </p>
       <p className="text-sm text-muted-foreground">{t("comingSoon")}</p>
     </div>
   );
-}
-
-function entityPath(entity: NavigationEntityKey): string {
-  if (entity === "ridingClubs") return "riding-clubs";
-  return entity;
 }

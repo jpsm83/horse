@@ -22,7 +22,7 @@ vi.mock("node:crypto", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:crypto")>();
   return {
     ...actual,
-    randomUUID: vi.fn(() => "test-uuid"),
+    randomUUID: vi.fn(() => "00000000-0000-4000-8000-000000000001"),
   };
 });
 
@@ -36,14 +36,14 @@ describe("buildCloudinaryPath", () => {
 describe("uploadFilesCloudinary", () => {
   beforeEach(() => {
     uploadMock.mockReset();
-    vi.mocked(randomUUID).mockReturnValue("test-uuid");
+    vi.mocked(randomUUID).mockReturnValue("00000000-0000-4000-8000-000000000001");
   });
 
   it("uploads with folder and public_id under equus/users/{id}/ (signed, no preset)", async () => {
     uploadMock.mockResolvedValue({
-      public_id: "equus/users/test-user-id/test-uuid",
+      public_id: "equus/users/test-user-id/00000000-0000-4000-8000-000000000001",
       secure_url:
-        "https://res.cloudinary.com/demo/image/upload/v1/equus/users/test-user-id/test-uuid.jpg",
+        "https://res.cloudinary.com/demo/image/upload/v1/equus/users/test-user-id/00000000-0000-4000-8000-000000000001.jpg",
     });
 
     const result = await uploadFilesCloudinary({
@@ -58,10 +58,10 @@ describe("uploadFilesCloudinary", () => {
       { folder: string; public_id: string; upload_preset?: string },
     ];
     expect(options.folder).toBe("equus/users/test-user-id");
-    expect(options.public_id).toBe("equus/users/test-user-id/test-uuid");
+    expect(options.public_id).toBe("equus/users/test-user-id/00000000-0000-4000-8000-000000000001");
     expect(options.upload_preset).toBeUndefined();
     expect(result).toEqual([
-      "https://res.cloudinary.com/demo/image/upload/v1/equus/users/test-user-id/test-uuid.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1/equus/users/test-user-id/00000000-0000-4000-8000-000000000001.jpg",
     ]);
   });
 

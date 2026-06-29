@@ -1,27 +1,29 @@
 /**
- * Role profile access checks — owner or active RoleMembership with required capability.
+ * Role profile access checks — owner or active WorkplaceRelationship with required capability.
  *
- * Used by staff API routes and future business profile PATCH handlers.
+ * Used by collaboration API routes and future business profile PATCH handlers.
  */
 
 import { ApiError } from "../api/errors.ts";
-import RoleMembership from "../../models/RoleMembership.ts";
+import WorkplaceRelationship from "../../models/WorkplaceRelationship.ts";
 import {
   findBusinessRoleProfile,
   type BusinessRoleType,
 } from "../roleProfiles/businessRoleProfile.ts";
 import {
-  hasStaffCapability,
+  hasCollaboratorCapability,
+  normalizeCapability,
   ownerHasCapability,
   type RoleProfileCapability,
-} from "./roleMembershipPermissions.ts";
+  type LegacyRoleProfileCapability,
+} from "./workplaceRelationshipPermissions.ts";
 
-/** Returns true when the user is owner or has an active membership with the capability. */
+/** Returns true when the user is owner or has an active collaboration with the capability. */
 export async function canAccessRoleProfile(
   userId: string,
   roleType: BusinessRoleType,
   roleProfileId: string,
-  requiredCapability: RoleProfileCapability,
+  requiredCapability: RoleProfileCapability | LegacyRoleProfileCapability,
 ): Promise<boolean> {
   const resolved = await findBusinessRoleProfile(roleType, roleProfileId);
   if (!resolved) {
@@ -29,22 +31,23 @@ export async function canAccessRoleProfile(
   }
 
   if (resolved.ownerUserId === userId) {
-    return ownerHasCapability(requiredCapability);
+    return ownerHasCapability(normalizeCapability(requiredCapability));
   }
 
-  const membership = await RoleMembership.findOne({
-    roleType,
-    roleProfileId,
+  const collaboration = await WorkplaceRelationship.findOne({
+    hostRoleType: roleType,
+    hostRoleProfileId: roleProfileId,
     userId,
     status: "active",
+    active: true,
   }).lean();
 
-  if (!membership) {
+  if (!collaboration) {
     return false;
   }
 
-  return hasStaffCapability(
-    membership.staffRole as Parameters<typeof hasStaffCapability>[0],
+  return hasCollaboratorCapability(
+    collaboration.hierarchyLevel as Parameters<typeof hasCollaboratorCapability>[0],
     requiredCapability,
   );
 }
@@ -54,7 +57,7 @@ export async function requireRoleProfileAccess(
   userId: string,
   roleType: BusinessRoleType,
   roleProfileId: string,
-  requiredCapability: RoleProfileCapability,
+  requiredCapability: RoleProfileCapability | LegacyRoleProfileCapability,
 ): Promise<void> {
   const resolved = await findBusinessRoleProfile(roleType, roleProfileId);
   if (!resolved) {

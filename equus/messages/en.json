@@ -20,6 +20,7 @@
     "actionFailed": "Something went wrong. Please try again."
   },
   "header": {
+    "home": "Home",
     "profile": "Profile",
     "notifications": "Notifications",
     "openUserMenu": "Open user menu",
@@ -36,10 +37,18 @@
       "coaches": "Coaches",
       "horses": "Horses",
       "ridingClubs": "Riding clubs",
-      "trainers": "Trainers"
+      "trainers": "Trainers",
+      "groomers": "Groomers",
+      "farriers": "Farriers",
+      "riders": "Riders"
+    },
+    "account": {
+      "sectionLabel": "My account",
+      "workplaces": "Workplaces",
+      "relationships": "Relationship requests"
     },
     "myOwn": {
-      "sectionLabel": "My own",
+      "sectionLabel": "My profiles",
       "stables": "My stables",
       "veterinaries": "My veterinary",
       "transport": "My transport",
@@ -47,26 +56,70 @@
       "coaches": "My coach",
       "horses": "My horses",
       "ridingClubs": "My riding club",
-      "trainers": "My trainer"
+      "trainers": "My trainer",
+      "groomers": "My groom",
+      "farriers": "My farrier",
+      "riders": "My rider"
+    },
+    "create": {
+      "sectionLabel": "Create",
+      "addHorse": "Add a horse",
+      "createBusiness": "Create a business",
+      "addService": "Add service",
+      "items": {
+        "stables": "Stable",
+        "ridingClubs": "Riding club",
+        "breeders": "Breeder",
+        "coaches": "Coach",
+        "farriers": "Farrier",
+        "groomers": "Groomer",
+        "riders": "Rider",
+        "trainers": "Trainer",
+        "transport": "Transport",
+        "veterinaries": "Veterinary"
+      }
     }
   },
+  "createSubsection": {
+    "descriptionPlural": "Add {entity} to your Equus account.",
+    "descriptionSingular": "Add a {entity} profile to your Equus account.",
+    "entityLabels": {
+      "stables": "stables",
+      "veterinaries": "veterinary",
+      "transport": "transport",
+      "breeders": "breeder",
+      "coaches": "coach",
+      "horses": "horses",
+      "ridingClubs": "riding clubs",
+      "trainers": "trainer",
+      "groomers": "groomer",
+      "farriers": "farrier",
+      "riders": "rider"
+    },
+    "stables": "Add stables",
+    "veterinaries": "Create veterinary profile",
+    "transport": "Add transport",
+    "breeders": "Create breeder profile",
+    "coaches": "Create coach profile",
+    "horses": "Add horses",
+    "ridingClubs": "Add riding clubs",
+    "trainers": "Create trainer profile",
+    "groomers": "Create groomer profile",
+    "farriers": "Create farrier profile",
+    "riders": "Create rider profile"
+  },
   "home": {
-    "welcomeTitle": "Welcome to Equus",
-    "welcomeDescription": "Test authentication with email/password or Google sign-in.",
-    "loadingSession": "Loading session...",
-    "signedInTitle": "You are signed in",
-    "signedInDescription": "Authenticated via the REST API session",
-    "emailLabel": "Email:",
-    "userIdLabel": "User ID:",
-    "providerLabel": "Provider:",
-    "emailVerifiedLabel": "Email verified:",
-    "profileCompleteLabel": "Profile complete:",
-    "yes": "Yes",
-    "no": "No",
+    "welcomeUser": "Welcome, {name}",
+    "welcomeSubtitle": "Your dashboard for horses, stables, and professional profiles.",
+    "guestTitle": "Welcome to Equus",
+    "guestDescription": "The platform for equine professionals, stable teams, and horse owners.",
+    "addHorseEyebrow": "Quick action",
+    "addHorseDescription": "Add a horse to your account and start managing records, care, and visibility.",
+    "profilesHeading": "Your profiles",
+    "profilesDescription": "Jump straight into the areas you already manage on Equus.",
+    "subsectionsLabel": "Your profiles",
     "getStartedTitle": "Get started",
-    "getStartedDescription": "Sign in or create an account to verify the auth flows.",
-    "loadSessionFailed": "Failed to load session",
-    "logoutFailed": "Logout failed"
+    "getStartedDescription": "Sign in or create a free account to add horses and build your Equus presence."
   },
   "auth": {
     "signIn": {

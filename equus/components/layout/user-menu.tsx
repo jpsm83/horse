@@ -2,13 +2,22 @@
 
 import {
   Bell,
+  Building2,
+  Home,
   LogOut,
   UserRound,
   UserRoundPen,
+  Wrench,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { filterMyOwnLinks } from "@/components/layout/navigation-config.ts";
+import {
+  CREATE_MENU_BUSINESS_LINKS,
+  CREATE_MENU_HORSE_LINK,
+  CREATE_MENU_SERVICE_LINKS,
+  filterMyOwnLinks,
+  USER_ACTIVITY_LINKS,
+} from "@/components/layout/navigation-config.ts";
 import type { AppAuthState } from "@/hooks/use-app-auth.ts";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
@@ -17,6 +26,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link } from "@/i18n/navigation.ts";
@@ -26,14 +38,18 @@ type UserMenuProps = {
   auth: AppAuthState;
 };
 
-/** Right header menu — account actions and owned-profile links (health app pattern). */
+/** Right header menu — account actions, create shortcuts, and owned-profile links. */
 export function UserMenu({ auth }: UserMenuProps) {
   const t = useTranslations("header");
+  const tAccount = useTranslations("header.account");
+  const tCreate = useTranslations("header.create");
+  const tCreateItems = useTranslations("header.create.items");
   const tMyOwn = useTranslations("header.myOwn");
   const tCommon = useTranslations("common");
 
   const myOwnLinks = filterMyOwnLinks(auth.ownedNavigation);
   const hasMyOwn = myOwnLinks.length > 0;
+  const HorseIcon = CREATE_MENU_HORSE_LINK.icon;
 
   return (
     <DropdownMenu modal={false}>
@@ -62,6 +78,12 @@ export function UserMenu({ auth }: UserMenuProps) {
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
+              <Link href="/" className="flex w-full cursor-pointer items-center gap-2">
+                <Home className="size-4" />
+                {t("home")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
               <Link href="/profile" className="flex w-full cursor-pointer items-center gap-2">
                 <UserRoundPen className="size-4" />
                 {t("profile")}
@@ -73,6 +95,63 @@ export function UserMenu({ auth }: UserMenuProps) {
                 {t("notifications")}
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <p className="px-2 py-1 text-xs font-medium text-muted-foreground">
+              {tAccount("sectionLabel")}
+            </p>
+            {USER_ACTIVITY_LINKS.map(({ key, href, icon: Icon }) => (
+              <DropdownMenuItem key={key}>
+                <Link href={href} className="flex w-full cursor-pointer items-center gap-2">
+                  <Icon className="size-4" />
+                  {tAccount(key)}
+                </Link>
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator />
+            <p className="px-2 py-1 text-xs font-medium text-muted-foreground">
+              {tCreate("sectionLabel")}
+            </p>
+            <DropdownMenuItem>
+              <Link
+                href={CREATE_MENU_HORSE_LINK.href}
+                className="flex w-full cursor-pointer items-center gap-2"
+              >
+                <HorseIcon className="size-4" />
+                {tCreate("addHorse")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="gap-2">
+                <Building2 className="size-4" />
+                {tCreate("createBusiness")}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {CREATE_MENU_BUSINESS_LINKS.map(({ key, href, icon: Icon }) => (
+                  <DropdownMenuItem key={key}>
+                    <Link href={href} className="flex w-full cursor-pointer items-center gap-2">
+                      <Icon className="size-4" />
+                      {tCreateItems(key)}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="gap-2">
+                <Wrench className="size-4" />
+                {tCreate("addService")}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {CREATE_MENU_SERVICE_LINKS.map(({ key, href, icon: Icon }) => (
+                  <DropdownMenuItem key={key}>
+                    <Link href={href} className="flex w-full cursor-pointer items-center gap-2">
+                      <Icon className="size-4" />
+                      {tCreateItems(key)}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
             {hasMyOwn ? (
               <>
                 <DropdownMenuSeparator />
@@ -101,6 +180,13 @@ export function UserMenu({ auth }: UserMenuProps) {
           </>
         ) : (
           <>
+            <DropdownMenuItem>
+              <Link href="/" className="flex w-full cursor-pointer items-center gap-2">
+                <Home className="size-4" />
+                {t("home")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem>
               <Link href="/signin" className="flex w-full cursor-pointer items-center gap-2">
                 <UserRound className="size-4" />

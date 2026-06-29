@@ -39,7 +39,7 @@ const completeProfilePatch = {
   phoneNumber: "+351912345678",
   imageUrl: "https://example.com/avatar.png",
   bio: "Horse owner",
-  preferredLanguage: "en",
+  preferredLanguage: "en" as const,
 };
 
 describe("userService", () => {
@@ -247,7 +247,6 @@ describe("handleConfirmEmail", () => {
 
     const reloaded = await User.findById(user._id).lean();
     expect(reloaded?.emailVerified).toBe(true);
-    expect(reloaded?.personalDetails?.emailVerified).toBe(true);
     expect(reloaded?.verificationToken).toBeUndefined();
   });
 

@@ -31,7 +31,7 @@ export async function handleRequestEmailConfirmation(
 ): Promise<RequestEmailConfirmationHandlerResult> {
   const user = await User.findOne({ "personalDetails.email": normalizedEmail })
     .select(
-      "_id personalDetails.username personalDetails.firstName personalDetails.preferredLanguage personalDetails.emailVerified emailVerified authProvider",
+      "_id personalDetails.username personalDetails.firstName personalDetails.preferredLanguage emailVerified authProvider",
     )
     .lean();
 
@@ -39,8 +39,7 @@ export async function handleRequestEmailConfirmation(
     return { kind: "success_200", message: GENERIC_REQUEST_EMAIL_CONFIRMATION_MESSAGE };
   }
 
-  const userEmailVerified =
-    user.personalDetails?.emailVerified === true || user.emailVerified === true;
+  const userEmailVerified = user.emailVerified === true;
   if (userEmailVerified) {
     return { kind: "already_verified_400", message: "Email is already verified." };
   }

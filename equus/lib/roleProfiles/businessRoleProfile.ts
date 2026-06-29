@@ -1,7 +1,7 @@
 /**
  * Business role profile resolver — loads Stable, Breeder, RidingClub, or Transport by type.
  *
- * Used by `requireRoleProfileAccess` and `roleMembershipService`.
+ * Used by `requireRoleProfileAccess` and `workplaceRelationshipService`.
  */
 
 import mongoose from "mongoose";

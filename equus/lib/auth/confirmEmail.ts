@@ -25,7 +25,7 @@ export async function handleConfirmEmail(token: string): Promise<ConfirmEmailRes
     const userResult = await User.updateOne(
       { verificationToken },
       {
-        $set: { "personalDetails.emailVerified": true, emailVerified: true },
+        $set: { emailVerified: true },
         $unset: { verificationToken: "" },
       },
     );

@@ -3,7 +3,7 @@
  */
 
 import mongoose from "mongoose";
-import RoleMembership from "../../models/RoleMembership.ts";
+import WorkplaceRelationship from "../../models/WorkplaceRelationship.ts";
 import Stable from "../../models/Stable.ts";
 import Breeder from "../../models/Breeder.ts";
 import RidingClub from "../../models/RidingClub.ts";
@@ -29,14 +29,14 @@ const NAME_FIELD_BY_ROLE_TYPE = {
 async function getStaffInvitePreview(membershipId: string): Promise<InviteRefPreview | null> {
   if (!mongoose.Types.ObjectId.isValid(membershipId)) return null;
 
-  const membership = await RoleMembership.findById(membershipId).lean();
-  if (!membership || membership.status !== "invited") return null;
+  const collaboration = await WorkplaceRelationship.findById(membershipId).lean();
+  if (!collaboration || collaboration.status !== "invited") return null;
 
-  const roleType = membership.roleType as keyof typeof MODEL_BY_ROLE_TYPE;
+  const roleType = collaboration.hostRoleType as keyof typeof MODEL_BY_ROLE_TYPE;
   const Model = MODEL_BY_ROLE_TYPE[roleType];
   if (!Model) return null;
 
-  const profile = await Model.findById(membership.roleProfileId)
+  const profile = await Model.findById(collaboration.hostRoleProfileId)
     .select(NAME_FIELD_BY_ROLE_TYPE[roleType])
     .lean();
 

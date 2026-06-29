@@ -1,3 +1,11 @@
+/**
+ * Horse relationship model — consent and lifecycle link between a horse and a provider.
+ *
+ * Independent entities relate via this document (not bare refs on Horse/Stable/Vet) because
+ * the product requires invite/accept/decline, pre-signup invites, permanent history when
+ * ended, bidirectional queries, and attaching invoices/ratings/docs to the link.
+ */
+
 import mongoose, { Schema, model } from "mongoose";
 import * as enums from "../utils/enums.ts";
 
@@ -68,14 +76,14 @@ const relationshipSchema = new Schema(
   {
     timestamps: true,
     trim: true,
-  }
+  },
 );
 
 relationshipSchema.index({ horseId: 1, relationshipType: 1, status: 1 });
 relationshipSchema.index({ receiverAccountType: 1, receiverAccountId: 1, status: 1 });
 relationshipSchema.index(
   { horseId: 1, receiverAccountType: 1, receiverAccountId: 1 },
-  { unique: true, partialFilterExpression: { status: "accepted" } }
+  { unique: true, partialFilterExpression: { status: "accepted" } },
 );
 
 const Relationship =

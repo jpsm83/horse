@@ -64,6 +64,12 @@ const stableSchema = new Schema(
     referralCode: { type: String, index: true, sparse: true },
     commissionEligible: { type: Boolean, default: true },
 
+    /** Active collaboration document ids (`WorkplaceRelationship`) */
+    collaborators: {
+      type: [{ type: Schema.Types.ObjectId, ref: "WorkplaceRelationship" }],
+      default: undefined,
+    },
+
     /** Activity tracking */
     lastActiveAt: { type: Date },
     isActive: { type: Boolean, default: true },

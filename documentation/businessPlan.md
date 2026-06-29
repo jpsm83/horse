@@ -17,10 +17,14 @@ This document is the working business plan for the app we will build. It starts 
 - **Section 17**: trust and performance badge policy
 - **Section 18**: phased execution plan (phase 1 -> phase 12)
 - **Section 19**: partner revenue share program (business referral commissions)
+- **Section 20**: competitive positioning (stable-centric tools, e.g. EquineM)
 
 Related context:
 - `stack.md` — canonical technical stack (Next.js, REST API, MongoDB, Auth.js, shadcn, Zod)
-- `mvpScope.md` — Phase 1A/1B scope and explicit exclusions
+- `mvpScope.md` — build phases, production launch gate, and exclusions
+- `stableModule.md` — stable feature specification (living doc; EquineM parity + more)
+- `workplaceRelationship.md` — User ↔ role profile workplace relationship (no separate business account)
+- `equinem.md` — competitor capability reference (EquineM)
 - `validationPlaybook.md` — pre-build interview script and scoring
 - `productFlows.md` — onboarding and core user journeys
 - `metricsSpec.md` — internal business metrics definitions
@@ -76,10 +80,10 @@ Why this wedge:
 
 ### 0.5 Phase 1 operating scope
 
-Detailed MVP inclusions/exclusions are defined in **Section 18, Phase 1**.
+Phase 1A/1B are **incremental build milestones** (`mvpScope.md`).  
+**Public production** requires User, Horse, Veterinary, and Stable modules fully implemented — not Phase 1 alone.
 
-Goal at this stage:
-- Replace scattered tools with one operational layer that businesses use daily and owners pay for per horse.
+Stable capabilities: [`stableModule.md`](stableModule.md).
 
 ### 0.6 Planned expansion after wedge success
 
@@ -96,7 +100,7 @@ It is measured by becoming operationally indispensable inside one niche workflow
 
 ### One-line pitch
 
-A complete connected platform for the horse world — where owners, horses, stables, trainers, vets, breeders, riding clubs, and racing owners all have their own profiles, are linked to each other, and can be discovered, reviewed, and managed in one place.
+A complete connected platform for the horse world — where owners, horses, stables, trainers, vets, breeders, riding clubs, and service providers all have their own profiles, are linked to each other, and can be discovered, reviewed, and managed in one place.
 
 ### The problem we are solving
 
@@ -126,7 +130,6 @@ The platform serves the full horse industry, starting with discovery and profile
 | **Trainers** | Profile, specialties, horses trained, reputation |
 | **Riding clubs** | Club profile, members, events, facilities |
 | **Breeders** | Breeding stock, bloodlines, sales, reputation |
-| **Racing owners** | Ownership, syndicates, horses, racing history |
 | **Veterinarians** | Practice profile, horses treated, specializations |
 | **Farriers** | Hoof care specialists, recurring service relationships |
 | **Transport companies** | Horse transport services and history |
@@ -154,11 +157,11 @@ Owner
                 ├── transported by → Transport company
                 ├── registered at → Riding club
                 ├── bred by → Breeder
-                └── raced under → Racing owner / syndicate
+                └── co-owned by → Users (syndicate members via ownership %)
 
 Stable
-  ├── hosts → Horses (current and past)
-  ├── employs / works with → Trainers
+  ├── hosts → Horses (current and past) via horse Relationship
+  ├── collaborates with → Users (groom, rider, vet at barn via WorkplaceRelationship)
   └── reviewed by → Owners (only if related)
 
 Vet
@@ -226,11 +229,9 @@ Each stable operates as a business on the platform.
 - Owners of hosted horses
 - Reviews from verified, horse-scoped relationships only
 
-**Operations (future phases):**
-- Stall assignments
-- Feeding and training schedules
-- Invoicing and payments
-- Owner communication portal
+**Operations:**
+- Full operational scope is defined in [`stableModule.md`](stableModule.md) (activity planning, roster, feed, facilities, finance, team, owner transparency)
+- Stall assignments, feeding and training schedules, invoicing, and owner communication portal are in scope before public production launch
 
 ---
 
@@ -299,23 +300,9 @@ Each stable operates as a business on the platform.
 
 ---
 
-### 4.7 Racing owner / syndicate account
-
-**Profile details:**
-- Owner or syndicate name
-- Horses owned (with ownership percentages)
-- Racing history and results
-
-**Relationships:**
-- Horses in the syndicate
-- Co-owners and expense sharing (future)
-- Trainers and stables involved
-
----
-
 ### 4.8 Horse owner (user role)
 
-Owner is not a separate account collection. A user becomes an owner when they create or own horses (`Horse.mainOwnerUserId`).
+Owner is not a separate account collection. A user becomes an owner when they create or own horses (`Horse.mainOwnerUserId`). **Syndicates** are modeled on the horse: `Horse.coOwners[]` lists each co-owner `User` with an ownership percentage (and optional billing responsibility).
 
 **Profile details:**
 - Name, photo, location
@@ -387,7 +374,6 @@ These follow the same pattern — own account, own page, linked relationships:
 | Horse | Vet | treated by |
 | Horse | Breeder | bred by |
 | Horse | Riding club | member of |
-| Horse | Racing owner | owned by (syndicate) |
 | Horse | Transport | transported by (current / past) |
 | Stable | Trainer | employs / partners with |
 | Owner | Stable | customer of |
@@ -398,10 +384,16 @@ These follow the same pattern — own account, own page, linked relationships:
 ### Relationship rules
 
 - A relationship must be **created or confirmed** — not assumed
-- Historical relationships are **kept** even when they end (e.g. horse leaves a stable)
-- Some relationships are **private by default** (e.g. vet treatment details) with visibility controlled by the owner
-- Only accounts with an **active or past verified relationship** can leave reviews for that specific horse-provider pair
-- Operational records and sensitive data remain relationship-gated; live chat is open between users (see Section 15)
+- **Pending or declined** requests create no operational connection; the requester may send again (e.g. after a mistaken decline)
+- **Established (accepted) relationships are permanent** — the record is never deleted. When a horse leaves a stable or a dispute occurs, the relationship may move to an `ended` status, but historical data, owner read access to **their horse's** records from that period, and horse-scoped review rights remain
+- Owners access **only their own horses'** data — never other clients' horses at the same stable
+- Stables join the platform on a **transparency** expectation: operational data for linked horses is owner-visible per role and scope rules
+- Some fields remain **private by default** (e.g. vet clinical detail scope) with visibility controlled by the owner and module policy
+- Only accounts with a **verified established relationship** (active or ended) can leave horse-scoped reviews for that horse-provider pair
+- Operational write access follows active hosting/service rules; live chat is open between users before acceptance (see Section 15)
+- **Two link types:** horse `Relationship` (horse ↔ provider) and `WorkplaceRelationship` (User ↔ stable profile collaboration). See [`workplaceRelationship.md`](workplaceRelationship.md)
+- **Option A (barn staff):** a collaborator may write on a hosted horse when active collaboration at the stable **and** accepted horse ↔ stable `Relationship` exist — no separate groom↔horse link required
+- **Direct path:** owner may accept horse ↔ provider `Relationship` without stable (e.g. vet at owner's home)
 
 ---
 
@@ -533,9 +525,9 @@ This section defines how accounts are created and how each area gets dedicated f
 
 ### 10.1 Identity model (critical foundation)
 
-An account is always created as a **User** first.
+**There is no business account.** Signup and login are always one **User** (one person, one email).
 
-After signup, the same user can create and manage **multiple role profiles** under the same login (stable, trainer, owner-via-horses, etc.). There is no separate login per role and no persisted “active account” switch — the app navigates between roles in the UI.
+After signup, the same User may add **role profiles** — optional subsections of how they participate on the platform (stable they run, vet practice, trainer/rider profile, horses they own, etc.). Each role profile is its own document (`Stable`, `Veterinary`, `Trainer`, `Horse`, …) linked on the `User`. Navigating to “my stable” or “my horses” is routing within the **same login**, not account switching.
 
 Examples:
 - One user can be an **Owner** (via owned horses) and also a **Breeder**
@@ -627,17 +619,20 @@ Owner-facing value:
 Primary purpose:
 - Manage horse hosting operations and owner communication
 
-Core features:
+**Full feature list:** [`stableModule.md`](stableModule.md) — EquineM parity (activity planning, roster, feed, facilities, finance, team, reports) plus ecosystem differentiators (discovery, transparency, horse-scoped reviews, owner dashboard).
+
+Core features (summary):
 - Stable profile, services, facilities, and availability
 - Horse roster (current and historical)
 - Stall/boarding management
-- Daily care logs (feeding, routines, observations)
-- Boarding/training invoices
-- Service requests and owner inquiries
-- Stable announcements and updates
+- Activity planning, daily care logs (feeding, routines, observations)
+- Facility reservations
+- Boarding/training invoices and financial administration
+- Service requests, owner inquiries, and announcements
+- **Collaborators:** Users invited to collaborate at a stable profile via `WorkplaceRelationship`; hierarchy on the link; `Stable.collaborators[]` indexes active collaborations; **multi-stable** allowed — see [`workplaceRelationship.md`](workplaceRelationship.md)
 
 Owner-facing value:
-- Owner can track where each horse is, what services are active, and current costs
+- Owner can track where each horse is, what services are active, current costs, and full operational transparency for their horses only
 
 #### Owner module (Owner <-> All related entities)
 
@@ -770,7 +765,6 @@ All business/service account types are free to use:
 - Transport providers
 - Riding clubs
 - Breeders
-- Racing owners/syndicates
 - Other horse service providers
 
 Why:
@@ -824,10 +818,11 @@ Rationale:
 
 1. Businesses use the app free of charge
 2. Horse ownership drives revenue
-3. One horse = one monthly fee
+3. One horse = one monthly fee (**$99 placeholder** — subject to revision before launch)
 4. Multi-role users pay only for owned horses
 5. 30-day trial helps owner conversion
 6. Business referrals accelerate growth
+7. Modular competitor pricing (stable-paid, per-module) often passes through to owners; our model bills the owner directly for the connected hub
 
 ---
 
@@ -1019,10 +1014,21 @@ The platform should grow organically through real horse-world connections. Every
 3. **Acceptance required** — no connection becomes active until the receiving party explicitly accepts
 4. **Invite the missing party** — if the other account does not exist on the platform yet, the app invites them to join
 5. **No dead data** — if a relationship is rejected or never confirmed, it does not persist as if it were real
+6. **Collaborators are Users** — profile owner invites a User to collaborate at a host **role profile** (e.g. Stable) via `WorkplaceRelationship`; hierarchy on the link — see [`workplaceRelationship.md`](workplaceRelationship.md)
 
-### 14.2 Relationship request flow (all account types)
+### 14.2 Relationship and workplace invitation flow
 
-Every new relationship follows the same business pattern:
+Every new **horse relationship** and every **workplace relationship** (User ↔ business) follows the same business pattern:
+
+| | Horse/provider (`Relationship`) | Stable collaboration (`WorkplaceRelationship`) |
+|---|--------------------------------|-------------------------------------|
+| Link | Horse ↔ provider role profile | **User** ↔ host **role profile** (e.g. `Stable`) |
+| Initiator | Owner, stable, vet, trainer, … | **Profile owner** or admin on that profile |
+| Receiver | Other party | **Invited User** |
+| Active after | User/provider accepts | **User** accepts |
+| Hierarchy | N/A | `admin` \| `manager` \| `staff` on the **collaboration document** |
+
+Horse relationship pattern:
 
 ```
 Requester proposes connection
@@ -1035,7 +1041,29 @@ If accepted → connection becomes active, both sides can collaborate
 If declined → requester is notified, no active connection exists
 ```
 
-This applies to all relationship types:
+Workplace relationship pattern:
+
+```
+Business sends workplace invitation to User (by email)
+        ↓
+User gets notification (in-app + email)
+        ↓
+User accepts or declines
+        ↓
+If accepted → workplace relationship active
+        ↓
+Business sets hierarchy on that link (admin | manager | staff)
+        ↓
+Business assigns activities/jobs within permissions on that relationship
+```
+
+If declined → no access at that business; business may invite again.
+
+A user may hold **multiple active workplace relationships** at different businesses. Scheduling must respect cross-business availability for the same person.
+
+The stable does **not** own or control the user's account — only the **relationship document** between them.
+
+This applies to all horse relationship types:
 - Owner adding a vet to a horse
 - Vet adding a horse to their practice
 - Owner linking a trainer
@@ -1111,12 +1139,14 @@ Why this works:
 |-----------|-------------|
 | Request pending | Visible only to requester as "awaiting confirmation" |
 | Request accepted | Active bidirectional relationship; shared data flows |
-| Request declined | Requester notified; no connection; data reverts to pre-request state |
+| Request declined | Requester notified; no connection; may send again after alignment |
 | Invite sent, no response | Reminder after defined period; eventually expires |
-| Invite declined after signup | Same as decline — no active connection |
+| Invite declined after signup | Same as decline — no active connection; may resend |
+| Relationship accepted | Permanent record; owner access to their horse data retained even if later `ended` or disputed |
 
 Key rule from product policy:
-- If a relationship is **not accepted**, the platform behaves as if that party was never connected. No medical records, no shared visibility, no billing linkage.
+- If a relationship is **not accepted**, the platform behaves as if that party was never operationally connected
+- If a relationship **is accepted**, it is permanent for history, owner read access (their horses only), and horse-scoped reviews — even when service ends or parties disagree
 
 ### 14.7 Invitation safeguards (business rules)
 
@@ -1425,25 +1455,18 @@ Benefits:
 This section converts strategy into a practical phased plan.  
 It is intentionally business-oriented and prioritizes sequencing over technical implementation detail.
 
-### Phase 1 — MVP scope (based on this business plan)
+### Phase 1 — Incremental build wedge (not production launch)
 
-MVP goal:
-- Become indispensable in daily horse operations for owners, stables, and trainers.
+Phase 1A/1B in [`mvpScope.md`](mvpScope.md) are **incremental build milestones** toward production — not the public launch bar.
 
-Include in MVP:
-- User signup and personal profile
-- Multi-account model (owner, stable, trainer, horse)
-- Horse profile with core details and owner linkage
-- Relationship invitations and acceptance flow
-- Booking and scheduling requests (accept/decline required)
-- Real-time bidirectional communication (open live chat + booking-context messaging)
-- Expense visibility and invoices
-- Document and record centralization (basic)
-- Horse-scoped reviews/ratings for verified relationships only
+Wedge goal:
+- Validate workflows and ship core loops early (owner ↔ stable ↔ trainer): relationships, chat, booking, basic invoices, documents.
 
-Exclude from MVP:
+**Public production launch** requires fully implemented modules: **User**, **Horse**, **Veterinary**, and **Stable** (see `mvpScope.md` — Production launch requirements). Stable scope is defined in [`stableModule.md`](stableModule.md).
+
+Exclude from initial production (post-launch expansion):
 - Full marketplace and deal execution
-- Advanced breeder suite (fertility, contract automation)
+- Advanced breeder / studfarm webshop suite
 - Deep bloodline analytics engine
 - Advanced transport operations module
 
@@ -1494,8 +1517,13 @@ Launch objective:
 
 ### Phase 5 — Pricing start point
 
-Initial owner pricing:
+Initial owner pricing (placeholder — subject to revision before launch):
 - **$99 per horse per month**
+
+Pricing rationale vs modular competitors:
+- Stable-centric tools (e.g. EquineM) advertise low per-horse activity fees but charge separately per module (feed, facilities, team, finance, bookkeeping); a full operational stack per horse approaches a similar all-in monthly cost
+- Our model bills the **owner directly** for one connected horse hub (records, providers, reviews, discovery, communication) while **business accounts stay free**
+- Stables using modular competitors typically **pass software cost through** to owners in boarding or service fees; the payer differs, not necessarily the total industry spend
 
 Rules:
 - Billing tied to horse ownership
@@ -1527,12 +1555,23 @@ Trust rules:
 - Transfer should be simple: move the horse's main ownership reference from User A to User B
 - Horse history and related records remain intact through transfer
 
-#### 7.3 Ended/rejected relationship behavior
+#### 7.3 Established, ended, and rejected relationship behavior
 
-- If a relationship ends or is rejected, active connection ends
-- Historical data is not lost
-- Data keeps a static historical reference ("hard coded" reference) for traceability
-- No active privileges remain for ended/rejected relationship parties
+**Rejected or never accepted:**
+- No operational connection exists
+- Requester is notified; they may send a new request (e.g. after owner/stable alignment via open chat)
+- No shared operational data is created
+
+**Established (accepted) — permanent record:**
+- Once accepted, the relationship is **never deleted**
+- If the horse leaves the stable or service ends, status becomes `ended` but the full historical record remains
+- Owner retains read access to **their horse's** data from that stable relationship, including during disputes
+- Horse-scoped reviews and ratings remain available for that verified relationship context
+- Active **write** privileges (e.g. stable daily logs) follow current hosting policy; ended relationships do not grant ongoing operational write access
+
+**Traceability:**
+- Historical data keeps a static reference for audit and continuity
+- Data export and portability follow platform policy and applicable law regardless of vendor
 
 ### Phase 8 — Data ownership, writing rights, and privacy policy baseline
 
@@ -1699,3 +1738,64 @@ Tradeoff management:
 4. Owner pays $99/month per horse
 5. Attributed business earns 10% on paid subscription cycles for the first 12 months only
 6. Commission requires active business status and successful paid billing
+
+---
+
+## Section 20 — Competitive Positioning (Stable-Centric Tools)
+
+Reference competitor baseline: [`equinem.md`](equinem.md).  
+Stable capability target: [`stableModule.md`](stableModule.md).
+
+EquineM and similar products are **stable-organization ERP**: the stable admin pays, owns the tenant, and adds owners/vets as contacts inside one org. Our product is a **connected horse ecosystem**: the horse is central, actors link by consent, businesses use the platform free, and owners pay for the unified horse hub.
+
+### 20.1 Who pays — same industry cost, different payer
+
+In practice the **horse owner** often bears software cost in both models:
+
+- **EquineM:** modular fees (per-horse activity, feed, facilities, team, finance, bookkeeping) are paid by the stable and typically **passed through** in boarding or service pricing
+- **Us:** owner pays subscription directly and receives **additional owner-facing value**: horse-scoped reviews and ratings across businesses, discovery, connectivity with providers and other owners, unified timeline, and portable records
+
+The difference is **who invoices whom on the platform**, not whether the owner ultimately participates in the cost of digital horse management.
+
+### 20.2 Feature depth — build phase vs destination
+
+Early build phases (Phase 1A/1B) intentionally ship a wedge before full parity. **Production launch** requires User, Horse, Veterinary, and Stable modules fully implemented (`mvpScope.md`).
+
+Destination: **match EquineM stable operations** (see `stableModule.md` parity sections) and **exceed** with ecosystem features EquineM does not center (Section 20.5).
+
+### 20.3 Transparency and owner access
+
+Platform policy:
+
+- Stables that are not willing to provide **owner-transparent** horse data for horses they host are not a fit
+- Owners see **only their own horses** — never other clients' animals
+- Owner and stable align via **open chat** before linking; acceptance is explicit but the flow is minutes (invite → email → accept)
+- **Established relationships are permanent** — history and owner read access remain after departure or dispute; horse-scoped reviews remain valid in that context
+
+### 20.4 Onboarding speed vs trust
+
+Relationship acceptance is not "slow onboarding" — it is **trust by design**. The typical flow (invite, email, accept) completes in **minutes**. Declined requests can be resent after clarification. Unaccepted requests never create operational data.
+
+### 20.5 Pricing comparison
+
+EquineM advertises low per-horse activity fees but charges **separate modules**; a horse that needs full barn operations (activity, feed, facilities, team, finance, bookkeeping) approaches an **all-in monthly cost comparable to our placeholder owner price**.
+
+Our **$99/horse/month** is an **initial placeholder** subject to revision before launch. Value proposition: one owner subscription for the connected hub vs assembling modular stable-centric fees plus limited owner-facing product.
+
+### 20.6 Data portability and stable fit
+
+Owners can request their data when changing stables regardless of vendor; we additionally encode **permanent established relationships** and owner visibility so transparency is product-default, not an export afterthought.
+
+Stables seeking opaque, owner-excluded operations should use closed barn software; we target stables that compete on **service quality and transparency**.
+
+### 20.7 Summary — stable admin value proposition
+
+| Topic | EquineM-style | Our platform |
+|-------|---------------|--------------|
+| Payer on platform | Stable (pass-through to owner common) | Owner (direct) |
+| Stable software cost | Modular subscription | Free |
+| Center of data | Stable organization | Horse + relationships |
+| Owner product | Portal inside stable tenant | Full ecosystem hub |
+| Reviews / discovery | Not core | Horse-scoped reviews + discovery |
+| Vet/trainer | Contacts in org | Independent linked accounts |
+| Production bar | Mature product today | User + Horse + Vet + Stable modules complete |

@@ -5,19 +5,38 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { InviteHubListSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { Link, useRouter } from "@/i18n/navigation.ts";
 import {
-  acceptMembership,
-  declineMembership,
+  acceptWorkplaceInvitation,
+  declineWorkplaceInvitation,
   fetchCurrentUser,
   fetchWorkplaces,
   isApiClientError,
 } from "@/lib/api/authClient.ts";
-import type { PublicWorkplace } from "@/lib/services/roleMembershipService.ts";
+import type { PublicWorkplace } from "@/lib/services/workplaceRelationshipService.ts";
 import { cn } from "@/lib/utils";
+
+function WorkplacesLoadingShell({ children }: { children?: React.ReactNode }) {
+  const t = useTranslations("invites.workplaces");
+  const tCommon = useTranslations("common");
+
+  return (
+    <AuthPageShell
+      title={t("title")}
+      description={tCommon("loading")}
+      footer={
+        <Link href="/" className="font-medium text-foreground underline-offset-4 hover:underline">
+          {tCommon("home")}
+        </Link>
+      }
+    >
+      {children ?? <InviteHubListSkeleton />}
+    </AuthPageShell>
+  );
+}
 
 function WorkplacesContent() {
   const router = useRouter();
@@ -26,38 +45,47 @@ function WorkplacesContent() {
   const tCommon = useTranslations("common");
   const tStatus = useTranslations("status");
   const toast = useAppToast();
-  const highlightMembershipId = searchParams.get("membership");
+  const highlightInvitationId = searchParams.get("membership");
 
   const [workplaces, setWorkplaces] = useState<PublicWorkplace[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [actingId, setActingId] = useState<string | null>(null);
 
   const loadWorkplaces = useCallback(async () => {
-    try {
-      await fetchCurrentUser();
-      const data = await fetchWorkplaces();
-      setWorkplaces(data);
-    } catch {
-      const next = highlightMembershipId
-        ? `/workplaces?membership=${encodeURIComponent(highlightMembershipId)}`
-        : "/workplaces";
-      router.replace(`/signin?next=${encodeURIComponent(next)}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [highlightMembershipId, router]);
+    await fetchCurrentUser();
+    return fetchWorkplaces();
+  }, []);
 
   useEffect(() => {
-    void loadWorkplaces();
-  }, [loadWorkplaces]);
+    let cancelled = false;
 
-  async function handleAccept(membershipId: string) {
-    setActingId(membershipId);
+    loadWorkplaces()
+      .then((data) => {
+        if (!cancelled) setWorkplaces(data);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        const next = highlightInvitationId
+          ? `/workplaces?membership=${encodeURIComponent(highlightInvitationId)}`
+          : "/workplaces";
+        router.replace(`/signin?next=${encodeURIComponent(next)}`);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [highlightInvitationId, loadWorkplaces, router]);
+
+  async function handleAccept(invitationId: string) {
+    setActingId(invitationId);
 
     try {
-      await acceptMembership(membershipId);
+      await acceptWorkplaceInvitation(invitationId);
       toast.success(t("accepted"));
-      await loadWorkplaces();
+      setWorkplaces(await loadWorkplaces());
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
@@ -69,13 +97,13 @@ function WorkplacesContent() {
     }
   }
 
-  async function handleDecline(membershipId: string) {
-    setActingId(membershipId);
+  async function handleDecline(invitationId: string) {
+    setActingId(invitationId);
 
     try {
-      await declineMembership(membershipId);
+      await declineWorkplaceInvitation(invitationId);
       toast.success(t("declined"));
-      await loadWorkplaces();
+      setWorkplaces(await loadWorkplaces());
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
@@ -88,17 +116,7 @@ function WorkplacesContent() {
   }
 
   if (isLoading) {
-    return (
-      <AuthPageShell
-        title={t("title")}
-        description={tCommon("loading")}
-        footer={<span>{tCommon("loading")}</span>}
-      >
-        <Alert>
-          <AlertDescription>{tCommon("loading")}</AlertDescription>
-        </Alert>
-      </AuthPageShell>
-    );
+    return <WorkplacesLoadingShell />;
   }
 
   return (
@@ -117,10 +135,10 @@ function WorkplacesContent() {
         <ul className="space-y-3">
           {workplaces.map((workplace) => {
             const isHighlighted =
-              highlightMembershipId &&
-              workplace.membershipId === highlightMembershipId;
+              highlightInvitationId &&
+              workplace.membershipId === highlightInvitationId;
             const isInvited = workplace.status === "invited";
-            const membershipId = workplace.membershipId;
+            const invitationId = workplace.membershipId;
 
             return (
               <li
@@ -135,7 +153,9 @@ function WorkplacesContent() {
                     {workplace.profileName ?? workplace.roleType}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {workplace.access === "owner" ? tCommon("owner") : workplace.staffRole}
+                    {workplace.access === "owner"
+                      ? tCommon("owner")
+                      : (workplace.hierarchyLevel ?? workplace.staffRole)}
                     {workplace.status ? ` · ${workplace.status}` : ""}
                   </p>
                   {isInvited ? (
@@ -145,20 +165,20 @@ function WorkplacesContent() {
                   ) : null}
                 </div>
 
-                {isInvited && membershipId ? (
+                {isInvited && invitationId ? (
                   <div className="mt-3 flex gap-2">
                     <Button
                       size="sm"
-                      disabled={actingId === membershipId}
-                      onClick={() => void handleAccept(membershipId)}
+                      disabled={actingId === invitationId}
+                      onClick={() => void handleAccept(invitationId)}
                     >
                       {t("accept")}
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
-                      disabled={actingId === membershipId}
-                      onClick={() => void handleDecline(membershipId)}
+                      disabled={actingId === invitationId}
+                      onClick={() => void handleDecline(invitationId)}
                     >
                       {t("decline")}
                     </Button>
@@ -174,19 +194,8 @@ function WorkplacesContent() {
 }
 
 export default function WorkplacesPage() {
-  const t = useTranslations("invites.workplaces");
-  const tCommon = useTranslations("common");
-
   return (
-    <Suspense
-      fallback={
-        <AuthPageShell
-          title={t("title")}
-          description={tCommon("loading")}
-          footer={<span>{tCommon("loading")}</span>}
-        />
-      }
-    >
+    <Suspense fallback={<WorkplacesLoadingShell />}>
       <WorkplacesContent />
     </Suspense>
   );

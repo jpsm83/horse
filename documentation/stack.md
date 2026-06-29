@@ -350,7 +350,7 @@ horse/
 
 ## 12. Deferred (post-MVP)
 
-Items we may add later. Nothing here is required to ship Phase 1A/1B.
+Items we may add later. Nothing here is required for Phase 1A/1B wedge pilots. **Public production** requires User, Horse, Veterinary, and Stable modules per `mvpScope.md`.
 
 | Item | When to reconsider | Notes |
 |------|-------------------|--------|
@@ -392,7 +392,8 @@ Add Redis only if you run **multiple Equus instances** and need Socket.io to bro
 
 Optimize for:
 
-1. **Shipping MVP** — owners, stables, trainers using the product daily
+1. **Shipping to production** — User, Horse, Veterinary, and Stable modules complete (`mvpScope.md`)
+2. **Wedge pilots** — owners, stables, trainers using Phase 1A/1B flows daily
 2. **One API contract** — web and mobile never diverge on business rules
 3. **Type safety end-to-end** — TypeScript + Zod at boundaries
 4. **Consistency** — shadcn on web, Zod on input, services for logic

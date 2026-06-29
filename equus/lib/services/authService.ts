@@ -55,7 +55,7 @@ export async function validateCredentials(email: string, password: string) {
   const normalizedEmail = email.toLowerCase().trim();
   const user = await User.findOne({ "personalDetails.email": normalizedEmail })
     .select(
-      "_id personalDetails.email personalDetails.password personalDetails.emailVerified emailVerified refreshSessionVersion isActive authProvider",
+      "_id personalDetails.email personalDetails.password emailVerified refreshSessionVersion isActive authProvider",
     )
     .lean();
 
@@ -68,8 +68,7 @@ export async function validateCredentials(email: string, password: string) {
     return null;
   }
 
-  const emailVerified =
-    user.personalDetails?.emailVerified === true || user.emailVerified === true;
+  const emailVerified = user.emailVerified === true;
   if (user.authProvider === "credentials" && !emailVerified) {
     throw new ApiError(
       403,

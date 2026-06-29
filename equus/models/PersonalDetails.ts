@@ -25,7 +25,6 @@ export const personalDetailsSchema = new Schema(
       ],
       lowercase: true,
     },
-    emailVerified: { type: Boolean, default: false },
     password: { type: String },
     idType: { type: String, enum: idTypeEnums },
     idNumber: { type: String },

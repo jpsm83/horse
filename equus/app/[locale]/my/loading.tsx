@@ -1,0 +1,5 @@
+import { EntityPlaceholderSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
+
+export default function MyLoading() {
+  return <EntityPlaceholderSkeleton />;
+}

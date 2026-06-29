@@ -54,7 +54,7 @@ describe("authService", () => {
 
     await User.updateOne(
       { "personalDetails.email": "login@example.com" },
-      { $set: { "personalDetails.emailVerified": true, emailVerified: true } },
+      { $set: { emailVerified: true } },
     );
 
     const result = await authService.login("login@example.com", "TestPass1!");

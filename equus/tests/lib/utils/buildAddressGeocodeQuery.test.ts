@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildAddressGeocodeQuery } from "@/lib/utils/buildAddressGeocodeQuery.ts";
+import type { AddressGeocodeInput } from "@/lib/utils/buildAddressGeocodeQuery.ts";
 
 describe("buildAddressGeocodeQuery", () => {
   it("returns empty string when address is undefined", () => {
@@ -38,7 +39,7 @@ describe("buildAddressGeocodeQuery", () => {
         country: "PT",
         doorNumber: "2A",
         complement: "Floor 2",
-      },
+      } as AddressGeocodeInput,
       "en",
     );
 

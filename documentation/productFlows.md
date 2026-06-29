@@ -17,7 +17,7 @@ Source:
 | Create horse / stable / trainer | REST API + Zod validation + `lib/services` |
 | Relationship request / invite | `Relationship` collection (`invitedEmail` when provider not registered) |
 | Accept / decline | `PATCH /api/v1/relationships/:id` |
-| Staff invite / accept | `RoleMembership` + `/api/v1/role-profiles/:roleType/:id/staff`, `/api/v1/users/me/memberships/:id/accept` |
+| Staff invite / accept | Stable collaboration (`WorkplaceRelationship`) — see [`workplaceRelationship.md`](workplaceRelationship.md) |
 | Chat | REST messages (1A); Socket.io when realtime ships |
 | Uploads | Cloudinary via API route |
 | Reviews | `Rating` tied to `relationshipId` + `horseId` |
@@ -33,10 +33,12 @@ Provider links (vet, stable, trainer, etc.) are **not** stored on `Horse` direct
 3. **Personal profile required** before creating provider role profiles (stable, trainer, etc.)
 4. **Relationships require acceptance** by the receptor
 5. **Live chat is open** between users (WhatsApp-style), independent of relationship status
-6. **Operational data** (records, invoices tied to workflows) requires accepted horse relationship
-7. **Reviews are horse-scoped** and only allowed on verified horse ↔ provider relationships
-8. **Invitations include referral reference number** — first reference used at owner signup wins attribution
-9. **Horse discovery is per horse** — `profileVisibility` and `contactDisplay` on each `Horse`; user profile is always visible (see [`userAndRoles.md`](userAndRoles.md))
+6. **Operational data** (records, invoices tied to workflows) requires **accepted** horse relationship
+7. **Established relationships are permanent** — history and owner read access (their horses only) remain after service ends or dispute; declined pending requests may be resent
+8. **Collaborators are Users** — profile owner invites a User to collaborate at a **role profile** (e.g. stable) via `WorkplaceRelationship`; may collaborate at multiple profiles
+9. **Reviews are horse-scoped** and only allowed on verified established horse ↔ provider relationships
+10. **Invitations include referral reference number** — first reference used at owner signup wins attribution
+11. **Horse discovery is per horse** — `profileVisibility` and `contactDisplay` on each `Horse`; user profile is always visible (see [`userAndRoles.md`](userAndRoles.md))
 
 ---
 
@@ -60,8 +62,8 @@ Owner opens horse profile
       → If found: send relationship request (horse ↔ stable)
       → If not found: add stable name + email → pending `Relationship` + invitation email with reference code
   → Stable receives notification
-  → Stable accepts or declines
-  → If accepted: stable appears on horse relationships + shared ops unlock
+  → Stable accepts or declines (may resend after owner/stable chat if declined by mistake)
+  → If accepted: permanent horse ↔ stable relationship; shared ops unlock; owner sees only their horse data
 ```
 
 ### 1.3 Connect trainer
@@ -130,18 +132,25 @@ Stable dashboard
   → Chat with owners/users (open chat)
 ```
 
-### 2.4 Invite staff to manage the stable
+### 2.4 Stable collaboration invitation
+
+Collaborators are **never owned by a stable profile**. Every groom, rider, or manager is a **User** (same signup as everyone). The **profile owner** (User who owns the `Stable` role profile) sends a **collaboration invitation**; the invited User accepts or declines.
+
+See [`workplaceRelationship.md`](workplaceRelationship.md) for Option A (barn staff on hosted horses).
 
 ```
-Stable owner opens staff management
-  → Invite person by email (admin | manager | staff)
-      → If email exists on platform: user sees pending invite on GET /users/me/workplaces
-      → If email not registered: invite stored; user signs up with same email → invite linked
-  → Invitee accepts or declines (POST .../memberships/:id/accept or /decline)
-  → On accept: staff can view stable; owner, admin, or manager staff can edit profile; only owner or admin staff can manage other staff
+Profile owner (User) or admin on that stable profile invites User by email
+      → If email exists: user sees pending invite on GET /users/me/workplaces
+      → If email not registered: invite stored; user signs up → invite linked
+  → User accepts or declines (only the User decides)
+  → On accept: WorkplaceRelationship active (User ↔ stable role profile); id on Stable.collaborators[]
+  → Profile owner sets hierarchy on that collaboration (admin | manager | staff)
+  → Stable assigns activities/jobs within permissions on that link
 ```
 
-Example: owner invites an existing veterinarian (already on the app) to help manage the stable page — vet keeps their own profile; workplace access is via `RoleMembership` only.
+**Multi-stable:** the same User may accept collaboration invitations from **multiple stable profiles**.
+
+Example: User who owns a vet profile invited as `manager` at someone else's stable — vet profile unchanged; access only via collaboration at that stable profile.
 
 ### 2.5 Growth / commission
 
@@ -183,18 +192,19 @@ Trainer dashboard
 
 ---
 
-## Flow 4 — Veterinarian (Phase 2 prep, not MVP)
+## Flow 4 — Veterinarian (required before production launch)
 
-Documented for continuity; not in Phase 1A build.
+Documented for continuity. Not required for Phase 1A wedge pilots; **required** for public production (`mvpScope.md`). Spec: `businessPlan.md` Section 10.3 Vet module.
 
 ```
 Sign up
   → Create personal profile
   → Create Vet business account
-  → Add/search horse
-  → Owner accepts relationship
+  → Add/search horse (or receive owner invitation)
+  → Owner accepts relationship (typically after prior chat)
   → Vet writes medical records (only vet can write medical data)
-  → Owner views horse-scoped health timeline
+  → Owner views horse-scoped health timeline on their horse only
+  → Horse-scoped review available after verified established relationship
 ```
 
 ---
@@ -221,8 +231,8 @@ Applies to all provider ↔ horse ↔ owner combinations.
 Requester initiates link
   → Receiver notification (push + email)
   → Receiver accepts OR declines
-  → Accepted: active bidirectional relationship + operational permissions
-  → Declined: requester notified, no active link, no shared operational data
+  → Accepted: permanent `Relationship` record + operational permissions (direct provider or Option A barn path)
+  → Declined: requester notified, no operational data; may send again
 ```
 
 ### If invitee is not registered
@@ -237,7 +247,33 @@ Requester enters minimal profile data + email
 
 ---
 
-## Flow 7 — Booking request
+## Flow 7 — User collaborates at a stable profile
+
+Applies when a **User** works at another User’s **stable role profile**. Both parties are people with one login each. Pattern: workplace invitation → invited User accepts → relationship document.
+
+See [`workplaceRelationship.md`](workplaceRelationship.md).
+
+```
+User signs up or already has account (may also own horses, vet profile, trainer/rider profile, own stable, etc.)
+  → Profile owner (or admin on that stable profile) sends collaboration invitation
+  → Invited User accepts or declines
+  → On accept: WorkplaceRelationship (User ↔ Stable profile id); id on Stable.collaborators[]
+  → Hierarchy (admin | manager | staff) on collaboration document
+  → Work assigned per permissions on that link
+  → Same User may accept invites at other stable profiles
+```
+
+Permissions live on the **WorkplaceRelationship**, not on the User — see `userAndRoles.md` and `workplaceRelationship.md`.
+
+### Option A examples
+
+**Groom at barn:** Alice owns Sunrise Stable. Bob accepts stable hosting for Comet. Alice invites Carla (groom subsection). Carla accepts collaboration. Carla logs feed/care on Comet without a separate groom↔Comet `Relationship`.
+
+**Vet at owner's home:** Bob invites Dr. Lee's veterinary profile to Comet. Bob accepts. Dr. Lee writes health records. Stable not required.
+
+---
+
+## Flow 8 — Booking request
 
 ```
 Requester selects provider + horse + proposed time/service
@@ -250,7 +286,7 @@ Requester selects provider + horse + proposed time/service
 
 ---
 
-## Flow 8 — Review submission (horse-scoped)
+## Flow 9 — Review submission (horse-scoped)
 
 ```
 User attempts review on provider
@@ -266,7 +302,7 @@ Example:
 
 ---
 
-## Flow 9 — Horse ownership transfer
+## Flow 10 — Horse ownership transfer
 
 ```
 Main owner initiates transfer
@@ -279,7 +315,7 @@ Main owner initiates transfer
 
 ---
 
-## Flow 10 — Relationship end / rejection
+## Flow 11 — Relationship end / rejection
 
 ```
 Relationship rejected or ended

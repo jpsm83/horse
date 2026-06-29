@@ -1,26 +1,27 @@
 import { describe, expect, it } from "vitest";
-import RoleMembership from "@/models/RoleMembership.ts";
+import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
 import User from "@/models/User.ts";
 import { createTestStable } from "@/tests/helpers/businessRoleFixtures.ts";
 
-describe("RoleMembership model", () => {
-  it("defaults status to invited", async () => {
+describe("WorkplaceRelationship model", () => {
+  it("defaults status to invited and active to false", async () => {
     const owner = await User.create({
       personalDetails: { email: "owner@example.com", password: "hash" },
       authProvider: "credentials",
     });
     const stable = await createTestStable(owner._id);
 
-    const membership = await RoleMembership.create({
-      roleType: "stable",
-      roleProfileId: stable._id,
-      invitedEmail: "worker@example.com",
-      staffRole: "staff",
+    const collaboration = await WorkplaceRelationship.create({
+      hostRoleType: "stable",
+      hostRoleProfileId: stable._id,
+      invitedEmail: "collaborator@example.com",
+      hierarchyLevel: "staff",
       invitedByUserId: owner._id,
     });
 
-    expect(membership.status).toBe("invited");
-    expect(membership.invitedEmail).toBe("worker@example.com");
+    expect(collaboration.status).toBe("invited");
+    expect(collaboration.active).toBe(false);
+    expect(collaboration.invitedEmail).toBe("collaborator@example.com");
   });
 
   it("enforces invitedEmail on create", async () => {
@@ -31,10 +32,10 @@ describe("RoleMembership model", () => {
     const stable = await createTestStable(owner._id);
 
     await expect(
-      RoleMembership.create({
-        roleType: "stable",
-        roleProfileId: stable._id,
-        staffRole: "manager",
+      WorkplaceRelationship.create({
+        hostRoleType: "stable",
+        hostRoleProfileId: stable._id,
+        hierarchyLevel: "manager",
         status: "invited",
         invitedByUserId: owner._id,
       }),

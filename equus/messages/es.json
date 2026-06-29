@@ -20,6 +20,7 @@
     "actionFailed": "Algo salió mal. Inténtelo de nuevo."
   },
   "header": {
+    "home": "Inicio",
     "profile": "Perfil",
     "notifications": "Notificaciones",
     "openUserMenu": "Abrir menú de usuario",
@@ -36,10 +37,18 @@
       "coaches": "Entrenadores",
       "horses": "Caballos",
       "ridingClubs": "Clubes hípicos",
-      "trainers": "Preparadores"
+      "trainers": "Preparadores",
+      "groomers": "Mozos",
+      "farriers": "Herradores",
+      "riders": "Jinetes"
+    },
+    "account": {
+      "sectionLabel": "Mi cuenta",
+      "workplaces": "Lugares de trabajo",
+      "relationships": "Solicitudes de relación"
     },
     "myOwn": {
-      "sectionLabel": "Lo mío",
+      "sectionLabel": "Mis perfiles",
       "stables": "Mis establos",
       "veterinaries": "Mi veterinaria",
       "transport": "Mi transporte",
@@ -47,26 +56,70 @@
       "coaches": "Mi entrenador",
       "horses": "Mis caballos",
       "ridingClubs": "Mi club hípico",
-      "trainers": "Mi preparador"
+      "trainers": "Mi preparador",
+      "groomers": "Mi mozo",
+      "farriers": "Mi herrador",
+      "riders": "Mi jinete"
+    },
+    "create": {
+      "sectionLabel": "Crear",
+      "addHorse": "Añadir un caballo",
+      "createBusiness": "Crear un negocio",
+      "addService": "Añadir servicio",
+      "items": {
+        "stables": "Establo",
+        "ridingClubs": "Club hípico",
+        "breeders": "Criador",
+        "coaches": "Entrenador",
+        "farriers": "Herrador",
+        "groomers": "Mozo de cuadra",
+        "riders": "Jinete",
+        "trainers": "Preparador",
+        "transport": "Transporte",
+        "veterinaries": "Veterinario"
+      }
     }
   },
+  "createSubsection": {
+    "descriptionPlural": "Añade {entity} a tu cuenta de Equus.",
+    "descriptionSingular": "Añade un perfil de {entity} a tu cuenta de Equus.",
+    "entityLabels": {
+      "stables": "establos",
+      "veterinaries": "veterinario",
+      "transport": "transportes",
+      "breeders": "criador",
+      "coaches": "entrenador",
+      "horses": "caballos",
+      "ridingClubs": "clubes hípicos",
+      "trainers": "preparador",
+      "groomers": "mozo de cuadra",
+      "farriers": "herrador",
+      "riders": "jinete"
+    },
+    "stables": "Añadir establos",
+    "veterinaries": "Crear perfil veterinario",
+    "transport": "Añadir transportes",
+    "breeders": "Crear perfil de criador",
+    "coaches": "Crear perfil de entrenador",
+    "horses": "Añadir caballos",
+    "ridingClubs": "Añadir clubes hípicos",
+    "trainers": "Crear perfil de preparador",
+    "groomers": "Crear perfil de mozo de cuadra",
+    "farriers": "Crear perfil de herrador",
+    "riders": "Crear perfil de jinete"
+  },
   "home": {
-    "welcomeTitle": "Bienvenido a Equus",
-    "welcomeDescription": "Pruebe la autenticación con email/contraseña o Google.",
-    "loadingSession": "Cargando sesión...",
-    "signedInTitle": "Ha iniciado sesión",
-    "signedInDescription": "Autenticado mediante la sesión de la API REST",
-    "emailLabel": "Email:",
-    "userIdLabel": "ID de usuario:",
-    "providerLabel": "Proveedor:",
-    "emailVerifiedLabel": "Email verificado:",
-    "profileCompleteLabel": "Perfil completo:",
-    "yes": "Sí",
-    "no": "No",
+    "welcomeUser": "Bienvenido, {name}",
+    "welcomeSubtitle": "Su panel para caballos, establos y perfiles profesionales.",
+    "guestTitle": "Bienvenido a Equus",
+    "guestDescription": "La plataforma para profesionales ecuestres, equipos de establos y propietarios de caballos.",
+    "addHorseEyebrow": "Acción rápida",
+    "addHorseDescription": "Añada un caballo a su cuenta y empiece a gestionar registros, cuidados y visibilidad.",
+    "profilesHeading": "Sus perfiles",
+    "profilesDescription": "Acceda directamente a las áreas que ya gestiona en Equus.",
+    "subsectionsLabel": "Sus perfiles",
     "getStartedTitle": "Comenzar",
-    "getStartedDescription": "Inicie sesión o cree una cuenta para verificar los flujos de autenticación.",
-    "loadSessionFailed": "Error al cargar la sesión",
-    "logoutFailed": "Error al cerrar sesión"
+    "getStartedDescription": "Inicie sesión o cree una cuenta gratuita para añadir caballos y construir su presencia en Equus."
   },
   "auth": {
     "signIn": {

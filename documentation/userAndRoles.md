@@ -5,6 +5,7 @@ Canonical reference for how one person maps to one login, optional roles, and pe
 Related:
 - [`stack.md`](stack.md) — technical stack and API layout
 - [`productFlows.md`](productFlows.md) — onboarding journeys
+- [`workplaceRelationship.md`](workplaceRelationship.md) — stable collaboration (User ↔ role profile)
 - [`equus/models/User.ts`](../equus/models/User.ts), [`equus/models/Horse.ts`](../equus/models/Horse.ts)
 
 ---
@@ -12,7 +13,7 @@ Related:
 ## One user, one login
 
 - Every person signs up as a **User** (one document per email).
-- There is **no account switching** and no persisted “active context” on the user.
+- There is **no account switching** and no persisted "active context" on the user.
 - After login, the app navigates between areas (my horses, my stable, search, etc.) via UI routes — not by swapping accounts.
 
 ## Signup: browse first, roles later
@@ -39,56 +40,134 @@ A **role** is a domain profile the same user can create and link to their `User`
 | Trainer | `trainerProfileId` (one per user) | `Trainer` |
 | Veterinary | `veterinaryProfileId` (one per user) | `Veterinary` |
 | Coach | `coachProfileId` (one per user) | `Coach` |
+| Rider | `riderProfileId` (one per user) | `Rider` |
+| Groom | `groomProfileId` (one per user) | `Groom` |
+| Farrier | `farrierProfileId` (one per user) | `Farrier` |
 
-Each role has its **own model** to complete. Role creation APIs are added per domain module; they attach the new profile id to the logged-in user.
+**Syndicate / multi-owner horses** use `Horse.mainOwnerUserId` plus `Horse.coOwners[]` (each entry is a `User` with an ownership percentage) — not a separate role profile.
 
-Other models (`Relationship`, `Booking`, `Rating`, etc.) refer to **role type** + id via `accountTypeEnums` — meaning “which role profile”, not a separate login.
+Each role has its **own model** to complete. Role creation APIs attach the new profile id to the logged-in **User**. These are **subsections of the same person** — not separate signups.
 
-## Ownership vs workplace access (staff)
+Colloquially people say "stable account" or "vet account"; in the product that always means **User + role profile** (e.g. `User` with `stableProfileIds[]` pointing at a `Stable` document).
 
-Business role profiles (stable, breeder, riding club, transport) can have **workers** who are ordinary `User` documents — not owners and not added to `User.*ProfileIds`.
+Other models (`Relationship`, `Booking`, `Rating`, etc.) refer to **role type** + id via `accountTypeEnums` — meaning "which role profile", not a separate login.
 
-| Concept | Storage | Meaning |
-|---------|---------|---------|
-| **Owner** | `Stable.userId` (etc.) + owner's `stableProfileIds[]` | Created and owns the business profile |
-| **Staff** | `RoleMembership` collection | Invited by email to work on someone else's profile |
+## Web UI routes (placeholders)
 
-### Invite by email
+Role subsection screens use thin locale routes under `app/[locale]/` (see [`equus/AGENTS.md`](../equus/AGENTS.md) loading conventions):
 
-1. Owner creates their stable (or other business role) and invites a person **by email**.
-2. **Email already registered** — `RoleMembership` is created with `status: invited` and `userId` set. Invitee logs in, sees the pending invite, and **accepts or declines**.
-3. **Email not registered** — invite row stores `invitedEmail` only. Person **signs up** with that email; pending invites are linked automatically; they then **accept or decline**. Signup alone does not grant access.
+| Route pattern | Purpose |
+|---------------|---------|
+| `/stables`, `/groomers`, … | Public discover directory (placeholder) |
+| `/my/stables`, … | Owned profile hub — auth required (placeholder) |
+| `/create/horse`, `/create/stable`, `/create/breeder`, … | Add a role subsection to the signed-in User (placeholder) |
 
-### Example: stable owner invites an existing vet
+Create routes use singular folder segments for role profiles (`/create/breeder`) and short segments for multi-ownable types (`/create/horse`, `/create/stable`, `/create/riding-club`, `/create/transport`). Full create flows and APIs are future work.
 
-- **Alice** owns Sunrise Stable.
-- **Bob** is already on the app as a veterinarian (`User.veterinaryProfileId`).
-- Alice invites `bob@clinic.com` to work on her stable as `manager`.
-- Bob accepts → he can view and operate per his staff role, but **`User.stableProfileIds` is unchanged** and he keeps his vet profile.
+## Architecture — three diagrams
 
-### Staff roles and capabilities
+See full diagrams and Option A rules in [`workplaceRelationship.md`](workplaceRelationship.md).
 
-Preset levels on `RoleMembership.staffRole`:
+**Diagram 1:** One `User` → many role subsections (stable, groom, vet, rider, horses as owner, etc.).
 
-| Capability | Owner | admin | manager | staff |
-|------------|-------|-------|---------|-------|
-| `manage_staff` | yes | yes | no | no |
-| `edit_profile` | yes | yes | yes | no |
-| `view_profile` | yes | yes | yes | yes |
+**Diagram 2:** Default path — providers collaborate at a **stable profile**; owner accepts **horse ↔ stable** relationship; stable serves hosted horses.
 
-Owner, **admin**, or **manager** staff may edit the business profile document. Only **owner** or **admin** staff may manage other staff. Future `PATCH` routes for stables/breeders/etc. use `requireRoleProfileAccess(..., "edit_profile")`.
+**Diagram 3:** Direct path — owner accepts **horse ↔ provider** relationship (vet, groom, farrier, etc.) without stable in the middle.
 
-### Staff API
+## Horse relationship vs stable collaboration
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| `GET` | `/api/v1/role-profiles/:roleType/:roleProfileId/staff` | List staff (owner/admin) |
-| `POST` | same | Invite by email |
-| `PATCH` | `.../staff/:membershipId` | Update staff role |
-| `DELETE` | `.../staff/:membershipId` | Revoke membership |
-| `GET` | `/api/v1/users/me/workplaces` | Owned profiles + staff workplaces + pending invites |
-| `POST` | `/api/v1/users/me/memberships/:membershipId/accept` | Accept invite |
-| `POST` | `/api/v1/users/me/memberships/:membershipId/decline` | Decline invite |
+| | Horse relationship | Stable collaboration |
+|---|-------------------|------------------------|
+| Collection | `Relationship` | `WorkplaceRelationship` |
+| Parties | Horse ↔ provider role profile | User ↔ host role profile (e.g. Stable) |
+| Consent | Owner (or receiving party per type) | Invited User accepts |
+| Example | Owner accepts Dr. Lee (vet) for Comet at home | Carla (groom) collaborates at Sunrise Stable |
+
+### Option A — barn staff access (locked)
+
+A **collaborator** at a stable may write operational data on a horse when **both** are true:
+
+1. Active `WorkplaceRelationship` between the User and that stable profile.
+2. Accepted `Relationship` (`type: stable`) between the horse and that stable.
+
+No separate groom↔horse `Relationship` is required for barn staff on hosted horses.
+
+**Direct providers** (e.g. vet at owner's home) need only an accepted horse `Relationship` for that provider type.
+
+## Profile owner vs collaborator
+
+Signup and login are **always one person** (`User`). There is no separate business account.
+
+A User who **owns** a stable adds a **stable role profile** to their account (`stableProfileIds[]` → `Stable` document). They use stable features through that profile — same login.
+
+A User who **collaborates** at someone else's stable is the **same User type** (they may also own horses, a vet profile, groom subsection, etc.). The barn does not own their account. The **profile owner** invites them; they **accept**; a **WorkplaceRelationship** links that User to the host **stable profile**.
+
+Full spec: [`workplaceRelationship.md`](workplaceRelationship.md).
+
+| Concept | Meaning |
+|---------|---------|
+| **Profile owner** | User who created the role profile (`Stable.userId`, listed on their `stableProfileIds[]`) |
+| **Collaborator** | User linked via **WorkplaceRelationship** — never "belongs to" the stable profile |
+
+### Collaboration invitation flow
+
+```
+Profile owner (or admin on that stable) sends collaboration invitation to User (by email)
+  → User notified (in-app + email)
+  → User accepts or declines
+  → On accept: collaboration active (User ↔ stable role profile); id on Stable.collaborators[]
+  → Profile owner side sets hierarchy on that collaboration (admin | manager | staff)
+  → Activities/jobs assigned per permissions on that link
+```
+
+| Step | Horse relationship (`Relationship`) | Stable collaboration (`WorkplaceRelationship`) |
+|------|-------------------------------------|-----------------------------------------------|
+| Initiator | Owner, stable, vet, trainer, etc. | **Profile owner** or admin on that stable profile |
+| Receiver | Other party | **Invited User** |
+| Pending | `pending` | `invited` |
+| After accept | Horse operational data (per Option A or direct link) | Barn permissions + job assignment |
+| Stored on | Relationship document | WorkplaceRelationship document |
+
+### Example: groom at barn (Option A)
+
+- **Alice** owns Sunrise Stable (User with `stableProfileIds`).
+- **Bob** owns horse Comet; accepts stable hosting (`Relationship` horse ↔ Sunrise Stable).
+- Alice invites **Carla** (User with groom subsection). Carla accepts collaboration.
+- Carla may log feed/care on Comet **without** a separate groom↔Comet `Relationship`.
+
+### Example: vet at owner's home (direct path)
+
+- **Bob** owns Comet. Invites **Dr. Lee**'s veterinary profile directly.
+- Bob accepts. Dr. Lee writes health records. Sunrise Stable not required.
+
+### Example: collaborator at two stables
+
+- **Carla** is one User (one login).
+- Sunrise Stable invites Carla → she **accepts** → collaboration active; hierarchy `staff`.
+- Valley Barn invites Carla → separate collaboration.
+- Carla chooses workplaces from her dashboard; scheduling checks conflicts across both links.
+
+### Hierarchy and capabilities (per collaboration)
+
+Levels on the **WorkplaceRelationship** (`admin` | `manager` | `staff`), not on the User:
+
+| Capability | Profile owner | admin | manager | staff |
+|------------|---------------|-------|---------|-------|
+| `manage_collaborators` | yes | yes | no | no |
+| `edit_role_profile` | yes | yes | yes | no |
+| `view_stable_operations` | yes | yes | yes | yes |
+
+### Planned API
+
+| Method | Path (illustrative) | Purpose |
+|--------|---------------------|---------|
+| `GET` | `/api/v1/role-profiles/:roleType/:id/workplace-relationships` | List collaborations (profile owner/admin) |
+| `POST` | same | Send collaboration invitation |
+| `PATCH` | `.../workplace-relationships/:id` | Update hierarchy or collaboration fields |
+| `DELETE` | `.../workplace-relationships/:id` | End collaboration |
+| `GET` | `/api/v1/users/me/workplaces` | Owned role profiles + collaborations + pending invites |
+| `POST` | `/api/v1/users/me/workplace-invitations/:id/accept` | User accepts |
+| `POST` | `/api/v1/users/me/workplace-invitations/:id/decline` | User declines |
 
 `roleType`: `stable` | `breeder` | `ridingClub` | `transport`
 
@@ -113,7 +192,7 @@ Enum: `public` | `relationship` | `owner_only`
 
 | Field | Purpose |
 |-------|---------|
-| `useOwnerContact` (default `true`) | Show main owner’s contact from `User.personalDetails` |
+| `useOwnerContact` (default `true`) | Show main owner's contact from `User.personalDetails` |
 | `name`, `phone`, `email` | Delegate contact when `useOwnerContact` is `false` |
 
 Example: user owns the horse but wants inquiries to go to a stable manager — set `useOwnerContact: false` and fill delegate fields.

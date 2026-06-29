@@ -1,7 +1,7 @@
 import type { AuthProvider, AuthUser } from "@/lib/auth/types.ts";
 import type { PublicUser, UpdatePersonalDetailsInput } from "@/lib/services/userService.ts";
 import type { UserOwnedNavigation } from "@/lib/services/navigationService.ts";
-import type { PublicWorkplace } from "@/lib/services/roleMembershipService.ts";
+import type { PublicWorkplace } from "@/lib/services/workplaceRelationshipService.ts";
 
 type ApiSuccess<T> = { data: T };
 type ApiErrorBody = { error?: { code?: string; message?: string } };
@@ -278,21 +278,27 @@ export async function fetchWorkplaces(): Promise<PublicWorkplace[]> {
   return data.workplaces;
 }
 
-export async function acceptMembership(membershipId: string): Promise<void> {
+export async function acceptWorkplaceInvitation(invitationId: string): Promise<void> {
   await parseApiResponse(
-    await apiFetch(`/api/v1/users/me/memberships/${membershipId}/accept`, {
+    await apiFetch(`/api/v1/users/me/workplace-invitations/${invitationId}/accept`, {
       method: "POST",
     }),
   );
 }
 
-export async function declineMembership(membershipId: string): Promise<void> {
+export async function declineWorkplaceInvitation(invitationId: string): Promise<void> {
   await parseApiResponse(
-    await apiFetch(`/api/v1/users/me/memberships/${membershipId}/decline`, {
+    await apiFetch(`/api/v1/users/me/workplace-invitations/${invitationId}/decline`, {
       method: "POST",
     }),
   );
 }
+
+/** @deprecated Use acceptWorkplaceInvitation */
+export const acceptMembership = acceptWorkplaceInvitation;
+
+/** @deprecated Use declineWorkplaceInvitation */
+export const declineMembership = declineWorkplaceInvitation;
 
 export async function fetchPendingRelationships(): Promise<PublicRelationship[]> {
   const data = await parseApiResponse<{ relationships: PublicRelationship[] }>(

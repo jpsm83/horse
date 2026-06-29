@@ -54,4 +54,10 @@ describe("User model role fields", () => {
     expect(User.schema.path("ownerPreferences")).toBeUndefined();
     expect(User.schema.path("activeAccountContext")).toBeUndefined();
   });
+
+  it("defines position-linked profile id paths", () => {
+    expect(User.schema.path("riderProfileId")).toBeDefined();
+    expect(User.schema.path("groomProfileId")).toBeDefined();
+    expect(User.schema.path("farrierProfileId")).toBeDefined();
+  });
 });

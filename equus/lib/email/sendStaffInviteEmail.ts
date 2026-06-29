@@ -1,6 +1,6 @@
 /**
- * Sends staff invite email after RoleMembership is created.
- * Called from roleMembershipService.inviteStaff.
+ * Sends collaboration invite email after WorkplaceRelationship is created.
+ * Called from workplaceRelationshipService.inviteCollaborator.
  */
 
 import User from "@/models/User.ts";

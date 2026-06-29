@@ -1,8 +1,8 @@
 /**
  * User-owned navigation flags — which "My own" header links to show.
  *
- * Called by `GET /api/v1/users/me/navigation`. Staff memberships are excluded;
- * only profiles linked on the User document (and horses via mainOwnerUserId) count.
+ * Called by `GET /api/v1/users/me/navigation`. Collaborations are excluded;
+ * only role profiles linked on the User document (and horses via mainOwnerUserId) count.
  */
 
 import Horse from "@/models/Horse.ts";
@@ -17,6 +17,9 @@ export type UserOwnedNavigation = {
   horses: boolean;
   ridingClubs: boolean;
   trainers: boolean;
+  groomers: boolean;
+  farriers: boolean;
+  riders: boolean;
 };
 
 const EMPTY_OWNED: UserOwnedNavigation = {
@@ -28,13 +31,16 @@ const EMPTY_OWNED: UserOwnedNavigation = {
   horses: false,
   ridingClubs: false,
   trainers: false,
+  groomers: false,
+  farriers: false,
+  riders: false,
 };
 
 /** Resolve which owned-profile routes the signed-in user may see in the header. */
 export async function getUserOwnedNavigation(userId: string): Promise<UserOwnedNavigation> {
   const user = await User.findById(userId)
     .select(
-      "stableProfileIds breederProfileIds ridingClubProfileIds transportProfileIds trainerProfileId veterinaryProfileId coachProfileId",
+      "stableProfileIds breederProfileIds ridingClubProfileIds transportProfileIds trainerProfileId veterinaryProfileId coachProfileId groomProfileId farrierProfileId riderProfileId",
     )
     .lean();
 
@@ -53,5 +59,8 @@ export async function getUserOwnedNavigation(userId: string): Promise<UserOwnedN
     horses: ownsHorse,
     ridingClubs: (user.ridingClubProfileIds?.length ?? 0) > 0,
     trainers: Boolean(user.trainerProfileId),
+    groomers: Boolean(user.groomProfileId),
+    farriers: Boolean(user.farrierProfileId),
+    riders: Boolean(user.riderProfileId),
   };
 }

@@ -39,6 +39,9 @@ export const accountTypeEnums = [
   "stable",
   "trainer",
   "veterinary",
+  "groom",
+  "farrier",
+  "rider",
   "breeder",
   "ridingClub",
   "transport",
@@ -57,10 +60,22 @@ export const businessRoleTypeEnums = [
   "transport",
 ] as const;
 
-/** Staff level on a business role profile. */
-export const roleStaffLevelEnums = ["admin", "manager", "staff"] as const;
+/** Lifecycle status for WorkplaceRelationship documents. */
+export const workplaceRelationshipStatusEnums = [
+  "invited",
+  "active",
+  "suspended",
+  "declined",
+  "ended",
+] as const;
 
-/** Lifecycle status for RoleMembership documents. */
+/** Hierarchy level on a host role profile collaboration. */
+export const workplaceHierarchyLevelEnums = ["admin", "manager", "staff"] as const;
+
+/** @deprecated Use workplaceHierarchyLevelEnums */
+export const roleStaffLevelEnums = workplaceHierarchyLevelEnums;
+
+/** @deprecated Use workplaceRelationshipStatusEnums — `removed` renamed to `ended` */
 export const roleMembershipStatusEnums = [
   "invited",
   "active",
@@ -73,6 +88,9 @@ export const relationshipTypeEnums = [
   "stable",
   "trainer",
   "veterinary",
+  "groom",
+  "farrier",
+  "rider",
   "breeder",
   "ridingClub",
   "transport",

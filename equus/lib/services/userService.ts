@@ -24,7 +24,7 @@ import {
 import type { UploadInputFile } from "../cloudinary/types.ts";
 import type { z } from "zod";
 import type { updatePersonalDetailsSchema } from "../validations/user.ts";
-import { linkInvitesByEmail } from "./roleMembershipService.ts";
+import { linkInvitesByEmail } from "./workplaceRelationshipService.ts";
 import { linkRelationshipByReferral } from "./relationshipService.ts";
 
 export type UpdatePersonalDetailsInput = z.infer<typeof updatePersonalDetailsSchema>;
@@ -96,8 +96,7 @@ export function toPublicUser(
   return {
     id: String(doc._id),
     personalDetails,
-    emailVerified:
-      personalDetails.emailVerified === true || doc.emailVerified === true,
+    emailVerified: doc.emailVerified === true,
     authProvider: (doc.authProvider as AuthProvider) ?? "credentials",
     profileComplete: isProfileComplete(personalDetails),
     hasPassword,
@@ -199,7 +198,6 @@ export async function findOrCreateFromGoogle(profile: GoogleProfileInput) {
     }
     if (profile.emailVerified) {
       existingByEmail.emailVerified = true;
-      existingByEmail.personalDetails.emailVerified = true;
     }
     if (profile.image && !existingByEmail.personalDetails.imageUrl) {
       existingByEmail.personalDetails.imageUrl = profile.image;
@@ -210,7 +208,6 @@ export async function findOrCreateFromGoogle(profile: GoogleProfileInput) {
 
   const personalDetails: Record<string, unknown> = {
     email: normalizedEmail,
-    emailVerified: profile.emailVerified,
     ...splitNameIfPresent(profile.name),
   };
 

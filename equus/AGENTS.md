@@ -274,7 +274,7 @@ If a decision conflicts with this order, follow the higher-priority item.
 
 ```
 models/
-  User.ts, Horse.ts, Stable.ts, RoleMembership.ts, ...   ← top-level Mongoose models
+  User.ts, Horse.ts, Stable.ts, WorkplaceRelationship.ts, ...   ← top-level Mongoose models
   PersonalDetails.ts                  ← user identity embed (used only by User)
   sharedSchemas/                      ← embeds reused across 2+ models
     address.ts, mediaAsset.ts, ...
@@ -296,7 +296,8 @@ models/
 
 ### User and roles
 
-- One `User` per email; **roles** are linked profile documents (`stableProfileIds`, `trainerProfileId`, horses via `mainOwnerUserId`, etc.).
-- **Staff** on business profiles (stable, breeder, riding club, transport) use `RoleMembership` — workers are regular users invited by email; never add staff to `User.*ProfileIds`. Owner, `admin`, or `manager` staff may `edit_profile`; only owner or `admin` staff may `manage_staff`.
+- One `User` per email; **roles** are linked profile documents (`stableProfileIds`, `trainerProfileId`, `groomProfileId`, horses via `mainOwnerUserId`, etc.).
+- **Collaborators** at host role profiles (stable, breeder, riding club, transport) are **Users** linked via `WorkplaceRelationship` + `Stable.collaborators[]` — see [`documentation/workplaceRelationship.md`](../documentation/workplaceRelationship.md). Never add collaborators to `User.*ProfileIds` (ownership only). **Option A:** barn staff may act on a hosted horse when active collaboration + accepted horse↔stable `Relationship` exist.
+- **Horse relationships** use `Relationship` (consent + lifecycle link documents, not bare refs on entities).
 - No `activeAccountContext`; no user-level `ownerPreferences`. Horse discovery is per-horse. See [`documentation/userAndRoles.md`](../documentation/userAndRoles.md).
 - **Horse discovery:** `profileVisibility` (default `public`) and `contactDisplay` on `Horse`; validated by `lib/validations/horse.ts` for future `PATCH /api/v1/horses/:id/discovery`.
