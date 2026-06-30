@@ -204,7 +204,7 @@ describe("workplaceRelationshipService", () => {
     );
   });
 
-  it("does not add stableProfileIds to collaborator on accept", async () => {
+  it("does not grant host ownership fields to collaborator on accept", async () => {
     const owner = await createOwner("noids-owner@example.com");
     const collaborator = await createCollaborator("noids-collaborator@example.com");
     const stable = await createTestStable(owner._id);
@@ -219,11 +219,68 @@ describe("workplaceRelationshipService", () => {
     await workplaceRelationshipService.acceptInvite(String(collaborator._id), invited.id);
 
     const collaboratorDoc = await User.findById(collaborator._id).lean();
-    expect(collaboratorDoc?.stableProfileIds).toBeUndefined();
+    expect(collaboratorDoc?.breederProfileId).toBeUndefined();
+  });
+
+  it("allows co-owner to invite collaborator and lists owned workplace", async () => {
+    const mainOwner = await createOwner("main-stable@example.com");
+    const coOwner = await createOwner("co-stable@example.com");
+    const invitee = await createCollaborator("stable-staff@example.com");
+    const stable = await createTestStable(mainOwner._id, {
+      tradeName: "Partner Stable",
+      coOwners: [{ userId: coOwner._id, ownershipPercentage: 50 }],
+    });
+
+    const invited = await workplaceRelationshipService.inviteCollaborator(
+      String(coOwner._id),
+      "stable",
+      String(stable._id),
+      inviteInput("stable-staff@example.com", "staff"),
+    );
+
+    expect(invited.status).toBe("invited");
+    await workplaceRelationshipService.acceptInvite(String(invitee._id), invited.id);
+
+    const workplaces = await workplaceRelationshipService.listWorkplacesForUser(
+      String(coOwner._id),
+    );
+
+    expect(workplaces).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          access: "owner",
+          roleType: "stable",
+          roleProfileId: String(stable._id),
+          profileName: "Partner Stable",
+        }),
+      ]),
+    );
+  });
+
+  it("hides private user identity for platform audience mapping", () => {
+    const hidden = workplaceRelationshipService.toPublicCollaborationUser(
+      {
+        _id: "507f1f77bcf86cd799439011",
+        personalDetails: {
+          email: "private@example.com",
+          firstName: "Private",
+          lastName: "User",
+        },
+        preferences: {
+          profileVisibility: "private",
+        },
+      } as Record<string, unknown>,
+      "platform",
+    );
+
+    expect(hidden?.id).toBe("507f1f77bcf86cd799439011");
+    expect(hidden?.email).toBeUndefined();
+    expect(hidden?.firstName).toBeUndefined();
+    expect(hidden?.lastName).toBeUndefined();
   });
 });
 
-describe("canCollaboratorActOnHorse (Option A)", () => {
+describe("canCollaboratorActOnHorse", () => {
   it("returns true when collaboration and stable hosting relationship exist", async () => {
     const owner = await createOwner("horse-owner@example.com");
     const stableOwner = await createOwner("stable-owner@example.com");

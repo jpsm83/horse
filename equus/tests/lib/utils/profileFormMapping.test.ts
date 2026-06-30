@@ -33,6 +33,17 @@ describe("mapUserToProfileFormValues", () => {
     expect(values.address.city).toBe("");
     expect(values.address.state).toBe("");
   });
+
+  it("maps preferences with safe defaults", () => {
+    const values = mapUserToProfileFormValues(
+      { preferredLanguage: "en" },
+      { profileVisibility: "private", searchable: false, allowDirectMessagesFrom: "nobody" },
+    );
+
+    expect(values.profileVisibility).toBe("private");
+    expect(values.searchable).toBe("false");
+    expect(values.allowDirectMessagesFrom).toBe("nobody");
+  });
 });
 
 describe("mapProfileFormValuesToPatch", () => {
@@ -114,5 +125,27 @@ describe("mapProfileFormValuesToPatch", () => {
     );
 
     expect(patch.address).toBeNull();
+  });
+
+  it("includes preferences when visibility fields are dirty", () => {
+    const patch = mapProfileFormValuesToPatch(
+      {
+        ...emptyProfileFormValues,
+        profileVisibility: "platform",
+        searchable: "false",
+        allowDirectMessagesFrom: "relationships",
+      },
+      {
+        profileVisibility: true,
+        searchable: true,
+        allowDirectMessagesFrom: true,
+      },
+    );
+
+    expect(patch.preferences).toEqual({
+      profileVisibility: "platform",
+      searchable: false,
+      allowDirectMessagesFrom: "relationships",
+    });
   });
 });

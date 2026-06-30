@@ -83,6 +83,7 @@ const ID_TYPE_TRANSLATION_KEYS: Record<(typeof idTypeEnums)[number], string> = {
 
 type ProfileFormProps = {
   personalDetails: Record<string, unknown>;
+  preferences: Record<string, unknown>;
   email: string;
   emailVerified: boolean;
   authProvider: string;
@@ -94,6 +95,7 @@ type ProfileFormProps = {
 
 export function ProfileForm({
   personalDetails,
+  preferences,
   email,
   emailVerified,
   authProvider,
@@ -136,7 +138,7 @@ export function ProfileForm({
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues: mapUserToProfileFormValues(personalDetails),
+    defaultValues: mapUserToProfileFormValues(personalDetails, preferences),
   });
 
   const { dirtyFields } = form.formState;
@@ -171,6 +173,42 @@ export function ProfileForm({
     [currentLocale],
   );
 
+  const profileVisibilityOptions = useMemo(
+    () => [
+      { value: "public", label: t("visibilityOptions.public") },
+      { value: "platform", label: t("visibilityOptions.platform") },
+      {
+        value: "relationships",
+        label: t("visibilityOptions.relationshipsOnly"),
+      },
+      { value: "private", label: t("visibilityOptions.private") },
+    ],
+    [t],
+  );
+
+  const searchableOptions = useMemo(
+    () => [
+      { value: "true", label: t("searchableOptions.visible") },
+      { value: "false", label: t("searchableOptions.hidden") },
+    ],
+    [t],
+  );
+
+  const directMessageAudienceOptions = useMemo(
+    () => [
+      {
+        value: "everyone",
+        label: t("directMessageAudienceOptions.everyone"),
+      },
+      {
+        value: "relationships",
+        label: t("directMessageAudienceOptions.relationships"),
+      },
+      { value: "nobody", label: t("directMessageAudienceOptions.nobody") },
+    ],
+    [t],
+  );
+
   async function onSubmit(values: ProfileFormValues) {
     const patch = mapProfileFormValuesToPatch(
       values,
@@ -190,7 +228,10 @@ export function ProfileForm({
     try {
       const { user: savedUser } = await updateUserProfile(patch, imageFile);
       const savedDetails = savedUser.personalDetails;
-      const savedValues = mapUserToProfileFormValues(savedDetails);
+      const savedValues = mapUserToProfileFormValues(
+        savedDetails,
+        savedUser.preferences as Record<string, unknown> | undefined,
+      );
 
       form.reset(savedValues);
       const savedCoords = readAddressCoordinates(
@@ -485,6 +526,63 @@ export function ProfileForm({
               name="idNumber"
               id="profile-idNumber"
               label={t("idNumber")}
+            />
+          </div>
+        </FieldGroup>
+      </FieldSet>
+
+      <hr className="my-4" />
+
+      <FieldSet>
+        <FieldLegend className="pb-3 font-semibold">
+          {t("sections.visibility")}
+        </FieldLegend>
+        <FieldGroup>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Controller
+              name="profileVisibility"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <SelectField
+                  id="profile-visibility"
+                  label={t("profileVisibility")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  invalid={fieldState.invalid}
+                  error={fieldState.error}
+                  options={profileVisibilityOptions}
+                />
+              )}
+            />
+            <Controller
+              name="searchable"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <SelectField
+                  id="profile-searchable"
+                  label={t("searchable")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  invalid={fieldState.invalid}
+                  error={fieldState.error}
+                  options={searchableOptions}
+                />
+              )}
+            />
+            <Controller
+              name="allowDirectMessagesFrom"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <SelectField
+                  id="profile-directMessages"
+                  label={t("allowDirectMessagesFrom")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  invalid={fieldState.invalid}
+                  error={fieldState.error}
+                  options={directMessageAudienceOptions}
+                />
+              )}
             />
           </div>
         </FieldGroup>

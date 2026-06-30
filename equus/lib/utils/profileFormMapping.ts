@@ -98,6 +98,7 @@ export function readAddressCoordinates(
 /** Map API `personalDetails` to form default values. */
 export function mapUserToProfileFormValues(
   personalDetails: Record<string, unknown> | undefined,
+  preferences?: Record<string, unknown>,
 ): ProfileFormValues {
   if (!personalDetails) {
     return {
@@ -112,6 +113,9 @@ export function mapUserToProfileFormValues(
       bio: "",
       idType: "",
       idNumber: "",
+      profileVisibility: "public",
+      searchable: "true",
+      allowDirectMessagesFrom: "everyone",
       address: {
         country: "",
         state: "",
@@ -141,6 +145,16 @@ export function mapUserToProfileFormValues(
     bio: readString(personalDetails.bio),
     idType: readString(personalDetails.idType),
     idNumber: readString(personalDetails.idNumber),
+    profileVisibility:
+      readString(preferences?.profileVisibility) || "public",
+    searchable:
+      typeof preferences?.searchable === "boolean"
+        ? preferences.searchable
+          ? "true"
+          : "false"
+        : "true",
+    allowDirectMessagesFrom:
+      readString(preferences?.allowDirectMessagesFrom) || "everyone",
     address: {
       country: readCountryCode(address?.country),
       state: readString(address?.state),
@@ -180,6 +194,24 @@ export function mapProfileFormValuesToPatch(
 
   if (dirtyFields.preferredLanguage) {
     patch.preferredLanguage = normalizeLocale(values.preferredLanguage) as AppLocale;
+  }
+
+  if (
+    dirtyFields.profileVisibility ||
+    dirtyFields.searchable ||
+    dirtyFields.allowDirectMessagesFrom
+  ) {
+    patch.preferences = {};
+
+    if (dirtyFields.profileVisibility) {
+      patch.preferences.profileVisibility = values.profileVisibility;
+    }
+    if (dirtyFields.searchable) {
+      patch.preferences.searchable = values.searchable === "true";
+    }
+    if (dirtyFields.allowDirectMessagesFrom) {
+      patch.preferences.allowDirectMessagesFrom = values.allowDirectMessagesFrom;
+    }
   }
 
   for (const key of SCALAR_FIELDS) {

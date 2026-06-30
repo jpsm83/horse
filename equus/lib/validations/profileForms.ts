@@ -4,7 +4,13 @@
  */
 
 import { z } from "zod";
-import { appLocaleEnums, genderEnums, idTypeEnums } from "../../utils/enums.ts";
+import {
+  appLocaleEnums,
+  genderEnums,
+  idTypeEnums,
+  userDirectMessageAudienceEnums,
+  userProfileVisibilityEnums,
+} from "../../utils/enums.ts";
 import { isKnownCountryCode } from "../data/countries.ts";
 
 export type ProfileFormMessages = {
@@ -76,6 +82,15 @@ export function createProfileFormSchemas(messages: ProfileFormMessages) {
     bio: optionalTrimmedString(2000),
     idType: optionalEnum(idTypeEnums, messages),
     idNumber: optionalTrimmedString(),
+    profileVisibility: z.enum(userProfileVisibilityEnums, {
+      message: messages.invalidEnum,
+    }),
+    searchable: z.enum(["true", "false"], {
+      message: messages.invalidEnum,
+    }),
+    allowDirectMessagesFrom: z.enum(userDirectMessageAudienceEnums, {
+      message: messages.invalidEnum,
+    }),
     address: addressFormSchema,
   });
 
@@ -112,6 +127,9 @@ export const emptyProfileFormValues: ProfileFormValues = {
   bio: "",
   idType: "",
   idNumber: "",
+  profileVisibility: "public",
+  searchable: "true",
+  allowDirectMessagesFrom: "everyone",
   address: {
     country: "",
     state: "",

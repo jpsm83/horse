@@ -112,7 +112,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 
 **Policy:** collaborators are **Users** (same signup as everyone). There is no business login. A stable is a **role profile** on the owning User's account. The profile owner invites a User; on accept, a **WorkplaceRelationship** links that User to the stable profile and the collaboration id is added to `Stable.collaborators[]`.
 
-**Option A (barn staff on hosted horses):** a collaborator may act on a horse when (1) active collaboration at this stable **and** (2) accepted horse ↔ stable `Relationship`. No separate groom↔horse link required. See [`workplaceRelationship.md`](workplaceRelationship.md).
+**Barn staff on hosted horses:** a collaborator may act on a horse when (1) active collaboration at this stable **and** (2) accepted horse ↔ stable `Relationship`. No separate groom↔horse link required. See [`workplaceRelationship.md`](workplaceRelationship.md).
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
@@ -122,7 +122,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | S-TEAM-04 | Hierarchy on collaboration: admin, manager, staff (not on User) | Beyond | planned |
 | S-TEAM-05 | Rich collaboration fields (title, description, permissions, dates, notes, etc.) | Beyond | planned |
 | S-TEAM-06 | Role-based capabilities derived from hierarchy on that link | Parity | planned |
-| S-TEAM-07 | Collaborator sees horses hosted by this stable (Option A: collaboration + horse↔stable link) | Parity | planned |
+| S-TEAM-07 | Collaborator sees horses hosted by this stable (active collaboration + horse↔stable link) | Parity | planned |
 | S-TEAM-08 | Teams and granular permission overrides per collaboration | Parity | planned |
 | S-TEAM-09 | **Multi-stable:** same User, multiple collaborations | Beyond | planned |
 | S-TEAM-10 | Cross-stable schedule conflict awareness | Beyond | planned |
@@ -277,6 +277,6 @@ Cross-module production gate (all must be ready together): see [`mvpScope.md`](m
 
 | Date | Change |
 |------|--------|
-| 2026-06-29 | Collaborators as Users; WorkplaceRelationship + Stable.collaborators; Option A |
+| 2026-06-29 | Collaborators as Users; WorkplaceRelationship + Stable.collaborators; barn staff horse access rules |
 | 2026-06-29 | Staff policy: invite/accept; multi-stable employment |
 | 2026-06-29 | Initial specification from `equinem.md` parity + business plan stable module |

@@ -2,7 +2,7 @@
  * Rider model — position-linked role profile for users who ride professionally.
  *
  * One Rider per User (`User.riderProfileId`). Called by future role-profile APIs.
- * Horse access is via `Relationship` (direct) or barn collaboration (Option A).
+ * Horse access is via `Relationship` (direct) or barn collaboration on hosted horses.
  */
 
 import mongoose, { Schema, model } from "mongoose";

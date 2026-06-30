@@ -55,7 +55,7 @@ Target timeline: ~8–10 weeks after validation (see `validationPlaybook.md`).
 - User signup/login (Auth.js on web; JWT API for mobile clients)
 - Personal profile creation
 - **Browse-first signup** — new users have no roles; they can search stables, trainers, vets, horses, etc.
-- Create role profiles when ready: **horse** (owner), **stable**, **trainer**, and others (each role has its own model)
+- Create horses and role profiles when ready: **horse** (entity-owned), **stable**, **trainer**, and others (each type has its own model)
 - One login; navigate between roles in the app (no persisted account context)
 
 #### Horse discovery
@@ -153,7 +153,7 @@ Target timeline: ~4–6 weeks after 1A pilot feedback.
 
 ### Production acceptance criteria (cross-module)
 
-- [ ] User can sign up, create personal profile, and operate stable and/or owner roles under one login
+- [ ] User can sign up, create personal profile, and operate horses and/or stable (and other role profiles) under one login
 - [ ] Horse profile is canonical record shared across linked stable and vet with correct permissions
 - [ ] Stable operates daily barn workflows at EquineM parity per `stableModule.md`
 - [ ] Vet can link to horse, record treatments; owner sees allowed data on horse dashboard

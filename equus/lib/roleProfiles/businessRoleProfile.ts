@@ -6,6 +6,7 @@
 
 import mongoose from "mongoose";
 import { ApiError } from "../api/errors.ts";
+import { resolveMainOwnerUserId, userHasOwnerAccess } from "../ownership/entityOwnership.ts";
 import Stable from "../../models/Stable.ts";
 import Breeder from "../../models/Breeder.ts";
 import RidingClub from "../../models/RidingClub.ts";
@@ -24,6 +25,9 @@ const MODEL_BY_ROLE_TYPE = {
 export type BusinessRoleProfileResult = {
   roleType: BusinessRoleType;
   roleProfileId: string;
+  /** Primary operator on the profile (mainOwnerUserId or breeder userId). */
+  mainOwnerUserId: string;
+  /** @deprecated Use mainOwnerUserId */
   ownerUserId: string;
   profile: Record<string, unknown>;
 };
@@ -36,7 +40,7 @@ export function parseBusinessRoleType(param: string): BusinessRoleType {
   throw new ApiError(400, "Invalid business role type", "VALIDATION_ERROR");
 }
 
-/** Load a business role profile document and return owner user id. */
+/** Load a business role profile document and return main operator user id. */
 export async function findBusinessRoleProfile(
   roleType: BusinessRoleType,
   roleProfileId: string,
@@ -52,15 +56,19 @@ export async function findBusinessRoleProfile(
     return null;
   }
 
-  const ownerUserId = profile.userId;
-  if (!ownerUserId) {
+  const profileRecord = profile as Record<string, unknown>;
+  const mainOwnerUserId = resolveMainOwnerUserId(roleType, profileRecord);
+  if (!mainOwnerUserId) {
     return null;
   }
 
   return {
     roleType,
     roleProfileId,
-    ownerUserId: String(ownerUserId),
-    profile: profile as Record<string, unknown>,
+    mainOwnerUserId,
+    ownerUserId: mainOwnerUserId,
+    profile: profileRecord,
   };
 }
+
+export { userHasOwnerAccess };

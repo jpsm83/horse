@@ -1,6 +1,7 @@
 import mongoose, { Schema, model } from "mongoose";
 import { addressSchema } from "./sharedSchemas/address.ts";
 import {
+  coOwnerSchema,
   mediaAssetSchema,
   ratingSummarySchema,
   verificationProfileSchema,
@@ -26,12 +27,14 @@ const clubEventSchema = new Schema(
 
 const ridingClubSchema = new Schema(
   {
-    userId: {
+    /** Ownership — main operator plus optional partners (same pattern as Horse) */
+    mainOwnerUserId: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "User id is required!"],
+      required: [true, "Main owner user id is required!"],
       index: true,
     },
+    coOwners: { type: [coOwnerSchema], default: undefined },
 
     /** Club identity */
     clubName: { type: String, required: [true, "Club name is required!"] },
@@ -71,6 +74,7 @@ const ridingClubSchema = new Schema(
 
 ridingClubSchema.index({ clubName: 1 });
 ridingClubSchema.index({ disciplines: 1 });
+ridingClubSchema.index({ "coOwners.userId": 1 }, { sparse: true });
 
 const RidingClub = mongoose.models.RidingClub || model("RidingClub", ridingClubSchema);
 export default RidingClub;

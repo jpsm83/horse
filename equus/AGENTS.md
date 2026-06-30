@@ -85,6 +85,7 @@ Your primary goals are:
 * **No over-engineering** — no extra abstractions, wrappers, indirection, or ceremony unless they clearly pay for themselves in this codebase.
 * **React and Next.js best practices** — App Router boundaries, Server vs Client Components, declarative UI, thin route handlers, business logic in `lib/`.
 * **Minimal file and folder sprawl** — do not add new files, folders, or layers unless strictly necessary; extend existing modules and patterns first.
+* **Post-task cleanup (mandatory)** — when all requested work is done and tests pass, leave the codebase free of dead and irrelevant code: remove unused imports, exports, helpers, deprecated aliases, one-time migration scripts (after they have been run in each environment), commented-out blocks, and stale references in docs or tests. Reorganize touched modules so the next developer can follow them easily (clear file order, consistent naming, logic grouped by concern). Add or refresh comments per §11 — file headers on new/changed modules, section headings where helpful, brief notes on non-obvious business rules — without noise or line-by-line narration.
 * **`useRef` and the DOM** — **forbidden** to use `useRef` for imperative DOM manipulation (e.g. `ref.current.click()`, reading/writing DOM nodes) unless there is genuinely no declarative React alternative; prefer `useState`, `useCallback`, props, composition, and native HTML patterns (e.g. `<label htmlFor>` for file inputs). Non-DOM uses of refs (if ever needed) must be rare and justified.
 
 ### Before proposing a solution, first explain your understanding of the task, identify affected areas of the codebase, and outline the implementation plan.
@@ -237,7 +238,9 @@ After coding:
 3. Verify correctness — including the **real user flow** that motivated the change when applicable.
 4. Check for unintended side effects and equivalent paths (do not ship a fix that only works for one login method, locale, or client).
 5. Update relevant documentation.
-6. Ensure the solution remains simple and aligned with the codebase.
+6. **Clean up** — remove dead or irrelevant code from the change set (unused symbols, obsolete paths, one-time scripts already executed, duplicate logic). Do not leave transitional shims unless still required for production data.
+7. **Organize and document** — structure touched files for readability (exports, section order, naming aligned with the repo); add or update file headers, section comments, and brief notes on non-obvious rules per §11.
+8. Ensure the solution remains simple and aligned with the codebase.
 
 ## Decision Priority Order
 
@@ -296,8 +299,8 @@ models/
 
 ### User and roles
 
-- One `User` per email; **roles** are linked profile documents (`stableProfileIds`, `trainerProfileId`, `groomProfileId`, horses via `mainOwnerUserId`, etc.).
-- **Collaborators** at host role profiles (stable, breeder, riding club, transport) are **Users** linked via `WorkplaceRelationship` + `Stable.collaborators[]` — see [`documentation/workplaceRelationship.md`](../documentation/workplaceRelationship.md). Never add collaborators to `User.*ProfileIds` (ownership only). **Option A:** barn staff may act on a hosted horse when active collaboration + accepted horse↔stable `Relationship` exist.
+- One `User` per email. **Entity-owned** roles (horses, stables, riding clubs, transport) link via `mainOwnerUserId` on the entity (plus optional `coOwners[]` on horse, stable, riding club) — not mirrored on `User`. **User-linked** roles (breeder, trainer, groom, vet, coach, rider, farrier) use `*ProfileId` on `User` plus `userId` on the role document. Ownership helpers: `lib/ownership/entityOwnership.ts`.
+- **Collaborators** at host role profiles (stable, breeder, riding club, transport) are **Users** linked via `WorkplaceRelationship` + host `collaborators[]` — see [`documentation/workplaceRelationship.md`](../documentation/workplaceRelationship.md). Never grant host ownership on `User` to collaborators. Barn staff may act on a hosted horse when active collaboration + accepted horse↔stable `Relationship` exist.
 - **Horse relationships** use `Relationship` (consent + lifecycle link documents, not bare refs on entities).
 - No `activeAccountContext`; no user-level `ownerPreferences`. Horse discovery is per-horse. See [`documentation/userAndRoles.md`](../documentation/userAndRoles.md).
 - **Horse discovery:** `profileVisibility` (default `public`) and `contactDisplay` on `Horse`; validated by `lib/validations/horse.ts` for future `PATCH /api/v1/horses/:id/discovery`.

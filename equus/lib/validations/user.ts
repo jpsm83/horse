@@ -5,7 +5,13 @@
  */
 
 import { z } from "zod";
-import { genderEnums, idTypeEnums, appLocaleEnums } from "../../utils/enums.ts";
+import {
+  genderEnums,
+  idTypeEnums,
+  appLocaleEnums,
+  userDirectMessageAudienceEnums,
+  userProfileVisibilityEnums,
+} from "../../utils/enums.ts";
 import { isKnownCountryCode } from "../data/countries.ts";
 
 const countryCodeSchema = z
@@ -57,4 +63,11 @@ export const updatePersonalDetailsSchema = z.object({
   phoneNumber: patchString().optional(),
   bio: z.union([z.string().trim().max(2000), z.literal("")]).optional(),
   preferredLanguage: z.enum(appLocaleEnums).optional(),
+  preferences: z
+    .object({
+      profileVisibility: patchEnum(userProfileVisibilityEnums).optional(),
+      searchable: z.boolean().optional(),
+      allowDirectMessagesFrom: patchEnum(userDirectMessageAudienceEnums).optional(),
+    })
+    .optional(),
 });

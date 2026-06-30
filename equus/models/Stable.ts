@@ -1,6 +1,7 @@
 import mongoose, { Schema, model } from "mongoose";
 import { addressSchema } from "./sharedSchemas/address.ts";
 import {
+  coOwnerSchema,
   mediaAssetSchema,
   ratingSummarySchema,
   serviceOfferingSchema,
@@ -25,12 +26,14 @@ const pricingTierSchema = new Schema(
 
 const stableSchema = new Schema(
   {
-    userId: {
+    /** Ownership — main operator plus optional partners (same pattern as Horse) */
+    mainOwnerUserId: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "User id is required!"],
+      required: [true, "Main owner user id is required!"],
       index: true,
     },
+    coOwners: { type: [coOwnerSchema], default: undefined },
 
     /** Business identity */
     tradeName: { type: String, required: [true, "Trade name is required!"] },
@@ -84,6 +87,7 @@ const stableSchema = new Schema(
 stableSchema.index({ tradeName: 1 });
 stableSchema.index({ disciplines: 1 });
 stableSchema.index({ "address.city": 1, "address.country": 1 });
+stableSchema.index({ "coOwners.userId": 1 }, { sparse: true });
 
 const Stable = mongoose.models.Stable || model("Stable", stableSchema);
 export default Stable;

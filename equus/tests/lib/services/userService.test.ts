@@ -60,13 +60,18 @@ describe("userService", () => {
     expect(user.personalDetails.idNumber).toBeUndefined();
     expect(user.ownerPreferences).toBeUndefined();
     expect(user.activeAccountContext).toBeUndefined();
-    expect(user.stableProfileIds).toBeUndefined();
+    expect(user.breederProfileId).toBeUndefined();
     expect(user.trainerProfileId).toBeUndefined();
     expect(user.authProvider).toBe("credentials");
     expect(user.personalDetails.password).not.toBe("TestPass1!");
 
     const publicUser = userService.toPublicUser(user.toObject() as Record<string, unknown>);
     expect(publicUser.personalDetails.password).toBeUndefined();
+    expect(publicUser.preferences).toEqual({
+      profileVisibility: "public",
+      searchable: true,
+      allowDirectMessagesFrom: "everyone",
+    });
     expect(publicUser.hasPassword).toBe(true);
     expect(publicUser.profileComplete).toBe(false);
   });
@@ -104,6 +109,27 @@ describe("userService", () => {
 
     expect(cleared?.personalDetails.phoneNumber).toBeUndefined();
     expect(cleared?.personalDetails.bio).toBeUndefined();
+  });
+
+  it("updatePersonalDetails updates user visibility preferences", async () => {
+    const created = await userService.createCredentialsUser({
+      email: "preferences@example.com",
+      password: "TestPass1!",
+    });
+
+    const updated = await userService.updatePersonalDetails(String(created._id), {
+      preferences: {
+        profileVisibility: "relationships",
+        searchable: false,
+        allowDirectMessagesFrom: "relationships",
+      },
+    });
+
+    expect(updated?.preferences).toEqual({
+      profileVisibility: "relationships",
+      searchable: false,
+      allowDirectMessagesFrom: "relationships",
+    });
   });
 
   it("toPublicUser omits null fields from personalDetails", async () => {

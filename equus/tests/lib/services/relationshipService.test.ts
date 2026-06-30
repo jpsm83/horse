@@ -35,7 +35,7 @@ async function createPendingRelationship(input: {
     relationshipType: "stable",
     status: "pending",
     requesterUserId: input.requesterUserId,
-    receiverAccountType: "owner",
+    receiverAccountType: "horse",
     invitedEmail: input.invitedEmail,
     referralReference: input.referralReference,
     historicalReference: {

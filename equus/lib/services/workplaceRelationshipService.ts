@@ -2,7 +2,7 @@
  * Workplace relationship service — collaboration invites, accept/decline, workplaces listing.
  *
  * Called by REST routes under workplace-relationships and users/me/workplace-invitations.
- * Collaborators are Users; access is via WorkplaceRelationship, never User.*ProfileIds.
+ * Collaborators are Users; access is via WorkplaceRelationship, never host ownership on User.
  */
 
 import mongoose from "mongoose";
@@ -20,7 +20,9 @@ import {
 } from "../roleProfiles/businessRoleProfile.ts";
 import type { z } from "zod";
 import type { inviteCollaboratorSchema } from "../validations/workplaceRelationship.ts";
+import { ownedByUserQuery } from "../ownership/entityOwnership.ts";
 import { sendStaffInviteEmail } from "../email/sendStaffInviteEmail.ts";
+import { canExposeUserIdentity, type UserVisibilityAudience } from "../privacy/userVisibility.ts";
 
 export type InviteCollaboratorInput = z.infer<typeof inviteCollaboratorSchema>;
 
@@ -95,21 +97,44 @@ const NAME_FIELD_BY_ROLE_TYPE: Record<BusinessRoleType, string> = {
 
 export function toPublicCollaborationUser(
   doc: Record<string, unknown> | null | undefined,
+  audience: UserVisibilityAudience = "collaboration",
 ): PublicCollaborationUser | undefined {
   if (!doc) return undefined;
 
   const personalDetails = (doc.personalDetails ?? {}) as Record<string, unknown>;
+  const preferences = (doc.preferences ?? {}) as Record<string, unknown>;
+  const canExpose = canExposeUserIdentity(
+    {
+      profileVisibility: preferences.profileVisibility as
+        | "public"
+        | "platform"
+        | "relationships"
+        | "private"
+        | undefined,
+      searchable:
+        typeof preferences.searchable === "boolean"
+          ? preferences.searchable
+          : undefined,
+      allowDirectMessagesFrom: preferences.allowDirectMessagesFrom as
+        | "everyone"
+        | "relationships"
+        | "nobody"
+        | undefined,
+    },
+    audience,
+  );
 
   return {
     id: String(doc._id),
-    email: personalDetails.email as string | undefined,
-    firstName: personalDetails.firstName as string | undefined,
-    lastName: personalDetails.lastName as string | undefined,
+    email: canExpose ? (personalDetails.email as string | undefined) : undefined,
+    firstName: canExpose ? (personalDetails.firstName as string | undefined) : undefined,
+    lastName: canExpose ? (personalDetails.lastName as string | undefined) : undefined,
   };
 }
 
 export function toPublicWorkplaceRelationship(
   doc: Record<string, unknown>,
+  audience: UserVisibilityAudience = "collaboration",
 ): PublicWorkplaceRelationship {
   const userDoc = doc.userId as Record<string, unknown> | undefined;
   const populatedUser =
@@ -129,7 +154,7 @@ export function toPublicWorkplaceRelationship(
     title: doc.title as string | undefined,
     description: doc.description as string | undefined,
     invitedEmail: String(doc.invitedEmail),
-    user: toPublicCollaborationUser(populatedUser),
+    user: toPublicCollaborationUser(populatedUser, audience),
     invitedByUserId: String(doc.invitedByUserId),
     acceptedAt: doc.acceptedAt as Date | undefined,
     createdAt: doc.createdAt as Date | undefined,
@@ -341,7 +366,10 @@ export async function listCollaborators(
     hostRoleProfileId,
     status: { $in: [...ACTIVE_INVITE_STATUSES, "suspended"] },
   })
-    .populate("userId", "personalDetails.email personalDetails.firstName personalDetails.lastName")
+    .populate(
+      "userId",
+      "personalDetails.email personalDetails.firstName personalDetails.lastName preferences",
+    )
     .sort({ createdAt: -1 })
     .lean();
 
@@ -523,7 +551,9 @@ export async function listWorkplacesForUser(userId: string): Promise<PublicWorkp
   ];
 
   for (const { roleType, model, field } of ownedQueries) {
-    const owned = await model.find({ userId }).select(field).lean();
+    const filter =
+      roleType === "breeder" ? { userId } : ownedByUserQuery(userId);
+    const owned = await model.find(filter).select(field).lean();
     for (const profile of owned) {
       workplaces.push({
         roleType,

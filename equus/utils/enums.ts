@@ -34,8 +34,14 @@ export const horseColorEnums = [
   "Other",
 ] as const;
 
+/**
+ * Party kind on Relationship requester/receiver metadata and Horse.attributedAccountType.
+ * Role profiles (stable, trainer, …) pair with `*AccountId` on the role document.
+ * `horse` — user on the horse-ownership side (no Horse profile on User); horse identity
+ * is always `Relationship.horseId`. Not a navigational subsection id on User.
+ */
 export const accountTypeEnums = [
-  "owner",
+  "horse",
   "stable",
   "trainer",
   "veterinary",
@@ -46,11 +52,25 @@ export const accountTypeEnums = [
   "ridingClub",
   "transport",
   "coach",
-  "horse",
 ] as const;
 
 /** Supported UI and email locales for Equus web and mobile clients. */
 export const appLocaleEnums = ["en", "es"] as const;
+
+/** User-level privacy and discoverability controls for profile exposure. */
+export const userProfileVisibilityEnums = [
+  "public",
+  "platform",
+  "relationships",
+  "private",
+] as const;
+
+/** Who may start direct messages with this user profile. */
+export const userDirectMessageAudienceEnums = [
+  "everyone",
+  "relationships",
+  "nobody",
+] as const;
 
 /** Business role profiles that support staff memberships (subset of accountTypeEnums). */
 export const businessRoleTypeEnums = [

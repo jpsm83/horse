@@ -38,7 +38,7 @@ Provider links (vet, stable, trainer, etc.) are **not** stored on `Horse` direct
 8. **Collaborators are Users** — profile owner invites a User to collaborate at a **role profile** (e.g. stable) via `WorkplaceRelationship`; may collaborate at multiple profiles
 9. **Reviews are horse-scoped** and only allowed on verified established horse ↔ provider relationships
 10. **Invitations include referral reference number** — first reference used at owner signup wins attribution
-11. **Horse discovery is per horse** — `profileVisibility` and `contactDisplay` on each `Horse`; user profile is always visible (see [`userAndRoles.md`](userAndRoles.md))
+11. **Horse discovery is per horse** — `profileVisibility` and `contactDisplay` on each `Horse`; user profile exposure is controlled by `User.preferences` (see [`userAndRoles.md`](userAndRoles.md))
 
 ---
 
@@ -92,6 +92,8 @@ Trial active (30 days)
   → Co-owners remain linked but do not become payer unless ownership transfer occurs
 ```
 
+**Stable and riding club partnerships** use the same `mainOwnerUserId` + `coOwners[]` embed as horses (shared `coOwnerSchema`). Co-owners receive full profile-owner access; adding co-owners via API is future work. Transport uses `mainOwnerUserId` only (single operator).
+
 ---
 
 ## Flow 2 — Stable owner / manager
@@ -136,7 +138,7 @@ Stable dashboard
 
 Collaborators are **never owned by a stable profile**. Every groom, rider, or manager is a **User** (same signup as everyone). The **profile owner** (User who owns the `Stable` role profile) sends a **collaboration invitation**; the invited User accepts or declines.
 
-See [`workplaceRelationship.md`](workplaceRelationship.md) for Option A (barn staff on hosted horses).
+See [`workplaceRelationship.md`](workplaceRelationship.md) for barn staff access on hosted horses.
 
 ```
 Profile owner (User) or admin on that stable profile invites User by email
@@ -231,7 +233,7 @@ Applies to all provider ↔ horse ↔ owner combinations.
 Requester initiates link
   → Receiver notification (push + email)
   → Receiver accepts OR declines
-  → Accepted: permanent `Relationship` record + operational permissions (direct provider or Option A barn path)
+  → Accepted: permanent `Relationship` record + operational permissions (direct provider or barn collaboration path)
   → Declined: requester notified, no operational data; may send again
 ```
 
@@ -265,7 +267,7 @@ User signs up or already has account (may also own horses, vet profile, trainer/
 
 Permissions live on the **WorkplaceRelationship**, not on the User — see `userAndRoles.md` and `workplaceRelationship.md`.
 
-### Option A examples
+### Barn staff examples
 
 **Groom at barn:** Alice owns Sunrise Stable. Bob accepts stable hosting for Comet. Alice invites Carla (groom subsection). Carla accepts collaboration. Carla logs feed/care on Comet without a separate groom↔Comet `Relationship`.
 

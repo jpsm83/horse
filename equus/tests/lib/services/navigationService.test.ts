@@ -5,7 +5,12 @@ import Horse from "@/models/Horse.ts";
 import User from "@/models/User.ts";
 import * as navigationService from "@/lib/services/navigationService.ts";
 import * as userService from "@/lib/services/userService.ts";
-import { createTestStable } from "@/tests/helpers/businessRoleFixtures.ts";
+import {
+  createTestBreeder,
+  createTestRidingClub,
+  createTestStable,
+  createTestTransport,
+} from "@/tests/helpers/businessRoleFixtures.ts";
 
 async function createUser(email: string) {
   return userService.createCredentialsUser({
@@ -36,13 +41,12 @@ describe("navigationService", () => {
     });
   });
 
-  it("reflects owned profiles and horses on the user document", async () => {
+  it("reflects entity-owned profiles and horses via entity queries", async () => {
     const user = await createUser("nav-owner@example.com");
-    const stable = await createTestStable(user._id);
+    await createTestStable(user._id);
 
     await User.findByIdAndUpdate(user._id, {
       $set: {
-        stableProfileIds: [stable._id],
         trainerProfileId: new mongoose.Types.ObjectId(),
         coachProfileId: new mongoose.Types.ObjectId(),
       },
@@ -66,6 +70,50 @@ describe("navigationService", () => {
     expect(owned.transport).toBe(false);
     expect(owned.breeders).toBe(false);
     expect(owned.ridingClubs).toBe(false);
+  });
+
+  it("reflects riding club and transport when mainOwnerUserId matches", async () => {
+    const user = await createUser("nav-host@example.com");
+    await createTestRidingClub(user._id);
+    await createTestTransport(user._id);
+
+    const owned = await navigationService.getUserOwnedNavigation(String(user._id));
+
+    expect(owned.ridingClubs).toBe(true);
+    expect(owned.transport).toBe(true);
+    expect(owned.stables).toBe(false);
+  });
+
+  it("reflects breederProfileId on the user document", async () => {
+    const user = await createUser("nav-breeder@example.com");
+    const breeder = await createTestBreeder(user._id);
+
+    await User.findByIdAndUpdate(user._id, {
+      $set: { breederProfileId: breeder._id },
+    });
+
+    const owned = await navigationService.getUserOwnedNavigation(String(user._id));
+
+    expect(owned.breeders).toBe(true);
+    expect(owned.stables).toBe(false);
+  });
+
+  it("reflects stable and riding club when user is co-owner", async () => {
+    const mainOwner = await createUser("nav-main@example.com");
+    const coOwner = await createUser("nav-co@example.com");
+
+    await createTestStable(mainOwner._id, {
+      coOwners: [{ userId: coOwner._id, ownershipPercentage: 30 }],
+    });
+    await createTestRidingClub(mainOwner._id, {
+      coOwners: [{ userId: coOwner._id, ownershipPercentage: 25 }],
+    });
+
+    const owned = await navigationService.getUserOwnedNavigation(String(coOwner._id));
+
+    expect(owned.stables).toBe(true);
+    expect(owned.ridingClubs).toBe(true);
+    expect(owned.horses).toBe(false);
   });
 
   it("reflects position-linked profile ids on the user document", async () => {

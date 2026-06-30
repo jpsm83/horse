@@ -3,6 +3,9 @@ import User from "@/models/User.ts";
 import Rider from "@/models/Rider.ts";
 import Groom from "@/models/Groom.ts";
 import Farrier from "@/models/Farrier.ts";
+import Stable from "@/models/Stable.ts";
+import RidingClub from "@/models/RidingClub.ts";
+import Transport from "@/models/Transport.ts";
 
 describe("User model role profile id fields", () => {
   it("defines position-linked profile id paths", () => {
@@ -46,5 +49,22 @@ describe("Position-linked role profile models", () => {
 
     expect(groom.displayName).toBe("Carla Groom");
     expect(farrier.displayName).toBe("Frank Farrier");
+  });
+});
+
+describe("Entity-owned host profile models", () => {
+  it("defines mainOwnerUserId and coOwners on Stable and RidingClub", () => {
+    expect(Stable.schema.path("mainOwnerUserId")).toBeDefined();
+    expect(Stable.schema.path("coOwners")).toBeDefined();
+    expect(Stable.schema.path("userId")).toBeUndefined();
+
+    expect(RidingClub.schema.path("mainOwnerUserId")).toBeDefined();
+    expect(RidingClub.schema.path("coOwners")).toBeDefined();
+  });
+
+  it("defines mainOwnerUserId only on Transport", () => {
+    expect(Transport.schema.path("mainOwnerUserId")).toBeDefined();
+    expect(Transport.schema.path("coOwners")).toBeUndefined();
+    expect(Transport.schema.path("userId")).toBeUndefined();
   });
 });

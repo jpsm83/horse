@@ -246,6 +246,7 @@
     "authProvider": "Sign-in method",
     "sections": {
       "personal": "Personal",
+      "visibility": "Visibility and privacy",
       "address": "Address",
       "photo": "Photo",
       "security": "Security"
@@ -259,6 +260,9 @@
     "bio": "Bio",
     "idType": "ID type",
     "idNumber": "ID number",
+    "profileVisibility": "Profile visibility",
+    "searchable": "Search listing",
+    "allowDirectMessagesFrom": "Direct messages from",
     "country": "Country",
     "state": "State / province",
     "city": "City",
@@ -302,6 +306,21 @@
     "languageOptions": {
       "en": "English",
       "es": "Español"
+    },
+    "visibilityOptions": {
+      "public": "Public",
+      "platform": "Only signed-in users",
+      "relationshipsOnly": "Only accepted relationships/collaborations",
+      "private": "Private"
+    },
+    "searchableOptions": {
+      "visible": "Show in search and suggestions",
+      "hidden": "Hide from search and suggestions"
+    },
+    "directMessageAudienceOptions": {
+      "everyone": "Everyone",
+      "relationships": "Accepted relationships/collaborations only",
+      "nobody": "Nobody"
     }
   },
   "errors": {

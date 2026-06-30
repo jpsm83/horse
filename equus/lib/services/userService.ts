@@ -21,6 +21,10 @@ import {
   assertCloudinaryDeleteSuccess,
   assertCloudinaryUploadUrls,
 } from "../cloudinary/assertUpload.ts";
+import {
+  userDirectMessageAudienceEnums,
+  userProfileVisibilityEnums,
+} from "@/utils/enums.ts";
 import type { UploadInputFile } from "../cloudinary/types.ts";
 import type { z } from "zod";
 import type { updatePersonalDetailsSchema } from "../validations/user.ts";
@@ -29,10 +33,17 @@ import { linkRelationshipByReferral } from "./relationshipService.ts";
 
 export type UpdatePersonalDetailsInput = z.infer<typeof updatePersonalDetailsSchema>;
 
+export type PublicUserPreferences = {
+  profileVisibility: (typeof userProfileVisibilityEnums)[number];
+  searchable: boolean;
+  allowDirectMessagesFrom: (typeof userDirectMessageAudienceEnums)[number];
+};
+
 /** Safe user shape returned by the API (password and tokens stripped). */
 export type PublicUser = {
   id: string;
   personalDetails: Record<string, unknown>;
+  preferences: PublicUserPreferences;
   emailVerified: boolean;
   authProvider: AuthProvider;
   profileComplete: boolean;
@@ -74,6 +85,41 @@ function omitNullishFields(details: Record<string, unknown>): Record<string, unk
   return details;
 }
 
+const DEFAULT_PUBLIC_USER_PREFERENCES: PublicUserPreferences = {
+  profileVisibility: "public",
+  searchable: true,
+  allowDirectMessagesFrom: "everyone",
+};
+
+function toPublicUserPreferences(doc: Record<string, unknown>): PublicUserPreferences {
+  const preferences = (doc.preferences ?? {}) as Record<string, unknown>;
+
+  const profileVisibility =
+    typeof preferences.profileVisibility === "string" &&
+    (userProfileVisibilityEnums as readonly string[]).includes(preferences.profileVisibility)
+      ? (preferences.profileVisibility as PublicUserPreferences["profileVisibility"])
+      : DEFAULT_PUBLIC_USER_PREFERENCES.profileVisibility;
+
+  const searchable =
+    typeof preferences.searchable === "boolean"
+      ? preferences.searchable
+      : DEFAULT_PUBLIC_USER_PREFERENCES.searchable;
+
+  const allowDirectMessagesFrom =
+    typeof preferences.allowDirectMessagesFrom === "string" &&
+    (userDirectMessageAudienceEnums as readonly string[]).includes(
+      preferences.allowDirectMessagesFrom,
+    )
+      ? (preferences.allowDirectMessagesFrom as PublicUserPreferences["allowDirectMessagesFrom"])
+      : DEFAULT_PUBLIC_USER_PREFERENCES.allowDirectMessagesFrom;
+
+  return {
+    profileVisibility,
+    searchable,
+    allowDirectMessagesFrom,
+  };
+}
+
 /** Whether the user document has a stored password hash (never expose the hash). */
 export function userHasPassword(doc: Record<string, unknown>): boolean {
   const personalDetails = doc.personalDetails as Record<string, unknown> | undefined;
@@ -96,6 +142,7 @@ export function toPublicUser(
   return {
     id: String(doc._id),
     personalDetails,
+    preferences: toPublicUserPreferences(doc),
     emailVerified: doc.emailVerified === true,
     authProvider: (doc.authProvider as AuthProvider) ?? "credentials",
     profileComplete: isProfileComplete(personalDetails),
@@ -275,6 +322,32 @@ export async function updatePersonalDetails(userId: string, data: UpdatePersonal
           unset[`personalDetails.address.${subKey}`] = "";
         } else if (subValue !== undefined) {
           set[`personalDetails.address.${subKey}`] = subValue;
+        }
+      }
+      continue;
+    }
+
+    if (key === "preferences") {
+      if (!value || typeof value !== "object") {
+        continue;
+      }
+
+      for (const [prefKey, prefValue] of Object.entries(value)) {
+        if (prefValue === undefined) {
+          continue;
+        }
+
+        if (prefKey === "searchable") {
+          if (typeof prefValue === "boolean") {
+            set[`preferences.${prefKey}`] = prefValue;
+          }
+          continue;
+        }
+
+        if (shouldUnset(prefValue)) {
+          unset[`preferences.${prefKey}`] = "";
+        } else {
+          set[`preferences.${prefKey}`] = prefValue;
         }
       }
       continue;

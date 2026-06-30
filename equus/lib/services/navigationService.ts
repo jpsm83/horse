@@ -1,11 +1,16 @@
 /**
  * User-owned navigation flags — which "My own" header links to show.
  *
- * Called by `GET /api/v1/users/me/navigation`. Collaborations are excluded;
- * only role profiles linked on the User document (and horses via mainOwnerUserId) count.
+ * Called by `GET /api/v1/users/me/navigation`. Collaborations are excluded.
+ * Entity-owned roles use mainOwnerUserId / coOwners[] queries; position-linked roles
+ * use `*ProfileId` on User.
  */
 
+import { ownedByUserQuery } from "@/lib/ownership/entityOwnership.ts";
 import Horse from "@/models/Horse.ts";
+import RidingClub from "@/models/RidingClub.ts";
+import Stable from "@/models/Stable.ts";
+import Transport from "@/models/Transport.ts";
 import User from "@/models/User.ts";
 
 export type UserOwnedNavigation = {
@@ -38,26 +43,32 @@ const EMPTY_OWNED: UserOwnedNavigation = {
 
 /** Resolve which owned-profile routes the signed-in user may see in the header. */
 export async function getUserOwnedNavigation(userId: string): Promise<UserOwnedNavigation> {
-  const user = await User.findById(userId)
-    .select(
-      "stableProfileIds breederProfileIds ridingClubProfileIds transportProfileIds trainerProfileId veterinaryProfileId coachProfileId groomProfileId farrierProfileId riderProfileId",
-    )
-    .lean();
+  const ownershipQuery = ownedByUserQuery(userId);
+
+  const [user, ownsHorse, ownsStable, ownsRidingClub, ownsTransport] = await Promise.all([
+    User.findById(userId)
+      .select(
+        "breederProfileId trainerProfileId veterinaryProfileId coachProfileId groomProfileId farrierProfileId riderProfileId",
+      )
+      .lean(),
+    Horse.exists(ownershipQuery),
+    Stable.exists(ownershipQuery),
+    RidingClub.exists(ownershipQuery),
+    Transport.exists(ownershipQuery),
+  ]);
 
   if (!user) {
     return { ...EMPTY_OWNED };
   }
 
-  const ownsHorse = (await Horse.exists({ mainOwnerUserId: userId })) !== null;
-
   return {
-    stables: (user.stableProfileIds?.length ?? 0) > 0,
+    stables: ownsStable !== null,
     veterinaries: Boolean(user.veterinaryProfileId),
-    transport: (user.transportProfileIds?.length ?? 0) > 0,
-    breeders: (user.breederProfileIds?.length ?? 0) > 0,
+    transport: ownsTransport !== null,
+    breeders: Boolean(user.breederProfileId),
     coaches: Boolean(user.coachProfileId),
-    horses: ownsHorse,
-    ridingClubs: (user.ridingClubProfileIds?.length ?? 0) > 0,
+    horses: ownsHorse !== null,
+    ridingClubs: ownsRidingClub !== null,
     trainers: Boolean(user.trainerProfileId),
     groomers: Boolean(user.groomProfileId),
     farriers: Boolean(user.farrierProfileId),

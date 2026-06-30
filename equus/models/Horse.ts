@@ -6,7 +6,7 @@
  */
 
 import mongoose, { Schema, model } from "mongoose";
-import { mediaAssetSchema, pedigreeSchema } from "./sharedSchemas/index.ts";
+import { coOwnerSchema, mediaAssetSchema, pedigreeSchema } from "./sharedSchemas/index.ts";
 import * as enums from "../utils/enums.ts";
 
 const {
@@ -19,25 +19,6 @@ const {
   horseSubscriptionStatusEnums,
   accountTypeEnums,
 } = enums;
-
-const horseCoOwnerSchema = new Schema(
-  {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: [true, "Co-owner user id is required!"],
-    },
-    ownershipPercentage: {
-      type: Number,
-      min: 0,
-      max: 100,
-      required: [true, "Ownership percentage is required!"],
-    },
-    isBillingResponsible: { type: Boolean, default: false },
-    joinedAt: { type: Date, default: Date.now },
-  },
-  { _id: true }
-);
 
 const horseSubscriptionSchema = new Schema(
   {
@@ -114,7 +95,7 @@ const horseSchema = new Schema(
       required: [true, "Main owner user id is required!"],
       index: true,
     },
-    coOwners: { type: [horseCoOwnerSchema], default: undefined },
+    coOwners: { type: [coOwnerSchema], default: undefined },
 
     /** Commercial */
     estimatedValue: { type: Number, min: 0 },
@@ -162,6 +143,7 @@ const horseSchema = new Schema(
 );
 
 horseSchema.index({ name: 1, mainOwnerUserId: 1 });
+horseSchema.index({ "coOwners.userId": 1 }, { sparse: true });
 horseSchema.index({ saleStatus: 1, primaryDiscipline: 1 });
 horseSchema.index({ "subscription.status": 1 });
 horseSchema.index({ "subscription.referralReference": 1 }, { sparse: true });

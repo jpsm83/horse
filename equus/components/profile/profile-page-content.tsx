@@ -30,6 +30,9 @@ export function ProfilePageContent() {
   const [personalDetails, setPersonalDetails] = useState<Record<string, unknown> | null>(
     null,
   );
+  const [preferences, setPreferences] = useState<Record<string, unknown> | null>(
+    null,
+  );
   const [hasPassword, setHasPassword] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -43,6 +46,7 @@ export function ProfilePageContent() {
       setData(result);
       setUser(result.currentUser);
       setPersonalDetails(result.profileResult.user.personalDetails);
+      setPreferences(result.profileResult.user.preferences as Record<string, unknown>);
       setHasPassword(
         result.profileResult.user.hasPassword ?? result.currentUser.hasPassword ?? false,
       );
@@ -53,7 +57,7 @@ export function ProfilePageContent() {
     };
   }, [router]);
 
-  if (!data || !user || !personalDetails) {
+  if (!data || !user || !personalDetails || !preferences) {
     return <ProfilePageSkeleton />;
   }
 
@@ -81,6 +85,7 @@ export function ProfilePageContent() {
 
         <ProfileForm
           personalDetails={personalDetails}
+          preferences={preferences}
           email={email}
           emailVerified={user.emailVerified === true}
           authProvider={user.authProvider ?? "credentials"}
@@ -89,6 +94,7 @@ export function ProfilePageContent() {
           onSavingChange={setIsSaving}
           onSaved={(savedUser: PublicUser) => {
             setPersonalDetails(savedUser.personalDetails);
+            setPreferences(savedUser.preferences as Record<string, unknown>);
             setHasPassword(savedUser.hasPassword);
             setUser((prev) =>
               prev

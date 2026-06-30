@@ -300,9 +300,9 @@ Each stable operates as a business on the platform.
 
 ---
 
-### 4.8 Horse owner (user role)
+### 4.8 Horses (entity-owned)
 
-Owner is not a separate account collection. A user becomes an owner when they create or own horses (`Horse.mainOwnerUserId`). **Syndicates** are modeled on the horse: `Horse.coOwners[]` lists each co-owner `User` with an ownership percentage (and optional billing responsibility).
+There is no `Owner` model or `User.*ProfileId` for horses. A user operates horses when they create or own them (`Horse.mainOwnerUserId`). **Syndicates** are modeled on the horse: `Horse.coOwners[]` lists each co-owner `User` with an ownership percentage (and optional billing responsibility).
 
 **Profile details:**
 - Name, photo, location
@@ -392,7 +392,7 @@ These follow the same pattern — own account, own page, linked relationships:
 - Only accounts with a **verified established relationship** (active or ended) can leave horse-scoped reviews for that horse-provider pair
 - Operational write access follows active hosting/service rules; live chat is open between users before acceptance (see Section 15)
 - **Two link types:** horse `Relationship` (horse ↔ provider) and `WorkplaceRelationship` (User ↔ stable profile collaboration). See [`workplaceRelationship.md`](workplaceRelationship.md)
-- **Option A (barn staff):** a collaborator may write on a hosted horse when active collaboration at the stable **and** accepted horse ↔ stable `Relationship` exist — no separate groom↔horse link required
+- **Barn staff:** a collaborator may write on a hosted horse when active collaboration at the stable **and** accepted horse ↔ stable `Relationship` exist — no separate groom↔horse link required
 - **Direct path:** owner may accept horse ↔ provider `Relationship` without stable (e.g. vet at owner's home)
 
 ---
@@ -542,7 +542,7 @@ Conceptual model:
 
 ```
 User (root identity; one login per email)
-  ├── Horse profile(s) owned or managed (owner role via mainOwnerUserId)
+  ├── Horse profile(s) owned or managed (entity-owned via `mainOwnerUserId`)
   ├── Trainer role profile (one per user)
   ├── Veterinary role profile (one per user)
   ├── Coach role profile (one per user)
@@ -553,7 +553,7 @@ User (root identity; one login per email)
   └── Other provider role profile(s)
 ```
 
-**Discovery:** user personal profile is always visible. Each horse has its own `profileVisibility` and `contactDisplay` (public contact may be the owner or a delegate). See `documentation/userAndRoles.md`.
+**Discovery:** user personal profile exposure is controlled by `User.preferences` (`profileVisibility`, `searchable`, `allowDirectMessagesFrom`). Each horse has its own `profileVisibility` and `contactDisplay` (public contact may be the owner or a delegate). See `documentation/userAndRoles.md`.
 
 Why this model matters:
 - Supports real-world roles (people wear multiple hats in the horse industry)
@@ -1623,7 +1623,7 @@ Positioning reminder:
 ### Phase 11 — Correct signup and account creation flows
 
 Canonical flow:
-- User signs up → personal profile → add horse (owner role) → invite stable via relationship
+- User signs up → personal profile → add horse → invite stable via relationship
 - Stable owner signs up → personal profile → create stable → invite/link horse
 - Horse owner signs up → personal profile → add horse → invite vet via relationship (Phase 2+)
 - Vet signs up → personal profile → create veterinary profile → invite/link horse (Phase 2+)

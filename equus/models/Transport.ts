@@ -37,10 +37,11 @@ const coverageRouteSchema = new Schema(
 
 const transportSchema = new Schema(
   {
-    userId: {
+    /** Ownership — single main operator (no co-owners) */
+    mainOwnerUserId: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "User id is required!"],
+      required: [true, "Main owner user id is required!"],
       index: true,
     },
 

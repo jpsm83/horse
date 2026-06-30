@@ -21,22 +21,27 @@ Related:
 New users are created with:
 
 - Auth fields only (`personalDetails.email`, password or Google link, etc.)
-- **No role profiles** linked (`stableProfileIds`, `trainerProfileId`, etc. stay unset)
+- **No role profiles** linked (`breederProfileId`, `trainerProfileId`, etc. stay unset)
 - **No horses** until the user creates one
 
 They can immediately browse and search stables, trainers, veterinarians, horses, and other discoverable content. Creating a role profile is optional and happens when the user is ready to be listed or operate in that capacity.
 
 ## Roles (not separate accounts)
 
-A **role** is a domain profile the same user can create and link to their `User` document:
+A **role** is a domain profile the same user can create and operate in. Ownership uses two patterns:
 
-| Role type | How it links on `User` | Model |
-|-----------|------------------------|-------|
-| Owner | Implicit when user owns horses (`Horse.mainOwnerUserId`) | `Horse` |
-| Stable | `stableProfileIds[]` | `Stable` |
-| Breeder | `breederProfileIds[]` | `Breeder` |
-| Riding club | `ridingClubProfileIds[]` | `RidingClub` |
-| Transport | `transportProfileIds[]` | `Transport` |
+| Pattern | Meaning | Examples |
+|---------|---------|----------|
+| **Entity-owned** | Operator is stored on the entity document; not mirrored on `User` | `mainOwnerUserId` on Horse, Stable, RidingClub, Transport; `coOwners[]` on Horse, Stable, RidingClub |
+| **User-linked** | One profile per user via `*ProfileId` on `User` plus `userId` on the role document | `breederProfileId`, `trainerProfileId`, `groomProfileId`, … |
+
+| Role type | How it links | Model |
+|-----------|--------------|-------|
+| Horses | `Horse.mainOwnerUserId` (+ optional `coOwners[]`) | `Horse` |
+| Stable | `Stable.mainOwnerUserId` (+ optional `coOwners[]`; user may operate many) | `Stable` |
+| Riding club | `RidingClub.mainOwnerUserId` (+ optional `coOwners[]`) | `RidingClub` |
+| Transport | `Transport.mainOwnerUserId` (single owner) | `Transport` |
+| Breeder | `breederProfileId` (one per user) | `Breeder` |
 | Trainer | `trainerProfileId` (one per user) | `Trainer` |
 | Veterinary | `veterinaryProfileId` (one per user) | `Veterinary` |
 | Coach | `coachProfileId` (one per user) | `Coach` |
@@ -44,13 +49,18 @@ A **role** is a domain profile the same user can create and link to their `User`
 | Groom | `groomProfileId` (one per user) | `Groom` |
 | Farrier | `farrierProfileId` (one per user) | `Farrier` |
 
-**Syndicate / multi-owner horses** use `Horse.mainOwnerUserId` plus `Horse.coOwners[]` (each entry is a `User` with an ownership percentage) — not a separate role profile.
+**Multi-owner entities** use `mainOwnerUserId` plus optional `coOwners[]` (shared embed: `userId`, `ownershipPercentage`, `isBillingResponsible`) on **Horse**, **Stable**, and **RidingClub**. **Transport** has a single `mainOwnerUserId` only. Co-owners get full profile-owner capabilities (navigation, workplaces, collaboration invites). This is **ownership**, not barn staff — staff use `WorkplaceRelationship`.
 
-Each role has its **own model** to complete. Role creation APIs attach the new profile id to the logged-in **User**. These are **subsections of the same person** — not separate signups.
+Each role has its **own model** to complete. These are **subsections of the same person** — not separate signups.
 
-Colloquially people say "stable account" or "vet account"; in the product that always means **User + role profile** (e.g. `User` with `stableProfileIds[]` pointing at a `Stable` document).
+**Future create APIs:**
 
-Other models (`Relationship`, `Booking`, `Rating`, etc.) refer to **role type** + id via `accountTypeEnums` — meaning "which role profile", not a separate login.
+- **Stable / riding club / transport:** set `mainOwnerUserId` on the new entity; optional `coOwners[]` when partnership APIs ship. Do not write arrays on `User`.
+- **Breeder / trainer / vet / coach / groom / rider / farrier:** create the role document with `userId` and set the matching `*ProfileId` on `User` in the same transaction; reject if that `*ProfileId` is already set.
+
+Colloquially people say "stable account" or "vet account"; in the product that always means **User + role profile** (e.g. a `Stable` with `mainOwnerUserId`, or `User` with `veterinaryProfileId` pointing at their vet profile).
+
+Other models (`Relationship`, `Booking`, `Rating`, etc.) refer to party kind + id via `accountTypeEnums` — role profiles (`stable`, `trainer`, …) or `horse` for the ownership side of a horse link (user operator, not a `User.*ProfileId`). Not a separate login.
 
 ## Web UI routes (placeholders)
 
@@ -66,13 +76,13 @@ Create routes use singular folder segments for role profiles (`/create/breeder`)
 
 ## Architecture — three diagrams
 
-See full diagrams and Option A rules in [`workplaceRelationship.md`](workplaceRelationship.md).
+See full diagrams and horse access rules in [`workplaceRelationship.md`](workplaceRelationship.md).
 
-**Diagram 1:** One `User` → many role subsections (stable, groom, vet, rider, horses as owner, etc.).
+**Diagram 1:** One `User` → many subsections (horses, stable, riding club entity-owned, groom, vet, rider, etc.).
 
-**Diagram 2:** Default path — providers collaborate at a **stable profile**; owner accepts **horse ↔ stable** relationship; stable serves hosted horses.
+**Diagram 2:** Default path — providers collaborate at a **stable profile**; horse owner accepts **horse ↔ stable** relationship; stable serves hosted horses.
 
-**Diagram 3:** Direct path — owner accepts **horse ↔ provider** relationship (vet, groom, farrier, etc.) without stable in the middle.
+**Diagram 3:** Direct path — horse owner accepts **horse ↔ provider** relationship (vet, groom, farrier, etc.) without stable in the middle.
 
 ## Horse relationship vs stable collaboration
 
@@ -80,10 +90,10 @@ See full diagrams and Option A rules in [`workplaceRelationship.md`](workplaceRe
 |---|-------------------|------------------------|
 | Collection | `Relationship` | `WorkplaceRelationship` |
 | Parties | Horse ↔ provider role profile | User ↔ host role profile (e.g. Stable) |
-| Consent | Owner (or receiving party per type) | Invited User accepts |
-| Example | Owner accepts Dr. Lee (vet) for Comet at home | Carla (groom) collaborates at Sunrise Stable |
+| Consent | Horse owner / receiving party per type | Invited User accepts |
+| Example | Horse owner accepts Dr. Lee (vet) for Comet at home | Carla (groom) collaborates at Sunrise Stable |
 
-### Option A — barn staff access (locked)
+### Barn staff access (locked)
 
 A **collaborator** at a stable may write operational data on a horse when **both** are true:
 
@@ -98,7 +108,7 @@ No separate groom↔horse `Relationship` is required for barn staff on hosted ho
 
 Signup and login are **always one person** (`User`). There is no separate business account.
 
-A User who **owns** a stable adds a **stable role profile** to their account (`stableProfileIds[]` → `Stable` document). They use stable features through that profile — same login.
+A User who **owns** a stable creates a **stable role profile** (`Stable` with `mainOwnerUserId` set to their account). They use stable features through that profile — same login.
 
 A User who **collaborates** at someone else's stable is the **same User type** (they may also own horses, a vet profile, groom subsection, etc.). The barn does not own their account. The **profile owner** invites them; they **accept**; a **WorkplaceRelationship** links that User to the host **stable profile**.
 
@@ -106,8 +116,8 @@ Full spec: [`workplaceRelationship.md`](workplaceRelationship.md).
 
 | Concept | Meaning |
 |---------|---------|
-| **Profile owner** | User who created the role profile (`Stable.userId`, listed on their `stableProfileIds[]`) |
-| **Collaborator** | User linked via **WorkplaceRelationship** — never "belongs to" the stable profile |
+| **Profile owner** | User who operates the role profile (`mainOwnerUserId` or `coOwners[]` on host entities; `User.breederProfileId` for breeder) |
+| **Collaborator** | User linked via **WorkplaceRelationship** — never granted ownership on the entity |
 
 ### Collaboration invitation flow
 
@@ -122,15 +132,15 @@ Profile owner (or admin on that stable) sends collaboration invitation to User (
 
 | Step | Horse relationship (`Relationship`) | Stable collaboration (`WorkplaceRelationship`) |
 |------|-------------------------------------|-----------------------------------------------|
-| Initiator | Owner, stable, vet, trainer, etc. | **Profile owner** or admin on that stable profile |
+| Initiator | Horse owner, stable, vet, trainer, etc. | **Profile owner** or admin on that stable profile |
 | Receiver | Other party | **Invited User** |
 | Pending | `pending` | `invited` |
-| After accept | Horse operational data (per Option A or direct link) | Barn permissions + job assignment |
+| After accept | Horse operational data (barn collaboration path or direct link) | Barn permissions + job assignment |
 | Stored on | Relationship document | WorkplaceRelationship document |
 
-### Example: groom at barn (Option A)
+### Example: groom at barn
 
-- **Alice** owns Sunrise Stable (User with `stableProfileIds`).
+- **Alice** owns Sunrise Stable (`Stable.mainOwnerUserId` → Alice).
 - **Bob** owns horse Comet; accepts stable hosting (`Relationship` horse ↔ Sunrise Stable).
 - Alice invites **Carla** (User with groom subsection). Carla accepts collaboration.
 - Carla may log feed/care on Comet **without** a separate groom↔Comet `Relationship`.
@@ -173,9 +183,28 @@ Levels on the **WorkplaceRelationship** (`admin` | `manager` | `staff`), not on 
 
 ## User profile visibility
 
-The **user profile is always visible** to other users in the platform (subject to future relationship rules). There is no user-level `ownerPreferences` or profile visibility toggle on `User`.
+Each user controls how their **personal profile** is exposed via `User.preferences` (edited on `/profile`):
 
-Personal profile completion (`profileComplete` on session/API) is separate: it tracks whether `personalDetails` and address fields are filled for onboarding. The web **profile page** (`/profile`) is where users edit personal details, preferred language, avatar, and address — see [`equus/documentation/profile.md`](../equus/documentation/profile.md).
+| Field | Values | Purpose |
+|-------|--------|---------|
+| `profileVisibility` | `public` \| `platform` \| `relationships` \| `private` | Who can see profile identity and contact fields |
+| `searchable` | `true` \| `false` | Include profile in search and suggestions |
+| `allowDirectMessagesFrom` | `everyone` \| `relationships` \| `nobody` | Who may start direct messages |
+
+Defaults for new users: `public`, `searchable: true`, `allowDirectMessagesFrom: everyone`.
+
+**Exposure rules** (enforced in API mappers via `lib/privacy/userVisibility.ts`):
+
+| `profileVisibility` | Anonymous | Signed-in (no link) | Accepted relationship or collaboration |
+|---------------------|-----------|---------------------|----------------------------------------|
+| `public` | yes | yes | yes |
+| `platform` | no | yes | yes |
+| `relationships` | no | no | yes |
+| `private` | no | no | yes (operational contexts only) |
+
+User preferences apply to the **person** (`User`). Role-profile discovery (groom, trainer, stable directory, etc.) and horse discovery are separate layers — a private user can still operate public horses or listed role profiles.
+
+`profileComplete` (session/API) is separate: it tracks whether required `personalDetails` and address fields are filled for onboarding. See [`equus/documentation/profile.md`](../equus/documentation/profile.md).
 
 ## Horse discovery (per horse)
 
@@ -202,12 +231,3 @@ Example: user owns the horse but wants inquiries to go to a stable manager — s
 When horse CRUD ships:
 
 - `PATCH /api/v1/horses/:id/discovery` — body validated by `lib/validations/horse.ts` (`updateHorseDiscoverySchema`)
-
-## Removed concepts
-
-| Removed | Reason |
-|---------|--------|
-| `User.activeAccountContext` | No account switching; navigation is UI-only |
-| `User.ownerPreferences` | Visibility/contact moved to per-horse settings; user profile always visible |
-
-Existing database documents may still contain these fields until manually cleaned up; new code does not read or write them.

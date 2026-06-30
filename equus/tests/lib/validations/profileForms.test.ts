@@ -45,6 +45,24 @@ describe("profileFormSchema", () => {
     ).toThrow();
   });
 
+  it("rejects invalid profile visibility", () => {
+    expect(() =>
+      profileFormSchema.parse({
+        ...emptyProfileFormValues,
+        profileVisibility: "friends_only",
+      }),
+    ).toThrow();
+  });
+
+  it("rejects invalid searchable value", () => {
+    expect(() =>
+      profileFormSchema.parse({
+        ...emptyProfileFormValues,
+        searchable: "yes",
+      }),
+    ).toThrow();
+  });
+
   it("rejects invalid birth date", () => {
     expect(() =>
       profileFormSchema.parse({

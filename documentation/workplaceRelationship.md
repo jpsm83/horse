@@ -11,44 +11,54 @@ Related:
 
 ## Architecture overview
 
-The platform has **one signup type** (`User`). That User may add **role profile subsections** (stable, groom, vet, rider, etc.). The product revolves around **horses**. Services usually flow through a **stable**, but owners may also link **providers directly to a horse** when they allow it.
+The platform has **one signup type** (`User`). That User may add **subsections** — entity-owned (`Horse`, `Stable`, `RidingClub`, `Transport` via `mainOwnerUserId` / `coOwners[]`) and user-linked role profiles (`breederProfileId`, `trainerProfileId`, etc.). The product revolves around **horses**. Services usually flow through a **stable**, but a **horse owner** may also link **providers directly to a horse** when they allow it.
 
-**Nobody owns nobody (people):** Users do not own other Users. `Horse.mainOwnerUserId` and `Stable.userId` mean who **operates that record**, not employer/employee.
+**Nobody owns nobody (people):** Users do not own other Users. `mainOwnerUserId` on entity-owned profiles means who **operates that record**, not employer/employee.
 
 ### Diagram 1 — One signup, many subsections
 
+Entity-owned types are queried via `mainOwnerUserId` / `coOwners[]` on the entity (not `*ProfileId` on `User`). User-linked types use `*ProfileId` on `User` plus `userId` on the role document.
+
 ```mermaid
 flowchart TB
-  User[User one signup]
-  User --> Rider[riderProfileId]
-  User --> Stable[stableProfileIds]
-  User --> Groom[groomProfileId]
-  User --> HorseOwner[owns horses]
+  User[User — one signup]
+  User --> Horses["horses — Horse.mainOwnerUserId"]
+  User --> Stable["stable — Stable.mainOwnerUserId"]
+  User --> RidingClub["riding club — RidingClub.mainOwnerUserId"]
+  User --> Transport["transport — Transport.mainOwnerUserId"]
+  User --> Breeder[breederProfileId]
+  User --> Trainer[trainerProfileId]
   User --> Vet[veterinaryProfileId]
+  User --> Coach[coachProfileId]
+  User --> Groom[groomProfileId]
   User --> Farrier[farrierProfileId]
-  User --> Transport[transportProfileIds]
+  User --> Rider[riderProfileId]
 ```
 
 ### Diagram 2 — Default path: services via stable
 
+Providers collaborate at a **stable profile** (`WorkplaceRelationship`). The **horse owner** accepts a **horse ↔ stable** `Relationship`; the stable serves hosted horses.
+
 ```mermaid
 flowchart LR
-  Groom[Groom User subsection] -->|WorkplaceRelationship| Stable[Stable profile]
-  Rider[Rider subsection] -->|WorkplaceRelationship| Stable
-  Farrier[Farrier subsection] -->|WorkplaceRelationship| Stable
-  Vet[Vet subsection] -->|WorkplaceRelationship| Stable
-  Transport[Transport subsection] -->|WorkplaceRelationship| Stable
-  Owner[Owner User] -->|owns| Horse[Horse]
-  Owner -->|accepts| RelStable["Relationship type stable"]
+  Groom[Groom User] -->|WorkplaceRelationship| Stable[Stable profile]
+  Rider[Rider User] -->|WorkplaceRelationship| Stable
+  Farrier[Farrier User] -->|WorkplaceRelationship| Stable
+  Vet[Vet User] -->|WorkplaceRelationship| Stable
+  Transport[Transport profile] -->|WorkplaceRelationship| Stable
+  HorseOwner[Horse owner User] -->|mainOwnerUserId| Horse[Horse]
+  HorseOwner -->|accepts| RelStable["Relationship type stable"]
   RelStable --> Horse
   Stable --> RelStable
 ```
 
-### Diagram 3 — Direct path: owner allows provider on horse
+### Diagram 3 — Direct path: horse owner links provider on horse
+
+No stable in the middle — the **horse owner** accepts **horse ↔ provider** `Relationship` links (vet, groom, farrier, etc.).
 
 ```mermaid
 flowchart LR
-  Owner[Owner User] -->|owns| Horse[Horse]
+  HorseOwner[Horse owner User] -->|mainOwnerUserId| Horse[Horse]
   Vet[Vet profile] -->|Relationship type veterinary| Horse
   Groom[Groom profile] -->|Relationship type groom| Horse
   Farrier[Farrier profile] -->|Relationship type farrier| Horse
@@ -66,8 +76,8 @@ Bare arrays (e.g. `Horse.stableIds[]`, `Stable.hostedHorseIds[]`) only work for 
 
 | Link type | Collection | Scope |
 |-----------|------------|-------|
-| **Horse relationship** | `Relationship` | Horse ↔ provider role profile (owner consent) |
-| **Stable collaboration** | `WorkplaceRelationship` | User ↔ host role profile (stable, breeder, etc.) |
+| **Horse relationship** | `Relationship` | Horse ↔ provider role profile (horse owner consent) |
+| **Stable collaboration** | `WorkplaceRelationship` | User ↔ host role profile (stable, breeder, riding club, transport) |
 
 See [`equus/models/Relationship.ts`](../equus/models/Relationship.ts) and `WorkplaceRelationship` in the codebase.
 
@@ -77,7 +87,7 @@ See [`equus/models/Relationship.ts`](../equus/models/Relationship.ts) and `Workp
 
 | Term | Collection | Scope | Example |
 |------|------------|-------|---------|
-| **Horse relationship** | `Relationship` | Horse ↔ provider role profile | Owner accepts Sunrise Stable for Comet; owner accepts Dr. Lee (vet) for Comet at home |
+| **Horse relationship** | `Relationship` | Horse ↔ provider role profile | Horse owner accepts Sunrise Stable for Comet; horse owner accepts Dr. Lee (vet) for Comet at home |
 | **Stable collaboration** | `WorkplaceRelationship` | User ↔ host role profile | Carla (groom subsection) collaborates at Sunrise Stable |
 
 **Banned in docs/UI:** "worker user", "another user" (as a type), "staff sub-account", "belongs to stable".
@@ -86,14 +96,14 @@ See [`equus/models/Relationship.ts`](../equus/models/Relationship.ts) and `Workp
 
 ---
 
-## Option A — access rules (locked)
+## Horse access rules (locked)
 
 | Scenario | Required links | Horse operational write? |
 |----------|----------------|--------------------------|
 | **Groom at barn** on hosted horse | (1) Active `WorkplaceRelationship` groom User ↔ stable profile **and** (2) Accepted `Relationship` horse ↔ stable (`type: stable`) | **Yes** — derived from barn context; **no** separate groom↔horse `Relationship` required |
 | **Vet at owner's home** (off-site) | Accepted `Relationship` horse ↔ veterinary profile only | **Yes** — direct horse link; stable not involved |
 | **External farrier** visiting barn horse | Direct `Relationship` horse ↔ farrier **or** barn path (collaboration + stable hosts horse) | Per active link |
-| **Stable offers boarding/services** | Owner accepts `Relationship` horse ↔ stable | Stable ops on that horse |
+| **Stable offers boarding/services** | Horse owner accepts `Relationship` horse ↔ stable | Stable ops on that horse |
 
 **Permission check (barn collaborator):** `canCollaboratorActOnHorse(user, horse, stableProfile)` = user has active collaboration at stable **AND** horse has accepted stable hosting relationship with that stable.
 
@@ -101,9 +111,9 @@ See [`equus/models/Relationship.ts`](../equus/models/Relationship.ts) and `Workp
 
 ### Worked examples
 
-**Groom at barn:** Alice owns Sunrise Stable. Owner Bob accepts stable hosting for horse Comet. Alice invites Carla (User with groom subsection). Carla accepts collaboration. Carla may log feed/care on Comet **without** a separate groom↔Comet `Relationship`.
+**Groom at barn:** Alice owns Sunrise Stable. Horse owner Bob accepts stable hosting for horse Comet. Alice invites Carla (User with groom subsection). Carla accepts collaboration. Carla may log feed/care on Comet **without** a separate groom↔Comet `Relationship`.
 
-**Vet at owner's home:** Owner Bob invites Dr. Lee's veterinary profile directly to Comet. Bob accepts. Dr. Lee writes health records. Sunrise Stable not required.
+**Vet at owner's home:** Horse owner Bob invites Dr. Lee's veterinary profile directly to Comet. Bob accepts. Dr. Lee writes health records. Sunrise Stable not required.
 
 ---
 
@@ -113,14 +123,16 @@ There is **no `Business` model** and **no separate business login**. Everyone si
 
 After signup, that same User may add **role profiles** to their account (optional subsections):
 
-| Role profile | Example | Linked on `User` |
-|--------------|---------|------------------|
-| Horse owner | Owns horses | via `Horse.mainOwnerUserId` |
-| Stable | Runs a barn they own | `stableProfileIds[]` → `Stable` |
+| Role profile | Example | Ownership link |
+|--------------|---------|----------------|
+| Horses | Entity-owned; user may own many | `Horse.mainOwnerUserId` (+ optional `coOwners[]`) |
+| Stable | Runs a barn they own | `Stable.mainOwnerUserId` (+ optional `coOwners[]`) |
+| Riding club | Host club profile | `RidingClub.mainOwnerUserId` (+ optional `coOwners[]`) |
+| Transport | Transport company | `Transport.mainOwnerUserId` (single owner) |
+| Breeder | Breeding operation | `User.breederProfileId` + `Breeder.userId` (one per user) |
 | Groom, rider, farrier | Position-linked profiles | `groomProfileId`, `riderProfileId`, `farrierProfileId` |
 | Veterinary | Works as a vet | `veterinaryProfileId` → `Veterinary` |
 | Trainer / coach | Trains professionally | `trainerProfileId`, `coachProfileId` |
-| Breeder, transport, riding club | Other provider profiles | respective `*ProfileIds` |
 
 When a User **creates a stable profile**, they access stable features **through that profile** — still the same login. The **stable is a role profile document** (`Stable`), not a second account.
 
@@ -128,7 +140,7 @@ When a User **creates a stable profile**, they access stable features **through 
 |----------|----------|
 | **User** | Business account, business login |
 | **Stable profile** (role profile) | The business itself as an account |
-| **Profile owner** (`Stable.userId`) | Business owner as a different kind of account |
+| **Profile owner** (`mainOwnerUserId` or `coOwners[]`) | Business owner as a different kind of account |
 | **Collaborator** | Staff sub-account of the stable |
 | **WorkplaceRelationship** | Membership, employment record owned by stable |
 
@@ -181,9 +193,9 @@ Activities/jobs assigned within permissions on that collaboration
 | | Horse relationship | Stable collaboration |
 |---|-------------------|------------------------|
 | Parties | Horse ↔ provider role profile | **User** ↔ host **role profile** (e.g. Stable) |
-| Who initiates | Owner, stable, vet, trainer, … | **Profile owner** or admin on that profile |
+| Who initiates | Horse owner, stable, vet, trainer, … | **Profile owner** or admin on that profile |
 | Who decides | Receiving party | **Invited User** only |
-| After accept | Shared horse operational data (per Option A or direct link) | Barn permissions + job assignment |
+| After accept | Shared horse operational data (barn collaboration path or direct link) | Barn permissions + job assignment |
 | User unchanged | N/A | Same login, same own role profiles |
 
 ---
@@ -200,7 +212,7 @@ Activities/jobs assigned within permissions on that collaboration
 | Accept | Set `status: active`, `active: true`; **push** id to `Stable.collaborators` |
 | End / decline | Update status; **pull** id from `collaborators` |
 
-- Never add collaborators to `User.stableProfileIds` (ownership only).
+- Never grant host ownership to collaborators — ownership is `mainOwnerUserId` / `coOwners[]` on the entity, or `User.*ProfileId` for breeder/trainer roles.
 - List team from `Stable.collaborators` + populate; list "my workplaces" from `WorkplaceRelationship` by `userId`.
 - Same pattern for Breeder / RidingClub / Transport when team features apply.
 
@@ -208,7 +220,7 @@ Activities/jobs assigned within permissions on that collaboration
 
 ## Invitation flow
 
-1. **Profile owner** (`Stable.userId`) or a User with **admin** hierarchy on that stable's collaborations opens team management and invites a person **by email**.
+1. **Profile owner** (`mainOwnerUserId` or co-owner) or a User with **admin** hierarchy on that stable's collaborations opens team management and invites a person **by email**.
 2. **Proposed hierarchy** (`admin` | `manager` | `staff`) may be in the invite or set after accept — always stored on the **collaboration document**, not on `User`.
 3. **Email already registered** — pending collaboration; invited User sees request and **accepts or declines**.
 4. **Email not registered** — invite by email; person signs up as **User**; invite links; they **accept or decline**. Signup alone does **not** grant access to the stable profile.
@@ -227,14 +239,16 @@ Hierarchy describes **how this User operates at this stable profile** — not wh
 | **manager** | Edit stable profile and day-to-day ops; usually cannot manage other admins |
 | **staff** | Execute assigned work; view what their role requires |
 
-| Capability | Profile owner (`Stable.userId`) | admin | manager | staff |
+| Capability | Profile owner (main or co-owner) | admin | manager | staff |
 |------------|--------------------------------|-------|---------|-------|
 | `manage_collaborators` | yes | yes | no | no |
 | `edit_role_profile` | yes | yes | yes | no |
 | `view_stable_operations` | yes | yes | yes | yes |
 | `assign_activities` | yes | yes | yes | per policy |
 
-The **profile owner** is not "staff of themselves" — they own the `Stable` document via `User.stableProfileIds[]` and `Stable.userId`.
+The **profile owner** is not "staff of themselves" — they operate the host profile via `mainOwnerUserId` or `coOwners[]` on the entity.
+
+**Co-owners vs collaborators:** `coOwners[]` on Stable/RidingClub/Horse is **partnership ownership** (full owner capabilities). `WorkplaceRelationship` is **operational staff** at the profile (groom, manager, etc.) — never conflate the two.
 
 ---
 
@@ -275,7 +289,7 @@ Principle: **anything about "how this User works at this stable profile" belongs
 
 ## What does not happen
 
-- Collaborator is **not** added to `User.stableProfileIds` — that array is only for profiles the User **owns**.
+- Collaborators are **not** granted ownership on host entities — ownership stays on `mainOwnerUserId` / `coOwners[]` or the owner's `*ProfileId`.
 - Stable profile does **not** create a second login for the collaborator.
 - Ending a collaboration does **not** delete the User's account.
 - Hierarchy at one stable profile does not apply at another.
@@ -292,6 +306,6 @@ Stable collaboration applies to **breeder**, **riding club**, and **transport** 
 
 | Date | Change |
 |------|--------|
-| 2026-06-29 | Architecture diagrams; Option A; horse relationship vs stable collaboration; collaborator terminology |
+| 2026-06-29 | Architecture diagrams; horse access rules; horse relationship vs stable collaboration; collaborator terminology |
 | 2026-06-29 | Terminology: no Business model; User + role profiles only |
-| 2026-06-29 | Initial spec: independent users; workplace relationship document |
+| 2026-06-30 | Diagrams: entity-owned horses/stable/riding club/transport; horse owner wording; align with `navigationService` / `ownedByUserQuery` |

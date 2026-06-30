@@ -54,6 +54,18 @@ Use `useAppToast()` — includes `info` for no-op saves. Do not use an `Alert` f
 
 ---
 
+## Visibility preferences
+
+`PATCH /api/v1/users/me` also persists `User.preferences` from the profile form:
+
+- `preferences.profileVisibility`: `public` | `platform` | `relationships` | `private`
+- `preferences.searchable`: `true` | `false`
+- `preferences.allowDirectMessagesFrom`: `everyone` | `relationships` | `nobody`
+
+These are user-level controls and do not replace horse-level discovery (`Horse.profileVisibility`, `Horse.contactDisplay`).
+
+---
+
 ## Clearing optional fields
 
 Optional profile fields can be cleared in the UI (empty input).

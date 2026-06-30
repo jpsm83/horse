@@ -246,6 +246,7 @@
     "authProvider": "Método de acceso",
     "sections": {
       "personal": "Personal",
+      "visibility": "Visibilidad y privacidad",
       "address": "Dirección",
       "photo": "Foto",
       "security": "Seguridad"
@@ -259,6 +260,9 @@
     "bio": "Biografía",
     "idType": "Tipo de documento",
     "idNumber": "Número de documento",
+    "profileVisibility": "Visibilidad del perfil",
+    "searchable": "Aparición en búsquedas",
+    "allowDirectMessagesFrom": "Mensajes directos de",
     "country": "País",
     "state": "Estado / provincia",
     "city": "Ciudad",
@@ -302,6 +306,21 @@
     "languageOptions": {
       "en": "English",
       "es": "Español"
+    },
+    "visibilityOptions": {
+      "public": "Público",
+      "platform": "Solo usuarios con sesión iniciada",
+      "relationshipsOnly": "Solo relaciones/colaboraciones aceptadas",
+      "private": "Privado"
+    },
+    "searchableOptions": {
+      "visible": "Mostrar en búsquedas y sugerencias",
+      "hidden": "Ocultar de búsquedas y sugerencias"
+    },
+    "directMessageAudienceOptions": {
+      "everyone": "Todos",
+      "relationships": "Solo relaciones/colaboraciones aceptadas",
+      "nobody": "Nadie"
     }
   },
   "errors": {

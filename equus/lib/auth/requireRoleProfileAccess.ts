@@ -8,6 +8,7 @@ import { ApiError } from "../api/errors.ts";
 import WorkplaceRelationship from "../../models/WorkplaceRelationship.ts";
 import {
   findBusinessRoleProfile,
+  userHasOwnerAccess,
   type BusinessRoleType,
 } from "../roleProfiles/businessRoleProfile.ts";
 import {
@@ -30,7 +31,7 @@ export async function canAccessRoleProfile(
     return false;
   }
 
-  if (resolved.ownerUserId === userId) {
+  if (userHasOwnerAccess(roleType, userId, resolved.profile)) {
     return ownerHasCapability(normalizeCapability(requiredCapability));
   }
 
