@@ -1,7 +1,7 @@
 /**
  * One-time migration: rename `userId` → `mainOwnerUserId` on host entity collections.
  *
- * Collections: stables, ridingclubs, transports. Breeder keeps `userId`.
+ * Collections: stables, ridingclubs, transports. Breeders use migrateBreederToEntityOwned.
  * Run via `npm run migrate:host-owner-field` (or `-- --dry-run`).
  */
 

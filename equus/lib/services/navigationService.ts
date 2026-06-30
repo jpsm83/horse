@@ -7,6 +7,7 @@
  */
 
 import { ownedByUserQuery } from "@/lib/ownership/entityOwnership.ts";
+import Breeder from "@/models/Breeder.ts";
 import Horse from "@/models/Horse.ts";
 import RidingClub from "@/models/RidingClub.ts";
 import Stable from "@/models/Stable.ts";
@@ -45,17 +46,19 @@ const EMPTY_OWNED: UserOwnedNavigation = {
 export async function getUserOwnedNavigation(userId: string): Promise<UserOwnedNavigation> {
   const ownershipQuery = ownedByUserQuery(userId);
 
-  const [user, ownsHorse, ownsStable, ownsRidingClub, ownsTransport] = await Promise.all([
-    User.findById(userId)
-      .select(
-        "breederProfileId trainerProfileId veterinaryProfileId coachProfileId groomProfileId farrierProfileId riderProfileId",
-      )
-      .lean(),
-    Horse.exists(ownershipQuery),
-    Stable.exists(ownershipQuery),
-    RidingClub.exists(ownershipQuery),
-    Transport.exists(ownershipQuery),
-  ]);
+  const [user, ownsHorse, ownsStable, ownsRidingClub, ownsTransport, ownsBreeder] =
+    await Promise.all([
+      User.findById(userId)
+        .select(
+          "trainerProfileId veterinaryProfileId coachProfileId groomProfileId farrierProfileId riderProfileId",
+        )
+        .lean(),
+      Horse.exists(ownershipQuery),
+      Stable.exists(ownershipQuery),
+      RidingClub.exists(ownershipQuery),
+      Transport.exists(ownershipQuery),
+      Breeder.exists(ownershipQuery),
+    ]);
 
   if (!user) {
     return { ...EMPTY_OWNED };
@@ -65,7 +68,7 @@ export async function getUserOwnedNavigation(userId: string): Promise<UserOwnedN
     stables: ownsStable !== null,
     veterinaries: Boolean(user.veterinaryProfileId),
     transport: ownsTransport !== null,
-    breeders: Boolean(user.breederProfileId),
+    breeders: ownsBreeder !== null,
     coaches: Boolean(user.coachProfileId),
     horses: ownsHorse !== null,
     ridingClubs: ownsRidingClub !== null,

@@ -11,6 +11,7 @@ import {
   createTestStable,
   createTestTransport,
 } from "@/tests/helpers/businessRoleFixtures.ts";
+import * as trainerService from "@/lib/services/trainerService.ts";
 
 async function createUser(email: string) {
   return userService.createCredentialsUser({
@@ -84,17 +85,62 @@ describe("navigationService", () => {
     expect(owned.stables).toBe(false);
   });
 
-  it("reflects breederProfileId on the user document", async () => {
+  it("reflects owned breeder via mainOwnerUserId query", async () => {
     const user = await createUser("nav-breeder@example.com");
-    const breeder = await createTestBreeder(user._id);
-
-    await User.findByIdAndUpdate(user._id, {
-      $set: { breederProfileId: breeder._id },
-    });
+    await createTestBreeder(user._id);
 
     const owned = await navigationService.getUserOwnedNavigation(String(user._id));
 
     expect(owned.breeders).toBe(true);
+    expect(owned.stables).toBe(false);
+  });
+
+  it("reflects trainer after createTrainer sets trainerProfileId", async () => {
+    const user = await createUser("nav-trainer-create@example.com");
+
+    await trainerService.createTrainer(String(user._id), {
+      displayName: "Nav Trainer",
+      bio: "Navigation test trainer",
+      email: "nav-trainer@example.com",
+      phoneNumber: "+351988888888",
+      address: {
+        country: "Portugal",
+        city: "Lisbon",
+        street: "Main St",
+        postCode: "1000",
+      },
+    });
+
+    const owned = await navigationService.getUserOwnedNavigation(String(user._id));
+
+    expect(owned.trainers).toBe(true);
+    expect(owned.stables).toBe(false);
+  });
+
+  it("reflects breeder when user is co-owner", async () => {
+    const mainOwner = await createUser("nav-breeder-main@example.com");
+    const coOwner = await createUser("nav-breeder-co@example.com");
+
+    await createTestBreeder(mainOwner._id, {
+      coOwners: [{ userId: coOwner._id, ownershipPercentage: 40 }],
+    });
+
+    const owned = await navigationService.getUserOwnedNavigation(String(coOwner._id));
+
+    expect(owned.breeders).toBe(true);
+  });
+
+  it("reflects transport when user is co-owner", async () => {
+    const mainOwner = await createUser("nav-transport-main@example.com");
+    const coOwner = await createUser("nav-transport-co@example.com");
+
+    await createTestTransport(mainOwner._id, {
+      coOwners: [{ userId: coOwner._id, ownershipPercentage: 35 }],
+    });
+
+    const owned = await navigationService.getUserOwnedNavigation(String(coOwner._id));
+
+    expect(owned.transport).toBe(true);
     expect(owned.stables).toBe(false);
   });
 

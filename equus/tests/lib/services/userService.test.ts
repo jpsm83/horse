@@ -60,7 +60,6 @@ describe("userService", () => {
     expect(user.personalDetails.idNumber).toBeUndefined();
     expect(user.ownerPreferences).toBeUndefined();
     expect(user.activeAccountContext).toBeUndefined();
-    expect(user.breederProfileId).toBeUndefined();
     expect(user.trainerProfileId).toBeUndefined();
     expect(user.authProvider).toBe("credentials");
     expect(user.personalDetails.password).not.toBe("TestPass1!");

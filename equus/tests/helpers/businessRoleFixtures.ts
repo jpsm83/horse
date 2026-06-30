@@ -2,6 +2,8 @@ import Breeder from "@/models/Breeder.ts";
 import Stable from "@/models/Stable.ts";
 import RidingClub from "@/models/RidingClub.ts";
 import Transport from "@/models/Transport.ts";
+import Trainer from "@/models/Trainer.ts";
+import User from "@/models/User.ts";
 import type { Types } from "mongoose";
 
 const minimalAddress = {
@@ -57,11 +59,11 @@ export async function createTestTransport(
 }
 
 export async function createTestBreeder(
-  userId: Types.ObjectId | string,
+  mainOwnerUserId: Types.ObjectId | string,
   overrides: Record<string, unknown> = {},
 ) {
   return Breeder.create({
-    userId,
+    mainOwnerUserId,
     operationName: "Test Breeder",
     description: "A test breeder for unit tests",
     email: "breeder@example.com",
@@ -69,4 +71,22 @@ export async function createTestBreeder(
     address: minimalAddress,
     ...overrides,
   });
+}
+
+export async function createTestTrainer(
+  userId: Types.ObjectId | string,
+  overrides: Record<string, unknown> = {},
+) {
+  const trainer = await Trainer.create({
+    userId,
+    displayName: "Test Trainer",
+    bio: "A test trainer for unit tests",
+    email: "trainer@example.com",
+    phoneNumber: "+351912345678",
+    address: minimalAddress,
+    ...overrides,
+  });
+
+  await User.findByIdAndUpdate(userId, { trainerProfileId: trainer._id });
+  return trainer;
 }

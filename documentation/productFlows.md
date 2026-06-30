@@ -14,13 +14,13 @@ Source:
 | Flow step | Backend |
 |-----------|---------|
 | Signup / login | Auth.js (web) or `POST /api/v1/auth/*` (mobile) |
-| Create horse / stable / trainer | REST API + Zod validation + `lib/services` |
+| Create horse / stable / transport / breeder / trainer | REST API + Zod validation + `lib/services` |
 | Relationship request / invite | `Relationship` collection (`invitedEmail` when provider not registered) |
 | Accept / decline | `PATCH /api/v1/relationships/:id` |
 | Staff invite / accept | Stable collaboration (`WorkplaceRelationship`) — see [`workplaceRelationship.md`](workplaceRelationship.md) |
 | Chat | REST messages (1A); Socket.io when realtime ships |
 | Uploads | Cloudinary via API route |
-| Reviews | `Rating` tied to `relationshipId` + `horseId` |
+| Reviews | `Rating` tied to `relationshipId` + `horseId`; bidirectional between relationship parties |
 
 Provider links (vet, stable, trainer, etc.) are **not** stored on `Horse` directly — query accepted `Relationship` documents by `horseId`.
 
@@ -92,7 +92,7 @@ Trial active (30 days)
   → Co-owners remain linked but do not become payer unless ownership transfer occurs
 ```
 
-**Stable and riding club partnerships** use the same `mainOwnerUserId` + `coOwners[]` embed as horses (shared `coOwnerSchema`). Co-owners receive full profile-owner access; adding co-owners via API is future work. Transport uses `mainOwnerUserId` only (single operator).
+**Stable, riding club, transport, and breeder partnerships** use the same `mainOwnerUserId` + `coOwners[]` embed as horses (shared `coOwnerSchema`). Co-owners receive full profile-owner access; adding co-owners via API is future work.
 
 ---
 
@@ -211,17 +211,19 @@ Sign up
 
 ---
 
-## Flow 5 — Transport operator (post-MVP expansion)
+## Flow 5 — Transport operator
 
 ```
 Sign up
   → Create personal profile
-  → Create Transport business account
-  → Link horse move request or invite owner/horse
+  → POST /api/v1/transports (create transport company; user may create multiple)
+  → Link horse move request or invite owner/horse (horse ↔ transport Relationship — see Flow 6)
   → Owner accepts
-  → Create transport booking + trip status updates
-  → Transport invoice visible to owner
+  → [Roadmap] Create transport booking + trip status updates
+  → [Roadmap] Transport invoice visible to owner
 ```
+
+Baseline today: company create + discovery visibility (`isPublic`, `acceptsNewBookings`) + public card read. Booking, trips, and invoicing are deferred (see businessPlan §4.10).
 
 ---
 
@@ -288,19 +290,25 @@ Requester selects provider + horse + proposed time/service
 
 ---
 
-## Flow 9 — Review submission (horse-scoped)
+## Flow 9 — Review submission (horse-scoped, bidirectional)
 
 ```
-User attempts review on provider
-  → System checks verified relationship for specific horse
+Party A attempts review on Party B
+  → System checks verified relationship for specific horse (accepted or ended)
+  → System checks Party A is an authorized actor for their side (owner for horse, profile operator for entity)
   → If valid: review form opens (category ratings + optional text)
-  → Review stored against horse ↔ provider pair
+  → Review stored against horse ↔ relationship context (reviewer → reviewee)
   → If invalid: review blocked
 ```
 
-Example:
+**Bidirectional rule:** once connected by an accepted horse `Relationship`, either side may review the other in that same horse context — e.g. stable reviews horse, owner reviews stable, vet reviews stable, vet reviews horse (via owner), transport reviews owner/stable, etc.
+
+**Horse operator:** the horse does not log in; owner/co-owner submits or receives horse-side reviews.
+
+Examples:
 - Owner has Horse 1 (Vet A) and Horse 2 (Vet B)
-- Review for Vet A must be tied to Horse 1 context only
+- Owner reviews Vet A only in Horse 1 ↔ Vet A context; Stable S may review Horse 1 only in Horse 1 ↔ Stable S context
+- Vet A may review Stable S only when both have Horse 1 relationships and the review stays horse-scoped
 
 ---
 

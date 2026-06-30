@@ -10,7 +10,8 @@
     "ui:sync": "shadcn add alert avatar button card dropdown-menu field input label separator sheet sidebar skeleton tooltip textarea select sonner --overwrite --yes",
     "test": "vitest run",
     "test:watch": "vitest",
-    "migrate:host-owner-field": "tsx scripts/rename-host-entity-owner-field.ts"
+    "migrate:host-owner-field": "tsx scripts/rename-host-entity-owner-field.ts",
+    "migrate:breeder-entity-owned": "tsx scripts/migrate-breeder-entity-owned.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

@@ -1,6 +1,7 @@
 import mongoose, { Schema, model } from "mongoose";
 import { addressSchema } from "./sharedSchemas/address.ts";
 import {
+  coOwnerSchema,
   mediaAssetSchema,
   pedigreeSchema,
   ratingSummarySchema,
@@ -31,12 +32,14 @@ const breedingStockSchema = new Schema(
 
 const breederSchema = new Schema(
   {
-    userId: {
+    /** Ownership — main operator plus optional partners (same pattern as Stable) */
+    mainOwnerUserId: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "User id is required!"],
+      required: [true, "Main owner user id is required!"],
       index: true,
     },
+    coOwners: { type: [coOwnerSchema], default: undefined },
 
     /** Business identity */
     operationName: { type: String, required: [true, "Operation name is required!"] },
@@ -64,6 +67,12 @@ const breederSchema = new Schema(
     referralCode: { type: String, index: true, sparse: true },
     commissionEligible: { type: Boolean, default: true },
 
+    /** Active collaboration document ids (`WorkplaceRelationship`) */
+    collaborators: {
+      type: [{ type: Schema.Types.ObjectId, ref: "WorkplaceRelationship" }],
+      default: undefined,
+    },
+
     lastActiveAt: { type: Date },
     isActive: { type: Boolean, default: true },
     isPublic: { type: Boolean, default: true },
@@ -76,6 +85,7 @@ const breederSchema = new Schema(
 
 breederSchema.index({ operationName: 1 });
 breederSchema.index({ bloodlines: 1 });
+breederSchema.index({ "coOwners.userId": 1 }, { sparse: true });
 
 const Breeder = mongoose.models.Breeder || model("Breeder", breederSchema);
 export default Breeder;

@@ -7,21 +7,21 @@ import {
 
 describe("workplaceRelationshipPermissions", () => {
   it("grants admin all capabilities", () => {
-    expect(hasCollaboratorCapability("admin", "manage_collaborators")).toBe(true);
+    expect(hasCollaboratorCapability("admin", "manage_role_profile")).toBe(true);
     expect(hasCollaboratorCapability("admin", "edit_role_profile")).toBe(true);
     expect(hasCollaboratorCapability("admin", "view_role_profile")).toBe(true);
   });
 
-  it("grants manager view and edit — not manage_collaborators", () => {
+  it("grants manager view and edit — not manage_role_profile", () => {
     expect(hasCollaboratorCapability("manager", "view_role_profile")).toBe(true);
     expect(hasCollaboratorCapability("manager", "edit_role_profile")).toBe(true);
-    expect(hasCollaboratorCapability("manager", "manage_collaborators")).toBe(false);
+    expect(hasCollaboratorCapability("manager", "manage_role_profile")).toBe(false);
   });
 
   it("grants staff view only", () => {
     expect(hasCollaboratorCapability("staff", "view_role_profile")).toBe(true);
     expect(hasCollaboratorCapability("staff", "edit_role_profile")).toBe(false);
-    expect(hasCollaboratorCapability("staff", "manage_collaborators")).toBe(false);
+    expect(hasCollaboratorCapability("staff", "manage_role_profile")).toBe(false);
   });
 
   it("maps legacy capability names", () => {
@@ -31,7 +31,7 @@ describe("workplaceRelationshipPermissions", () => {
   });
 
   it("treats owner as having all capabilities", () => {
-    expect(ownerHasCapability("manage_collaborators")).toBe(true);
+    expect(ownerHasCapability("manage_role_profile")).toBe(true);
     expect(ownerHasCapability("edit_role_profile")).toBe(true);
     expect(ownerHasCapability("view_role_profile")).toBe(true);
   });

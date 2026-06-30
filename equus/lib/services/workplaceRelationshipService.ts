@@ -22,7 +22,10 @@ import type { z } from "zod";
 import type { inviteCollaboratorSchema } from "../validations/workplaceRelationship.ts";
 import { ownedByUserQuery } from "../ownership/entityOwnership.ts";
 import { sendStaffInviteEmail } from "../email/sendStaffInviteEmail.ts";
-import { canExposeUserIdentity, type UserVisibilityAudience } from "../privacy/userVisibility.ts";
+import {
+  toPublicUserIdentity,
+  type UserVisibilityAudience,
+} from "../privacy/userVisibility.ts";
 
 export type InviteCollaboratorInput = z.infer<typeof inviteCollaboratorSchema>;
 
@@ -99,36 +102,13 @@ export function toPublicCollaborationUser(
   doc: Record<string, unknown> | null | undefined,
   audience: UserVisibilityAudience = "collaboration",
 ): PublicCollaborationUser | undefined {
-  if (!doc) return undefined;
-
-  const personalDetails = (doc.personalDetails ?? {}) as Record<string, unknown>;
-  const preferences = (doc.preferences ?? {}) as Record<string, unknown>;
-  const canExpose = canExposeUserIdentity(
-    {
-      profileVisibility: preferences.profileVisibility as
-        | "public"
-        | "platform"
-        | "relationships"
-        | "private"
-        | undefined,
-      searchable:
-        typeof preferences.searchable === "boolean"
-          ? preferences.searchable
-          : undefined,
-      allowDirectMessagesFrom: preferences.allowDirectMessagesFrom as
-        | "everyone"
-        | "relationships"
-        | "nobody"
-        | undefined,
-    },
-    audience,
-  );
-
+  const identity = toPublicUserIdentity(doc, audience);
+  if (!identity) return undefined;
   return {
-    id: String(doc._id),
-    email: canExpose ? (personalDetails.email as string | undefined) : undefined,
-    firstName: canExpose ? (personalDetails.firstName as string | undefined) : undefined,
-    lastName: canExpose ? (personalDetails.lastName as string | undefined) : undefined,
+    id: identity.id,
+    email: identity.email,
+    firstName: identity.firstName,
+    lastName: identity.lastName,
   };
 }
 
@@ -173,28 +153,36 @@ export function toPublicMembership(doc: Record<string, unknown>): PublicMembersh
   };
 }
 
-// --- Stable.collaborators sync ---
+// --- Host collaborators[] sync (stable, breeder, transport) ---
 
-async function addCollaboratorToStableIndex(
+const HOST_TYPES_WITH_COLLABORATOR_INDEX = new Set<BusinessRoleType>([
+  "stable",
+  "breeder",
+  "transport",
+]);
+
+async function addCollaboratorToHostIndex(
   hostRoleType: BusinessRoleType,
   hostRoleProfileId: string,
   relationshipId: mongoose.Types.ObjectId,
 ) {
-  if (hostRoleType !== "stable") return;
+  if (!HOST_TYPES_WITH_COLLABORATOR_INDEX.has(hostRoleType)) return;
 
-  await Stable.findByIdAndUpdate(hostRoleProfileId, {
+  const Model = MODEL_BY_ROLE_TYPE[hostRoleType];
+  await Model.findByIdAndUpdate(hostRoleProfileId, {
     $addToSet: { collaborators: relationshipId },
   });
 }
 
-async function removeCollaboratorFromStableIndex(
+async function removeCollaboratorFromHostIndex(
   hostRoleType: BusinessRoleType,
   hostRoleProfileId: string,
   relationshipId: mongoose.Types.ObjectId,
 ) {
-  if (hostRoleType !== "stable") return;
+  if (!HOST_TYPES_WITH_COLLABORATOR_INDEX.has(hostRoleType)) return;
 
-  await Stable.findByIdAndUpdate(hostRoleProfileId, {
+  const Model = MODEL_BY_ROLE_TYPE[hostRoleType];
+  await Model.findByIdAndUpdate(hostRoleProfileId, {
     $pull: { collaborators: relationshipId },
   });
 }
@@ -266,7 +254,7 @@ export async function inviteCollaborator(
     actorUserId,
     hostRoleType,
     hostRoleProfileId,
-    "manage_collaborators",
+    "manage_role_profile",
   );
 
   const resolved = await findBusinessRoleProfile(hostRoleType, hostRoleProfileId);
@@ -358,7 +346,7 @@ export async function listCollaborators(
     actorUserId,
     hostRoleType,
     hostRoleProfileId,
-    "manage_collaborators",
+    "manage_role_profile",
   );
 
   const collaborations = await WorkplaceRelationship.find({
@@ -402,7 +390,7 @@ export async function acceptInvite(
   collaboration.acceptedAt = new Date();
   await collaboration.save();
 
-  await addCollaboratorToStableIndex(
+  await addCollaboratorToHostIndex(
     collaboration.hostRoleType as BusinessRoleType,
     String(collaboration.hostRoleProfileId),
     collaboration._id as mongoose.Types.ObjectId,
@@ -459,7 +447,7 @@ export async function updateCollaborator(
     actorUserId,
     hostRoleType,
     hostRoleProfileId,
-    "manage_collaborators",
+    "manage_role_profile",
   );
 
   const collaboration = await getCollaborationForProfile(
@@ -510,7 +498,7 @@ export async function endCollaboration(
     actorUserId,
     hostRoleType,
     hostRoleProfileId,
-    "manage_collaborators",
+    "manage_role_profile",
   );
 
   const collaboration = await getCollaborationForProfile(
@@ -528,7 +516,7 @@ export async function endCollaboration(
   collaboration.endedAt = new Date();
   await collaboration.save();
 
-  await removeCollaboratorFromStableIndex(
+  await removeCollaboratorFromHostIndex(
     hostRoleType,
     hostRoleProfileId,
     collaboration._id as mongoose.Types.ObjectId,
@@ -551,9 +539,7 @@ export async function listWorkplacesForUser(userId: string): Promise<PublicWorkp
   ];
 
   for (const { roleType, model, field } of ownedQueries) {
-    const filter =
-      roleType === "breeder" ? { userId } : ownedByUserQuery(userId);
-    const owned = await model.find(filter).select(field).lean();
+    const owned = await model.find(ownedByUserQuery(userId)).select(field).lean();
     for (const profile of owned) {
       workplaces.push({
         roleType,

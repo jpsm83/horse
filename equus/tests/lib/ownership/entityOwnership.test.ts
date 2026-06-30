@@ -41,11 +41,9 @@ describe("entityOwnership", () => {
     expect(userOwnsEntity(otherId, hostProfile)).toBe(false);
   });
 
-  it("resolveMainOwnerUserId reads mainOwnerUserId for host types and userId for breeder", () => {
+  it("resolveMainOwnerUserId reads mainOwnerUserId for all business host types", () => {
     expect(resolveMainOwnerUserId("stable", hostProfile)).toBe(mainOwnerId);
+    expect(resolveMainOwnerUserId("breeder", hostProfile)).toBe(mainOwnerId);
     expect(resolveMainOwnerUserId("transport", hostProfile)).toBe(mainOwnerId);
-
-    const breederProfile = { userId: new mongoose.Types.ObjectId(otherId) };
-    expect(resolveMainOwnerUserId("breeder", breederProfile)).toBe(otherId);
   });
 });

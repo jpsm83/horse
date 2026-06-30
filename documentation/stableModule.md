@@ -40,6 +40,8 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 
 ## 1. Stable profile and discovery
 
+**Baseline API (shipped):** minimal create + discovery + public read — `POST /api/v1/stables`, `PATCH /api/v1/stables/:id/discovery`, `GET /api/v1/stables/:id`. See [`equus/documentation/stables.md`](../equus/documentation/stables.md). Full profile fields (photos, facilities, pricing tiers, search directory) remain below.
+
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
 | S-PROF-01 | Business profile: name, location, photos, facilities, description | Beyond | planned |
@@ -218,8 +220,8 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | S-REL-04 | Resend request after mistaken decline | Beyond | planned |
 | S-REL-05 | Established relationship is permanent (history never deleted) | Beyond | planned |
 | S-REL-06 | Owner retains read access to their horse data after leave or dispute | Beyond | planned |
-| S-REL-07 | Horse-scoped review/rating after verified relationship | Beyond | planned |
-| S-REL-08 | Stable can respond to horse-scoped reviews | Beyond | planned |
+| S-REL-07 | Horse-scoped review/rating after verified relationship (bidirectional: stable ↔ horse/owner) | Beyond | planned |
+| S-REL-08 | Reviewee can respond to horse-scoped reviews | Beyond | planned |
 | S-REL-09 | Referral reference on invitations (commission attribution) | Beyond | planned |
 
 ---

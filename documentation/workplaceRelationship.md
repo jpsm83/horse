@@ -11,7 +11,7 @@ Related:
 
 ## Architecture overview
 
-The platform has **one signup type** (`User`). That User may add **subsections** — entity-owned (`Horse`, `Stable`, `RidingClub`, `Transport` via `mainOwnerUserId` / `coOwners[]`) and user-linked role profiles (`breederProfileId`, `trainerProfileId`, etc.). The product revolves around **horses**. Services usually flow through a **stable**, but a **horse owner** may also link **providers directly to a horse** when they allow it.
+The platform has **one signup type** (`User`). That User may add **subsections** — entity-owned (`Horse`, `Stable`, `RidingClub`, `Transport`, `Breeder` via `mainOwnerUserId` / `coOwners[]`) and user-linked role profiles (`trainerProfileId`, `groomProfileId`, etc.). The product revolves around **horses**. Services usually flow through a **stable**, but a **horse owner** may also link **providers directly to a horse** when they allow it.
 
 **Nobody owns nobody (people):** Users do not own other Users. `mainOwnerUserId` on entity-owned profiles means who **operates that record**, not employer/employee.
 
@@ -26,7 +26,7 @@ flowchart TB
   User --> Stable["stable — Stable.mainOwnerUserId"]
   User --> RidingClub["riding club — RidingClub.mainOwnerUserId"]
   User --> Transport["transport — Transport.mainOwnerUserId"]
-  User --> Breeder[breederProfileId]
+  User --> Breeder["breeder — Breeder.mainOwnerUserId"]
   User --> Trainer[trainerProfileId]
   User --> Vet[veterinaryProfileId]
   User --> Coach[coachProfileId]
@@ -128,8 +128,8 @@ After signup, that same User may add **role profiles** to their account (optiona
 | Horses | Entity-owned; user may own many | `Horse.mainOwnerUserId` (+ optional `coOwners[]`) |
 | Stable | Runs a barn they own | `Stable.mainOwnerUserId` (+ optional `coOwners[]`) |
 | Riding club | Host club profile | `RidingClub.mainOwnerUserId` (+ optional `coOwners[]`) |
-| Transport | Transport company | `Transport.mainOwnerUserId` (single owner) |
-| Breeder | Breeding operation | `User.breederProfileId` + `Breeder.userId` (one per user) |
+| Transport | Transport company | `Transport.mainOwnerUserId` (+ optional `coOwners[]`) |
+| Breeder | Breeding operation (user may own many) | `Breeder.mainOwnerUserId` (+ optional `coOwners[]`) |
 | Groom, rider, farrier | Position-linked profiles | `groomProfileId`, `riderProfileId`, `farrierProfileId` |
 | Veterinary | Works as a vet | `veterinaryProfileId` → `Veterinary` |
 | Trainer / coach | Trains professionally | `trainerProfileId`, `coachProfileId` |
@@ -200,21 +200,21 @@ Activities/jobs assigned within permissions on that collaboration
 
 ---
 
-## `Stable.collaborators[]`
+## Host `collaborators[]` index (Stable, Breeder, Transport)
 
 **Canonical:** `WorkplaceRelationship` documents (query `userId`, `hostRoleProfileId`, `status`).
 
-**Denormalized index:** `Stable.collaborators: ObjectId[]` → active collaboration ids only.
+**Denormalized index:** `Stable.collaborators`, `Breeder.collaborators`, and `Transport.collaborators` — `ObjectId[]` of active collaboration ids only.
 
 | Event | Service behavior |
 |-------|------------------|
 | Invite | Create `WorkplaceRelationship` (`status: invited`); **do not** add to `collaborators` |
-| Accept | Set `status: active`, `active: true`; **push** id to `Stable.collaborators` |
+| Accept | Set `status: active`, `active: true`; **push** id to host `collaborators` |
 | End / decline | Update status; **pull** id from `collaborators` |
 
-- Never grant host ownership to collaborators — ownership is `mainOwnerUserId` / `coOwners[]` on the entity, or `User.*ProfileId` for breeder/trainer roles.
-- List team from `Stable.collaborators` + populate; list "my workplaces" from `WorkplaceRelationship` by `userId`.
-- Same pattern for Breeder / RidingClub / Transport when team features apply.
+- Never grant host ownership to collaborators — ownership is `mainOwnerUserId` / `coOwners[]` on entity-owned profiles, or `User.*ProfileId` for trainer/vet/etc.
+- List team from host `collaborators` + populate; list "my workplaces" from `WorkplaceRelationship` by `userId`.
+- Riding club: collaboration via `WorkplaceRelationship`; denormalized `collaborators[]` not yet on that model.
 
 ---
 
@@ -241,14 +241,14 @@ Hierarchy describes **how this User operates at this stable profile** — not wh
 
 | Capability | Profile owner (main or co-owner) | admin | manager | staff |
 |------------|--------------------------------|-------|---------|-------|
-| `manage_collaborators` | yes | yes | no | no |
+| `manage_role_profile` | yes | yes | no | no |
 | `edit_role_profile` | yes | yes | yes | no |
 | `view_stable_operations` | yes | yes | yes | yes |
 | `assign_activities` | yes | yes | yes | per policy |
 
 The **profile owner** is not "staff of themselves" — they operate the host profile via `mainOwnerUserId` or `coOwners[]` on the entity.
 
-**Co-owners vs collaborators:** `coOwners[]` on Stable/RidingClub/Horse is **partnership ownership** (full owner capabilities). `WorkplaceRelationship` is **operational staff** at the profile (groom, manager, etc.) — never conflate the two.
+**Co-owners vs collaborators:** `coOwners[]` on Horse/Stable/RidingClub/Breeder is **partnership ownership** (full owner capabilities). `WorkplaceRelationship` is **operational staff** at the profile (groom, manager, etc.) — never conflate the two.
 
 ---
 

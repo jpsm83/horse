@@ -25,7 +25,7 @@ const MODEL_BY_ROLE_TYPE = {
 export type BusinessRoleProfileResult = {
   roleType: BusinessRoleType;
   roleProfileId: string;
-  /** Primary operator on the profile (mainOwnerUserId or breeder userId). */
+  /** Primary operator on the profile (`mainOwnerUserId`). */
   mainOwnerUserId: string;
   /** @deprecated Use mainOwnerUserId */
   ownerUserId: string;

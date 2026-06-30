@@ -99,6 +99,7 @@ Target timeline: ~8–10 weeks after validation (see `validationPlaybook.md`).
 
 #### Trust (minimal)
 - Horse-scoped reviews only after verified established relationship
+- **Bidirectional:** either party in the relationship may review the other in that horse context
 - No badges engine in 1A (manual/trust flags only if needed)
 
 ### Phase 1A acceptance criteria
@@ -109,7 +110,7 @@ Target timeline: ~8–10 weeks after validation (see `validationPlaybook.md`).
 - [ ] Owner can request booking; business can accept/decline
 - [ ] Owner sees invoices/expenses for a horse in one place
 - [ ] Invitation flow works for unregistered stable/trainer email
-- [ ] Review can only be submitted for horse-specific verified relationship
+- [ ] Review can only be submitted for horse-specific verified relationship (bidirectional parties)
 - [ ] Relationship accept flow completes in minutes (invite → email → accept)
 
 ---

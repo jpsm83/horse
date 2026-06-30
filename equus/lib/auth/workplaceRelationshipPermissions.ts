@@ -7,23 +7,23 @@
 import type { workplaceHierarchyLevelEnums } from "../../utils/enums.ts";
 
 export type RoleProfileCapability =
-  | "manage_collaborators"
+  | "manage_role_profile"
   | "edit_role_profile"
   | "view_role_profile";
 
-/** @deprecated Use manage_collaborators */
+/** @deprecated Use manage_role_profile */
 export type LegacyRoleProfileCapability = "manage_staff" | "edit_profile" | "view_profile";
 
 type HierarchyLevel = (typeof workplaceHierarchyLevelEnums)[number];
 
 const CAPABILITIES_BY_LEVEL: Record<HierarchyLevel, ReadonlySet<RoleProfileCapability>> = {
-  admin: new Set(["manage_collaborators", "edit_role_profile", "view_role_profile"]),
+  admin: new Set(["manage_role_profile", "edit_role_profile", "view_role_profile"]),
   manager: new Set(["view_role_profile", "edit_role_profile"]),
   staff: new Set(["view_role_profile"]),
 };
 
 const LEGACY_CAPABILITY_MAP: Record<LegacyRoleProfileCapability, RoleProfileCapability> = {
-  manage_staff: "manage_collaborators",
+  manage_staff: "manage_role_profile",
   edit_profile: "edit_role_profile",
   view_profile: "view_role_profile",
 };

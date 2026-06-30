@@ -21,7 +21,7 @@ Related:
 New users are created with:
 
 - Auth fields only (`personalDetails.email`, password or Google link, etc.)
-- **No role profiles** linked (`breederProfileId`, `trainerProfileId`, etc. stay unset)
+- **No role profiles** linked (`trainerProfileId`, `groomProfileId`, etc. stay unset)
 - **No horses** until the user creates one
 
 They can immediately browse and search stables, trainers, veterinarians, horses, and other discoverable content. Creating a role profile is optional and happens when the user is ready to be listed or operate in that capacity.
@@ -32,16 +32,16 @@ A **role** is a domain profile the same user can create and operate in. Ownershi
 
 | Pattern | Meaning | Examples |
 |---------|---------|----------|
-| **Entity-owned** | Operator is stored on the entity document; not mirrored on `User` | `mainOwnerUserId` on Horse, Stable, RidingClub, Transport; `coOwners[]` on Horse, Stable, RidingClub |
-| **User-linked** | One profile per user via `*ProfileId` on `User` plus `userId` on the role document | `breederProfileId`, `trainerProfileId`, `groomProfileId`, … |
+| **Entity-owned** | Operator is stored on the entity document; not mirrored on `User` | `mainOwnerUserId` on Horse, Stable, RidingClub, Transport, Breeder; `coOwners[]` on Horse, Stable, RidingClub, Transport, Breeder |
+| **User-linked** | One profile per user via `*ProfileId` on `User` plus `userId` on the role document | `trainerProfileId`, `groomProfileId`, … |
 
 | Role type | How it links | Model |
 |-----------|--------------|-------|
 | Horses | `Horse.mainOwnerUserId` (+ optional `coOwners[]`) | `Horse` |
 | Stable | `Stable.mainOwnerUserId` (+ optional `coOwners[]`; user may operate many) | `Stable` |
 | Riding club | `RidingClub.mainOwnerUserId` (+ optional `coOwners[]`) | `RidingClub` |
-| Transport | `Transport.mainOwnerUserId` (single owner) | `Transport` |
-| Breeder | `breederProfileId` (one per user) | `Breeder` |
+| Transport | `Transport.mainOwnerUserId` (+ optional `coOwners[]`; user may operate many) | `Transport` |
+| Breeder | `Breeder.mainOwnerUserId` (+ optional `coOwners[]`; user may operate many) | `Breeder` |
 | Trainer | `trainerProfileId` (one per user) | `Trainer` |
 | Veterinary | `veterinaryProfileId` (one per user) | `Veterinary` |
 | Coach | `coachProfileId` (one per user) | `Coach` |
@@ -49,14 +49,14 @@ A **role** is a domain profile the same user can create and operate in. Ownershi
 | Groom | `groomProfileId` (one per user) | `Groom` |
 | Farrier | `farrierProfileId` (one per user) | `Farrier` |
 
-**Multi-owner entities** use `mainOwnerUserId` plus optional `coOwners[]` (shared embed: `userId`, `ownershipPercentage`, `isBillingResponsible`) on **Horse**, **Stable**, and **RidingClub**. **Transport** has a single `mainOwnerUserId` only. Co-owners get full profile-owner capabilities (navigation, workplaces, collaboration invites). This is **ownership**, not barn staff — staff use `WorkplaceRelationship`.
+**Multi-owner entities** use `mainOwnerUserId` plus optional `coOwners[]` (shared embed: `userId`, `ownershipPercentage`, `isBillingResponsible`) on **Horse**, **Stable**, **RidingClub**, **Transport**, and **Breeder**. Co-owners get full profile-owner capabilities (navigation, workplaces, collaboration invites). This is **ownership**, not operational staff — staff use `WorkplaceRelationship`.
 
 Each role has its **own model** to complete. These are **subsections of the same person** — not separate signups.
 
-**Future create APIs:**
+**Create APIs:**
 
-- **Stable / riding club / transport:** set `mainOwnerUserId` on the new entity; optional `coOwners[]` when partnership APIs ship. Do not write arrays on `User`.
-- **Breeder / trainer / vet / coach / groom / rider / farrier:** create the role document with `userId` and set the matching `*ProfileId` on `User` in the same transaction; reject if that `*ProfileId` is already set.
+- **Horse / stable / riding club / transport / breeder:** set `mainOwnerUserId` on the new entity (`POST /api/v1/horses`, `/stables`, `/transports`, `/breeders`); optional `coOwners[]` when partnership APIs ship. Do not write arrays on `User`.
+- **Trainer / vet / coach / groom / rider / farrier:** create the role document with `userId` and set the matching `*ProfileId` on `User` in the same transaction; reject if that `*ProfileId` is already set (`POST /api/v1/trainers` for trainer).
 
 Colloquially people say "stable account" or "vet account"; in the product that always means **User + role profile** (e.g. a `Stable` with `mainOwnerUserId`, or `User` with `veterinaryProfileId` pointing at their vet profile).
 
@@ -72,7 +72,7 @@ Role subsection screens use thin locale routes under `app/[locale]/` (see [`equu
 | `/my/stables`, … | Owned profile hub — auth required (placeholder) |
 | `/create/horse`, `/create/stable`, `/create/breeder`, … | Add a role subsection to the signed-in User (placeholder) |
 
-Create routes use singular folder segments for role profiles (`/create/breeder`) and short segments for multi-ownable types (`/create/horse`, `/create/stable`, `/create/riding-club`, `/create/transport`). Full create flows and APIs are future work.
+Create routes use singular folder segments for user-linked role profiles (`/create/trainer`, `/create/groom`, …) and short segments for entity-owned types (`/create/horse`, `/create/stable`, `/create/riding-club`, `/create/transport`). Minimal create APIs ship for **horse**, **stable**, **transport**, **breeder**, and **trainer** (`POST /api/v1/trainers`); web create flows remain placeholders.
 
 ## Architecture — three diagrams
 
@@ -116,7 +116,7 @@ Full spec: [`workplaceRelationship.md`](workplaceRelationship.md).
 
 | Concept | Meaning |
 |---------|---------|
-| **Profile owner** | User who operates the role profile (`mainOwnerUserId` or `coOwners[]` on host entities; `User.breederProfileId` for breeder) |
+| **Profile owner** | User who operates the role profile (`mainOwnerUserId` or `coOwners[]` on entity-owned host profiles; `*ProfileId` on User for trainer/vet/etc.) |
 | **Collaborator** | User linked via **WorkplaceRelationship** — never granted ownership on the entity |
 
 ### Collaboration invitation flow
@@ -163,9 +163,11 @@ Levels on the **WorkplaceRelationship** (`admin` | `manager` | `staff`), not on 
 
 | Capability | Profile owner | admin | manager | staff |
 |------------|---------------|-------|---------|-------|
-| `manage_collaborators` | yes | yes | no | no |
+| `manage_role_profile` | yes | yes | no | no |
 | `edit_role_profile` | yes | yes | yes | no |
-| `view_stable_operations` | yes | yes | yes | yes |
+| `view_role_profile` | yes | yes | yes | yes |
+
+`assign_activities` is planned for future activity modules and is not yet part of the current capability set.
 
 ### Planned API
 
@@ -226,8 +228,104 @@ Enum: `public` | `relationship` | `owner_only`
 
 Example: user owns the horse but wants inquiries to go to a stable manager — set `useOwnerContact: false` and fill delegate fields.
 
-### Planned API
+### Horse API
 
-When horse CRUD ships:
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/horses` | Create horse (`mainOwnerUserId`, `createdByUserId`) |
+| `PATCH` | `/api/v1/horses/:id/discovery` | Update `profileVisibility` / `contactDisplay` (owner/co-owner) |
+| `GET` | `/api/v1/horses/:id` | Public horse card (optional auth) |
 
-- `PATCH /api/v1/horses/:id/discovery` — body validated by `lib/validations/horse.ts` (`updateHorseDiscoverySchema`)
+See [`equus/documentation/horses.md`](../equus/documentation/horses.md).
+
+## Stable discovery (per stable)
+
+Visibility and public contact are **per stable** (entity-owned business profile), not per user.
+
+### `Stable.isPublic`
+
+Boolean (default **`true`**). When `false`, the stable is hidden from anonymous discovery and unrelated signed-in users. Still visible to owner/co-owner, active collaborators at the stable, and users with an accepted horse ↔ stable `Relationship`.
+
+### `Stable.acceptsNewHorses`
+
+Boolean (default **`true`**). Operational flag for whether the stable is accepting new boarding clients (surfaced on public card).
+
+Business contact (`tradeName`, `email`, `phoneNumber`) is stored on the `Stable` document — not routed through `User.preferences`. A private user may still operate a public stable listing.
+
+### Stable API
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/stables` | Create stable (`mainOwnerUserId`) |
+| `PATCH` | `/api/v1/stables/:id/discovery` | Update `isPublic` / `acceptsNewHorses` (owner/co-owner) |
+| `GET` | `/api/v1/stables/:id` | Public stable card (optional auth) |
+
+See [`equus/documentation/stables.md`](../equus/documentation/stables.md).
+
+## Breeder discovery (per breeding operation)
+
+Visibility and public contact are **per breeder entity**, not per user. A User may operate multiple `Breeder` documents.
+
+### `Breeder.isPublic`
+
+Boolean (default **`true`**). When `false`, hidden from anonymous discovery and unrelated signed-in users. Still visible to owner/co-owner, active collaborators at the breeder, and users with an accepted horse ↔ breeder `Relationship`.
+
+Business contact (`operationName`, `email`, `phoneNumber`) is stored on the `Breeder` document — not routed through `User.preferences`.
+
+### Breeder API
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/breeders` | Create breeder (`mainOwnerUserId`) |
+| `PATCH` | `/api/v1/breeders/:id/discovery` | Update `isPublic` (owner/co-owner) |
+| `GET` | `/api/v1/breeders/:id` | Public breeder card (optional auth) |
+
+See [`equus/documentation/breeders.md`](../equus/documentation/breeders.md).
+
+## Transport discovery (per transport company)
+
+Visibility and public contact are **per transport entity**, not per user. A User may operate multiple `Transport` documents.
+
+### `Transport.isPublic`
+
+Boolean (default **`true`**). When `false`, hidden from anonymous discovery and unrelated signed-in users. Still visible to owner/co-owner, active collaborators at the transport company, and users with an accepted horse ↔ transport `Relationship`.
+
+### `Transport.acceptsNewBookings`
+
+Boolean (default **`true`**). Operational flag for whether the company is accepting new transport bookings (surfaced on public card).
+
+Business contact (`companyName`, `email`, `phoneNumber`, `emergencyPhoneNumber`) is stored on the `Transport` document — not routed through `User.preferences`.
+
+### Transport API
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/transports` | Create transport company (`mainOwnerUserId`) |
+| `PATCH` | `/api/v1/transports/:id/discovery` | Update `isPublic` / `acceptsNewBookings` (owner/co-owner) |
+| `GET` | `/api/v1/transports/:id` | Public transport card (optional auth) |
+
+See [`equus/documentation/transports.md`](../equus/documentation/transports.md).
+
+## Trainer discovery (per trainer profile)
+
+Visibility and public contact are **per trainer profile** (user-linked — one per User).
+
+### `Trainer.isPublic`
+
+Boolean (default **`true`**). When `false`, hidden from anonymous discovery and unrelated signed-in users. Still visible to the profile owner (`Trainer.userId`) and users with an accepted horse ↔ trainer `Relationship`.
+
+### `Trainer.acceptsNewClients`
+
+Boolean (default **`true`**). Operational flag for whether the trainer is accepting new clients (surfaced on public card).
+
+Business contact (`displayName`, `email`, `phoneNumber`) is stored on the `Trainer` document — not routed through `User.preferences`.
+
+### Trainer API
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/trainers` | Create trainer (`userId` + `User.trainerProfileId`; 409 if already set) |
+| `PATCH` | `/api/v1/trainers/:id/discovery` | Update `isPublic` / `acceptsNewClients` (profile owner) |
+| `GET` | `/api/v1/trainers/:id` | Public trainer card (optional auth) |
+
+See [`equus/documentation/trainers.md`](../equus/documentation/trainers.md).

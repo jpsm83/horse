@@ -1,6 +1,7 @@
 import mongoose, { Schema, model } from "mongoose";
 import { addressSchema } from "./sharedSchemas/address.ts";
 import {
+  coOwnerSchema,
   mediaAssetSchema,
   ratingSummarySchema,
   serviceOfferingSchema,
@@ -37,13 +38,14 @@ const coverageRouteSchema = new Schema(
 
 const transportSchema = new Schema(
   {
-    /** Ownership — single main operator (no co-owners) */
+    /** Ownership — main operator plus optional partners (same pattern as Stable) */
     mainOwnerUserId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: [true, "Main owner user id is required!"],
       index: true,
     },
+    coOwners: { type: [coOwnerSchema], default: undefined },
 
     /** Company identity */
     companyName: { type: String, required: [true, "Company name is required!"] },
@@ -52,6 +54,7 @@ const transportSchema = new Schema(
     email: { type: String, required: [true, "Email is required!"], lowercase: true },
     phoneNumber: { type: String, required: [true, "Phone number is required!"] },
     emergencyPhoneNumber: { type: String },
+    websiteUrl: { type: String },
     address: { type: addressSchema, required: [true, "Address is required!"] },
     imageUrl: { type: String },
     gallery: { type: [mediaAssetSchema], default: undefined },
@@ -75,6 +78,12 @@ const transportSchema = new Schema(
     referralCode: { type: String, index: true, sparse: true },
     commissionEligible: { type: Boolean, default: true },
 
+    /** Active collaboration document ids (`WorkplaceRelationship`) */
+    collaborators: {
+      type: [{ type: Schema.Types.ObjectId, ref: "WorkplaceRelationship" }],
+      default: undefined,
+    },
+
     lastActiveAt: { type: Date },
     isActive: { type: Boolean, default: true },
     isPublic: { type: Boolean, default: true },
@@ -88,6 +97,8 @@ const transportSchema = new Schema(
 transportSchema.index({ companyName: 1 });
 transportSchema.index({ specialties: 1 });
 transportSchema.index({ serviceAreas: 1 });
+transportSchema.index({ "address.city": 1, "address.country": 1 });
+transportSchema.index({ "coOwners.userId": 1 }, { sparse: true });
 
 const Transport = mongoose.models.Transport || model("Transport", transportSchema);
 export default Transport;

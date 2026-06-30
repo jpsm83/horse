@@ -1,3 +1,15 @@
+/**
+ * Horse-scoped rating / review model.
+ *
+ * Tied to `Relationship` + `horseId`. Product policy: reviews are **bidirectional** —
+ * either party in an accepted (or ended) horse relationship may review the other in
+ * that same horse context. Horses act via owner/co-owner operator; entities via profile operator.
+ *
+ * Current schema stores `reviewerUserId` → `providerAccountType` / `providerAccountId`
+ * (owner-reviews-provider shape). Generalize to symmetric reviewer/reviewee account fields
+ * when the rating API ships.
+ */
+
 import mongoose, { Schema, model } from "mongoose";
 import * as enums from "../utils/enums.ts";
 

@@ -14,6 +14,21 @@ export type UserVisibilityAudience =
   | "relationship"
   | "collaboration";
 
+export type PublicUserIdentity = {
+  id: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+};
+
+export type RequesterVisibilityContext = {
+  isAuthenticated: boolean;
+  hasRelationship: boolean;
+  hasCollaboration: boolean;
+  isSelf?: boolean;
+};
+
 const DEFAULT_PREFERENCES: PublicUserPreferences = {
   profileVisibility: "public",
   searchable: true,
@@ -30,6 +45,21 @@ function withDefaults(
       preferences?.allowDirectMessagesFrom ??
       DEFAULT_PREFERENCES.allowDirectMessagesFrom,
   };
+}
+
+export function resolveAudienceForRequester(
+  context: RequesterVisibilityContext,
+): UserVisibilityAudience {
+  if (context.isSelf) {
+    return "self";
+  }
+  if (context.hasRelationship) {
+    return "relationship";
+  }
+  if (context.hasCollaboration) {
+    return "collaboration";
+  }
+  return context.isAuthenticated ? "platform" : "public";
 }
 
 export function canExposeUserIdentity(
@@ -55,5 +85,48 @@ export function canExposeUserIdentity(
     default:
       return true;
   }
+}
+
+export function isUserSearchable(
+  preferences: Partial<PublicUserPreferences> | null | undefined,
+): boolean {
+  return withDefaults(preferences).searchable !== false;
+}
+
+export function canStartDirectMessage(
+  preferences: Partial<PublicUserPreferences> | null | undefined,
+  audience: UserVisibilityAudience,
+): boolean {
+  if (audience === "self") return true;
+
+  const resolved = withDefaults(preferences);
+  switch (resolved.allowDirectMessagesFrom) {
+    case "everyone":
+      return audience !== "public";
+    case "relationships":
+      return audience === "relationship" || audience === "collaboration";
+    case "nobody":
+      return false;
+    default:
+      return false;
+  }
+}
+
+export function toPublicUserIdentity(
+  doc: Record<string, unknown> | null | undefined,
+  audience: UserVisibilityAudience,
+): PublicUserIdentity | undefined {
+  if (!doc) return undefined;
+  const personalDetails = (doc.personalDetails ?? {}) as Record<string, unknown>;
+  const preferences = (doc.preferences ?? {}) as Partial<PublicUserPreferences>;
+  const canExpose = canExposeUserIdentity(preferences, audience);
+
+  return {
+    id: String(doc._id),
+    email: canExpose ? (personalDetails.email as string | undefined) : undefined,
+    firstName: canExpose ? (personalDetails.firstName as string | undefined) : undefined,
+    lastName: canExpose ? (personalDetails.lastName as string | undefined) : undefined,
+    phone: canExpose ? (personalDetails.phoneNumber as string | undefined) : undefined,
+  };
 }
 

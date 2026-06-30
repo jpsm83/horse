@@ -5,7 +5,7 @@
  */
 
 import { z } from "zod";
-import { visibilityEnums } from "../../utils/enums.ts";
+import { horseSexEnums, visibilityEnums } from "../../utils/enums.ts";
 import { emailSchema } from "./common.ts";
 
 export const horseContactDisplaySchema = z
@@ -42,6 +42,17 @@ export const horseContactDisplaySchema = z
   });
 
 export const updateHorseDiscoverySchema = z.object({
+  profileVisibility: z.enum(visibilityEnums).optional(),
+  contactDisplay: horseContactDisplaySchema.optional(),
+});
+
+export const createHorseSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+  breed: z.string().trim().min(1).max(120),
+  sex: z.enum(horseSexEnums),
+  dateOfBirth: z.coerce.date().optional(),
+  color: z.string().trim().optional(),
+  primaryDiscipline: z.string().trim().optional(),
   profileVisibility: z.enum(visibilityEnums).optional(),
   contactDisplay: horseContactDisplaySchema.optional(),
 });

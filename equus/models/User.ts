@@ -2,10 +2,10 @@
  * User model — single signup identity (one person per email).
  *
  * Role ownership uses two patterns:
- * - **Entity-owned** (horse, stable, riding club, transport): operator is on the entity
- *   (`mainOwnerUserId` on Horse/Stable/RidingClub/Transport) — not mirrored on User.
- * - **User-linked** (breeder, trainer, vet, coach, groom, rider, farrier): one profile per
- *   user via `*ProfileId` on User plus `userId` on the role document.
+ * - **Entity-owned** (horse, stable, riding club, transport, breeder): operator is on the
+ *   entity (`mainOwnerUserId` on Horse/Stable/RidingClub/Transport/Breeder) — not mirrored on User.
+ * - **User-linked** (trainer, vet, coach, groom, rider, farrier): one profile per user via
+ *   `*ProfileId` on User plus `userId` on the role document.
  *
  * Collaboration at another user's host profile is **not** stored here — use
  * `WorkplaceRelationship` and host `collaborators[]`.
@@ -59,18 +59,11 @@ const userSchema = new Schema(
     },
 
     /**
-     * Horses are entity-owned — no `*ProfileId` on User. Query via Horse.mainOwnerUserId
-     * (and coOwners[]). Stables, riding clubs, and transport use the same entity-owned pattern
-     * on their respective models.
+     * Horses and host business entities are entity-owned — no `*ProfileId` on User.
+     * Query via mainOwnerUserId (and coOwners[]) on Horse, Stable, RidingClub, Transport, Breeder.
      */
 
     /** Position-linked role profiles — one per user */
-    breederProfileId: {
-      type: Schema.Types.ObjectId,
-      ref: "Breeder",
-      default: undefined,
-      index: true,
-    },
     trainerProfileId: {
       type: Schema.Types.ObjectId,
       ref: "Trainer",

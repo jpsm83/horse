@@ -51,6 +51,15 @@ Become the reference platform by owning the daily operational workflow between:
 - Horse owners
 - Stables
 - Trainers
+- Breeders
+- Groomers
+- Coachs
+- Farriers
+- Riders
+- Racing clubs
+- Transports
+- Users
+- Veterinaries
 
 This is the highest-movement part of the ecosystem and creates natural product distribution.
 
@@ -70,10 +79,17 @@ Primary launch focus:
 - Stables
 - Trainers
 - Horse owners
+- Groomers
+- Coachs
+- Farriers
+- Riders
+- Users
+- Veterinaries
 
 Why this wedge:
 
-- Stables and trainers generate frequent horse activity
+- Stables generate frequent horse activity
+- Trainers, Groomers, Coachs, Farriers, Riders, Users and Vets usualy works with the Stables
 - They already manage spreadsheets, invoices, schedules, and messaging
 - Free business usage helps adoption
 - They naturally promote the app to owners they already work with
@@ -81,13 +97,13 @@ Why this wedge:
 ### 0.5 Phase 1 operating scope
 
 Phase 1A/1B are **incremental build milestones** (`mvpScope.md`).  
-**Public production** requires User, Horse, Veterinary, and Stable modules fully implemented — not Phase 1 alone.
+**Public production** requires Trainers, Groomers, Coachs, Farriers, Riders, Users, Veterinaries, Horse, and Stable modules fully implemented — not Phase 1 alone.
 
 Stable capabilities: [`stableModule.md`](stableModule.md).
 
 ### 0.6 Planned expansion after wedge success
 
-Post-wedge expansion sequence (vet, breeder, transport depth, marketplace last) is defined in **Section 18** and entity modules in **Sections 4 and 10**.
+Post-wedge expansion sequence (breeders deth, riding club deth, transport depth, marketplace last) is defined in **Section 18** and entity modules in **Sections 4 and 10**.
 
 ### 0.7 Success condition for early survival
 
@@ -100,7 +116,7 @@ It is measured by becoming operationally indispensable inside one niche workflow
 
 ### One-line pitch
 
-A complete connected platform for the horse world — where owners, horses, stables, trainers, vets, breeders, riding clubs, and service providers all have their own profiles, are linked to each other, and can be discovered, reviewed, and managed in one place.
+A complete connected platform for the horse world — where owners, horses, stables, trainers, vets, riding clubs, and service providers all have their own profiles, are linked to each other, and can be discovered, reviewed, and managed in one place.
 
 ### The problem we are solving
 
@@ -162,11 +178,11 @@ Owner
 Stable
   ├── hosts → Horses (current and past) via horse Relationship
   ├── collaborates with → Users (groom, rider, vet at barn via WorkplaceRelationship)
-  └── reviewed by → Owners (only if related)
+  └── reviews ↔ Horses / owners / providers (bidirectional, horse-scoped — only when related)
 
 Vet
   ├── treated → Horses
-  └── reviewed by → Owners / Stables (only if related)
+  └── reviews ↔ Horses / owners / stables / other related providers (bidirectional, horse-scoped)
 ```
 
 ### Design principles
@@ -174,8 +190,8 @@ Vet
 1. **Every entity has its own account and public (or semi-public) page**
 2. **Relationships are explicit** — a horse is linked to the stables it visited, the vets who treated it, its owners, etc.
 3. **History is preserved** — past stables, past vets, past trainers remain part of the horse's record
-4. **Discovery is built in** — owners can find trainers, stables, clubs, breeders, and more from one platform
-5. **Trust is earned through verified, horse-scoped reviews** — not open anonymous ratings
+4. **Discovery is built in** — owners can find trainers, stables, riding clubs, breeders, and more from one platform
+5. **Trust is earned through verified, horse-scoped reviews** — bidirectional between connected parties, not open anonymous ratings
 
 ---
 
@@ -270,7 +286,9 @@ Each stable operates as a business on the platform.
 
 ---
 
-### 4.5 Breeder account
+### 4.5 Breeder account (entity-owned)
+
+**Ownership:** `Breeder.mainOwnerUserId` (+ optional `coOwners[]`). One User may operate **multiple** breeding operations. Not stored on `User.breederProfileId` (removed).
 
 **Profile details:**
 - Breeding operation details
@@ -322,7 +340,11 @@ There is no `Owner` model or `User.*ProfileId` for horses. A user operates horse
 
 ---
 
-### 4.10 Transport provider account
+### 4.10 Transport provider account (entity-owned)
+
+**Ownership:** `Transport.mainOwnerUserId` (+ optional `coOwners[]`). One User may operate **multiple** transport companies. Not stored on `User.*ProfileId`.
+
+**Baseline API (shipped):** `POST /api/v1/transports`, `PATCH /api/v1/transports/:id/discovery`, `GET /api/v1/transports/:id` — see [`equus/documentation/transports.md`](../equus/documentation/transports.md).
 
 Each transport company operates as a business account on the platform.
 
@@ -340,7 +362,7 @@ Each transport company operates as a business account on the platform.
 - Move events linked to horse history (origin, destination, dates)
 - Reviews from verified, horse-scoped transport relationships only
 
-**Operations:**
+**Operations (roadmap — not baseline):**
 - Transport booking requests and schedule management
 - Trip status updates and communication with owner/stable
 - Transport invoices and payment visibility
@@ -427,7 +449,10 @@ Users can find:
 ### Ratings and reviews
 
 - Ratings/reviews are tied to **verified horse-specific relationships only** (see Section 7 and Section 15.3)
-- Categories may vary by entity type:
+- **Bidirectional:** once parties share an accepted horse `Relationship`, either side may review the other in that same horse context (e.g. owner reviews stable, stable reviews horse, vet reviews stable, stable reviews vet — all scoped to the linking horse)
+- A **horse** never logs in; the horse owner (or co-owner) acts as operator when the horse is the reviewer or reviewee
+- **Entity reviewers** (stable, vet, transport, etc.) submit via an authorized operator on that profile (main owner, co-owner, or future staff permission)
+- Categories may vary by reviewee type:
   - Stable: communication, horse care, facilities, transparency, professionalism
   - Trainer: communication, horse care, results, professionalism
   - Vet: communication, care quality, availability, professionalism
@@ -459,24 +484,25 @@ Users can find:
 
 Live chat policy is defined in **Section 15**. Booking communication rules are in **Section 16**.
 
-### Reviews — verified and horse-scoped only
+### Reviews — verified, horse-scoped, bidirectional
 
-Reviews (ratings/comments of service quality) are **not open**. They require a verified relationship and are strictly scoped to the horse involved in that relationship.
+Reviews (ratings/comments of service quality) are **not open**. They require a verified relationship and are strictly scoped to the horse involved in that relationship. **Either party** connected by that relationship may review the other — direction is not limited to “owner reviews provider.”
 
 Rules:
 - Only accounts with a completed or ongoing verified relationship can leave a review
-- A review must be tied to a specific **horse + provider** relationship pair
+- A review must be tied to a specific **horse + relationship** pair (`horseId` + `relationshipId`)
+- **Reviewer and reviewee** are the two sides of that relationship (horse via owner operator, stable, vet, trainer, transport, etc.)
 - Reviews are structured (category ratings + optional text), not a free-for-all wall
-- Businesses can respond to reviews
+- Reviewees can respond to reviews received in their profile context
 - Disputes handled through platform policy (to be defined)
 
 Strict scoping example:
-- User owns Horse 1 (linked to Vet A) and Horse 2 (linked to Vet B)
-- A review from that user for Horse 1 is visible/valid only in the Horse 1 ↔ Vet A relationship context
-- A review for Horse 2 is visible/valid only in the Horse 2 ↔ Vet B relationship context
-- The user cannot apply a Horse 1 review to Vet B, or a Horse 2 review to Vet A
+- User owns Horse 1 (linked to Vet A and Stable S) and Horse 2 (linked to Vet B)
+- Owner may review Vet A **only** in Horse 1 ↔ Vet A context; Stable S may review Horse 1 **only** in Horse 1 ↔ Stable S context
+- Vet A may review Stable S **only** if Horse 1 has accepted relationships to both and the review is anchored to that horse context (same `relationshipId` horse scope — implementation may use the horse link as shared gate)
+- Reviews for Horse 1 cannot be shown or attributed to Horse 2 relationships
 
-This prevents cross-horse review contamination and keeps reputation data accurate.
+This prevents cross-horse review contamination while allowing fair two-way feedback between everyone who worked together on a horse.
 
 ### Privacy tiers
 
@@ -1244,16 +1270,20 @@ Examples:
 
 Access is governed by role, relationship, scope, and time rules defined in this plan.
 
-### 15.3 Reviews policy (strict relationship + horse scope)
+### 15.3 Reviews policy (strict relationship + horse scope, bidirectional)
 
-- Reviews/ratings are allowed only from verified relationships
-- Every review must be linked to a specific horse involved in that relationship
+- Reviews/ratings are allowed only from verified relationships (accepted or ended — permanent history)
+- Every review must be linked to a specific horse involved in that relationship (`horseId` + `relationshipId`)
+- **Either party** in the relationship may review the other in that horse context — not owner→provider only
+- Horse-side reviews use the **owner/co-owner** as operator; entity-side reviews use an authorized profile operator
 - No open anonymous review wall
 - No cross-horse review reuse
-- Businesses can respond to feedback in a structured way
+- Reviewees can respond to feedback in a structured way
 
-Example:
-- Owner with Horse 1 (Vet A) and Horse 2 (Vet B) can review Vet A only within Horse 1 context, and Vet B only within Horse 2 context
+Examples:
+- Owner with Horse 1 at Stable S: owner reviews Stable S; Stable S reviews Horse 1 (horse care, behavior, owner cooperation) — both in Horse 1 ↔ Stable S context
+- Vet A treats Horse 1 at Stable S: vet may review stable facilities; stable may review vet; owner may review vet — each tied to the same horse relationship gate
+- Owner with Horse 1 (Vet A) and Horse 2 (Vet B): reviews for Vet A only in Horse 1 context; reviews for Vet B only in Horse 2 context
 
 This keeps reputation systems useful, fair, and defensible.
 
@@ -1265,7 +1295,7 @@ Users should be able to:
 2. Understand profile quality and trust signals quickly
 3. Chat freely with other users in real time
 4. Request and accept horse relationships for operational collaboration
-5. Leave horse-scoped reviews only where a valid relationship exists
+5. Leave horse-scoped reviews only where a valid relationship exists (either direction)
 6. Access shared records and workflows after relationship acceptance
 
 ### 15.5 Business positioning summary

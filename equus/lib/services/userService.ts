@@ -39,6 +39,12 @@ export type PublicUserPreferences = {
   allowDirectMessagesFrom: (typeof userDirectMessageAudienceEnums)[number];
 };
 
+const DEFAULT_PUBLIC_USER_PREFERENCES: PublicUserPreferences = {
+  profileVisibility: "public",
+  searchable: true,
+  allowDirectMessagesFrom: "everyone",
+};
+
 /** Safe user shape returned by the API (password and tokens stripped). */
 export type PublicUser = {
   id: string;
@@ -84,12 +90,6 @@ function omitNullishFields(details: Record<string, unknown>): Record<string, unk
   }
   return details;
 }
-
-const DEFAULT_PUBLIC_USER_PREFERENCES: PublicUserPreferences = {
-  profileVisibility: "public",
-  searchable: true,
-  allowDirectMessagesFrom: "everyone",
-};
 
 function toPublicUserPreferences(doc: Record<string, unknown>): PublicUserPreferences {
   const preferences = (doc.preferences ?? {}) as Record<string, unknown>;
@@ -209,6 +209,7 @@ export async function createCredentialsUser(input: {
   const user = await User.create({
     authProvider: "credentials",
     personalDetails,
+    preferences: DEFAULT_PUBLIC_USER_PREFERENCES,
   });
 
   await linkInvitesByEmail(normalizedEmail, String(user._id));
@@ -269,6 +270,7 @@ export async function findOrCreateFromGoogle(profile: GoogleProfileInput) {
     googleSubjectId: profile.sub,
     emailVerified: profile.emailVerified,
     personalDetails,
+    preferences: DEFAULT_PUBLIC_USER_PREFERENCES,
   });
 
   await linkInvitesByEmail(normalizedEmail, String(user._id));

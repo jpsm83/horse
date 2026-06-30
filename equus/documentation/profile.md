@@ -5,6 +5,11 @@ How the authenticated user edits `personalDetails`, including loading UX, save f
 Related:
 - [`auth.md`](./auth.md) — REST session and `fetchCurrentUser`
 - [`i18n.md`](./i18n.md) — `preferredLanguage` and locale cookie sync
+- [`horses.md`](./horses.md) — horse discovery/contact visibility layer
+- [`stables.md`](./stables.md) — stable discovery visibility layer
+- [`breeders.md`](./breeders.md) — breeder discovery visibility layer
+- [`transports.md`](./transports.md) — transport discovery visibility layer
+- [`trainers.md`](./trainers.md) — trainer discovery visibility layer
 - [`../AGENTS.md`](../AGENTS.md) — web UI conventions (forms, toasts, loading)
 - [`../../documentation/userAndRoles.md`](../../documentation/userAndRoles.md) — `profileComplete` vs discovery visibility
 

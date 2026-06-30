@@ -2,7 +2,7 @@
  * Entity ownership helpers — mainOwnerUserId + coOwners[] on host entities.
  *
  * Used by navigationService, workplaceRelationshipService, businessRoleProfile,
- * and requireRoleProfileAccess. Breeder stays user-linked (`userId` on profile).
+ * and requireRoleProfileAccess.
  */
 
 import mongoose from "mongoose";
@@ -28,29 +28,20 @@ export function userOwnsEntity(userId: string, profile: Record<string, unknown>)
   return coOwners?.some((entry) => entry.userId != null && String(entry.userId) === userId) ?? false;
 }
 
-/** Main operator id for billing/display. Breeder uses userId on the profile document. */
+/** Main operator id for billing/display on entity-owned host profiles. */
 export function resolveMainOwnerUserId(
-  roleType: BusinessRoleType,
+  _roleType: BusinessRoleType,
   profile: Record<string, unknown>,
 ): string | null {
-  if (roleType === "breeder") {
-    const breederUserId = profile.userId;
-    return breederUserId != null ? String(breederUserId) : null;
-  }
-
   const mainOwnerUserId = profile.mainOwnerUserId;
   return mainOwnerUserId != null ? String(mainOwnerUserId) : null;
 }
 
 /** Whether the user has owner-level access (main or co-owner) on a host entity profile. */
 export function userHasOwnerAccess(
-  roleType: BusinessRoleType,
+  _roleType: BusinessRoleType,
   userId: string,
   profile: Record<string, unknown>,
 ): boolean {
-  if (roleType === "breeder") {
-    return profile.userId != null && String(profile.userId) === userId;
-  }
-
   return userOwnsEntity(userId, profile);
 }

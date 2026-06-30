@@ -299,8 +299,15 @@ models/
 
 ### User and roles
 
-- One `User` per email. **Entity-owned** roles (horses, stables, riding clubs, transport) link via `mainOwnerUserId` on the entity (plus optional `coOwners[]` on horse, stable, riding club) — not mirrored on `User`. **User-linked** roles (breeder, trainer, groom, vet, coach, rider, farrier) use `*ProfileId` on `User` plus `userId` on the role document. Ownership helpers: `lib/ownership/entityOwnership.ts`.
-- **Collaborators** at host role profiles (stable, breeder, riding club, transport) are **Users** linked via `WorkplaceRelationship` + host `collaborators[]` — see [`documentation/workplaceRelationship.md`](../documentation/workplaceRelationship.md). Never grant host ownership on `User` to collaborators. Barn staff may act on a hosted horse when active collaboration + accepted horse↔stable `Relationship` exist.
+- One `User` per email. **Entity-owned** roles (horses, stables, riding clubs, transport, breeders) link via `mainOwnerUserId` on the entity (plus optional `coOwners[]` on horse, stable, riding club, transport, breeder) — not mirrored on `User`. **User-linked** roles (trainer, groom, vet, coach, rider, farrier) use `*ProfileId` on `User` plus `userId` on the role document. Ownership helpers: `lib/ownership/entityOwnership.ts`.
+- **Collaborators** at host role profiles (stable, breeder, riding club, transport) are **Users** linked via `WorkplaceRelationship` + host `collaborators[]` (stable, breeder, transport) — see [`documentation/workplaceRelationship.md`](../documentation/workplaceRelationship.md). Never grant host ownership on `User` to collaborators. Barn staff may act on a hosted horse when active collaboration + accepted horse↔stable `Relationship` exist.
 - **Horse relationships** use `Relationship` (consent + lifecycle link documents, not bare refs on entities).
-- No `activeAccountContext`; no user-level `ownerPreferences`. Horse discovery is per-horse. See [`documentation/userAndRoles.md`](../documentation/userAndRoles.md).
-- **Horse discovery:** `profileVisibility` (default `public`) and `contactDisplay` on `Horse`; validated by `lib/validations/horse.ts` for future `PATCH /api/v1/horses/:id/discovery`.
+- **Visibility policy** is centralized in `lib/privacy/userVisibility.ts`; horse public cards combine horse discovery (`Horse.profileVisibility`, `Horse.contactDisplay`) with user privacy filters in `lib/services/horseService.ts`.
+- **Stable discovery:** `isPublic` (default `true`) and `acceptsNewHorses` on `Stable`; entity-level business contact; rules in `lib/stables/stableDiscoveryAccess.ts` and `lib/services/stableService.ts`.
+- **Transport discovery:** `isPublic` (default `true`) and `acceptsNewBookings` on `Transport`; entity-level business contact; rules in `lib/transports/transportDiscoveryAccess.ts` and `lib/services/transportService.ts`.
+- No `activeAccountContext`; no user-level `ownerPreferences`. Horse discovery is per-horse; stable and transport discovery are per-entity. See [`documentation/userAndRoles.md`](../documentation/userAndRoles.md).
+- **Horse API:** `POST /api/v1/horses`, `PATCH /api/v1/horses/:id/discovery`, `GET /api/v1/horses/:id` — see [`documentation/horses.md`](documentation/horses.md).
+- **Stable API:** `POST /api/v1/stables`, `PATCH /api/v1/stables/:id/discovery`, `GET /api/v1/stables/:id` — see [`documentation/stables.md`](documentation/stables.md).
+- **Breeder API:** `POST /api/v1/breeders`, `PATCH /api/v1/breeders/:id/discovery`, `GET /api/v1/breeders/:id` — see [`documentation/breeders.md`](documentation/breeders.md).
+- **Transport API:** `POST /api/v1/transports`, `PATCH /api/v1/transports/:id/discovery`, `GET /api/v1/transports/:id` — see [`documentation/transports.md`](documentation/transports.md).
+- **Trainer API:** `POST /api/v1/trainers`, `PATCH /api/v1/trainers/:id/discovery`, `GET /api/v1/trainers/:id` — see [`documentation/trainers.md`](documentation/trainers.md).

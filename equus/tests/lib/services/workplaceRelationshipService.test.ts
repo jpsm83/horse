@@ -7,7 +7,13 @@ import * as userService from "@/lib/services/userService.ts";
 import * as workplaceRelationshipService from "@/lib/services/workplaceRelationshipService.ts";
 import { canAccessRoleProfile } from "@/lib/auth/requireRoleProfileAccess.ts";
 import { canCollaboratorActOnHorse } from "@/lib/horseAccess/canCollaboratorActOnHorse.ts";
-import { createTestStable } from "@/tests/helpers/businessRoleFixtures.ts";
+import {
+  createTestBreeder,
+  createTestStable,
+  createTestTransport,
+} from "@/tests/helpers/businessRoleFixtures.ts";
+import Breeder from "@/models/Breeder.ts";
+import Transport from "@/models/Transport.ts";
 
 vi.mock("@/lib/email/sendStaffInviteEmail.ts", () => ({
   sendStaffInviteEmail: vi.fn().mockResolvedValue(undefined),
@@ -219,7 +225,10 @@ describe("workplaceRelationshipService", () => {
     await workplaceRelationshipService.acceptInvite(String(collaborator._id), invited.id);
 
     const collaboratorDoc = await User.findById(collaborator._id).lean();
-    expect(collaboratorDoc?.breederProfileId).toBeUndefined();
+    const ownedBreederCount = await Breeder.countDocuments({
+      mainOwnerUserId: collaboratorDoc?._id,
+    });
+    expect(ownedBreederCount).toBe(0);
   });
 
   it("allows co-owner to invite collaborator and lists owned workplace", async () => {
@@ -351,5 +360,106 @@ describe("canCollaboratorActOnHorse", () => {
       String(stable._id),
     );
     expect(allowed).toBe(false);
+  });
+
+  it("lists owned breeder workplaces via mainOwnerUserId", async () => {
+    const owner = await createOwner("breeder-workplace-owner@example.com");
+    const breeder = await createTestBreeder(owner._id, { operationName: "Valley Stud" });
+
+    const workplaces = await workplaceRelationshipService.listWorkplacesForUser(String(owner._id));
+
+    expect(workplaces).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          roleType: "breeder",
+          roleProfileId: String(breeder._id),
+          access: "owner",
+          profileName: "Valley Stud",
+        }),
+      ]),
+    );
+  });
+
+  it("allows co-owner to invite collaborator at breeder host profile", async () => {
+    const mainOwner = await createOwner("breeder-co-main@example.com");
+    const coOwner = await createOwner("breeder-co-partner@example.com");
+    const invitee = await createCollaborator("breeder-staff@example.com");
+    const breeder = await createTestBreeder(mainOwner._id, {
+      operationName: "Partner Stud",
+      coOwners: [{ userId: coOwner._id, ownershipPercentage: 50 }],
+    });
+
+    const invited = await workplaceRelationshipService.inviteCollaborator(
+      String(coOwner._id),
+      "breeder",
+      String(breeder._id),
+      inviteInput("breeder-staff@example.com", "staff"),
+    );
+
+    expect(invited.status).toBe("invited");
+    await workplaceRelationshipService.acceptInvite(String(invitee._id), invited.id);
+
+    const breederDoc = await Breeder.findById(breeder._id).lean();
+    expect(breederDoc?.collaborators?.map(String)).toContain(invited.id);
+  });
+
+  it("lists owned transport workplaces via mainOwnerUserId", async () => {
+    const owner = await createOwner("transport-workplace-owner@example.com");
+    const transport = await createTestTransport(owner._id, { companyName: "Haul Co" });
+
+    const workplaces = await workplaceRelationshipService.listWorkplacesForUser(String(owner._id));
+
+    expect(workplaces).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          roleType: "transport",
+          roleProfileId: String(transport._id),
+          access: "owner",
+          profileName: "Haul Co",
+        }),
+      ]),
+    );
+  });
+
+  it("allows main owner to invite collaborator at transport host profile", async () => {
+    const owner = await createOwner("transport-collab-owner@example.com");
+    const invitee = await createCollaborator("transport-dispatcher@example.com");
+    const transport = await createTestTransport(owner._id, { companyName: "Fleet Movers" });
+
+    const invited = await workplaceRelationshipService.inviteCollaborator(
+      String(owner._id),
+      "transport",
+      String(transport._id),
+      inviteInput("transport-dispatcher@example.com", "staff"),
+    );
+
+    expect(invited.status).toBe("invited");
+    await workplaceRelationshipService.acceptInvite(String(invitee._id), invited.id);
+
+    const transportDoc = await Transport.findById(transport._id).lean();
+    expect(transportDoc?.collaborators?.map(String)).toContain(invited.id);
+  });
+
+  it("allows co-owner to invite collaborator at transport host profile", async () => {
+    const mainOwner = await createOwner("transport-co-main@example.com");
+    const coOwner = await createOwner("transport-co-partner@example.com");
+    const invitee = await createCollaborator("transport-dispatcher@example.com");
+    const transport = await createTestTransport(mainOwner._id, {
+      companyName: "Partner Haulers",
+      coOwners: [{ userId: coOwner._id, ownershipPercentage: 50 }],
+    });
+
+    const invited = await workplaceRelationshipService.inviteCollaborator(
+      String(coOwner._id),
+      "transport",
+      String(transport._id),
+      inviteInput("transport-dispatcher@example.com", "staff"),
+    );
+
+    expect(invited.status).toBe("invited");
+    await workplaceRelationshipService.acceptInvite(String(invitee._id), invited.id);
+
+    const transportDoc = await Transport.findById(transport._id).lean();
+    expect(transportDoc?.collaborators?.map(String)).toContain(invited.id);
   });
 });
