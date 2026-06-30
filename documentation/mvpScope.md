@@ -39,7 +39,7 @@ Aligned with `stack.md`:
 
 ## Build goal (wedge)
 
-Become indispensable in daily horse operations for **owners, stables, and trainers** while working toward full **Stable** and **Veterinary** module parity (see `stableModule.md` and `businessPlan.md` Section 10.3).
+Become indispensable in daily horse operations for **owners, stables, and trainers** while working toward full **Horse**, **Stable**, and **Veterinary** module parity (see [`horseModule.md`](horseModule.md), [`stableModule.md`](stableModule.md), and `businessPlan.md` Section 10.3).
 
 Success means real operational usage, not vanity signups.
 
@@ -148,7 +148,7 @@ Target timeline: ~4–6 weeks after 1A pilot feedback.
 | Module | Spec / reference | Launch bar |
 |--------|------------------|------------|
 | **User** | `businessPlan.md` Section 10.1, `userAndRoles.md`, `workplaceRelationship.md` | Signup, login, personal profile, multi-role navigation, workplace invitations, multi-business relationships, permissions |
-| **Horse** | `businessPlan.md` Sections 4.1, 10.3 Horse module | Profile, ownership, timeline, documents, discovery, vaccination rules, location history |
+| **Horse** | [`horseModule.md`](horseModule.md), `businessPlan.md` Sections 4.1, 10.3 | Profile, ownership, timeline, documents, discovery, vaccination rules, location history |
 | **Veterinary** | `businessPlan.md` Section 10.3 Vet module | Treatment records, medication plans, vaccination calendar, visit scheduling, clinical attachments, owner-visible scope |
 | **Stable** | [`stableModule.md`](stableModule.md) | Full parity sections 1–9 (profile, roster, activity, team, facilities, feed, finance, communication, owner relationships) |
 
@@ -201,7 +201,7 @@ Required for **Phase 1 wedge pilots** but not listed in the production gate abov
 
 | Role | Phase 1A wedge | Production gate |
 |------|------------------|-----------------|
-| Horse owner | High | Required |
+| Horse owner | High | Required — [`horseModule.md`](horseModule.md) |
 | Stable | High | Required — `stableModule.md` |
 | Veterinary | Build toward launch | Required |
 | Trainer | High (wedge) | Parallel; not in gate |

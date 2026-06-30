@@ -311,3 +311,8 @@ models/
 - **Breeder API:** `POST /api/v1/breeders`, `PATCH /api/v1/breeders/:id/discovery`, `GET /api/v1/breeders/:id` — see [`documentation/breeders.md`](documentation/breeders.md).
 - **Transport API:** `POST /api/v1/transports`, `PATCH /api/v1/transports/:id/discovery`, `GET /api/v1/transports/:id` — see [`documentation/transports.md`](documentation/transports.md).
 - **Trainer API:** `POST /api/v1/trainers`, `PATCH /api/v1/trainers/:id/discovery`, `GET /api/v1/trainers/:id` — see [`documentation/trainers.md`](documentation/trainers.md).
+- **Groom API:** `POST /api/v1/grooms`, `PATCH /api/v1/grooms/:id/discovery`, `GET /api/v1/grooms/:id` — see [`documentation/grooms.md`](documentation/grooms.md).
+- **Coach API:** `POST /api/v1/coaches`, `PATCH /api/v1/coaches/:id/discovery`, `GET /api/v1/coaches/:id` — see [`documentation/coaches.md`](documentation/coaches.md).
+- **Farrier API:** `POST /api/v1/farriers`, `PATCH /api/v1/farriers/:id/discovery`, `GET /api/v1/farriers/:id` — see [`documentation/farriers.md`](documentation/farriers.md).
+- **Rider API:** `POST /api/v1/riders`, `PATCH /api/v1/riders/:id/discovery`, `GET /api/v1/riders/:id` — see [`documentation/riders.md`](documentation/riders.md).
+- **Veterinary API:** `POST /api/v1/veterinaries`, `PATCH /api/v1/veterinaries/:id/discovery`, `GET /api/v1/veterinaries/:id` — see [`documentation/veterinaries.md`](documentation/veterinaries.md).

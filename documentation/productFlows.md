@@ -14,7 +14,7 @@ Source:
 | Flow step | Backend |
 |-----------|---------|
 | Signup / login | Auth.js (web) or `POST /api/v1/auth/*` (mobile) |
-| Create horse / stable / transport / breeder / trainer | REST API + Zod validation + `lib/services` |
+| Create horse / stable / transport / breeder / trainer / groom / coach / farrier / rider / veterinary | REST API + Zod validation + `lib/services` |
 | Relationship request / invite | `Relationship` collection (`invitedEmail` when provider not registered) |
 | Accept / decline | `PATCH /api/v1/relationships/:id` |
 | Staff invite / accept | Stable collaboration (`WorkplaceRelationship`) — see [`workplaceRelationship.md`](workplaceRelationship.md) |

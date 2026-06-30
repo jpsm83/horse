@@ -199,7 +199,7 @@ Vet
 
 ### 4.1 Horse account
 
-Each horse is a first-class entity with its own profile.
+Each horse is a first-class entity with its own profile. Full operational scope is defined in [`horseModule.md`](horseModule.md) (profile, ownership, discovery, relationships, timeline, health, documents, subscription).
 
 **Profile details:**
 - Name, breed, age, sex, color, type/discipline
@@ -247,6 +247,7 @@ Each stable operates as a business on the platform.
 
 **Operations:**
 - Full operational scope is defined in [`stableModule.md`](stableModule.md) (activity planning, roster, feed, facilities, finance, team, owner transparency)
+- Horse-centric owner features (timeline, discovery, subscription) are defined in [`horseModule.md`](horseModule.md)
 - Stall assignments, feeding and training schedules, invoicing, and owner communication portal are in scope before public production launch
 
 ---
@@ -269,6 +270,8 @@ Each stable operates as a business on the platform.
 ---
 
 ### 4.4 Veterinarian account
+
+**Baseline discovery API (shipped):** `POST /api/v1/veterinaries`, discovery PATCH, and public card GET — see [`equus/documentation/veterinaries.md`](../equus/documentation/veterinaries.md). Full clinical module (treatment records, scheduling, attachments) remains in §10.3.
 
 **Profile details:**
 - Practice name, location, contact
@@ -556,7 +559,7 @@ This section defines how accounts are created and how each area gets dedicated f
 After signup, the same User may add **role profiles** — optional subsections of how they participate on the platform (stable they run, vet practice, trainer/rider profile, horses they own, etc.). Each role profile is its own document (`Stable`, `Veterinary`, `Trainer`, `Horse`, …) linked on the `User`. Navigating to “my stable” or “my horses” is routing within the **same login**, not account switching.
 
 Examples:
-- One user can be an **Owner** (via owned horses) and also a **Breeder**
+- One user can be an **Owner** (via owned horses) and also own a business **Breeder**
 - One user can be a **Trainer** and also represent a **Riding Club**
 - One user can manage multiple **Horse** profiles and multiple **Stable** role profiles
 
@@ -679,21 +682,7 @@ Outcome:
 
 #### Horse module (Horse as first-class entity)
 
-Primary purpose:
-- Keep the canonical horse record shared across authorized relationships
-
-Core features:
-- Master profile and identity
-- Ownership history and percentages
-- Health timeline and treatment history
-- Training timeline and performance history
-- Stable history (current and past)
-- Transport/move history (current and past)
-- Competition records
-- Documents and certifications
-
-Platform role:
-- Horse becomes the central object connecting all service modules
+Primary purpose and feature checklist: [`horseModule.md`](horseModule.md).
 
 #### Transport module (Transport <-> Horse <-> Owner/Stable)
 

@@ -56,7 +56,7 @@ Each role has its **own model** to complete. These are **subsections of the same
 **Create APIs:**
 
 - **Horse / stable / riding club / transport / breeder:** set `mainOwnerUserId` on the new entity (`POST /api/v1/horses`, `/stables`, `/transports`, `/breeders`); optional `coOwners[]` when partnership APIs ship. Do not write arrays on `User`.
-- **Trainer / vet / coach / groom / rider / farrier:** create the role document with `userId` and set the matching `*ProfileId` on `User` in the same transaction; reject if that `*ProfileId` is already set (`POST /api/v1/trainers` for trainer).
+- **Trainer / vet / coach / groom / rider / farrier:** create the role document with `userId` and set the matching `*ProfileId` on `User` in the same transaction; reject if that `*ProfileId` is already set (`POST /api/v1/trainers` for trainer, `POST /api/v1/grooms` for groom, `POST /api/v1/coaches` for coach, `POST /api/v1/farriers` for farrier, `POST /api/v1/riders` for rider, `POST /api/v1/veterinaries` for veterinary).
 
 Colloquially people say "stable account" or "vet account"; in the product that always means **User + role profile** (e.g. a `Stable` with `mainOwnerUserId`, or `User` with `veterinaryProfileId` pointing at their vet profile).
 
@@ -72,7 +72,7 @@ Role subsection screens use thin locale routes under `app/[locale]/` (see [`equu
 | `/my/stables`, … | Owned profile hub — auth required (placeholder) |
 | `/create/horse`, `/create/stable`, `/create/breeder`, … | Add a role subsection to the signed-in User (placeholder) |
 
-Create routes use singular folder segments for user-linked role profiles (`/create/trainer`, `/create/groom`, …) and short segments for entity-owned types (`/create/horse`, `/create/stable`, `/create/riding-club`, `/create/transport`). Minimal create APIs ship for **horse**, **stable**, **transport**, **breeder**, and **trainer** (`POST /api/v1/trainers`); web create flows remain placeholders.
+Create routes use singular folder segments for user-linked role profiles (`/create/trainer`, `/create/groom`, …) and short segments for entity-owned types (`/create/horse`, `/create/stable`, `/create/riding-club`, `/create/transport`). Minimal create APIs ship for **horse**, **stable**, **transport**, **breeder**, **trainer**, **groom**, **coach**, **farrier**, and **rider**; web create flows remain placeholders.
 
 ## Architecture — three diagrams
 
@@ -329,3 +329,133 @@ Business contact (`displayName`, `email`, `phoneNumber`) is stored on the `Train
 | `GET` | `/api/v1/trainers/:id` | Public trainer card (optional auth) |
 
 See [`equus/documentation/trainers.md`](../equus/documentation/trainers.md).
+
+## Groom discovery (per groom profile)
+
+Visibility and public contact are **per groom profile** (user-linked — one per User).
+
+### `Groom.isPublic`
+
+Boolean (default **`true`**). When `false`, hidden from anonymous discovery and unrelated signed-in users. Still visible to the profile owner (`Groom.userId`) and users with an accepted horse ↔ groom `Relationship`.
+
+Barn collaboration at a stable does **not** bypass non-public groom discovery — operational horse access uses stable hosting + `WorkplaceRelationship` instead.
+
+### `Groom.acceptsNewClients`
+
+Boolean (default **`true`**). Operational flag for whether the groom is accepting new clients (surfaced on public card).
+
+Business contact (`displayName`, `email`, `phoneNumber`) is stored on the `Groom` document — not routed through `User.preferences`.
+
+### Groom API
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/grooms` | Create groom (`userId` + `User.groomProfileId`; 409 if already set) |
+| `PATCH` | `/api/v1/grooms/:id/discovery` | Update `isPublic` / `acceptsNewClients` (profile owner) |
+| `GET` | `/api/v1/grooms/:id` | Public groom card (optional auth) |
+
+See [`equus/documentation/grooms.md`](../equus/documentation/grooms.md).
+
+## Veterinary discovery (per veterinary profile)
+
+Visibility and public contact are **per veterinary profile** (user-linked — one per User).
+
+### `Veterinary.isPublic`
+
+Boolean (default **`true`**). When `false`, hidden from anonymous discovery and unrelated signed-in users. Still visible to the profile owner (`Veterinary.userId`) and users with an accepted horse ↔ veterinary `Relationship`.
+
+Barn collaboration at a stable does **not** bypass non-public veterinary discovery — operational horse access uses stable hosting + `WorkplaceRelationship` or direct horse ↔ veterinary `Relationship` instead.
+
+### `Veterinary.acceptsNewPatients`
+
+Boolean (default **`true`**). Operational flag for whether the practice is accepting new patients (surfaced on public card).
+
+Business contact (`practiceName`, `email`, `phoneNumber`, `emergencyPhoneNumber`) is stored on the `Veterinary` document — not routed through `User.preferences`.
+
+### Veterinary API
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/veterinaries` | Create veterinary (`userId` + `User.veterinaryProfileId`; 409 if already set) |
+| `PATCH` | `/api/v1/veterinaries/:id/discovery` | Update `isPublic` / `acceptsNewPatients` (profile owner) |
+| `GET` | `/api/v1/veterinaries/:id` | Public veterinary card (optional auth) |
+
+See [`equus/documentation/veterinaries.md`](../equus/documentation/veterinaries.md).
+
+## Coach discovery (per coach profile)
+
+Visibility and public contact are **per coach profile** (user-linked — one per User).
+
+### `Coach.isPublic`
+
+Boolean (default **`true`**). When `false`, hidden from anonymous discovery and unrelated signed-in users. Still visible to the profile owner (`Coach.userId`) and users with an accepted horse ↔ coach `Relationship`.
+
+Barn collaboration at a stable does **not** bypass non-public coach discovery — operational horse access uses stable hosting + `WorkplaceRelationship` instead.
+
+### `Coach.acceptsNewClients`
+
+Boolean (default **`true`**). Operational flag for whether the coach is accepting new clients (surfaced on public card).
+
+Business contact (`displayName`, `email`, `phoneNumber`) is stored on the `Coach` document — not routed through `User.preferences`.
+
+### Coach API
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/coaches` | Create coach (`userId` + `User.coachProfileId`; 409 if already set) |
+| `PATCH` | `/api/v1/coaches/:id/discovery` | Update `isPublic` / `acceptsNewClients` (profile owner) |
+| `GET` | `/api/v1/coaches/:id` | Public coach card (optional auth) |
+
+See [`equus/documentation/coaches.md`](../equus/documentation/coaches.md).
+
+## Farrier discovery (per farrier profile)
+
+Visibility and public contact are **per farrier profile** (user-linked — one per User).
+
+### `Farrier.isPublic`
+
+Boolean (default **`true`**). When `false`, hidden from anonymous discovery and unrelated signed-in users. Still visible to the profile owner (`Farrier.userId`) and users with an accepted horse ↔ farrier `Relationship`.
+
+Barn collaboration at a stable does **not** bypass non-public farrier discovery — operational horse access uses stable hosting + `WorkplaceRelationship` instead.
+
+### `Farrier.acceptsNewClients`
+
+Boolean (default **`true`**). Operational flag for whether the farrier is accepting new clients (surfaced on public card).
+
+Business contact (`displayName`, `email`, `phoneNumber`) is stored on the `Farrier` document — not routed through `User.preferences`.
+
+### Farrier API
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/farriers` | Create farrier (`userId` + `User.farrierProfileId`; 409 if already set) |
+| `PATCH` | `/api/v1/farriers/:id/discovery` | Update `isPublic` / `acceptsNewClients` (profile owner) |
+| `GET` | `/api/v1/farriers/:id` | Public farrier card (optional auth) |
+
+See [`equus/documentation/farriers.md`](../equus/documentation/farriers.md).
+
+## Rider discovery (per rider profile)
+
+Visibility and public contact are **per rider profile** (user-linked — one per User).
+
+### `Rider.isPublic`
+
+Boolean (default **`true`**). When `false`, hidden from anonymous discovery and unrelated signed-in users. Still visible to the profile owner (`Rider.userId`) and users with an accepted horse ↔ rider `Relationship`.
+
+Barn collaboration at a stable does **not** bypass non-public rider discovery — operational horse access uses stable hosting + `WorkplaceRelationship` instead.
+
+### `Rider.acceptsNewClients`
+
+Boolean (default **`true`**). Operational flag for whether the rider is accepting new clients (surfaced on public card).
+
+Business contact (`displayName`, `email`, `phoneNumber`) is stored on the `Rider` document — not routed through `User.preferences`.
+
+### Rider API
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/riders` | Create rider (`userId` + `User.riderProfileId`; 409 if already set) |
+| `PATCH` | `/api/v1/riders/:id/discovery` | Update `isPublic` / `acceptsNewClients` (profile owner) |
+| `GET` | `/api/v1/riders/:id` | Public rider card (optional auth) |
+
+See [`equus/documentation/riders.md`](../equus/documentation/riders.md).

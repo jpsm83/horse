@@ -9,6 +9,7 @@ Living document for planning, updating, and tracking **stable-facing** capabilit
 - [`businessPlan.md`](businessPlan.md) — vision, monetization, competitive positioning (Section 20), relationship rules
 - [`mvpScope.md`](mvpScope.md) — build phases vs production launch gate
 - [`userAndRoles.md`](userAndRoles.md) — identity; [`workplaceRelationship.md`](workplaceRelationship.md) — stable collaboration (User ↔ role profile)
+- [`horseModule.md`](horseModule.md) — horse hub (owner view, discovery, timeline); complementary to stable roster sections here
 
 ---
 
@@ -191,6 +192,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | S-FIN-13 | Bookkeeping integrations (Yuki, Moneybird, Exact Online — target list) | Parity | planned |
 | S-FIN-14 | Owner expense dashboard: all stable invoices in one place | Beyond | planned |
 | S-FIN-15 | Partner referral commission on owner subscriptions (Section 19) | Beyond | planned |
+| S-FIN-16 | Advanced analytics: facility occupancy insight and revenue forecasting | Parity | planned |
 
 ---
 
@@ -244,20 +246,7 @@ Capabilities EquineM does **not** center on stable-as-tenant:
 
 ---
 
-## 11. Post-launch / later stable features
-
-Not required for initial production gate; track here when ready.
-
-| ID | Feature | Notes | Status |
-|----|---------|-------|--------|
-| S-LATE-01 | Stud farm and breeding (mare cards, semen — see `equinem.md`) | Breeder module overlap | planned |
-| S-LATE-02 | Branded webshop / order portal on stable website | EquineM studfarm feature | planned |
-| S-LATE-03 | Advanced analytics (occupancy, revenue forecasting) | | planned |
-| S-LATE-04 | Riding club and event management | Separate entity module | planned |
-
----
-
-## Production readiness (stable slice)
+## 11. Production readiness (stable slice)
 
 The stable module is **production-ready** when every feature marked **required for launch** in Sections 1–9 above is `done` and acceptance criteria pass.
 
@@ -266,6 +255,7 @@ Cross-module production gate (all must be ready together): see [`mvpScope.md`](m
 ### Stable launch acceptance (summary)
 
 - [ ] Stable can create profile, roster horses, and operate daily care/activity/feed/facility/finance workflows at EquineM parity
+- [ ] Advanced analytics (occupancy, revenue forecasting) available as part of stable financial/operations tooling (S-FIN-16)
 - [ ] Stable can invite/link owners; relationship accept flow completes in minutes
 - [ ] Owner sees only their horses' stable data on owner dashboard
 - [ ] Established relationships retain history and owner access after horse departs
@@ -279,6 +269,7 @@ Cross-module production gate (all must be ready together): see [`mvpScope.md`](m
 
 | Date | Change |
 |------|--------|
+| 2026-06-30 | Removed post-launch / out-of-scope section; analytics promoted to S-FIN-16 (required for stable) |
 | 2026-06-29 | Collaborators as Users; WorkplaceRelationship + Stable.collaborators; barn staff horse access rules |
 | 2026-06-29 | Staff policy: invite/accept; multi-stable employment |
 | 2026-06-29 | Initial specification from `equinem.md` parity + business plan stable module |

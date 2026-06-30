@@ -10,6 +10,11 @@ Related:
 - [`breeders.md`](./breeders.md) — breeder discovery visibility layer
 - [`transports.md`](./transports.md) — transport discovery visibility layer
 - [`trainers.md`](./trainers.md) — trainer discovery visibility layer
+- [`grooms.md`](./grooms.md) — groom discovery visibility layer
+- [`coaches.md`](./coaches.md) — coach discovery visibility layer
+- [`farriers.md`](./farriers.md) — farrier discovery visibility layer
+- [`riders.md`](./riders.md) — rider discovery visibility layer
+- [`veterinaries.md`](./veterinaries.md) — veterinary discovery visibility layer
 - [`../AGENTS.md`](../AGENTS.md) — web UI conventions (forms, toasts, loading)
 - [`../../documentation/userAndRoles.md`](../../documentation/userAndRoles.md) — `profileComplete` vs discovery visibility
 

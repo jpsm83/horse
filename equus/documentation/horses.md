@@ -4,6 +4,8 @@ Reference for minimal horse endpoints and discovery visibility behavior.
 
 Related:
 - [`../../documentation/userAndRoles.md`](../../documentation/userAndRoles.md)
+- [`../../documentation/horseModule.md`](../../documentation/horseModule.md) — full horse module spec (timeline, health, subscription, etc.)
+- [`../../documentation/stableModule.md`](../../documentation/stableModule.md) — barn operations on hosted horses
 - [`stables.md`](./stables.md)
 - [`breeders.md`](./breeders.md)
 - [`profile.md`](./profile.md)

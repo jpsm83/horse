@@ -12,6 +12,11 @@ import {
   createTestTransport,
 } from "@/tests/helpers/businessRoleFixtures.ts";
 import * as trainerService from "@/lib/services/trainerService.ts";
+import * as groomService from "@/lib/services/groomService.ts";
+import * as coachService from "@/lib/services/coachService.ts";
+import * as farrierService from "@/lib/services/farrierService.ts";
+import * as riderService from "@/lib/services/riderService.ts";
+import * as veterinaryService from "@/lib/services/veterinaryService.ts";
 
 async function createUser(email: string) {
   return userService.createCredentialsUser({
@@ -114,6 +119,92 @@ describe("navigationService", () => {
     const owned = await navigationService.getUserOwnedNavigation(String(user._id));
 
     expect(owned.trainers).toBe(true);
+    expect(owned.stables).toBe(false);
+  });
+
+  it("reflects groom after createGroom sets groomProfileId", async () => {
+    const user = await createUser("nav-groom-create@example.com");
+
+    await groomService.createGroom(String(user._id), {
+      displayName: "Nav Groom",
+      email: "nav-groom@example.com",
+    });
+
+    const owned = await navigationService.getUserOwnedNavigation(String(user._id));
+
+    expect(owned.groomers).toBe(true);
+    expect(owned.stables).toBe(false);
+  });
+
+  it("reflects coach after createCoach sets coachProfileId", async () => {
+    const user = await createUser("nav-coach-create@example.com");
+
+    await coachService.createCoach(String(user._id), {
+      displayName: "Nav Coach",
+      bio: "Navigation test coach",
+      email: "nav-coach@example.com",
+      phoneNumber: "+351977777777",
+      address: {
+        country: "Portugal",
+        city: "Lisbon",
+        street: "Main St",
+        postCode: "1000",
+      },
+    });
+
+    const owned = await navigationService.getUserOwnedNavigation(String(user._id));
+
+    expect(owned.coaches).toBe(true);
+    expect(owned.stables).toBe(false);
+  });
+
+  it("reflects farrier after createFarrier sets farrierProfileId", async () => {
+    const user = await createUser("nav-farrier-create@example.com");
+
+    await farrierService.createFarrier(String(user._id), {
+      displayName: "Nav Farrier",
+      email: "nav-farrier@example.com",
+    });
+
+    const owned = await navigationService.getUserOwnedNavigation(String(user._id));
+
+    expect(owned.farriers).toBe(true);
+    expect(owned.stables).toBe(false);
+  });
+
+  it("reflects rider after createRider sets riderProfileId", async () => {
+    const user = await createUser("nav-rider-create@example.com");
+
+    await riderService.createRider(String(user._id), {
+      displayName: "Nav Rider",
+      email: "nav-rider@example.com",
+    });
+
+    const owned = await navigationService.getUserOwnedNavigation(String(user._id));
+
+    expect(owned.riders).toBe(true);
+    expect(owned.stables).toBe(false);
+  });
+
+  it("reflects veterinaries after createVeterinary sets veterinaryProfileId", async () => {
+    const user = await createUser("nav-vet-create@example.com");
+
+    await veterinaryService.createVeterinary(String(user._id), {
+      practiceName: "Nav Vet Practice",
+      description: "Navigation test veterinary",
+      email: "nav-vet@example.com",
+      phoneNumber: "+351912345678",
+      address: {
+        country: "Portugal",
+        city: "Lisbon",
+        street: "Main St",
+        postCode: "1000",
+      },
+    });
+
+    const owned = await navigationService.getUserOwnedNavigation(String(user._id));
+
+    expect(owned.veterinaries).toBe(true);
     expect(owned.stables).toBe(false);
   });
 
