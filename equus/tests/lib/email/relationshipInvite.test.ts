@@ -8,7 +8,7 @@ describe("relationshipInvite template", () => {
     relationshipType: "veterinary",
     requesterLabel: "Dr. Smith",
     referralReference: "REF-12345",
-    signupUrl: "https://app.test/signup?ref=REF-12345",
+    acceptUrl: "https://app.test/signup?ref=REF-12345",
   };
 
   it("builds vet-added-horse variant with referral reference", () => {
@@ -20,7 +20,7 @@ describe("relationshipInvite template", () => {
     expect(subject).toContain("Dr. Smith");
     expect(subject).toContain("Thunder");
     expect(html).toContain("REF-12345");
-    expect(html).toContain(baseInput.signupUrl);
+    expect(html).toContain(baseInput.acceptUrl);
     expect(text).toContain("Your vet Dr. Smith");
   });
 
@@ -32,5 +32,32 @@ describe("relationshipInvite template", () => {
 
     expect(subject).toContain("vet");
     expect(html).toContain("connect as their vet");
+  });
+
+  it("builds owner-invites-provider variant for new users", () => {
+    const { subject, html } = relationshipInviteTemplate({
+      ...baseInput,
+      variant: "ownerInvitesProvider",
+      isExistingUser: false,
+    });
+
+    expect(subject).toContain("Dr. Smith");
+    expect(html).toContain("REF-12345");
+    expect(html).toContain("Create your account");
+  });
+
+  it("builds owner-invites-provider variant for existing users", () => {
+    const acceptUrl = "https://app.test/relationships?relationship=abc123";
+    const { subject, html } = relationshipInviteTemplate({
+      ...baseInput,
+      acceptUrl,
+      variant: "ownerInvitesProvider",
+      isExistingUser: true,
+    });
+
+    expect(subject).toContain("Thunder");
+    expect(html).toContain(acceptUrl);
+    expect(html).toContain("Sign in to accept");
+    expect(html).not.toContain("REF-12345");
   });
 });

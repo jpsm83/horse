@@ -1,5 +1,12 @@
-import { MyPlaceholderPage } from "@/components/layout/my-placeholder-page.tsx";
+import { Suspense } from "react";
 
-export default function CreateHorsePage() {
-  return <MyPlaceholderPage entity="horses" mode="create" />;
+import { CreateHorsePage } from "@/components/horses/create-horse-page.tsx";
+import { CreateHorsePageSkeleton } from "@/components/horses/create-horse-page-skeleton.tsx";
+
+export default function Page() {
+  return (
+    <Suspense fallback={<CreateHorsePageSkeleton />}>
+      <CreateHorsePage />
+    </Suspense>
+  );
 }

@@ -217,6 +217,55 @@
     "signup": {
       "staffBanner": "Fue invitado a un lugar de trabajo en Equus. Regístrese con el email invitado.",
       "relationshipBanner": "Fue invitado a una relación con caballo en Equus. Regístrese con el email invitado."
+    },
+    "horseProviders": {
+      "searchPlaceholder": "Buscar e invitar…",
+      "filterPlaceholder": "Filtrar por nombre o ciudad…",
+      "searching": "Buscando…",
+      "noResults": "No se encontraron proveedores.",
+      "invited": "Invitación enviada.",
+      "pending": "Invitación pendiente",
+      "emailFallbackToggle": "¿No está en Equus? Invitar por email",
+      "emailLabel": "Email",
+      "nameLabel": "Nombre (opcional)",
+      "sendEmailInvite": "Enviar invitación por email",
+      "entityOwnedHint": "Este proveedor debe tener un perfil en Equus antes de poder invitarlo.",
+      "groups": {
+        "hosting": {
+          "title": "Alojamiento y logística",
+          "description": "Cuadras, transporte, clubes ecuestres y criadores vinculados a este caballo."
+        },
+        "care": {
+          "title": "Salud y cuidado",
+          "description": "Servicios veterinarios, de limpieza y herraje para este caballo."
+        },
+        "training": {
+          "title": "Entrenamiento y equitación",
+          "description": "Entrenadores, coaches y jinetes conectados a este caballo."
+        }
+      },
+      "types": {
+        "stable": "Cuadra",
+        "stableHint": "Invite una cuadra para alojar o cuidar este caballo.",
+        "transport": "Transporte",
+        "transportHint": "Invite una empresa de transporte para este caballo.",
+        "ridingClub": "Club ecuestre",
+        "ridingClubHint": "Invite un club ecuestre vinculado a este caballo.",
+        "breeder": "Criador",
+        "breederHint": "Invite una operación de cría para este caballo.",
+        "veterinary": "Veterinario",
+        "veterinaryHint": "Invite una clínica veterinaria para este caballo.",
+        "groom": "Limpieza",
+        "groomHint": "Invite un groom para cuidado directo en casa (no personal de cuadra).",
+        "farrier": "Herrador",
+        "farrierHint": "Invite un herrador para este caballo.",
+        "trainer": "Entrenador",
+        "trainerHint": "Invite un entrenador para este caballo.",
+        "coach": "Coach",
+        "coachHint": "Invite un coach para este caballo.",
+        "rider": "Jinete",
+        "riderHint": "Invite un perfil de jinete vinculado a este caballo."
+      }
     }
   },
   "validation": {
@@ -261,7 +310,6 @@
     "idType": "Tipo de documento",
     "idNumber": "Número de documento",
     "profileVisibility": "Visibilidad del perfil",
-    "searchable": "Aparición en búsquedas",
     "allowDirectMessagesFrom": "Mensajes directos de",
     "country": "País",
     "state": "Estado / provincia",
@@ -313,15 +361,89 @@
       "relationshipsOnly": "Solo relaciones/colaboraciones aceptadas",
       "private": "Privado"
     },
-    "searchableOptions": {
-      "visible": "Mostrar en búsquedas y sugerencias",
-      "hidden": "Ocultar de búsquedas y sugerencias"
-    },
     "directMessageAudienceOptions": {
       "everyone": "Todos",
       "relationships": "Solo relaciones/colaboraciones aceptadas",
       "nobody": "Nadie"
     }
+  },
+  "createHorse": {
+    "title": "Añadir un caballo",
+    "description": "Añada un caballo a su cuenta y empiece a gestionar registros, cuidados y visibilidad.",
+    "submit": "Crear caballo",
+    "submitting": "Creando…",
+    "success": "Caballo creado.",
+    "saveFailed": "No se pudo crear el caballo",
+    "selectPlaceholder": "Seleccionar…",
+    "required": "Este campo es obligatorio",
+    "invalidDate": "Introduzca una fecha válida",
+    "invalidEnum": "Seleccione una opción válida",
+    "contactNameRequired": "El nombre de contacto es obligatorio si no usa el contacto del propietario",
+    "contactPhoneRequired": "El teléfono de contacto es obligatorio si no usa el contacto del propietario",
+    "contactEmailRequired": "El email de contacto es obligatorio si no usa el contacto del propietario",
+    "contactEmailInvalid": "Introduzca un email válido",
+    "sections": {
+      "identity": "Identidad del caballo",
+      "discovery": "Descubrimiento y contacto"
+    },
+    "name": "Nombre",
+    "breed": "Raza",
+    "sex": "Sexo",
+    "dateOfBirth": "Fecha de nacimiento",
+    "color": "Color",
+    "primaryDiscipline": "Disciplina principal",
+    "profileVisibility": "Visibilidad del perfil",
+    "useOwnerContact": "Contacto público",
+    "contactName": "Nombre de contacto",
+    "contactPhone": "Teléfono de contacto",
+    "contactEmail": "Email de contacto",
+    "useOwnerContactOptions": {
+      "true": "Usar mis datos de contacto como propietario",
+      "false": "Usar un contacto distinto para este caballo"
+    },
+    "visibilityOptions": {
+      "public": "Público — visible para todos",
+      "relationship": "Solo relaciones — enlaces con proveedores aceptados",
+      "owner_only": "Solo propietario — oculto del descubrimiento"
+    },
+    "sexOptions": {
+      "Stallion": "Semental",
+      "Mare": "Yegua",
+      "Gelding": "Castrado",
+      "Colt": "Potro",
+      "Filly": "Potra",
+      "Other": "Otro"
+    },
+    "colorOptions": {
+      "Bay": "Bayo",
+      "Chestnut": "Alazán",
+      "Black": "Negro",
+      "Grey": "Tordo",
+      "Palomino": "Palomino",
+      "Roan": "Ruano",
+      "Pinto": "Pinto",
+      "Appaloosa": "Appaloosa",
+      "Other": "Otro"
+    },
+    "disciplineOptions": {
+      "Jumping": "Salto",
+      "Dressage": "Doma",
+      "Eventing": "Concurso completo",
+      "Racing": "Carreras",
+      "Breeding": "Cría",
+      "Rehabilitation": "Rehabilitación",
+      "Leisure": "Ocio",
+      "Western": "Western",
+      "Endurance": "Resistencia",
+      "Driving": "Enganche",
+      "Other": "Otro"
+    }
+  },
+  "horseHub": {
+    "backToHorses": "Volver a mis caballos",
+    "subtitle": "Gestionar este caballo",
+    "connectTitle": "Conectar proveedores",
+    "connectDescription": "Invite cuadras, veterinarios, entrenadores y otros proveedores. Ellos aceptan o rechazan — los proveedores nunca envían solicitudes a su caballo."
   },
   "errors": {
     "EMAIL_NOT_VERIFIED": "Verifique su email antes de iniciar sesión.",

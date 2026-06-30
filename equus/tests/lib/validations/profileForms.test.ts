@@ -54,15 +54,6 @@ describe("profileFormSchema", () => {
     ).toThrow();
   });
 
-  it("rejects invalid searchable value", () => {
-    expect(() =>
-      profileFormSchema.parse({
-        ...emptyProfileFormValues,
-        searchable: "yes",
-      }),
-    ).toThrow();
-  });
-
   it("rejects invalid birth date", () => {
     expect(() =>
       profileFormSchema.parse({

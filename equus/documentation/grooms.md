@@ -3,7 +3,7 @@
 Reference for minimal groom endpoints and discovery visibility behavior.
 
 Related:
-- [`../../documentation/userAndRoles.md`](../../documentation/userAndRoles.md) — barn collaboration vs direct horse ↔ groom `Relationship`
+- [`../../documentation/userModule.md`](../../documentation/userModule.md) — barn collaboration vs direct horse ↔ groom `Relationship`
 - [`../../documentation/workplaceRelationship.md`](../../documentation/workplaceRelationship.md) — groom as stable collaborator
 - [`horses.md`](./horses.md)
 - [`profile.md`](./profile.md)

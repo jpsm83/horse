@@ -3,7 +3,7 @@
 Reference for minimal veterinary endpoints and discovery visibility behavior.
 
 Related:
-- [`../../documentation/userAndRoles.md`](../../documentation/userAndRoles.md) — direct horse link vs barn collaborator paths
+- [`../../documentation/userModule.md`](../../documentation/userModule.md) — direct horse link vs barn collaborator paths
 - [`../../documentation/workplaceRelationship.md`](../../documentation/workplaceRelationship.md) — vet at stable (operational) vs direct horse link
 - [`horses.md`](./horses.md)
 - [`profile.md`](./profile.md)

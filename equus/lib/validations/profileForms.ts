@@ -85,9 +85,6 @@ export function createProfileFormSchemas(messages: ProfileFormMessages) {
     profileVisibility: z.enum(userProfileVisibilityEnums, {
       message: messages.invalidEnum,
     }),
-    searchable: z.enum(["true", "false"], {
-      message: messages.invalidEnum,
-    }),
     allowDirectMessagesFrom: z.enum(userDirectMessageAudienceEnums, {
       message: messages.invalidEnum,
     }),
@@ -128,7 +125,6 @@ export const emptyProfileFormValues: ProfileFormValues = {
   idType: "",
   idNumber: "",
   profileVisibility: "public",
-  searchable: "true",
   allowDirectMessagesFrom: "everyone",
   address: {
     country: "",

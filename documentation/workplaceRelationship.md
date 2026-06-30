@@ -3,7 +3,7 @@
 Canonical product model for how one **User** collaborates at a **role profile** owned by another User — e.g. a groom helping at someone else's **stable profile**.
 
 Related:
-- [`userAndRoles.md`](userAndRoles.md) — one login, role profiles on User, horse relationships
+- [`userModule.md`](userModule.md) — one login, role profiles on User, horse relationships
 - [`productFlows.md`](productFlows.md) — Flow 7 (collaborator at a stable profile)
 - [`stableModule.md`](stableModule.md) — team management features
 
@@ -193,8 +193,9 @@ Activities/jobs assigned within permissions on that collaboration
 | | Horse relationship | Stable collaboration |
 |---|-------------------|------------------------|
 | Parties | Horse ↔ provider role profile | **User** ↔ host **role profile** (e.g. Stable) |
-| Who initiates | Horse owner, stable, vet, trainer, … | **Profile owner** or admin on that profile |
-| Who decides | Receiving party | **Invited User** only |
+| Who initiates | **Horse owner only** (horse `Relationship`) | **Host profile owner** or admin (`Stable`, `RidingClub`, `Breeder`, `Transport`) — **services only** |
+| Who decides | Provider accepts or declines | **Invited User** only |
+| Service profiles | **Never initiate** — inbox only | N/A |
 | After accept | Shared horse operational data (barn collaboration path or direct link) | Barn permissions + job assignment |
 | User unchanged | N/A | Same login, same own role profiles |
 

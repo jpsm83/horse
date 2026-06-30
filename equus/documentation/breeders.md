@@ -3,7 +3,7 @@
 Reference for minimal breeder endpoints and discovery visibility behavior.
 
 Related:
-- [`../../documentation/userAndRoles.md`](../../documentation/userAndRoles.md)
+- [`../../documentation/userModule.md`](../../documentation/userModule.md)
 - [`horses.md`](./horses.md)
 - [`stables.md`](./stables.md)
 - [`profile.md`](./profile.md)
@@ -27,12 +27,6 @@ A single User may create **multiple** breeder entities (unlike user-linked roles
 - `Breeder.isPublic` (default `true`) controls anonymous discovery.
 - When `isPublic: false`, visible only to owner/co-owner, active collaborators at the breeder, or users with an accepted horse ↔ breeder `Relationship`.
 - Business contact (`operationName`, `email`, `phoneNumber`) lives on the **entity** — not filtered through `User.preferences`.
-
----
-
-## Migration note
-
-Legacy data used `Breeder.userId` + `User.breederProfileId`. Run `npm run migrate:breeder-entity-owned` (with `--dry-run` first) before deploying this schema to a database with existing breeders.
 
 ---
 

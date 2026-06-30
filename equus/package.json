@@ -9,9 +9,7 @@
     "lint": "eslint",
     "ui:sync": "shadcn add alert avatar button card dropdown-menu field input label separator sheet sidebar skeleton tooltip textarea select sonner --overwrite --yes",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "migrate:host-owner-field": "tsx scripts/rename-host-entity-owner-field.ts",
-    "migrate:breeder-entity-owned": "tsx scripts/migrate-breeder-entity-owned.ts"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -21,6 +19,7 @@
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.10.0",
     "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
     "country-flag-icons": "^1.6.19",
     "jose": "^6.2.3",
     "leaflet": "^1.9.4",
@@ -56,7 +55,6 @@
     "eslint-config-next": "16.2.9",
     "mongodb-memory-server": "^11.2.0",
     "tailwindcss": "^4",
-    "tsx": "^4.21.0",
     "typescript": "^5",
     "vitest": "^4.1.9"
   }

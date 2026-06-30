@@ -305,7 +305,7 @@ models/
 - **Visibility policy** is centralized in `lib/privacy/userVisibility.ts`; horse public cards combine horse discovery (`Horse.profileVisibility`, `Horse.contactDisplay`) with user privacy filters in `lib/services/horseService.ts`.
 - **Stable discovery:** `isPublic` (default `true`) and `acceptsNewHorses` on `Stable`; entity-level business contact; rules in `lib/stables/stableDiscoveryAccess.ts` and `lib/services/stableService.ts`.
 - **Transport discovery:** `isPublic` (default `true`) and `acceptsNewBookings` on `Transport`; entity-level business contact; rules in `lib/transports/transportDiscoveryAccess.ts` and `lib/services/transportService.ts`.
-- No `activeAccountContext`; no user-level `ownerPreferences`. Horse discovery is per-horse; stable and transport discovery are per-entity. See [`documentation/userAndRoles.md`](../documentation/userAndRoles.md).
+- No `activeAccountContext`; no user-level `ownerPreferences`. Horse discovery is per-horse; stable and transport discovery are per-entity. See [`documentation/userModule.md`](../documentation/userModule.md).
 - **Horse API:** `POST /api/v1/horses`, `PATCH /api/v1/horses/:id/discovery`, `GET /api/v1/horses/:id` — see [`documentation/horses.md`](documentation/horses.md).
 - **Stable API:** `POST /api/v1/stables`, `PATCH /api/v1/stables/:id/discovery`, `GET /api/v1/stables/:id` — see [`documentation/stables.md`](documentation/stables.md).
 - **Breeder API:** `POST /api/v1/breeders`, `PATCH /api/v1/breeders/:id/discovery`, `GET /api/v1/breeders/:id` — see [`documentation/breeders.md`](documentation/breeders.md).

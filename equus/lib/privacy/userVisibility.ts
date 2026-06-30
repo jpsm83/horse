@@ -31,7 +31,6 @@ export type RequesterVisibilityContext = {
 
 const DEFAULT_PREFERENCES: PublicUserPreferences = {
   profileVisibility: "public",
-  searchable: true,
   allowDirectMessagesFrom: "everyone",
 };
 
@@ -40,7 +39,6 @@ function withDefaults(
 ): PublicUserPreferences {
   return {
     profileVisibility: preferences?.profileVisibility ?? DEFAULT_PREFERENCES.profileVisibility,
-    searchable: preferences?.searchable ?? DEFAULT_PREFERENCES.searchable,
     allowDirectMessagesFrom:
       preferences?.allowDirectMessagesFrom ??
       DEFAULT_PREFERENCES.allowDirectMessagesFrom,
@@ -85,12 +83,6 @@ export function canExposeUserIdentity(
     default:
       return true;
   }
-}
-
-export function isUserSearchable(
-  preferences: Partial<PublicUserPreferences> | null | undefined,
-): boolean {
-  return withDefaults(preferences).searchable !== false;
 }
 
 export function canStartDirectMessage(

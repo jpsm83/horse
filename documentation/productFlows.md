@@ -15,9 +15,9 @@ Source:
 |-----------|---------|
 | Signup / login | Auth.js (web) or `POST /api/v1/auth/*` (mobile) |
 | Create horse / stable / transport / breeder / trainer / groom / coach / farrier / rider / veterinary | REST API + Zod validation + `lib/services` |
-| Relationship request / invite | `Relationship` collection (`invitedEmail` when provider not registered) |
-| Accept / decline | `PATCH /api/v1/relationships/:id` |
-| Staff invite / accept | Stable collaboration (`WorkplaceRelationship`) — see [`workplaceRelationship.md`](workplaceRelationship.md) |
+| Relationship invite (horse) | `POST /api/v1/relationships` — **horse owner only** initiates |
+| Relationship accept / decline | `PATCH /api/v1/relationships/:id` — provider accepts or declines |
+| Staff invite / accept | Host entity (`Stable`, `RidingClub`, `Breeder`, `Transport`) invites **service Users** only — see [`workplaceRelationship.md`](workplaceRelationship.md) |
 | Chat | REST messages (1A); Socket.io when realtime ships |
 | Uploads | Cloudinary via API route |
 | Reviews | `Rating` tied to `relationshipId` + `horseId`; bidirectional between relationship parties |
@@ -38,7 +38,8 @@ Provider links (vet, stable, trainer, etc.) are **not** stored on `Horse` direct
 8. **Collaborators are Users** — profile owner invites a User to collaborate at a **role profile** (e.g. stable) via `WorkplaceRelationship`; may collaborate at multiple profiles
 9. **Reviews are horse-scoped** and only allowed on verified established horse ↔ provider relationships
 10. **Invitations include referral reference number** — first reference used at owner signup wins attribution
-11. **Horse discovery is per horse** — `profileVisibility` and `contactDisplay` on each `Horse`; user profile exposure is controlled by `User.preferences` (see [`userAndRoles.md`](userAndRoles.md))
+11. **Horse discovery is per horse** — `profileVisibility` and `contactDisplay` on each `Horse`; user profile exposure is controlled by `User.preferences` (see [`userModule.md`](userModule.md))
+12. **Invitation policy (anti-spam)** — see [`userModule.md`](userModule.md) §6: horse owners invite any provider type; host entities invite services only; services never initiate
 
 ---
 
@@ -57,20 +58,22 @@ Sign up (email/password or auth provider)
 ### 1.2 Connect stable
 
 ```
-Owner opens horse profile
+Owner opens horse profile (after offline agreement if needed)
   → Search stable in platform
-      → If found: send relationship request (horse ↔ stable)
+      → If found: owner sends invitation (horse ↔ stable)
       → If not found: add stable name + email → pending `Relationship` + invitation email with reference code
-  → Stable receives notification
+  → Stable operator receives notification
   → Stable accepts or declines (may resend after owner/stable chat if declined by mistake)
   → If accepted: permanent horse ↔ stable relationship; shared ops unlock; owner sees only their horse data
 ```
 
-### 1.3 Connect trainer
+**Only the horse owner initiates** horse hosting invites — stables do not request horses on the platform.
 
-Same pattern as stable:
-- Search trainer → request
-- Or invite by email with reference code
+### 1.3 Connect trainer, vet, groom, and other providers
+
+Same pattern as stable — **owner invites** from the horse hub:
+- Search provider → send invitation
+- Or invite by email with reference code (user-linked types)
 
 ### 1.4 Daily owner usage
 
@@ -107,21 +110,17 @@ Sign up
   → Configure availability/services (basic)
 ```
 
-### 2.2 Add horses
+### 2.2 Hosted horses
 
-**Path A — horse exists**
+Horses appear on the stable roster only after the **horse owner** sends and the stable **accepts** a horse ↔ stable `Relationship`. The stable does not initiate horse hosting invites.
+
 ```
-Search horse
-  → Send relationship request to horse owner
-  → Owner accepts/declines
+Horse owner invites stable from horse profile
+  → Stable operator accepts or declines
+  → If accepted: horse on stable roster; shared ops unlock for that horse
 ```
 
-**Path B — horse not on platform**
-```
-Add horse basics + owner email
-  → Invitation sent to owner (with reference code)
-  → Owner signs up and accepts relationship
-```
+If the horse or owner is not on the platform, the **horse owner** (or their delegate) adds the horse and invites the stable — not the reverse.
 
 ### 2.3 Operations
 
@@ -136,7 +135,7 @@ Stable dashboard
 
 ### 2.4 Stable collaboration invitation
 
-Collaborators are **never owned by a stable profile**. Every groom, rider, or manager is a **User** (same signup as everyone). The **profile owner** (User who owns the `Stable` role profile) sends a **collaboration invitation**; the invited User accepts or declines.
+Collaborators are **never owned by a stable profile**. Every groom, rider, or manager is a **User** (same signup as everyone). The **profile owner** (User who owns the `Stable` role profile) or admin sends a **collaboration invitation** to **service Users** (trainer, vet, groom, farrier, coach, rider) — not to horses or other host entities.
 
 See [`workplaceRelationship.md`](workplaceRelationship.md) for barn staff access on hosted horses.
 
@@ -227,22 +226,22 @@ Baseline today: company create + discovery visibility (`isPublic`, `acceptsNewBo
 
 ---
 
-## Flow 6 — Relationship request (generic)
+## Flow 6 — Horse relationship invitation
 
-Applies to all provider ↔ horse ↔ owner combinations.
+Applies when a **horse owner** links a horse to any provider profile (stable, vet, trainer, groom, transport, etc.).
 
 ```
-Requester initiates link
-  → Receiver notification (push + email)
-  → Receiver accepts OR declines
-  → Accepted: permanent `Relationship` record + operational permissions (direct provider or barn collaboration path)
-  → Declined: requester notified, no operational data; may send again
+Horse owner initiates invite (after offline agreement if needed)
+  → Provider notification (push + email)
+  → Provider accepts OR declines — providers never initiate horse links
+  → Accepted: permanent `Relationship` record + operational permissions
+  → Declined: owner may send again after chat; no operational data
 ```
 
 ### If invitee is not registered
 
 ```
-Requester enters minimal profile data + email
+Owner enters minimal profile data + email
   → Create pending Relationship (invitedName, invitedEmail, referralReference)
   → Invitation email with referral reference
   → Invitee signs up
@@ -267,7 +266,7 @@ User signs up or already has account (may also own horses, vet profile, trainer/
   → Same User may accept invites at other stable profiles
 ```
 
-Permissions live on the **WorkplaceRelationship**, not on the User — see `userAndRoles.md` and `workplaceRelationship.md`.
+Permissions live on the **WorkplaceRelationship**, not on the User — see `userModule.md` and `workplaceRelationship.md`.
 
 ### Barn staff examples
 

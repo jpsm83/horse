@@ -68,7 +68,6 @@ describe("userService", () => {
     expect(publicUser.personalDetails.password).toBeUndefined();
     expect(publicUser.preferences).toEqual({
       profileVisibility: "public",
-      searchable: true,
       allowDirectMessagesFrom: "everyone",
     });
     expect(publicUser.hasPassword).toBe(true);
@@ -119,14 +118,12 @@ describe("userService", () => {
     const updated = await userService.updatePersonalDetails(String(created._id), {
       preferences: {
         profileVisibility: "relationships",
-        searchable: false,
         allowDirectMessagesFrom: "relationships",
       },
     });
 
     expect(updated?.preferences).toEqual({
       profileVisibility: "relationships",
-      searchable: false,
       allowDirectMessagesFrom: "relationships",
     });
   });

@@ -3,7 +3,7 @@
 Reference for minimal trainer endpoints and discovery visibility behavior.
 
 Related:
-- [`../../documentation/userAndRoles.md`](../../documentation/userAndRoles.md)
+- [`../../documentation/userModule.md`](../../documentation/userModule.md)
 - [`horses.md`](./horses.md)
 - [`profile.md`](./profile.md)
 

@@ -3,7 +3,7 @@
 Reference for minimal transport company endpoints and discovery visibility behavior.
 
 Related:
-- [`../../documentation/userAndRoles.md`](../../documentation/userAndRoles.md)
+- [`../../documentation/userModule.md`](../../documentation/userModule.md)
 - [`horses.md`](./horses.md)
 - [`stables.md`](./stables.md)
 - [`profile.md`](./profile.md)

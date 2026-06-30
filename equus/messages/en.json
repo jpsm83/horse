@@ -217,6 +217,55 @@
     "signup": {
       "staffBanner": "You were invited to join a workplace on Equus. Sign up with the invited email address.",
       "relationshipBanner": "You were invited to a horse relationship on Equus. Sign up with the invited email address."
+    },
+    "horseProviders": {
+      "searchPlaceholder": "Search and invite…",
+      "filterPlaceholder": "Filter by name or city…",
+      "searching": "Searching…",
+      "noResults": "No providers found.",
+      "invited": "Invitation sent.",
+      "pending": "Invitation pending",
+      "emailFallbackToggle": "Not on Equus? Invite by email",
+      "emailLabel": "Email",
+      "nameLabel": "Name (optional)",
+      "sendEmailInvite": "Send email invitation",
+      "entityOwnedHint": "This provider must have a listing on Equus before you can invite them.",
+      "groups": {
+        "hosting": {
+          "title": "Hosting & logistics",
+          "description": "Stables, transport, riding clubs, and breeders linked to this horse."
+        },
+        "care": {
+          "title": "Health & care",
+          "description": "Veterinary, grooming, and farrier services for this horse."
+        },
+        "training": {
+          "title": "Training & riding",
+          "description": "Trainers, coaches, and riders connected to this horse."
+        }
+      },
+      "types": {
+        "stable": "Stable",
+        "stableHint": "Invite a stable to host or care for this horse.",
+        "transport": "Transport",
+        "transportHint": "Invite a transport company for this horse.",
+        "ridingClub": "Riding club",
+        "ridingClubHint": "Invite a riding club linked to this horse.",
+        "breeder": "Breeder",
+        "breederHint": "Invite a breeder operation for this horse.",
+        "veterinary": "Veterinary",
+        "veterinaryHint": "Invite a vet practice for this horse.",
+        "groom": "Groom",
+        "groomHint": "Invite a groom for direct care at home (not barn staff).",
+        "farrier": "Farrier",
+        "farrierHint": "Invite a farrier for this horse.",
+        "trainer": "Trainer",
+        "trainerHint": "Invite a trainer for this horse.",
+        "coach": "Coach",
+        "coachHint": "Invite a coach for this horse.",
+        "rider": "Rider",
+        "riderHint": "Invite a rider profile linked to this horse."
+      }
     }
   },
   "validation": {
@@ -261,7 +310,6 @@
     "idType": "ID type",
     "idNumber": "ID number",
     "profileVisibility": "Profile visibility",
-    "searchable": "Search listing",
     "allowDirectMessagesFrom": "Direct messages from",
     "country": "Country",
     "state": "State / province",
@@ -313,15 +361,89 @@
       "relationshipsOnly": "Only accepted relationships/collaborations",
       "private": "Private"
     },
-    "searchableOptions": {
-      "visible": "Show in search and suggestions",
-      "hidden": "Hide from search and suggestions"
-    },
     "directMessageAudienceOptions": {
       "everyone": "Everyone",
       "relationships": "Accepted relationships/collaborations only",
       "nobody": "Nobody"
     }
+  },
+  "createHorse": {
+    "title": "Add a horse",
+    "description": "Add a horse to your account and start managing records, care, and visibility.",
+    "submit": "Create horse",
+    "submitting": "Creating…",
+    "success": "Horse created.",
+    "saveFailed": "Failed to create horse",
+    "selectPlaceholder": "Select…",
+    "required": "This field is required",
+    "invalidDate": "Please enter a valid date",
+    "invalidEnum": "Please select a valid option",
+    "contactNameRequired": "Contact name is required when not using owner contact",
+    "contactPhoneRequired": "Contact phone is required when not using owner contact",
+    "contactEmailRequired": "Contact email is required when not using owner contact",
+    "contactEmailInvalid": "Please provide a valid email address",
+    "sections": {
+      "identity": "Horse identity",
+      "discovery": "Discovery and contact"
+    },
+    "name": "Name",
+    "breed": "Breed",
+    "sex": "Sex",
+    "dateOfBirth": "Date of birth",
+    "color": "Color",
+    "primaryDiscipline": "Primary discipline",
+    "profileVisibility": "Profile visibility",
+    "useOwnerContact": "Public contact",
+    "contactName": "Contact name",
+    "contactPhone": "Contact phone",
+    "contactEmail": "Contact email",
+    "useOwnerContactOptions": {
+      "true": "Use my owner contact details",
+      "false": "Use a different contact for this horse"
+    },
+    "visibilityOptions": {
+      "public": "Public — visible to everyone",
+      "relationship": "Relationships only — accepted provider links",
+      "owner_only": "Owner only — hidden from discovery"
+    },
+    "sexOptions": {
+      "Stallion": "Stallion",
+      "Mare": "Mare",
+      "Gelding": "Gelding",
+      "Colt": "Colt",
+      "Filly": "Filly",
+      "Other": "Other"
+    },
+    "colorOptions": {
+      "Bay": "Bay",
+      "Chestnut": "Chestnut",
+      "Black": "Black",
+      "Grey": "Grey",
+      "Palomino": "Palomino",
+      "Roan": "Roan",
+      "Pinto": "Pinto",
+      "Appaloosa": "Appaloosa",
+      "Other": "Other"
+    },
+    "disciplineOptions": {
+      "Jumping": "Jumping",
+      "Dressage": "Dressage",
+      "Eventing": "Eventing",
+      "Racing": "Racing",
+      "Breeding": "Breeding",
+      "Rehabilitation": "Rehabilitation",
+      "Leisure": "Leisure",
+      "Western": "Western",
+      "Endurance": "Endurance",
+      "Driving": "Driving",
+      "Other": "Other"
+    }
+  },
+  "horseHub": {
+    "backToHorses": "Back to my horses",
+    "subtitle": "Manage this horse",
+    "connectTitle": "Connect providers",
+    "connectDescription": "Invite stables, vets, trainers, and other providers. They accept or decline — providers never send requests to your horse."
   },
   "errors": {
     "EMAIL_NOT_VERIFIED": "Please verify your email before signing in.",

@@ -3,7 +3,7 @@
 Reference for minimal stable endpoints and discovery visibility behavior.
 
 Related:
-- [`../../documentation/userAndRoles.md`](../../documentation/userAndRoles.md)
+- [`../../documentation/userModule.md`](../../documentation/userModule.md)
 - [`../../documentation/stableModule.md`](../../documentation/stableModule.md)
 - [`horses.md`](./horses.md)
 - [`profile.md`](./profile.md)

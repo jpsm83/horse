@@ -114,7 +114,6 @@ export function mapUserToProfileFormValues(
       idType: "",
       idNumber: "",
       profileVisibility: "public",
-      searchable: "true",
       allowDirectMessagesFrom: "everyone",
       address: {
         country: "",
@@ -147,12 +146,6 @@ export function mapUserToProfileFormValues(
     idNumber: readString(personalDetails.idNumber),
     profileVisibility:
       readString(preferences?.profileVisibility) || "public",
-    searchable:
-      typeof preferences?.searchable === "boolean"
-        ? preferences.searchable
-          ? "true"
-          : "false"
-        : "true",
     allowDirectMessagesFrom:
       readString(preferences?.allowDirectMessagesFrom) || "everyone",
     address: {
@@ -198,16 +191,12 @@ export function mapProfileFormValuesToPatch(
 
   if (
     dirtyFields.profileVisibility ||
-    dirtyFields.searchable ||
     dirtyFields.allowDirectMessagesFrom
   ) {
     patch.preferences = {};
 
     if (dirtyFields.profileVisibility) {
       patch.preferences.profileVisibility = values.profileVisibility;
-    }
-    if (dirtyFields.searchable) {
-      patch.preferences.searchable = values.searchable === "true";
     }
     if (dirtyFields.allowDirectMessagesFrom) {
       patch.preferences.allowDirectMessagesFrom = values.allowDirectMessagesFrom;

@@ -1,9 +1,12 @@
 /**
- * Sends relationship invite email to a non-registered party.
- * Stub for future relationshipService — export ready for when invites are created.
+ * Sends relationship invite email after a pending Relationship is created.
+ * Called from relationshipService.createRelationshipInvite.
  */
 
-import { buildRelationshipSignupLink } from "./links.ts";
+import {
+  buildRelationshipAcceptLink,
+  buildRelationshipSignupLink,
+} from "./links.ts";
 import { sendTemplateEmail } from "./sendEmail.ts";
 import {
   relationshipInviteTemplate,
@@ -11,6 +14,7 @@ import {
 } from "./templates/relationshipInvite.ts";
 
 export type SendRelationshipInviteEmailInput = {
+  relationshipId: string;
   invitedEmail: string;
   invitedName?: string;
   horseName: string;
@@ -18,13 +22,18 @@ export type SendRelationshipInviteEmailInput = {
   requesterLabel: string;
   referralReference: string;
   locale?: string;
+  inviteeUserId?: string;
   variant: RelationshipInviteVariant;
 };
 
 export async function sendRelationshipInviteEmail(
   input: SendRelationshipInviteEmailInput,
 ): Promise<void> {
-  const signupUrl = buildRelationshipSignupLink(input.referralReference);
+  const isExistingUser = Boolean(input.inviteeUserId);
+  const locale = input.locale;
+  const acceptUrl = isExistingUser
+    ? buildRelationshipAcceptLink(input.relationshipId, locale)
+    : buildRelationshipSignupLink(input.referralReference, locale);
 
   const content = relationshipInviteTemplate({
     invitedEmail: input.invitedEmail,
@@ -33,9 +42,10 @@ export async function sendRelationshipInviteEmail(
     relationshipType: input.relationshipType,
     requesterLabel: input.requesterLabel,
     referralReference: input.referralReference,
-    signupUrl,
+    acceptUrl,
     locale: input.locale,
     variant: input.variant,
+    isExistingUser,
   });
 
   await sendTemplateEmail({ to: input.invitedEmail, content });

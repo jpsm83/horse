@@ -3,7 +3,7 @@
 Reference for minimal coach endpoints and discovery visibility behavior.
 
 Related:
-- [`../../documentation/userAndRoles.md`](../../documentation/userAndRoles.md) — competition coach vs barn collaborator paths
+- [`../../documentation/userModule.md`](../../documentation/userModule.md) — competition coach vs barn collaborator paths
 - [`../../documentation/workplaceRelationship.md`](../../documentation/workplaceRelationship.md) — coach as stable collaborator (with trainer)
 - [`horses.md`](./horses.md)
 - [`profile.md`](./profile.md)

@@ -1,16 +1,25 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import User from "@/models/User.ts";
 import Horse from "@/models/Horse.ts";
 import Relationship from "@/models/Relationship.ts";
 import * as userService from "@/lib/services/userService.ts";
 import * as relationshipService from "@/lib/services/relationshipService.ts";
 import { ApiError } from "@/lib/api/errors.ts";
+import {
+  createTestGroom,
+  createTestStable,
+  createTestVeterinary,
+} from "../../helpers/businessRoleFixtures.ts";
 
-async function createUser(email: string) {
+vi.mock("@/lib/email/sendRelationshipInviteEmail.ts", () => ({
+  sendRelationshipInviteEmail: vi.fn().mockResolvedValue(undefined),
+}));
+
+async function createUser(email: string, firstName = "Test") {
   return userService.createCredentialsUser({
     email,
     password: "TestPass1!",
-    firstName: "Test",
+    firstName,
   });
 }
 
@@ -35,7 +44,7 @@ async function createPendingRelationship(input: {
     relationshipType: "stable",
     status: "pending",
     requesterUserId: input.requesterUserId,
-    receiverAccountType: "horse",
+    receiverAccountType: "stable",
     invitedEmail: input.invitedEmail,
     referralReference: input.referralReference,
     historicalReference: {
@@ -177,5 +186,186 @@ describe("relationshipService", () => {
     const preview = await relationshipService.getInvitePreviewByReferral("REF-PREVIEW-001");
     expect(preview?.horseName).toBe("Preview Horse");
     expect(preview?.requesterLabel).toBe("Oak Stable");
+  });
+
+  it("creates invite by provider profile id", async () => {
+    const owner = await createUser("rel-create-owner@example.com", "Alice");
+    const vetUser = await createUser("rel-create-vet@example.com");
+    const horse = await createHorse(String(owner._id), "Comet");
+    const veterinary = await createTestVeterinary(String(vetUser._id));
+
+    const created = await relationshipService.createRelationshipInvite(String(owner._id), {
+      horseId: String(horse._id),
+      relationshipType: "veterinary",
+      receiverAccountId: String(veterinary._id),
+    });
+
+    expect(created.status).toBe("pending");
+    expect(created.relationshipType).toBe("veterinary");
+    expect(created.horseName).toBe("Comet");
+
+    const stored = await Relationship.findById(created.id).lean();
+    expect(stored?.status).toBe("pending");
+    expect(String(stored?.receiverAccountId)).toBe(String(veterinary._id));
+    expect(String(stored?.receiverUserId)).toBe(String(vetUser._id));
+    expect(stored?.referralReference).toMatch(/^REF-/);
+  });
+
+  it("creates invite by email for user-linked provider", async () => {
+    const owner = await createUser("rel-create-owner2@example.com");
+    const horse = await createHorse(String(owner._id), "Star");
+
+    const created = await relationshipService.createRelationshipInvite(String(owner._id), {
+      horseId: String(horse._id),
+      relationshipType: "groom",
+      invitedEmail: "new-groom@example.com",
+      invitedName: "Sam Groom",
+    });
+
+    expect(created.status).toBe("pending");
+    expect(created.invitedEmail).toBe("new-groom@example.com");
+    expect(created.referralReference).toMatch(/^REF-/);
+
+    const stored = await Relationship.findById(created.id).lean();
+    expect(stored?.receiverAccountId).toBeUndefined();
+    expect(stored?.invitedEmail).toBe("new-groom@example.com");
+  });
+
+  it("rejects create invite from non-owner", async () => {
+    const owner = await createUser("rel-forbid-owner@example.com");
+    const stranger = await createUser("rel-forbid-stranger@example.com");
+    const stableOwner = await createUser("rel-forbid-stable@example.com");
+    const horse = await createHorse(String(owner._id), "Bolt");
+    const stable = await createTestStable(String(stableOwner._id));
+
+    await expect(
+      relationshipService.createRelationshipInvite(String(stranger._id), {
+        horseId: String(horse._id),
+        relationshipType: "stable",
+        receiverAccountId: String(stable._id),
+      }),
+    ).rejects.toBeInstanceOf(ApiError);
+  });
+
+  it("rejects duplicate pending invite", async () => {
+    const owner = await createUser("rel-dup-owner@example.com");
+    const stableOwner = await createUser("rel-dup-stable@example.com");
+    const horse = await createHorse(String(owner._id), "Nova");
+    const stable = await createTestStable(String(stableOwner._id));
+
+    const input = {
+      horseId: String(horse._id),
+      relationshipType: "stable" as const,
+      receiverAccountId: String(stable._id),
+    };
+
+    await relationshipService.createRelationshipInvite(String(owner._id), input);
+
+    await expect(
+      relationshipService.createRelationshipInvite(String(owner._id), input),
+    ).rejects.toMatchObject({ statusCode: 409 });
+  });
+
+  it("allows re-invite after decline", async () => {
+    const owner = await createUser("rel-resend-owner@example.com");
+    const groomUser = await createUser("rel-resend-groom@example.com");
+    const horse = await createHorse(String(owner._id), "Dawn");
+
+    await relationshipService.createRelationshipInvite(String(owner._id), {
+      horseId: String(horse._id),
+      relationshipType: "groom",
+      invitedEmail: "rel-resend-groom@example.com",
+    });
+
+    const pending = await Relationship.findOne({
+      horseId: horse._id,
+      status: "pending",
+    });
+    expect(pending).toBeTruthy();
+
+    await Relationship.updateOne(
+      { _id: pending!._id },
+      {
+        $set: {
+          status: "declined",
+          receiverUserId: groomUser._id,
+          respondedAt: new Date(),
+        },
+      },
+    );
+
+    const resent = await relationshipService.createRelationshipInvite(String(owner._id), {
+      horseId: String(horse._id),
+      relationshipType: "groom",
+      invitedEmail: "rel-resend-groom@example.com",
+    });
+
+    expect(resent.status).toBe("pending");
+    expect(
+      await Relationship.countDocuments({ horseId: horse._id, status: "pending" }),
+    ).toBe(1);
+  });
+
+  it("backfills receiverAccountId from user profile on accept", async () => {
+    const owner = await createUser("rel-backfill-owner@example.com");
+    const groomUser = await createUser("rel-backfill-groom@example.com");
+    const groom = await createTestGroom(String(groomUser._id), {
+      email: "rel-backfill-groom@example.com",
+    });
+    const horse = await createHorse(String(owner._id), "Mist");
+
+    const created = await relationshipService.createRelationshipInvite(String(owner._id), {
+      horseId: String(horse._id),
+      relationshipType: "groom",
+      invitedEmail: "rel-backfill-groom@example.com",
+    });
+
+    const accepted = await relationshipService.acceptRelationship(
+      String(groomUser._id),
+      created.id,
+    );
+
+    expect(accepted.status).toBe("accepted");
+
+    const stored = await Relationship.findById(created.id).lean();
+    expect(String(stored?.receiverAccountId)).toBe(String(groom._id));
+    expect(String(stored?.receiverUserId)).toBe(String(groomUser._id));
+  });
+
+  it("lists pending sent relationships for horse owner", async () => {
+    const owner = await createUser("rel-sent-owner@example.com");
+    const stranger = await createUser("rel-sent-stranger@example.com");
+    const horse = await createHorse(String(owner._id), "Sent Horse");
+
+    await createPendingRelationship({
+      horseId: String(horse._id),
+      requesterUserId: String(owner._id),
+      invitedEmail: "sent-vet@example.com",
+      referralReference: "REF-SENT-001",
+    });
+
+    await Relationship.create({
+      horseId: horse._id,
+      relationshipType: "groom",
+      status: "pending",
+      requesterUserId: owner._id,
+      receiverAccountType: "groom",
+      invitedEmail: "sent-groom@example.com",
+      referralReference: "REF-SENT-002",
+      historicalReference: { requesterLabel: "Owner", horseNameSnapshot: "Sent Horse" },
+    });
+
+    const sent = await relationshipService.listPendingSentForHorse(
+      String(owner._id),
+      String(horse._id),
+    );
+
+    expect(sent).toHaveLength(2);
+    expect(sent.every((r) => r.status === "pending")).toBe(true);
+    expect(sent[0]?.horseName).toBe("Sent Horse");
+
+    await expect(
+      relationshipService.listPendingSentForHorse(String(stranger._id), String(horse._id)),
+    ).rejects.toMatchObject({ statusCode: 403 });
   });
 });

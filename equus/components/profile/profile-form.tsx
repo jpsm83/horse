@@ -186,14 +186,6 @@ export function ProfileForm({
     [t],
   );
 
-  const searchableOptions = useMemo(
-    () => [
-      { value: "true", label: t("searchableOptions.visible") },
-      { value: "false", label: t("searchableOptions.hidden") },
-    ],
-    [t],
-  );
-
   const directMessageAudienceOptions = useMemo(
     () => [
       {
@@ -551,21 +543,6 @@ export function ProfileForm({
                   invalid={fieldState.invalid}
                   error={fieldState.error}
                   options={profileVisibilityOptions}
-                />
-              )}
-            />
-            <Controller
-              name="searchable"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <SelectField
-                  id="profile-searchable"
-                  label={t("searchable")}
-                  value={field.value}
-                  onChange={field.onChange}
-                  invalid={fieldState.invalid}
-                  error={fieldState.error}
-                  options={searchableOptions}
                 />
               )}
             />

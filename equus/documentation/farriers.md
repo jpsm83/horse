@@ -3,7 +3,7 @@
 Reference for minimal farrier endpoints and discovery visibility behavior.
 
 Related:
-- [`../../documentation/userAndRoles.md`](../../documentation/userAndRoles.md) — direct horse link vs barn collaborator paths
+- [`../../documentation/userModule.md`](../../documentation/userModule.md) — direct horse link vs barn collaborator paths
 - [`../../documentation/workplaceRelationship.md`](../../documentation/workplaceRelationship.md) — farrier as stable collaborator
 - [`horses.md`](./horses.md)
 - [`profile.md`](./profile.md)

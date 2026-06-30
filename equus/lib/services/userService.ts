@@ -35,13 +35,11 @@ export type UpdatePersonalDetailsInput = z.infer<typeof updatePersonalDetailsSch
 
 export type PublicUserPreferences = {
   profileVisibility: (typeof userProfileVisibilityEnums)[number];
-  searchable: boolean;
   allowDirectMessagesFrom: (typeof userDirectMessageAudienceEnums)[number];
 };
 
 const DEFAULT_PUBLIC_USER_PREFERENCES: PublicUserPreferences = {
   profileVisibility: "public",
-  searchable: true,
   allowDirectMessagesFrom: "everyone",
 };
 
@@ -100,11 +98,6 @@ function toPublicUserPreferences(doc: Record<string, unknown>): PublicUserPrefer
       ? (preferences.profileVisibility as PublicUserPreferences["profileVisibility"])
       : DEFAULT_PUBLIC_USER_PREFERENCES.profileVisibility;
 
-  const searchable =
-    typeof preferences.searchable === "boolean"
-      ? preferences.searchable
-      : DEFAULT_PUBLIC_USER_PREFERENCES.searchable;
-
   const allowDirectMessagesFrom =
     typeof preferences.allowDirectMessagesFrom === "string" &&
     (userDirectMessageAudienceEnums as readonly string[]).includes(
@@ -115,7 +108,6 @@ function toPublicUserPreferences(doc: Record<string, unknown>): PublicUserPrefer
 
   return {
     profileVisibility,
-    searchable,
     allowDirectMessagesFrom,
   };
 }
@@ -336,13 +328,6 @@ export async function updatePersonalDetails(userId: string, data: UpdatePersonal
 
       for (const [prefKey, prefValue] of Object.entries(value)) {
         if (prefValue === undefined) {
-          continue;
-        }
-
-        if (prefKey === "searchable") {
-          if (typeof prefValue === "boolean") {
-            set[`preferences.${prefKey}`] = prefValue;
-          }
           continue;
         }
 

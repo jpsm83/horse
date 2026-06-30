@@ -38,10 +38,6 @@ const userPreferencesSchema = new Schema(
       enum: userProfileVisibilityEnums,
       default: "public",
     },
-    searchable: {
-      type: Boolean,
-      default: true,
-    },
     allowDirectMessagesFrom: {
       type: String,
       enum: userDirectMessageAudienceEnums,

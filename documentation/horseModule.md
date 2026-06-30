@@ -8,7 +8,7 @@ Living document for planning, updating, and tracking **horse-facing** capabiliti
 - [`equinem.md`](equinem.md) — competitor capability baseline (EquineM)
 - [`businessPlan.md`](businessPlan.md) — vision, monetization (Section 11), relationship rules, Section 10.3 Horse module
 - [`mvpScope.md`](mvpScope.md) — build phases vs production launch gate
-- [`userAndRoles.md`](userAndRoles.md) — identity, privacy, discovery layers
+- [`userModule.md`](userModule.md) — identity, privacy, discovery layers
 - [`productFlows.md`](productFlows.md) — owner ↔ provider flows
 - [`stableModule.md`](stableModule.md) — barn operations on hosted horses (complementary, not duplicate)
 
@@ -46,7 +46,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
-| H-PROF-01 | Core identity: name, breed, sex, color, date of birth / age | Parity | planned |
+| H-PROF-01 | Core identity: name, breed, sex, color, date of birth / age | Parity | in progress |
 | H-PROF-02 | Registered name, registry id, microchip, passport number | Parity | planned |
 | H-PROF-03 | Height, marks, country of birth, import/export status | Parity | planned |
 | H-PROF-04 | Primary discipline and discipline list | Parity | planned |
@@ -93,9 +93,9 @@ Provider links use `Relationship` documents (`relationshipType`: stable, trainer
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
-| H-REL-01 | Send relationship request (horse ↔ provider) | Beyond | planned |
-| H-REL-02 | Email invitation for unregistered party | Beyond | planned |
-| H-REL-03 | Accept / decline; resend after mistaken decline | Beyond | planned |
+| H-REL-01 | Owner sends horse ↔ provider invitation (any provider type) | Beyond | in progress |
+| H-REL-02 | Email invitation for unregistered party | Beyond | done |
+| H-REL-03 | Accept / decline; resend after mistaken decline | Beyond | done |
 | H-REL-04 | Established relationship permanent; `ended` retains history | Beyond | planned |
 | H-REL-05 | List current providers per horse (query accepted relationships) | Beyond | planned |
 | H-REL-06 | List historical providers per horse | Parity | planned |
@@ -234,4 +234,5 @@ Cross-module production gate (all must be ready together): see [`mvpScope.md`](m
 
 | Date | Change |
 |------|--------|
+| 2026-06-30 | Create-horse web UI at `/create/horse` (baseline identity + discovery fields); H-PROF-01 partial |
 | 2026-06-30 | Initial specification from `businessPlan.md` §4.1 / §10.3, `mvpScope.md`, `equinem.md`, and shipped horse discovery API |

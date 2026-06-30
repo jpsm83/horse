@@ -23,6 +23,7 @@ Links are **locale-prefixed** when the recipient’s `preferredLanguage` is `es`
 | `buildStaffInviteSignupLink` | `/signup?ref={membershipId}` | `/es/signup?ref=…` | register + `/workplaces?membership=` |
 | `buildStaffInviteAcceptLink` | `/workplaces?membership={id}` | `/es/workplaces?membership=…` | workplaces accept/decline |
 | `buildRelationshipSignupLink` | `/signup?ref={referralReference}` | `/es/signup?ref=…` | register + `/relationships` |
+| `buildRelationshipAcceptLink` | `/relationships?relationship={id}` | `/es/relationships?relationship=…` | relationships accept/decline |
 
 Non-prefixed links in already-sent emails still work: next-intl proxy resolves locale from `NEXT_LOCALE` cookie or `Accept-Language`.
 
@@ -49,7 +50,7 @@ lib/email/
 | Email confirmation | Register / resend | `user.personalDetails.preferredLanguage` or `en` |
 | Password reset | Forgot password | same |
 | Staff invite | `POST .../staff` | invitee preference if user exists, else `en` |
-| Relationship invite | Future relationship API | invitee preference when available |
+| Relationship invite | `POST /api/v1/relationships` | invitee preference when user exists, else `en` — variant `ownerInvitesProvider` only (`vetAddedHorse` out of scope) |
 
 ## Sending pattern
 

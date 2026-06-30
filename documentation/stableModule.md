@@ -8,7 +8,7 @@ Living document for planning, updating, and tracking **stable-facing** capabilit
 - [`equinem.md`](equinem.md) — competitor capability baseline (EquineM)
 - [`businessPlan.md`](businessPlan.md) — vision, monetization, competitive positioning (Section 20), relationship rules
 - [`mvpScope.md`](mvpScope.md) — build phases vs production launch gate
-- [`userAndRoles.md`](userAndRoles.md) — identity; [`workplaceRelationship.md`](workplaceRelationship.md) — stable collaboration (User ↔ role profile)
+- [`userModule.md`](userModule.md) — identity; [`workplaceRelationship.md`](workplaceRelationship.md) — stable collaboration (User ↔ role profile)
 - [`horseModule.md`](horseModule.md) — horse hub (owner view, discovery, timeline); complementary to stable roster sections here
 
 ---
@@ -216,7 +216,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
-| S-REL-01 | Send relationship request (horse ↔ stable) | Beyond | planned |
+| S-REL-01 | Receive horse hosting invite from owner; accept/decline | Beyond | planned |
 | S-REL-02 | Email invitation for unregistered owner/stable | Beyond | planned |
 | S-REL-03 | Accept / decline pending request | Beyond | planned |
 | S-REL-04 | Resend request after mistaken decline | Beyond | planned |

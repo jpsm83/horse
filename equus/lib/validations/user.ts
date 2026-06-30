@@ -66,7 +66,6 @@ export const updatePersonalDetailsSchema = z.object({
   preferences: z
     .object({
       profileVisibility: patchEnum(userProfileVisibilityEnums).optional(),
-      searchable: z.boolean().optional(),
       allowDirectMessagesFrom: patchEnum(userDirectMessageAudienceEnums).optional(),
     })
     .optional(),

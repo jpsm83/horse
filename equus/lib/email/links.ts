@@ -24,3 +24,8 @@ export function buildStaffInviteAcceptLink(membershipId: string, locale?: string
 export function buildRelationshipSignupLink(referralReference: string, locale?: string): string {
   return buildLocalizedAppLink(locale, "signup", { ref: referralReference });
 }
+
+/** App relationships view for existing users to accept a pending horse relationship invite. */
+export function buildRelationshipAcceptLink(relationshipId: string, locale?: string): string {
+  return buildLocalizedAppLink(locale, "relationships", { relationship: relationshipId });
+}

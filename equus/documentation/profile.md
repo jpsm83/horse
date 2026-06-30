@@ -16,7 +16,7 @@ Related:
 - [`riders.md`](./riders.md) — rider discovery visibility layer
 - [`veterinaries.md`](./veterinaries.md) — veterinary discovery visibility layer
 - [`../AGENTS.md`](../AGENTS.md) — web UI conventions (forms, toasts, loading)
-- [`../../documentation/userAndRoles.md`](../../documentation/userAndRoles.md) — `profileComplete` vs discovery visibility
+- [`../../documentation/userModule.md`](../../documentation/userModule.md) — `profileComplete` vs discovery visibility
 
 ---
 
@@ -68,11 +68,10 @@ Use `useAppToast()` — includes `info` for no-op saves. Do not use an `Alert` f
 
 `PATCH /api/v1/users/me` also persists `User.preferences` from the profile form:
 
-- `preferences.profileVisibility`: `public` | `platform` | `relationships` | `private`
-- `preferences.searchable`: `true` | `false`
+- `preferences.profileVisibility`: `public` | `platform` | `relationships` | `private` — who can see personal fields when viewing the user profile page (entity-linked only; users are never searchable)
 - `preferences.allowDirectMessagesFrom`: `everyone` | `relationships` | `nobody`
 
-These are user-level controls and do not replace horse-level discovery (`Horse.profileVisibility`, `Horse.contactDisplay`).
+These are user-level controls and do not replace horse-level discovery (`Horse.profileVisibility`, `Horse.contactDisplay`) or role-profile `isPublic` on listings.
 
 ---
 

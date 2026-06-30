@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Suspense, useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
 import { InviteHubListSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
@@ -16,6 +17,7 @@ import {
   isApiClientError,
   type PublicRelationship,
 } from "@/lib/api/authClient.ts";
+import { cn } from "@/lib/utils";
 
 function RelationshipsLoadingShell() {
   const t = useTranslations("invites.relationships");
@@ -38,10 +40,12 @@ function RelationshipsLoadingShell() {
 
 function RelationshipsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations("invites.relationships");
   const tCommon = useTranslations("common");
   const tStatus = useTranslations("status");
   const toast = useAppToast();
+  const highlightRelationshipId = searchParams.get("relationship");
 
   const [relationships, setRelationships] = useState<PublicRelationship[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,9 +64,11 @@ function RelationshipsContent() {
         if (!cancelled) setRelationships(data);
       })
       .catch(() => {
-        if (!cancelled) {
-          router.replace(`/signin?next=${encodeURIComponent("/relationships")}`);
-        }
+        if (cancelled) return;
+        const next = highlightRelationshipId
+          ? `/relationships?relationship=${encodeURIComponent(highlightRelationshipId)}`
+          : "/relationships";
+        router.replace(`/signin?next=${encodeURIComponent(next)}`);
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -71,7 +77,7 @@ function RelationshipsContent() {
     return () => {
       cancelled = true;
     };
-  }, [loadRelationships, router]);
+  }, [highlightRelationshipId, loadRelationships, router]);
 
   async function handleAccept(relationshipId: string) {
     setActingId(relationshipId);
@@ -127,8 +133,19 @@ function RelationshipsContent() {
         <p className="text-sm text-muted-foreground">{t("empty")}</p>
       ) : (
         <ul className="space-y-3">
-          {relationships.map((relationship) => (
-            <li key={relationship.id} className="rounded-lg border p-4">
+          {relationships.map((relationship) => {
+            const isHighlighted =
+              highlightRelationshipId && relationship.id === highlightRelationshipId;
+
+            return (
+            <li
+              key={relationship.id}
+              id={`relationship-${relationship.id}`}
+              className={cn(
+                "rounded-lg border p-4",
+                isHighlighted && "border-primary ring-1 ring-primary/30",
+              )}
+            >
               <div className="space-y-1">
                 <p className="font-medium">
                   {relationship.horseName ?? tCommon("horseFallback")} · {relationship.relationshipType}
@@ -158,7 +175,8 @@ function RelationshipsContent() {
                 </Button>
               </div>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </AuthPageShell>

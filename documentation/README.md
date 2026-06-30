@@ -9,12 +9,13 @@ Canonical docs for product and engineering decisions.
 | [`businessPlan.md`](businessPlan.md) | Product vision, domain rules, monetization, phased roadmap, competitive positioning (§20) |
 | [`stack.md`](stack.md) | **Technical stack** — architecture, auth, API, UI, data |
 | [`mvpScope.md`](mvpScope.md) | Build phases (1A/1B) and **production launch gate** |
+| [`horseModule.md`](horseModule.md) | **Horse feature spec** — living doc; owner hub, discovery, relationships |
 | [`stableModule.md`](stableModule.md) | **Stable feature spec** — living doc; EquineM parity + differentiators |
 | [`workplaceRelationship.md`](workplaceRelationship.md) | **User ↔ role profile** workplace link (no business account) |
 | [`equinem.md`](equinem.md) | Competitor reference (EquineM capabilities and pricing) |
 | [`validationPlaybook.md`](validationPlaybook.md) | Pre-build customer interviews and go/no-go |
 | [`productFlows.md`](productFlows.md) | Onboarding and core user journeys |
-| [`userAndRoles.md`](userAndRoles.md) | One login, optional roles, per-horse discovery |
+| [`userModule.md`](userModule.md) | **User feature spec** — identity, roles, privacy, access paths |
 | [`metricsSpec.md`](metricsSpec.md) | Internal business metrics (Phase 1B) |
 
 ## Equus app docs (`equus/documentation/`)

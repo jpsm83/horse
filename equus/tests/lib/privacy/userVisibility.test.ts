@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   canExposeUserIdentity,
   canStartDirectMessage,
-  isUserSearchable,
   resolveAudienceForRequester,
   toPublicUserIdentity,
 } from "@/lib/privacy/userVisibility.ts";
@@ -45,12 +44,6 @@ describe("userVisibility", () => {
     );
     expect(canExposeUserIdentity({ profileVisibility: "private" }, "relationship")).toBe(true);
     expect(canExposeUserIdentity({ profileVisibility: "private" }, "platform")).toBe(false);
-  });
-
-  it("returns searchable true by default", () => {
-    expect(isUserSearchable(undefined)).toBe(true);
-    expect(isUserSearchable({ searchable: true })).toBe(true);
-    expect(isUserSearchable({ searchable: false })).toBe(false);
   });
 
   it("evaluates direct message policy", () => {

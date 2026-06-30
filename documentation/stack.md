@@ -5,7 +5,7 @@ Canonical technical direction for the horse ecosystem app. All other documentati
 Related docs:
 - `README.md` — documentation index
 - `businessPlan.md` — product vision and domain rules
-- `userAndRoles.md` — one login, optional roles, per-horse discovery
+- `userModule.md` — one login, optional roles, layered discovery
 - `mvpScope.md` — what to build first
 - `productFlows.md` — user journeys
 - `equus/AGENTS.md` — coding conventions for the app repo

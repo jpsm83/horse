@@ -582,7 +582,7 @@ User (root identity; one login per email)
   └── Other provider role profile(s)
 ```
 
-**Discovery:** user personal profile exposure is controlled by `User.preferences` (`profileVisibility`, `searchable`, `allowDirectMessagesFrom`). Each horse has its own `profileVisibility` and `contactDisplay` (public contact may be the owner or a delegate). See `documentation/userAndRoles.md`.
+**Discovery:** global search and browse target **horses and role-profile listings** (stables, vets, trainers, etc.) only — users are never searchable. User personal profile exposure when reached from an entity link is controlled by `User.preferences` (`profileVisibility`, `allowDirectMessagesFrom`). Each horse has its own `profileVisibility` and `contactDisplay` (public contact may be the owner or a delegate). See `documentation/userModule.md` §3.
 
 Why this model matters:
 - Supports real-world roles (people wear multiple hats in the horse industry)
@@ -1025,7 +1025,7 @@ The platform should grow organically through real horse-world connections. Every
 ### 14.1 Core principles
 
 1. **Everything connected** — horses, owners, vets, trainers, stables, and other accounts exist in relation to each other, not in isolation
-2. **Bidirectional by design** — every relationship works both ways (owner ↔ vet, vet ↔ horse, vet ↔ owner)
+2. **Bidirectional access after accept** — once accepted, both parties operate in the shared horse or workplace context; initiation is never bidirectional
 3. **Acceptance required** — no connection becomes active until the receiving party explicitly accepts
 4. **Invite the missing party** — if the other account does not exist on the platform yet, the app invites them to join
 5. **No dead data** — if a relationship is rejected or never confirmed, it does not persist as if it were real
@@ -1038,22 +1038,23 @@ Every new **horse relationship** and every **workplace relationship** (User ↔ 
 | | Horse/provider (`Relationship`) | Stable collaboration (`WorkplaceRelationship`) |
 |---|--------------------------------|-------------------------------------|
 | Link | Horse ↔ provider role profile | **User** ↔ host **role profile** (e.g. `Stable`) |
-| Initiator | Owner, stable, vet, trainer, … | **Profile owner** or admin on that profile |
-| Receiver | Other party | **Invited User** |
+| Initiator | **Horse owner** only | **Host profile owner** or admin — **service Users** only |
+| Receiver | Provider (accepts or declines) | **Invited User** (service) |
+| Service profiles | **Never initiate** | N/A |
 | Active after | User/provider accepts | **User** accepts |
 | Hierarchy | N/A | `admin` \| `manager` \| `staff` on the **collaboration document** |
 
 Horse relationship pattern:
 
 ```
-Requester proposes connection
+Horse owner sends invitation (after offline agreement if needed)
         ↓
-Receiver gets notification (in-app + email/mobile)
+Provider gets notification (in-app + email/mobile)
         ↓
-Receiver accepts or declines
+Provider accepts or declines — providers never initiate horse links
         ↓
-If accepted → connection becomes active, both sides can collaborate
-If declined → requester is notified, no active connection exists
+If accepted → connection becomes active, both sides can collaborate on that horse
+If declined → owner may invite again; no active connection exists
 ```
 
 Workplace relationship pattern:
@@ -1206,9 +1207,9 @@ The platform is a connected professional horse ecosystem, not a generic open soc
 
 #### A) Public discovery layer
 
-Anyone can navigate and discover accounts through profile pages.
+Anyone can search and browse **horses, businesses, and service listings** (role profiles). **Users are never searchable.** Personal user pages are view-only destinations linked from entity context (e.g. stable owner), governed by `profileVisibility` — not indexed for search.
 
-Public profile elements can include:
+Public **entity** profile elements can include:
 - Photos and media
 - Description and specialties
 - Services offered
@@ -1218,7 +1219,7 @@ Public profile elements can include:
 - Verification/trust badges
 
 Purpose:
-- Help users find the right providers and understand quality quickly
+- Help users find the right providers, horses, and businesses quickly — without a generic “find people” social directory
 
 #### B) Open live chat layer (WhatsApp-style)
 
