@@ -124,6 +124,28 @@ export const relationshipStatusEnums = [
   "ended",
 ] as const;
 
+/** Entity-owned profiles eligible for ownership transfer (not user-linked services). */
+export const ownershipTransferEntityTypeEnums = [
+  "horse",
+  "stable",
+  "breeder",
+  "transport",
+  "ridingClub",
+] as const;
+
+export const ownershipTransferKindEnums = [
+  "transfer_main",
+  "remove_co_owner",
+  "promote_co_owner",
+] as const;
+
+export const ownershipTransferStatusEnums = [
+  "pending",
+  "accepted",
+  "declined",
+  "cancelled",
+] as const;
+
 export const saleStatusEnums = ["not_for_sale", "for_sale"] as const;
 
 export const horseSubscriptionStatusEnums = [

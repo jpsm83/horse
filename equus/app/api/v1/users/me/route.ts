@@ -3,6 +3,8 @@
  *
  * PATCH accepts JSON (`updatePersonalDetailsSchema`) or multipart form data
  * (`parseProfileFormData` for fields + optional avatar).
+ *
+ * `DELETE` deactivates the account (`softDelete`) and clears REST auth cookies (same as logout).
  */
 
 import connectDb from "@/lib/db.ts";
@@ -11,6 +13,7 @@ import { withRoute, ok } from "@/lib/api/response.ts";
 import { requireAuthFromRequest } from "@/lib/auth/requireAuth.ts";
 import { updatePersonalDetailsSchema } from "@/lib/validations/user.ts";
 import { parseProfileFormData } from "@/lib/utils/parseProfileFormData.ts";
+import * as authService from "@/lib/services/authService.ts";
 import * as userService from "@/lib/services/userService.ts";
 
 export async function GET(request: Request) {
@@ -76,6 +79,8 @@ export async function DELETE(request: Request) {
     if (!user) {
       throw new ApiError(404, "User not found", "NOT_FOUND");
     }
-    return ok({ user });
+    const response = ok({ user });
+    authService.logout(response);
+    return response;
   });
 }

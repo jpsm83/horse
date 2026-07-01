@@ -1570,10 +1570,19 @@ Trust rules:
 - Billing responsibility belongs to the main user who created the horse profile
 - Main payer remains accountable for the horse subscription fee
 
-#### 7.2 Horse transfer flow
+#### 7.2 Entity ownership transfer
 
-- Transfer should be simple: move the horse's main ownership reference from User A to User B
+Ownership changes for **horses and host businesses** (stable, breeder, transport, riding club) use the **`OwnershipTransfer`** collection — same consent pattern as relationships. **Service profiles are not transferable.**
+
+Three kinds (see [`ownershipTransfer.md`](ownershipTransfer.md)):
+
+- **`transfer_main`** — hand entity to another user; `coOwners[]` must be empty first
+- **`remove_co_owner`** — co-owner must accept removal from `coOwners[]`
+- **`promote_co_owner`** — co-owner becomes main owner; other co-owners may remain
+
+- Transfer applies only after the receiving user **accepts**
 - Horse history and related records remain intact through transfer
+- Former main owner loses owner access on accept (`transfer_main` / `promote_co_owner`)
 
 #### 7.3 Established, ended, and rejected relationship behavior
 

@@ -1,5 +1,7 @@
 # Profile page (web UI + `PATCH /api/v1/users/me`)
 
+Account **settings** — personal details, preferences, language, and deactivation. This is **not** the signed-in landing page; after auth users land on [`/home`](./auth.md) (user home hub). Use `/profile` when editing account data.
+
 How the authenticated user edits `personalDetails`, including loading UX, save flow, and clear-field semantics.
 
 Related:
@@ -17,6 +19,8 @@ Related:
 - [`veterinaries.md`](./veterinaries.md) — veterinary discovery visibility layer
 - [`../AGENTS.md`](../AGENTS.md) — web UI conventions (forms, toasts, loading)
 - [`../../documentation/userModule.md`](../../documentation/userModule.md) — `profileComplete` vs discovery visibility
+- [`../../documentation/dataLifecycle.md`](../../documentation/dataLifecycle.md) — no hard deletes; account tombstone
+- [`dataLifecycle.md`](./dataLifecycle.md) — engineering reference
 
 ---
 
@@ -73,6 +77,12 @@ Use `useAppToast()` — includes `info` for no-op saves. Do not use an `Alert` f
 
 These are user-level controls and do not replace horse-level discovery (`Horse.profileVisibility`, `Horse.contactDisplay`) or role-profile `isPublic` on listings.
 
+**Public read:** `GET /api/v1/users/:id` returns a filtered profile card via `getPublicUserForRequester` (`lib/privacy/userPublicProfile.ts`). Auth is optional (Bearer or cookie); blocked audiences receive `404 NOT_FOUND`. Full account data remains on `GET /api/v1/users/me`. Product spec: [`documentation/userModule.md`](../../documentation/userModule.md) §3 U-PRIV-05.
+
+**Web page:** `/users/[userId]` (locale-prefixed) loads the card via `lib/api/userClient.ts` after client mount. Deep-linked from entity owner links only — not listed in discover navigation.
+
+**Tests:** U-PRIV-01 matrix coverage in `tests/lib/privacy/userPublicProfile.visibilityMatrix.test.ts` and `tests/app/api/v1/users/[id]/route.get.test.ts`.
+
 ---
 
 ## Clearing optional fields
@@ -110,4 +120,31 @@ When the user selects a new photo, the client sends **`multipart/form-data`** wi
 
 ## `profileComplete` banner
 
-When `user.profileComplete` is false, an `Alert` banner appears above the form (`profile.incompleteBanner`). Required fields for completion are defined in `lib/auth/session.ts` (`isProfileComplete`).
+When `user.profileComplete` is false:
+
+| Location | Behavior |
+|----------|----------|
+| **`AppShell`** (all locale pages except `/profile`) | `IncompleteProfileBanner` below the header — link to `/profile` (`profile.incompleteGlobalBannerLink`) |
+| **`/profile`** | Inline `Alert` above the form (`profile.incompleteBanner`) — duplicate global banner suppressed via `shouldShowIncompleteProfileBanner` |
+
+Required fields for completion are defined in `lib/auth/session.ts` (`isProfileComplete`). `profileComplete` on the session comes from `GET /api/v1/auth/me` / access token payload (`buildAuthUserSessionFromUserId`).
+
+---
+
+## Account deactivation (not hard delete)
+
+`DELETE /api/v1/users/me` **deactivates** the account — it does not remove the `User` document.
+
+| Step | Behavior |
+|------|----------|
+| Web UI | `/profile` → Account → confirm dialog (`profile-deactivate-account.tsx`) |
+| Client | `deactivateCurrentUserAccount()` → `DELETE /api/v1/users/me`; clears auth cache; NextAuth `signOut`; redirect `/signin` |
+| API | `userService.softDelete` → `isActive: false`, `deactivatedAt`, `deactivatedByUserId` (self), `refreshSessionVersion` bump |
+| Response | `authService.logout` clears httpOnly REST cookies (same as logout) |
+| Data | Document retained for horses, relationships, invoices, and audit refs |
+
+Product UI (UA-10) uses **Deactivate account** on `/profile` (`components/profile/profile-deactivate-account.tsx`): confirm dialog → `deactivateCurrentUserAccount` → sign-in redirect. Hiding personal fields without closing login uses `preferences.profileVisibility` — see [Visibility preferences](#visibility-preferences).
+
+Full policy: [`dataLifecycle.md`](../../documentation/dataLifecycle.md) (product) and [`equus/documentation/dataLifecycle.md`](./dataLifecycle.md) (engineering).
+
+**PII erasure (GDPR):** separate from deactivation — `userService.anonymizeUserPii` after `softDelete`. No public API yet. See [`piiAnonymization.md`](./piiAnonymization.md).

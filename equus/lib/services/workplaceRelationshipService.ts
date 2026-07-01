@@ -21,6 +21,7 @@ import {
 import type { z } from "zod";
 import type { inviteCollaboratorSchema } from "../validations/workplaceRelationship.ts";
 import { ownedByUserQuery } from "../ownership/entityOwnership.ts";
+import { isEntityActiveById, mergeActiveOnly } from "../lifecycle/activeQuery.ts";
 import { sendStaffInviteEmail } from "../email/sendStaffInviteEmail.ts";
 import {
   toPublicUserIdentity,
@@ -539,7 +540,7 @@ export async function listWorkplacesForUser(userId: string): Promise<PublicWorkp
   ];
 
   for (const { roleType, model, field } of ownedQueries) {
-    const owned = await model.find(ownedByUserQuery(userId)).select(field).lean();
+    const owned = await model.find(mergeActiveOnly(ownedByUserQuery(userId))).select(field).lean();
     for (const profile of owned) {
       workplaces.push({
         roleType,
@@ -559,6 +560,15 @@ export async function listWorkplacesForUser(userId: string): Promise<PublicWorkp
 
   for (const collaboration of collaborations) {
     const roleType = collaboration.hostRoleType as BusinessRoleType;
+    const hostRoleProfileId = String(collaboration.hostRoleProfileId);
+    const hostModel = MODEL_BY_ROLE_TYPE[roleType as keyof typeof MODEL_BY_ROLE_TYPE];
+    if (
+      hostModel &&
+      !(await isEntityActiveById(hostModel, hostRoleProfileId))
+    ) {
+      continue;
+    }
+
     const relationshipId = String(collaboration._id);
     workplaces.push({
       roleType,
@@ -569,7 +579,7 @@ export async function listWorkplacesForUser(userId: string): Promise<PublicWorkp
       status: collaboration.status,
       workplaceRelationshipId: relationshipId,
       membershipId: relationshipId,
-      profileName: await getProfileDisplayName(roleType, String(collaboration.hostRoleProfileId)),
+      profileName: await getProfileDisplayName(roleType, hostRoleProfileId),
     });
   }
 
@@ -600,19 +610,25 @@ export async function listWorkplacesForUser(userId: string): Promise<PublicWorkp
       if (alreadyListed) continue;
 
       const roleType = collaboration.hostRoleType as BusinessRoleType;
+      const hostRoleProfileId = String(collaboration.hostRoleProfileId);
+      const hostModel = MODEL_BY_ROLE_TYPE[roleType as keyof typeof MODEL_BY_ROLE_TYPE];
+      if (
+        hostModel &&
+        !(await isEntityActiveById(hostModel, hostRoleProfileId))
+      ) {
+        continue;
+      }
+
       workplaces.push({
         roleType,
-        roleProfileId: String(collaboration.hostRoleProfileId),
+        roleProfileId: hostRoleProfileId,
         access: "collaborator",
         hierarchyLevel: collaboration.hierarchyLevel,
-      staffRole: collaboration.hierarchyLevel,
+        staffRole: collaboration.hierarchyLevel,
         status: collaboration.status,
         workplaceRelationshipId: relationshipId,
         membershipId: relationshipId,
-        profileName: await getProfileDisplayName(
-          roleType,
-          String(collaboration.hostRoleProfileId),
-        ),
+        profileName: await getProfileDisplayName(roleType, hostRoleProfileId),
       });
     }
   }

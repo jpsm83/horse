@@ -6,6 +6,7 @@
 
 import { resetOptionalUserCache } from "@/lib/api/authClient.ts";
 import type { PublicRelationship } from "@/lib/api/authClient.ts";
+import type { PublicOwnershipTransfer } from "@/lib/services/ownershipTransferService.ts";
 import type { CreateHorsePayload } from "@/lib/utils/horseFormMapping.ts";
 
 type ApiSuccess<T> = { data: T };
@@ -86,6 +87,12 @@ export type OwnerHorseSummary = {
   name?: string;
   breed?: string;
   sex?: string;
+  isMainOwner: boolean;
+  coOwners: Array<{
+    userId: string;
+    label: string;
+    ownershipPercentage: number;
+  }>;
 };
 
 /** Load a horse the authenticated user owns (main owner or co-owner). */
@@ -93,6 +100,17 @@ export async function fetchHorseForOwner(horseId: string): Promise<OwnerHorseSum
   const response = await apiFetch(`/api/v1/horses/${encodeURIComponent(horseId)}/owner`);
   const data = await parseApiResponse<{ horse: OwnerHorseSummary }>(response);
   return data.horse;
+}
+
+/** Pending ownership transfer invites sent by the main owner for this horse. */
+export async function fetchPendingSentOwnershipTransfers(
+  horseId: string,
+): Promise<PublicOwnershipTransfer[]> {
+  const response = await apiFetch(
+    `/api/v1/horses/${encodeURIComponent(horseId)}/ownership-transfers?status=pending`,
+  );
+  const data = await parseApiResponse<{ transfers: PublicOwnershipTransfer[] }>(response);
+  return data.transfers;
 }
 
 /** Pending relationship invites sent by the owner for this horse. */

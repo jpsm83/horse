@@ -19,6 +19,7 @@ import {
   buildPublicGroomCard,
   type PublicGroomCard,
 } from "@/lib/grooms/buildPublicGroomCard.ts";
+import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
   createGroomSchema,
@@ -139,6 +140,8 @@ export async function getPublicGroomCard(
   if (!groom) {
     throw new ApiError(404, "Groom not found", "NOT_FOUND");
   }
+
+  await assertPublicReadAllowed(groom as Record<string, unknown>, "Groom");
 
   const requesterUserId = requester?.id;
   const hasRelationship =

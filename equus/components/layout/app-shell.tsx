@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { AppHeader } from "@/components/layout/app-header.tsx";
 import { DiscoverSidebar } from "@/components/layout/discover-sidebar.tsx";
+import { IncompleteProfileBanner } from "@/components/layout/incomplete-profile-banner.tsx";
 import { useIsMobile } from "@/hooks/use-mobile.ts";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
@@ -29,6 +30,7 @@ export function AppShell({ children }: AppShellProps) {
       <DiscoverSidebar onHoverChange={setSidebarHovered} />
       <SidebarInset className="flex min-h-svh flex-1 flex-col">
         <AppHeader />
+        <IncompleteProfileBanner />
         <div className="flex flex-1 flex-col">{children}</div>
       </SidebarInset>
     </SidebarProvider>

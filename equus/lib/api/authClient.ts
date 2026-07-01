@@ -1,6 +1,7 @@
 import type { AuthProvider, AuthUser } from "@/lib/auth/types.ts";
 import type { PublicUser, UpdatePersonalDetailsInput } from "@/lib/services/userService.ts";
 import type { UserOwnedNavigation } from "@/lib/services/navigationService.ts";
+import type { PublicOwnershipTransfer } from "@/lib/services/ownershipTransferService.ts";
 import type { PublicWorkplace } from "@/lib/services/workplaceRelationshipService.ts";
 
 type ApiSuccess<T> = { data: T };
@@ -69,6 +70,7 @@ const AUTH_NO_REFRESH_PATHS = [
   "/api/v1/auth/refresh",
   "/api/v1/auth/logout",
   "/api/v1/auth/session",
+  "/api/v1/auth/me",
 ] as const;
 
 function shouldAttemptTokenRefresh(url: string): boolean {
@@ -77,7 +79,9 @@ function shouldAttemptTokenRefresh(url: string): boolean {
 
 let refreshInFlight: Promise<boolean> | null = null;
 let silentAuthFailure = false;
+let suppressSessionExpiredNotification = false;
 let sessionExpiredHandler: (() => void) | null = null;
+let lastSessionExpiredNotificationAt = 0;
 
 /** Register a client handler for unrecoverable auth failure (e.g. redirect to sign-in). */
 export function setSessionExpiredHandler(handler: (() => void) | null): void {
@@ -85,7 +89,29 @@ export function setSessionExpiredHandler(handler: (() => void) | null): void {
 }
 
 function notifySessionExpired(): void {
-  sessionExpiredHandler?.();
+  if (suppressSessionExpiredNotification || !sessionExpiredHandler) {
+    return;
+  }
+
+  const now = Date.now();
+  if (now - lastSessionExpiredNotificationAt < 3_000) {
+    return;
+  }
+  lastSessionExpiredNotificationAt = now;
+  sessionExpiredHandler();
+}
+
+/** Suppress session-expired redirect/toast during intentional sign-out. */
+export async function runWithSuppressedSessionExpired<T>(
+  fn: () => Promise<T>,
+): Promise<T> {
+  const previous = suppressSessionExpiredNotification;
+  suppressSessionExpiredNotification = true;
+  try {
+    return await fn();
+  } finally {
+    suppressSessionExpiredNotification = previous;
+  }
 }
 
 /** Suppress session-expired redirect for optional auth probes on public pages. */
@@ -144,6 +170,7 @@ const apiFetch = async (input: string, init?: RequestInit): Promise<Response> =>
 let optionalUserCache: AuthUser | null | undefined;
 let navigationCache: UserOwnedNavigation | undefined;
 const authStateListeners = new Set<() => void>();
+let ensureRestSessionInFlight: Promise<AuthUser | null> | null = null;
 
 /** Subscribe to REST session cache changes (login, logout, bridge). Used by `useAppAuth`. */
 export function subscribeAuthStateChanged(listener: () => void): () => void {
@@ -327,6 +354,66 @@ export async function declineRelationship(relationshipId: string): Promise<void>
   );
 }
 
+export type { PublicOwnershipTransfer };
+
+export async function fetchPendingOwnershipTransfers(): Promise<PublicOwnershipTransfer[]> {
+  const data = await parseApiResponse<{ transfers: PublicOwnershipTransfer[] }>(
+    await apiFetch("/api/v1/users/me/ownership-transfers?status=pending"),
+  );
+  return data.transfers;
+}
+
+export async function acceptOwnershipTransfer(transferId: string): Promise<void> {
+  await parseApiResponse(
+    await apiFetch(`/api/v1/ownership-transfers/${transferId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "accepted" }),
+    }),
+  );
+}
+
+export async function declineOwnershipTransfer(transferId: string): Promise<void> {
+  await parseApiResponse(
+    await apiFetch(`/api/v1/ownership-transfers/${transferId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "declined" }),
+    }),
+  );
+}
+
+export type CreateOwnershipTransferClientInput = {
+  entityType: "horse" | "stable" | "breeder" | "transport" | "ridingClub";
+  entityId: string;
+  transferKind: "transfer_main" | "remove_co_owner" | "promote_co_owner";
+  receiverUserId?: string;
+  targetCoOwnerUserId?: string;
+  invitedEmail?: string;
+  invitedName?: string;
+};
+
+export async function createOwnershipTransfer(
+  input: CreateOwnershipTransferClientInput,
+): Promise<PublicOwnershipTransfer> {
+  const data = await parseApiResponse<{ transfer: PublicOwnershipTransfer }>(
+    await apiFetch("/api/v1/ownership-transfers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    }),
+  );
+  return data.transfer;
+}
+
+export async function cancelOwnershipTransfer(transferId: string): Promise<void> {
+  await parseApiResponse(
+    await apiFetch(`/api/v1/ownership-transfers/${transferId}`, {
+      method: "DELETE",
+    }),
+  );
+}
+
 export async function resolveInviteRef(ref: string): Promise<InviteRefPreview | null> {
   const response = await apiFetch(
     `/api/v1/invites/preview?ref=${encodeURIComponent(ref)}`,
@@ -358,6 +445,15 @@ export async function fetchUserNavigation(force = false): Promise<UserOwnedNavig
 
 export type { UserOwnedNavigation };
 
+/** Deactivate the signed-in account (`DELETE /api/v1/users/me`). Clears REST session cookies server-side. */
+export async function deactivateCurrentUserAccount(): Promise<{ user: PublicUser }> {
+  const data = await parseApiResponse<{ user: PublicUser }>(
+    await apiFetch("/api/v1/users/me", { method: "DELETE" }),
+  );
+  resetOptionalUserCache();
+  return data;
+}
+
 /** Update profile fields; optional avatar upload uses multipart PATCH. */
 export async function updateUserProfile(
   input: UpdatePersonalDetailsInput,
@@ -388,12 +484,63 @@ export async function updateUserProfile(
 }
 
 async function probeAuthMe(): Promise<AuthUser | null> {
-  const response = await apiFetch("/api/v1/auth/me");
+  let response = await fetch("/api/v1/auth/me", { credentials: "include" });
+
+  if (response.status === 401) {
+    const body = (await response.json().catch(() => ({}))) as ApiErrorBody;
+    const message = "error" in body ? body.error?.message : undefined;
+
+    // Anonymous visitor — no access cookie; skip refresh (avoids extra 401 noise).
+    if (message === "No access token provided") {
+      return null;
+    }
+
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+      response = await fetch("/api/v1/auth/me", { credentials: "include" });
+    } else {
+      return null;
+    }
+  }
+
   if (response.status === 401) {
     return null;
   }
+
   const data = await parseApiResponse<{ user: AuthUser }>(response);
   return data.user;
+}
+
+async function runEnsureRestSession(
+  options: EnsureRestSessionOptions,
+): Promise<AuthUser | null> {
+  const { nextAuthUserId, required = false, attemptBridge = false } = options;
+
+  const existing = await runWithSilentAuthFailure(() => probeAuthMe());
+  if (existing) {
+    return setOptionalUserCache(existing);
+  }
+
+  const shouldBridge = attemptBridge || Boolean(nextAuthUserId);
+  if (shouldBridge) {
+    const bridged = await bridgeFromNextAuth();
+    if (bridged) {
+      return bridged;
+    }
+
+    const afterBridge = await runWithSilentAuthFailure(() => probeAuthMe());
+    if (afterBridge) {
+      return setOptionalUserCache(afterBridge);
+    }
+  }
+
+  setOptionalUserCache(null);
+
+  if (required) {
+    notifySessionExpired();
+  }
+
+  return null;
 }
 
 /** Bridge NextAuth (Google) to REST httpOnly cookies — internal; use `ensureRestSession`. */
@@ -420,6 +567,11 @@ export type EnsureRestSessionOptions = {
   nextAuthUserId?: string;
   /** When true, notify session-expired handler if REST session cannot be established. */
   required?: boolean;
+  /**
+   * POST `/api/v1/auth/session` when REST cookies are missing.
+   * Use on protected pages (e.g. after Google OAuth redirect) — server reads NextAuth cookie.
+   */
+  attemptBridge?: boolean;
 };
 
 /**
@@ -429,32 +581,27 @@ export type EnsureRestSessionOptions = {
 export async function ensureRestSession(
   options: EnsureRestSessionOptions = {},
 ): Promise<AuthUser | null> {
-  const { nextAuthUserId, required = false } = options;
+  const { nextAuthUserId, attemptBridge = false } = options;
+  const bridgePending = attemptBridge || Boolean(nextAuthUserId);
 
-  const existing = await runWithSilentAuthFailure(() => probeAuthMe());
-  if (existing) {
-    return setOptionalUserCache(existing);
-  }
-
-  if (nextAuthUserId) {
-    const bridged = await bridgeFromNextAuth();
-    if (bridged) {
-      return bridged;
+  if (optionalUserCache !== undefined) {
+    if (optionalUserCache !== null) {
+      return optionalUserCache;
     }
-
-    const afterBridge = await runWithSilentAuthFailure(() => probeAuthMe());
-    if (afterBridge) {
-      return setOptionalUserCache(afterBridge);
+    if (!bridgePending) {
+      return null;
     }
   }
 
-  resetOptionalUserCache();
-
-  if (required || nextAuthUserId) {
-    notifySessionExpired();
+  if (ensureRestSessionInFlight) {
+    return ensureRestSessionInFlight;
   }
 
-  return null;
+  ensureRestSessionInFlight = runEnsureRestSession(options).finally(() => {
+    ensureRestSessionInFlight = null;
+  });
+
+  return ensureRestSessionInFlight;
 }
 
 /** Optional auth probe for public pages — returns null when not signed in. */
@@ -468,7 +615,7 @@ export async function tryFetchCurrentUser(force = false): Promise<AuthUser | nul
 }
 
 export async function fetchCurrentUser(): Promise<AuthUser> {
-  const user = await ensureRestSession({ required: true });
+  const user = await ensureRestSession({ attemptBridge: true, required: true });
   if (!user) {
     throw new ApiClientError(401, "Not authenticated", "UNAUTHORIZED");
   }

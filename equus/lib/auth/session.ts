@@ -9,6 +9,8 @@
 
 import User from "../../models/User.ts";
 import { normalizeLocale } from "@/i18n/resolveLocale.ts";
+import { ApiError } from "../api/errors.ts";
+import { isDocumentActive } from "../lifecycle/activeQuery.ts";
 import type { AuthProvider, AuthUser } from "./types.ts";
 import { userHasPassword } from "../services/userService.ts";
 
@@ -109,6 +111,17 @@ export function refreshTokenPayloadVersionMatchesDb(
   dbVersion: number,
 ): boolean {
   return (tokenVersion ?? 0) === dbVersion;
+}
+
+/**
+ * Live DB check after JWT verify — deactivated accounts must not call protected APIs
+ * with a still-valid access token (see UA-04).
+ */
+export async function assertUserAccountActive(userId: string): Promise<void> {
+  const user = await User.findById(userId).select("isActive").lean();
+  if (!isDocumentActive(user)) {
+    throw new ApiError(401, "Invalid or expired access token", "UNAUTHORIZED");
+  }
 }
 
 // --- Session payload ---

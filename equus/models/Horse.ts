@@ -6,7 +6,7 @@
  */
 
 import mongoose, { Schema, model } from "mongoose";
-import { coOwnerSchema, mediaAssetSchema, pedigreeSchema } from "./sharedSchemas/index.ts";
+import { coOwnerSchema, deactivationAuditFields, mediaAssetSchema, pedigreeSchema } from "./sharedSchemas/index.ts";
 import * as enums from "../utils/enums.ts";
 
 const {
@@ -33,6 +33,8 @@ const horseSubscriptionSchema = new Schema(
     trialEndsAt: { type: Date },
     subscriptionStartedAt: { type: Date },
     canceledAt: { type: Date },
+    /** User billed for this horse subscription (defaults to mainOwnerUserId; H-BILL-03). */
+    payerUserId: { type: Schema.Types.ObjectId, ref: "User" },
     /** Business account that referred this horse (commission attribution) */
     attributedAccountType: { type: String, enum: accountTypeEnums },
     attributedAccountId: { type: Schema.Types.ObjectId },
@@ -133,7 +135,7 @@ const horseSchema = new Schema(
     showValuePublicly: { type: Boolean, default: false },
 
     /** Operational flags */
-    isActive: { type: Boolean, default: true },
+    ...deactivationAuditFields,
     createdByUserId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   {

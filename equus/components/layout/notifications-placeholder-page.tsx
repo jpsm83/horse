@@ -3,22 +3,22 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { NotificationsPlaceholderSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
 import { useRouter } from "@/i18n/navigation.ts";
 import { fetchCurrentUser } from "@/lib/api/authClient.ts";
+import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 
 /** Auth-gated notifications placeholder. */
 export function NotificationsPlaceholderPage() {
   const router = useRouter();
   const t = useTranslations("header");
-  const tCommon = useTranslations("common");
   const [isLoading, setIsLoading] = useState(true);
 
   const verifyAuth = useCallback(async () => {
     try {
       await fetchCurrentUser();
     } catch {
-      router.replace("/signin?next=%2Fnotifications");
+      router.replace(buildSignInPath("/notifications"));
     } finally {
       setIsLoading(false);
     }
@@ -29,13 +29,7 @@ export function NotificationsPlaceholderPage() {
   }, [verifyAuth]);
 
   if (isLoading) {
-    return (
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-12">
-        <Alert>
-          <AlertDescription>{tCommon("loading")}</AlertDescription>
-        </Alert>
-      </div>
-    );
+    return <NotificationsPlaceholderSkeleton />;
   }
 
   return (

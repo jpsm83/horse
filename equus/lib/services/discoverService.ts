@@ -18,7 +18,10 @@ import Coach from "@/models/Coach.ts";
 import Rider from "@/models/Rider.ts";
 import Relationship from "@/models/Relationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
-import { userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
+import {
+  filterActiveOperatorUserIds,
+  mergeActiveOnly,
+} from "@/lib/lifecycle/activeQuery.ts";
 import {
   assertTypeAllowedForScope,
   type DiscoverProvidersQuery,
@@ -26,6 +29,7 @@ import {
 import { canViewStableDiscovery } from "@/lib/stables/stableDiscoveryAccess.ts";
 import { canViewBreederDiscovery } from "@/lib/breeders/breederDiscoveryAccess.ts";
 import { canViewTransportDiscovery } from "@/lib/transports/transportDiscoveryAccess.ts";
+import { canViewRidingClubDiscovery } from "@/lib/ridingClubs/ridingClubDiscoveryAccess.ts";
 import { canViewTrainerDiscovery } from "@/lib/trainers/trainerDiscoveryAccess.ts";
 import { canViewVeterinaryDiscovery } from "@/lib/veterinaries/veterinaryDiscoveryAccess.ts";
 import { canViewGroomDiscovery } from "@/lib/grooms/groomDiscoveryAccess.ts";
@@ -51,21 +55,6 @@ type ProviderSearchConfig = {
   canView: (profile: Record<string, unknown>, context: Record<string, unknown>) => boolean;
   relationshipContextKey: string;
 };
-
-function canViewRidingClubDiscovery(
-  ridingClub: Record<string, unknown>,
-  context: { requesterUserId?: string; hasAcceptedHorseRidingClubRelationship?: boolean },
-): boolean {
-  const requesterUserId = context.requesterUserId;
-  const isOwner =
-    typeof requesterUserId === "string" &&
-    requesterUserId.length > 0 &&
-    userOwnsEntity(requesterUserId, ridingClub);
-
-  if (isOwner) return true;
-  if (ridingClub.isPublic !== false) return true;
-  return context.hasAcceptedHorseRidingClubRelationship === true;
-}
 
 const PROVIDER_CONFIG: Record<ProviderType, ProviderSearchConfig> = {
   stable: {
@@ -209,12 +198,19 @@ export async function searchDiscoverProviders(
     mongoFilter.$or = [{ [config.labelField]: pattern }, { "address.city": pattern }];
   }
 
-  const candidates = await config.Model.find(mongoFilter)
+  const candidates = await config.Model.find(mergeActiveOnly(mongoFilter))
     .sort({ [config.labelField]: 1 })
     .limit(Math.min(limit * 3, 60))
     .lean();
 
   const acceptedProfileIds = await getAcceptedProfileIds(requesterUserId, query.type);
+  const activeOperatorIds = await filterActiveOperatorUserIds(
+    candidates
+      .map((doc) =>
+        getOperatorUserId(doc as Record<string, unknown>, config.operatorField),
+      )
+      .filter((id): id is string => Boolean(id)),
+  );
   const results: DiscoverProviderCard[] = [];
 
   for (const doc of candidates) {
@@ -223,6 +219,10 @@ export async function searchDiscoverProviders(
     const profile = doc as Record<string, unknown>;
     const profileId = String(profile._id);
     const operatorUserId = getOperatorUserId(profile, config.operatorField);
+
+    if (!operatorUserId || !activeOperatorIds.has(operatorUserId)) {
+      continue;
+    }
 
     if (operatorUserId === requesterUserId) {
       continue;

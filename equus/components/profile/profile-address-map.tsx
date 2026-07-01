@@ -150,6 +150,7 @@ export function ProfileAddressMap({
           style={{ height: "100%", width: "100%" }}
           scrollWheelZoom
         >
+          {/* Leaflet attribution HTML — external OpenStreetMap link, not app navigation */}
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"

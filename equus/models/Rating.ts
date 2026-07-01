@@ -11,6 +11,7 @@
  */
 
 import mongoose, { Schema, model } from "mongoose";
+import { deactivationAuditFields } from "./sharedSchemas/deactivationAudit.ts";
 import * as enums from "../utils/enums.ts";
 
 const { ratingCategoryEnums, accountTypeEnums } = enums;
@@ -70,6 +71,8 @@ const ratingSchema = new Schema(
 
     isVerifiedInteraction: { type: Boolean, default: true },
     isPublic: { type: Boolean, default: true },
+
+    ...deactivationAuditFields,
   },
   {
     timestamps: true,

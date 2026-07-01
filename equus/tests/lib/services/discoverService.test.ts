@@ -112,4 +112,38 @@ describe("discoverService", () => {
 
     expect(results.some((entry) => entry.label === "Carla Groom")).toBe(true);
   });
+
+  it("excludes inactive provider profiles from search", async () => {
+    const owner = await createUser("discover-inactive-stable@example.com");
+    const stableOwner = await createUser("discover-inactive-stable-owner@example.com");
+    await createTestStable(String(stableOwner._id), {
+      tradeName: "Closed Barn",
+      isActive: false,
+    });
+
+    const results = await discoverService.searchDiscoverProviders(String(owner._id), {
+      type: "stable",
+      q: "Closed",
+      limit: 20,
+      scope: "horse",
+    });
+
+    expect(results).toHaveLength(0);
+  });
+
+  it("excludes profiles operated by deactivated users", async () => {
+    const owner = await createUser("discover-deactivated-owner@example.com");
+    const stableOwner = await createUser("discover-deactivated-stable-owner@example.com");
+    await createTestStable(String(stableOwner._id), { tradeName: "Ghost Barn" });
+    await userService.softDelete(String(stableOwner._id));
+
+    const results = await discoverService.searchDiscoverProviders(String(owner._id), {
+      type: "stable",
+      q: "Ghost",
+      limit: 20,
+      scope: "horse",
+    });
+
+    expect(results).toHaveLength(0);
+  });
 });

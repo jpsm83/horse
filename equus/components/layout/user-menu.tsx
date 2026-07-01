@@ -32,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link } from "@/i18n/navigation.ts";
+import { resolveAppHomePath } from "@/lib/navigation/postAuthRedirect.ts";
 import { cn } from "@/lib/utils";
 
 type UserMenuProps = {
@@ -50,6 +51,7 @@ export function UserMenu({ auth }: UserMenuProps) {
   const myOwnLinks = filterMyOwnLinks(auth.ownedNavigation);
   const hasMyOwn = myOwnLinks.length > 0;
   const HorseIcon = CREATE_MENU_HORSE_LINK.icon;
+  const homeHref = resolveAppHomePath(auth.isAuthenticated);
 
   return (
     <DropdownMenu modal={false}>
@@ -78,7 +80,7 @@ export function UserMenu({ auth }: UserMenuProps) {
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href="/" className="flex w-full cursor-pointer items-center gap-2">
+              <Link href={homeHref} className="flex w-full cursor-pointer items-center gap-2">
                 <Home className="size-4" />
                 {t("home")}
               </Link>
@@ -181,7 +183,7 @@ export function UserMenu({ auth }: UserMenuProps) {
         ) : (
           <>
             <DropdownMenuItem>
-              <Link href="/" className="flex w-full cursor-pointer items-center gap-2">
+              <Link href={homeHref} className="flex w-full cursor-pointer items-center gap-2">
                 <Home className="size-4" />
                 {t("home")}
               </Link>

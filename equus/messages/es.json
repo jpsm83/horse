@@ -45,7 +45,8 @@
     "account": {
       "sectionLabel": "Mi cuenta",
       "workplaces": "Lugares de trabajo",
-      "relationships": "Solicitudes de relación"
+      "relationships": "Solicitudes de relación",
+      "ownershipTransfers": "Transferencias de propiedad"
     },
     "myOwn": {
       "sectionLabel": "Mis perfiles",
@@ -192,7 +193,11 @@
       "wrongAccount": "Esta invitación es para otra cuenta. Inicie sesión con el email invitado.",
       "emailUnverified": "Verifique su email antes de iniciar sesión."
     },
-    "requestFailed": "La solicitud falló"
+    "requestFailed": "La solicitud falló",
+    "error": {
+      "title": "Algo salió mal",
+      "description": "No se pudo cargar esta página. Puede intentarlo de nuevo o volver al inicio."
+    }
   },
   "invites": {
     "workplaces": {
@@ -213,6 +218,27 @@
       "decline": "Rechazar",
       "accepted": "Relación aceptada.",
       "declined": "Relación rechazada."
+    },
+    "ownershipTransfers": {
+      "title": "Solicitudes de transferencia de propiedad",
+      "description": "Cambios de propiedad pendientes de su respuesta.",
+      "empty": "No tiene solicitudes de transferencia de propiedad pendientes.",
+      "accept": "Aceptar",
+      "decline": "Rechazar",
+      "accepted": "Transferencia de propiedad aceptada.",
+      "declined": "Transferencia de propiedad rechazada.",
+      "entityTypes": {
+        "horse": "Caballo",
+        "stable": "Establo",
+        "breeder": "Criador",
+        "transport": "Transporte",
+        "ridingClub": "Club hípico"
+      },
+      "transferKinds": {
+        "transfer_main": "Transferir propiedad principal",
+        "remove_co_owner": "Eliminar copropietario",
+        "promote_co_owner": "Promover copropietario"
+      }
     },
     "signup": {
       "staffBanner": "Fue invitado a un lugar de trabajo en Equus. Regístrese con el email invitado.",
@@ -285,6 +311,7 @@
     "title": "Su perfil",
     "description": "Actualice sus datos personales y preferencias.",
     "incompleteBanner": "Su perfil está incompleto. Puede guardar cambios en cualquier momento y completar el resto más tarde.",
+    "incompleteGlobalBannerLink": "Completar su perfil",
     "submit": "Guardar perfil",
     "submitting": "Guardando…",
     "saved": "Perfil guardado.",
@@ -298,7 +325,8 @@
       "visibility": "Visibilidad y privacidad",
       "address": "Dirección",
       "photo": "Foto",
-      "security": "Seguridad"
+      "security": "Seguridad",
+      "account": "Cuenta"
     },
     "username": "Nombre de usuario",
     "preferredLanguage": "Idioma preferido",
@@ -338,6 +366,15 @@
     "passwordChange": "Cambiar contraseña",
     "passwordChangeDescription": "Le enviaremos un enlace por email para restablecer su contraseña.",
     "passwordEmailFailed": "No se pudo enviar el email. Inténtelo de nuevo.",
+    "deactivateAccount": "Desactivar cuenta",
+    "deactivateDescription": "Desactive su acceso a Equus. Sus datos se conservan para caballos, relaciones y registros en los que participó.",
+    "deactivateDialogTitle": "¿Desactivar su cuenta?",
+    "deactivateDialogDescription": "Se cerrará su sesión y no podrá volver a iniciar sesión con esta cuenta. Esto no elimina caballos ni registros de negocio vinculados a usted.",
+    "deactivateCancel": "Cancelar",
+    "deactivateConfirm": "Desactivar cuenta",
+    "deactivateSubmitting": "Desactivando…",
+    "deactivateSuccess": "Cuenta desactivada.",
+    "deactivateFailed": "No se pudo desactivar la cuenta. Inténtelo de nuevo.",
     "selectPlaceholder": "Seleccionar…",
     "genderOptions": {
       "Man": "Hombre",
@@ -439,11 +476,43 @@
       "Other": "Otro"
     }
   },
+  "userProfile": {
+    "title": "Perfil de usuario",
+    "description": "Perfil de miembro de Equus enlazado desde caballos y otros listados. Los usuarios no son buscables.",
+    "eyebrow": "Miembro de Equus",
+    "about": "Acerca de",
+    "noBio": "Sin biografía.",
+    "contact": "Contacto",
+    "email": "Email",
+    "phone": "Teléfono",
+    "memberFallback": "Miembro de Equus"
+  },
   "horseHub": {
     "backToHorses": "Volver a mis caballos",
     "subtitle": "Gestionar este caballo",
     "connectTitle": "Conectar proveedores",
-    "connectDescription": "Invite cuadras, veterinarios, entrenadores y otros proveedores. Ellos aceptan o rechazan — los proveedores nunca envían solicitudes a su caballo."
+    "connectDescription": "Invite cuadras, veterinarios, entrenadores y otros proveedores. Ellos aceptan o rechazan — los proveedores nunca envían solicitudes a su caballo.",
+    "ownership": {
+      "title": "Propiedad",
+      "description": "Transfiera este caballo o gestione copropietarios. Los cambios se aplican solo cuando la otra parte acepta.",
+      "transferTitle": "Transferir propiedad",
+      "transferDescription": "Envíe la propiedad a otra persona por email. Aceptan la solicitud en su bandeja de transferencias.",
+      "coOwnersTitle": "Gestionar copropietarios",
+      "coOwnersDescription": "Elimine o promueva copropietarios. Cada persona debe aceptar antes de que el cambio se aplique.",
+      "coOwnersBlockTransfer": "Elimine todos los copropietarios antes de transferir la propiedad principal.",
+      "emailLabel": "Email del nuevo propietario",
+      "nameLabel": "Nombre (opcional)",
+      "sendTransfer": "Enviar solicitud de transferencia",
+      "removeCoOwner": "Eliminar",
+      "promoteCoOwner": "Promover a propietario principal",
+      "pending": "Pendiente",
+      "cancelPending": "Cancelar solicitud",
+      "transferSent": "Solicitud de transferencia enviada.",
+      "removeSent": "Solicitud de eliminación enviada.",
+      "promoteSent": "Solicitud de promoción enviada.",
+      "cancelled": "Solicitud cancelada.",
+      "ownershipPercentage": "{percentage}% de propiedad"
+    }
   },
   "errors": {
     "EMAIL_NOT_VERIFIED": "Verifique su email antes de iniciar sesión.",

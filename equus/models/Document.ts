@@ -1,4 +1,5 @@
 import mongoose, { Schema, model } from "mongoose";
+import { deactivationAuditFields } from "./sharedSchemas/deactivationAudit.ts";
 import * as enums from "../utils/enums.ts";
 
 const { documentTypeEnums, visibilityEnums, accountTypeEnums } = enums;
@@ -43,6 +44,8 @@ const documentSchema = new Schema(
     issuedAt: { type: Date },
     expiresAt: { type: Date },
     isArchived: { type: Boolean, default: false },
+
+    ...deactivationAuditFields,
   },
   {
     timestamps: true,

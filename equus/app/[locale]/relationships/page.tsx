@@ -5,10 +5,11 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
-import { InviteHubListSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
+import { InviteHubPageSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
-import { Link, useRouter } from "@/i18n/navigation.ts";
+import { AppHomeLink } from "@/components/navigation/app-home-link.tsx";
+import { useRouter } from "@/i18n/navigation.ts";
 import {
   acceptRelationship,
   declineRelationship,
@@ -17,25 +18,11 @@ import {
   isApiClientError,
   type PublicRelationship,
 } from "@/lib/api/authClient.ts";
+import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { cn } from "@/lib/utils";
 
 function RelationshipsLoadingShell() {
-  const t = useTranslations("invites.relationships");
-  const tCommon = useTranslations("common");
-
-  return (
-    <AuthPageShell
-      title={t("title")}
-      description={tCommon("loading")}
-      footer={
-        <Link href="/" className="font-medium text-foreground underline-offset-4 hover:underline">
-          {tCommon("home")}
-        </Link>
-      }
-    >
-      <InviteHubListSkeleton />
-    </AuthPageShell>
-  );
+  return <InviteHubPageSkeleton titleNamespace="invites.relationships" />;
 }
 
 function RelationshipsContent() {
@@ -68,7 +55,7 @@ function RelationshipsContent() {
         const next = highlightRelationshipId
           ? `/relationships?relationship=${encodeURIComponent(highlightRelationshipId)}`
           : "/relationships";
-        router.replace(`/signin?next=${encodeURIComponent(next)}`);
+        router.replace(buildSignInPath(next));
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -124,9 +111,9 @@ function RelationshipsContent() {
       title={t("title")}
       description={t("description")}
       footer={
-        <Link href="/" className="font-medium text-foreground underline-offset-4 hover:underline">
+        <AppHomeLink className="font-medium text-foreground underline-offset-4 hover:underline">
           {tCommon("home")}
-        </Link>
+        </AppHomeLink>
       }
     >
       {relationships.length === 0 ? (

@@ -22,6 +22,7 @@ export { default as Groom } from "./Groom.ts";
 export { default as Farrier } from "./Farrier.ts";
 export { default as Relationship } from "./Relationship.ts";
 export { default as WorkplaceRelationship } from "./WorkplaceRelationship.ts";
+export { default as OwnershipTransfer } from "./OwnershipTransfer.ts";
 export { default as Rating } from "./Rating.ts";
 export { default as Booking } from "./Booking.ts";
 export { default as Invoice } from "./Invoice.ts";

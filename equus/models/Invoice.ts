@@ -1,4 +1,5 @@
 import mongoose, { Schema, model } from "mongoose";
+import { deactivationAuditFields } from "./sharedSchemas/deactivationAudit.ts";
 import * as enums from "../utils/enums.ts";
 
 const { invoiceStatusEnums, expenseCategoryEnums, accountTypeEnums, currencyEnums } = enums;
@@ -73,6 +74,8 @@ const invoiceSchema = new Schema(
 
     relationshipId: { type: Schema.Types.ObjectId, ref: "Relationship" },
     bookingId: { type: Schema.Types.ObjectId, ref: "Booking" },
+
+    ...deactivationAuditFields,
   },
   {
     timestamps: true,

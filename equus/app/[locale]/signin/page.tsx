@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
@@ -11,18 +12,21 @@ import { TextField } from "@/components/forms/text-field.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
+import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated.ts";
 import { Link, usePathname, useRouter } from "@/i18n/navigation.ts";
 import { normalizeLocale } from "@/i18n/resolveLocale.ts";
 import { isApiClientError, loginWithCredentials } from "@/lib/api/authClient.ts";
+import { resolvePostAuthPath } from "@/lib/navigation/postAuthRedirect.ts";
 import {
   authFormMessagesFromTranslations,
   createAuthFormSchemas,
   type SignInFormValues,
 } from "@/lib/validations/authForms.ts";
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const locale = useLocale();
   const t = useTranslations("auth.signIn");
   const tCommon = useTranslations("common");
@@ -30,6 +34,9 @@ export default function SignInPage() {
   const tErrors = useTranslations("errors");
   const [apiError, setApiError] = useState<string | null>(null);
   const [showResendLink, setShowResendLink] = useState(false);
+  const postAuthPath = resolvePostAuthPath(searchParams.get("next"));
+
+  useRedirectIfAuthenticated(postAuthPath);
 
   const { signInFormSchema } = useMemo(
     () =>
@@ -58,7 +65,7 @@ export default function SignInPage() {
       if (preferred !== normalizeLocale(locale)) {
         router.replace(pathname, { locale: preferred });
       }
-      router.push("/");
+      router.push(postAuthPath);
       router.refresh();
     } catch (err) {
       if (isApiClientError(err) && err.code === "EMAIL_NOT_VERIFIED") {
@@ -142,8 +149,17 @@ export default function SignInPage() {
 
       <GoogleSignInButton
         disabled={isSubmitting}
+        callbackUrl={postAuthPath}
         onError={(message) => setApiError(message)}
       />
     </AuthPageShell>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignInContent />
+    </Suspense>
   );
 }

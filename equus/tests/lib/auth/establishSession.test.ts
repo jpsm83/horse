@@ -1,23 +1,23 @@
-import { describe, expect, it } from "vitest";
+/**
+ * establishSession — token issuance after login, register, refresh, session bridge.
+ */
 
+import { describe, expect, it } from "vitest";
+import User from "@/models/User.ts";
 import { establishSession } from "@/lib/auth/establishSession.ts";
-import { verifyAccessToken } from "@/lib/auth/jwt.ts";
 import * as authService from "@/lib/services/authService.ts";
 
 describe("establishSession", () => {
-  it("issues tokens for a registered user", async () => {
+  it("rejects inactive users before issuing tokens", async () => {
     const registered = await authService.register({
-      email: "establish@example.com",
+      email: "inactive-establish@example.com",
       password: "TestPass1!",
     });
 
-    const tokens = await establishSession(registered.user.id);
+    await User.updateOne({ _id: registered.user.id }, { $set: { isActive: false } });
 
-    expect(tokens.user.email).toBe("establish@example.com");
-    expect(tokens.accessToken).toBeTruthy();
-    expect(tokens.refreshToken).toBeTruthy();
-
-    const payload = await verifyAccessToken(tokens.accessToken);
-    expect(payload.id).toBe(registered.user.id);
+    await expect(establishSession(registered.user.id)).rejects.toMatchObject({
+      statusCode: 401,
+    });
   });
 });

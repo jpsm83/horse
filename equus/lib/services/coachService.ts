@@ -19,6 +19,7 @@ import {
   buildPublicCoachCard,
   type PublicCoachCard,
 } from "@/lib/coaches/buildPublicCoachCard.ts";
+import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
   createCoachSchema,
@@ -141,6 +142,8 @@ export async function getPublicCoachCard(
   if (!coach) {
     throw new ApiError(404, "Coach not found", "NOT_FOUND");
   }
+
+  await assertPublicReadAllowed(coach as Record<string, unknown>, "Coach");
 
   const requesterUserId = requester?.id;
   const hasRelationship =

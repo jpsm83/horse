@@ -13,6 +13,7 @@
 
 import mongoose, { Schema, model } from "mongoose";
 import { personalDetailsSchema } from "./PersonalDetails.ts";
+import { deactivationAuditFields } from "./sharedSchemas/deactivationAudit.ts";
 import {
   userDirectMessageAudienceEnums,
   userProfileVisibilityEnums,
@@ -118,7 +119,15 @@ const userSchema = new Schema(
 
     lastLoginAt: { type: Date },
     lastActiveAt: { type: Date },
-    isActive: { type: Boolean, default: true },
+    ...deactivationAuditFields,
+
+    /** GDPR / regulatory erasure — personal PII scrubbed; `_id` retained for referential integrity */
+    piiAnonymizedAt: { type: Date, default: undefined },
+    piiAnonymizedByUserId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: undefined,
+    },
   },
   {
     timestamps: true,
@@ -127,6 +136,7 @@ const userSchema = new Schema(
 );
 
 userSchema.index({ "personalDetails.email": 1 }, { unique: true });
+userSchema.index({ "personalDetails.username": 1 }, { unique: true, sparse: true });
 userSchema.index({ "notifications.notificationId": 1 });
 userSchema.index({ verificationToken: 1 }, { sparse: true });
 userSchema.index({ resetPasswordToken: 1 }, { sparse: true });

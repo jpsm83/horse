@@ -19,6 +19,7 @@ import {
   buildPublicStableCard,
   type PublicStableCard,
 } from "@/lib/stables/buildPublicStableCard.ts";
+import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
   createStableSchema,
@@ -145,6 +146,8 @@ export async function getPublicStableCard(
   if (!stable) {
     throw new ApiError(404, "Stable not found", "NOT_FOUND");
   }
+
+  await assertPublicReadAllowed(stable as Record<string, unknown>, "Stable");
 
   const requesterUserId = requester?.id;
   const hasRelationship =

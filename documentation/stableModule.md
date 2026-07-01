@@ -9,6 +9,7 @@ Living document for planning, updating, and tracking **stable-facing** capabilit
 - [`businessPlan.md`](businessPlan.md) — vision, monetization, competitive positioning (Section 20), relationship rules
 - [`mvpScope.md`](mvpScope.md) — build phases vs production launch gate
 - [`userModule.md`](userModule.md) — identity; [`workplaceRelationship.md`](workplaceRelationship.md) — stable collaboration (User ↔ role profile)
+- [`ownershipTransfer.md`](ownershipTransfer.md) — consent-based stable ownership / co-owner changes
 - [`horseModule.md`](horseModule.md) — horse hub (owner view, discovery, timeline); complementary to stable roster sections here
 
 ---

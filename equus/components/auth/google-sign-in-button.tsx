@@ -6,13 +6,19 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { GoogleIcon } from "@/components/icons/google-icon";
+import { DEFAULT_POST_AUTH_PATH } from "@/lib/navigation/postAuthRedirect.ts";
 
 type GoogleSignInButtonProps = {
   disabled?: boolean;
   onError?: (message: string) => void;
+  callbackUrl?: string;
 };
 
-export function GoogleSignInButton({ disabled, onError }: GoogleSignInButtonProps) {
+export function GoogleSignInButton({
+  disabled,
+  onError,
+  callbackUrl = DEFAULT_POST_AUTH_PATH,
+}: GoogleSignInButtonProps) {
   const t = useTranslations("auth.google");
   const tCommon = useTranslations("common");
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +27,7 @@ export function GoogleSignInButton({ disabled, onError }: GoogleSignInButtonProp
     setIsLoading(true);
 
     try {
-      await signIn("google", { callbackUrl: "/" });
+      await signIn("google", { callbackUrl });
     } catch {
       onError?.(t("failed"));
       setIsLoading(false);

@@ -4,6 +4,7 @@ import {
   ensureRestSession,
   loginWithCredentials,
   resetOptionalUserCache,
+  runWithSuppressedSessionExpired,
   setSessionExpiredHandler,
   subscribeAuthStateChanged,
 } from "@/lib/api/authClient.ts";
@@ -67,7 +68,7 @@ describe("ensureRestSession", () => {
         if (meCalls === 1) {
           return new Response(
             JSON.stringify({
-              error: { message: "No access token", code: "UNAUTHORIZED" },
+              error: { message: "No access token provided", code: "UNAUTHORIZED" },
             }),
             { status: 401, headers: { "Content-Type": "application/json" } },
           );
@@ -93,6 +94,40 @@ describe("ensureRestSession", () => {
     );
   });
 
+  it("bridges when attemptBridge is set without NextAuth user id", async () => {
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("/api/v1/auth/session")) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              accessToken: "access",
+              refreshToken: "refresh",
+              user: { id: "google-1", email: "google@example.com", type: "user" },
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      if (url.includes("/api/v1/auth/me")) {
+        return new Response(
+          JSON.stringify({
+            error: { message: "No access token provided", code: "UNAUTHORIZED" },
+          }),
+          { status: 401, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      return new Response(null, { status: 404 });
+    }) as typeof fetch;
+
+    const user = await ensureRestSession({ attemptBridge: true });
+
+    expect(user?.email).toBe("google@example.com");
+  });
+
   it("does not bridge when there is no NextAuth user id", async () => {
     globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
@@ -100,7 +135,7 @@ describe("ensureRestSession", () => {
       if (url.includes("/api/v1/auth/me")) {
         return new Response(
           JSON.stringify({
-            error: { message: "No access token", code: "UNAUTHORIZED" },
+            error: { message: "No access token provided", code: "UNAUTHORIZED" },
           }),
           { status: 401, headers: { "Content-Type": "application/json" } },
         );
@@ -122,14 +157,48 @@ describe("ensureRestSession", () => {
     );
   });
 
-  it("notifies session expired when bridge fails for Google user", async () => {
+  it("notifies session expired when required session cannot be established", async () => {
     globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
 
       if (url.includes("/api/v1/auth/me")) {
         return new Response(
           JSON.stringify({
-            error: { message: "No access token", code: "UNAUTHORIZED" },
+            error: { message: "No access token provided", code: "UNAUTHORIZED" },
+          }),
+          { status: 401, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      if (url.includes("/api/v1/auth/session")) {
+        return new Response(
+          JSON.stringify({
+            error: { message: "Not authenticated", code: "UNAUTHORIZED" },
+          }),
+          { status: 401, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      return new Response(null, { status: 404 });
+    }) as typeof fetch;
+
+    const expiredHandler = vi.fn();
+    setSessionExpiredHandler(expiredHandler);
+
+    const user = await ensureRestSession({ nextAuthUserId: "google-1", required: true });
+
+    expect(user).toBeNull();
+    expect(expiredHandler).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not notify session expired when optional bridge fails", async () => {
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("/api/v1/auth/me")) {
+        return new Response(
+          JSON.stringify({
+            error: { message: "No access token provided", code: "UNAUTHORIZED" },
           }),
           { status: 401, headers: { "Content-Type": "application/json" } },
         );
@@ -153,7 +222,60 @@ describe("ensureRestSession", () => {
     const user = await ensureRestSession({ nextAuthUserId: "google-1" });
 
     expect(user).toBeNull();
-    expect(expiredHandler).toHaveBeenCalledTimes(1);
+    expect(expiredHandler).not.toHaveBeenCalled();
+  });
+
+  it("caches anonymous result and dedupes concurrent probes", async () => {
+    let meCalls = 0;
+
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/api/v1/auth/me")) {
+        meCalls += 1;
+        return new Response(
+          JSON.stringify({
+            error: { message: "No access token provided", code: "UNAUTHORIZED" },
+          }),
+          { status: 401, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response(null, { status: 404 });
+    }) as typeof fetch;
+
+    const [first, second] = await Promise.all([
+      ensureRestSession(),
+      ensureRestSession(),
+    ]);
+
+    expect(first).toBeNull();
+    expect(second).toBeNull();
+    expect(meCalls).toBe(1);
+    expect(globalThis.fetch).not.toHaveBeenCalledWith(
+      "/api/v1/auth/refresh",
+      expect.anything(),
+    );
+  });
+
+  it("skips refresh when no access token cookie is present", async () => {
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/api/v1/auth/me")) {
+        return new Response(
+          JSON.stringify({
+            error: { message: "No access token provided", code: "UNAUTHORIZED" },
+          }),
+          { status: 401, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response(null, { status: 404 });
+    }) as typeof fetch;
+
+    await ensureRestSession();
+
+    expect(globalThis.fetch).not.toHaveBeenCalledWith(
+      "/api/v1/auth/refresh",
+      expect.anything(),
+    );
   });
 });
 
@@ -224,5 +346,41 @@ describe("subscribeAuthStateChanged", () => {
 
     expect(listener).not.toHaveBeenCalled();
     unsubscribe();
+  });
+});
+
+describe("runWithSuppressedSessionExpired", () => {
+  afterEach(() => {
+    resetOptionalUserCache();
+    setSessionExpiredHandler(null);
+    vi.restoreAllMocks();
+  });
+
+  it("suppresses session-expired notification during intentional sign-out", async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("/api/v1/auth/me")) {
+        return new Response(
+          JSON.stringify({
+            error: { message: "No access token provided", code: "UNAUTHORIZED" },
+          }),
+          { status: 401, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      return new Response(null, { status: 404 });
+    }) as typeof fetch;
+
+    const expiredHandler = vi.fn();
+    setSessionExpiredHandler(expiredHandler);
+
+    await runWithSuppressedSessionExpired(() =>
+      ensureRestSession({ nextAuthUserId: "google-1", required: true }),
+    );
+
+    expect(expiredHandler).not.toHaveBeenCalled();
+    globalThis.fetch = originalFetch;
   });
 });

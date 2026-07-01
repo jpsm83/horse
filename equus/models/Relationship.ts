@@ -4,6 +4,8 @@
  * Independent entities relate via this document (not bare refs on Horse/Stable/Vet) because
  * the product requires invite/accept/decline, pre-signup invites, permanent history when
  * ended, bidirectional queries, and attaching invoices/ratings/docs to the link.
+ *
+ * Lifecycle: use `status` (`ended`) + `endedAt` — never hard-delete. See `documentation/dataLifecycle.md`.
  */
 
 import mongoose, { Schema, model } from "mongoose";

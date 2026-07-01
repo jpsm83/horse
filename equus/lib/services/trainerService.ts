@@ -19,6 +19,7 @@ import {
   buildPublicTrainerCard,
   type PublicTrainerCard,
 } from "@/lib/trainers/buildPublicTrainerCard.ts";
+import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
   createTrainerSchema,
@@ -140,6 +141,8 @@ export async function getPublicTrainerCard(
   if (!trainer) {
     throw new ApiError(404, "Trainer not found", "NOT_FOUND");
   }
+
+  await assertPublicReadAllowed(trainer as Record<string, unknown>, "Trainer");
 
   const requesterUserId = requester?.id;
   const hasRelationship =

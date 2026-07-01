@@ -12,6 +12,7 @@ beforeAll(async () => {
   process.env.EMAIL_PASSWORD ??= "test-password";
 
   mongoServer = await MongoMemoryServer.create();
+  process.env.MONGODB_URI = mongoServer.getUri();
   await mongoose.connect(mongoServer.getUri(), { dbName: "equus-test" });
 });
 

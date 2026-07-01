@@ -23,6 +23,7 @@ import {
 } from "../auth/session.ts";
 import { handleRequestEmailConfirmation } from "../auth/requestEmailConfirmation.ts";
 import type { AuthUser } from "../auth/types.ts";
+import { userHasGoogleLink } from "../auth/googleAccountLinking.ts";
 import * as userService from "./userService.ts";
 
 export type AuthTokensResult = SessionTokens;
@@ -100,6 +101,18 @@ export async function register(input: {
   const normalizedEmail = input.email.toLowerCase().trim();
   const existing = await userService.findByEmail(normalizedEmail);
   if (existing) {
+    const existingDoc = existing.toObject() as Record<string, unknown>;
+    const hasGoogle = userHasGoogleLink(existingDoc);
+    const hasPassword = userService.userHasPassword(existingDoc);
+
+    if (hasGoogle && !hasPassword) {
+      throw new ApiError(
+        409,
+        "An account with this email already exists. Sign in with Google.",
+        "ACCOUNT_EXISTS_GOOGLE",
+      );
+    }
+
     throw new ApiError(409, "Account with this email already exists", "CONFLICT");
   }
 
@@ -127,7 +140,8 @@ export async function login(email: string, password: string) {
 
 /**
  * Validate a refresh token and issue new tokens.
- * Rejects tokens whose version no longer matches the DB (e.g. after password reset).
+ * Rejects stale token versions (password reset, account deactivation) and inactive
+ * accounts via `establishSession` → `buildAuthUserSessionFromUserId`.
  */
 export async function refresh(refreshToken: string) {
   let payload;

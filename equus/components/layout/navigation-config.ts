@@ -10,6 +10,7 @@ import {
   Dumbbell,
   GraduationCap,
   Hammer,
+  ArrowRightLeft,
   Link2,
   PersonStanding,
   Sprout,
@@ -34,7 +35,7 @@ export type NavigationEntityKey =
   | "farriers"
   | "riders";
 
-export type UserActivityMenuKey = "workplaces" | "relationships";
+export type UserActivityMenuKey = "workplaces" | "relationships" | "ownershipTransfers";
 
 export type NavigationLinkItem = {
   key: NavigationEntityKey;
@@ -52,6 +53,7 @@ export type UserActivityLinkItem = {
 export const USER_ACTIVITY_LINKS: UserActivityLinkItem[] = [
   { key: "workplaces", href: "/workplaces", icon: Briefcase },
   { key: "relationships", href: "/relationships", icon: Link2 },
+  { key: "ownershipTransfers", href: "/ownership-transfers", icon: ArrowRightLeft },
 ];
 
 export const DISCOVER_LINKS: NavigationLinkItem[] = [

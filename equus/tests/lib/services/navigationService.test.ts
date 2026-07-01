@@ -16,6 +16,7 @@ import * as groomService from "@/lib/services/groomService.ts";
 import * as coachService from "@/lib/services/coachService.ts";
 import * as farrierService from "@/lib/services/farrierService.ts";
 import * as riderService from "@/lib/services/riderService.ts";
+import * as ridingClubService from "@/lib/services/ridingClubService.ts";
 import * as veterinaryService from "@/lib/services/veterinaryService.ts";
 
 async function createUser(email: string) {
@@ -51,13 +52,6 @@ describe("navigationService", () => {
     const user = await createUser("nav-owner@example.com");
     await createTestStable(user._id);
 
-    await User.findByIdAndUpdate(user._id, {
-      $set: {
-        trainerProfileId: new mongoose.Types.ObjectId(),
-        coachProfileId: new mongoose.Types.ObjectId(),
-      },
-    });
-
     await Horse.create({
       name: "Nav Test Horse",
       breed: "Lusitano",
@@ -69,13 +63,35 @@ describe("navigationService", () => {
     const owned = await navigationService.getUserOwnedNavigation(String(user._id));
 
     expect(owned.stables).toBe(true);
-    expect(owned.trainers).toBe(true);
-    expect(owned.coaches).toBe(true);
     expect(owned.horses).toBe(true);
+    expect(owned.trainers).toBe(false);
+    expect(owned.coaches).toBe(false);
     expect(owned.veterinaries).toBe(false);
     expect(owned.transport).toBe(false);
     expect(owned.breeders).toBe(false);
     expect(owned.ridingClubs).toBe(false);
+  });
+
+  it("reflects riding club after createRidingClub via service", async () => {
+    const user = await createUser("nav-riding-club-create@example.com");
+
+    await ridingClubService.createRidingClub(String(user._id), {
+      clubName: "Nav Riding Club",
+      description: "Navigation test club",
+      email: "nav-club@example.com",
+      phoneNumber: "+351912345678",
+      address: {
+        country: "Portugal",
+        city: "Lisbon",
+        street: "Main St",
+        postCode: "1000",
+      },
+    });
+
+    const owned = await navigationService.getUserOwnedNavigation(String(user._id));
+
+    expect(owned.ridingClubs).toBe(true);
+    expect(owned.stables).toBe(false);
   });
 
   it("reflects riding club and transport when mainOwnerUserId matches", async () => {
@@ -253,15 +269,20 @@ describe("navigationService", () => {
     expect(owned.horses).toBe(false);
   });
 
-  it("reflects position-linked profile ids on the user document", async () => {
+  it("reflects position-linked profiles when linked documents are active", async () => {
     const user = await createUser("nav-groom@example.com");
 
-    await User.findByIdAndUpdate(user._id, {
-      $set: {
-        groomProfileId: new mongoose.Types.ObjectId(),
-        farrierProfileId: new mongoose.Types.ObjectId(),
-        riderProfileId: new mongoose.Types.ObjectId(),
-      },
+    await groomService.createGroom(String(user._id), {
+      displayName: "Nav Linked Groom",
+      email: "nav-linked-groom@example.com",
+    });
+    await farrierService.createFarrier(String(user._id), {
+      displayName: "Nav Linked Farrier",
+      email: "nav-linked-farrier@example.com",
+    });
+    await riderService.createRider(String(user._id), {
+      displayName: "Nav Linked Rider",
+      email: "nav-linked-rider@example.com",
     });
 
     const owned = await navigationService.getUserOwnedNavigation(String(user._id));
@@ -270,5 +291,22 @@ describe("navigationService", () => {
     expect(owned.farriers).toBe(true);
     expect(owned.riders).toBe(true);
     expect(owned.stables).toBe(false);
+  });
+
+  it("hides inactive owned horses from navigation", async () => {
+    const user = await createUser("nav-inactive-horse@example.com");
+    const horse = await Horse.create({
+      name: "Inactive Nav Horse",
+      breed: "Lusitano",
+      sex: "Gelding",
+      mainOwnerUserId: user._id,
+      createdByUserId: user._id,
+      isActive: false,
+    });
+
+    expect(horse._id).toBeTruthy();
+
+    const owned = await navigationService.getUserOwnedNavigation(String(user._id));
+    expect(owned.horses).toBe(false);
   });
 });

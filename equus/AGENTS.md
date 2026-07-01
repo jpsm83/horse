@@ -58,11 +58,17 @@ tests/         → Vitest tests mirroring lib/
 * **`LoadingOverlay`** — in-flight **mutations** (e.g. profile save), not initial page load. Spinner is viewport-centered; header/sidebar stay visible.
 * **Do not** use `Alert` for page-level loading — use skeleton or `loading.tsx`.
 
+#### Error handling (web UI)
+
+* **Uncaught render errors** — `react-error-boundary` via `AppErrorBoundary` in `AppProviders`; Next.js `app/[locale]/error.tsx` and `app/global-error.tsx`. Shared UI: `components/errors/error-recovery-page.tsx`. See [`documentation/errors.md`](documentation/errors.md).
+* **API / auth failures** — `try/catch` in features; toasts (`useAppToast`) or redirect — **not** error boundaries.
+* **Do not** use error boundaries for expected load failures; use skeleton + redirect patterns from [`profile.md`](documentation/profile.md).
+
 ### Web UI i18n
 
 * **Locales** — `en` (default, unprefixed URLs) and `es` (`/es/…`). See [`documentation/i18n.md`](../documentation/i18n.md).
 * **Strings** — `messages/en.json` and `messages/es.json`; use `useTranslations` / `getTranslations`. No hardcoded user-facing copy in components.
-* **Navigation** — use `@/i18n/navigation` (`Link`, `useRouter`, `redirect`), not `next/link`, for in-app routes under `app/[locale]/`.
+* **Navigation** — in-app routes under `app/[locale]/` use `Link`, `useRouter`, and `redirect` from `@/i18n/navigation` (locale-aware). Do **not** use `next/link` or raw `<a href="/…">` for in-app paths. Use [`ExternalLink`](components/navigation/external-link.tsx) for `mailto:`, `tel:`, and external `https:` URLs only. Use [`AppHomeLink`](components/navigation/app-home-link.tsx) for “home” footers (`/` guest vs `/home` signed-in). Root [`app/not-found.tsx`](app/not-found.tsx) redirects to `/` (no intl provider at that layer).
 * **User preference** — `personalDetails.preferredLanguage` is always set at account creation (register `Accept-Language` or Google session bridge); sync `NEXT_LOCALE` cookie on register, login, session bridge, and profile save. Language is changed only on the profile page.
 * **API** — keep route handlers locale-agnostic; clients translate `error.code`.
 
@@ -290,6 +296,15 @@ models/
 - Used in **one** parent only → keep inline in that parent model
 - Used in **two or more** parents → `sharedSchemas/<name>.ts`
 
+### Data lifecycle (no hard deletes)
+
+- **Never** hard-delete domain documents in product flows — horses, users, entities, relationships, invoices, and ratings must remain for referential integrity.
+- Top-level collections spread **`deactivationAuditFields`** from `models/sharedSchemas/deactivationAudit.ts`: `isActive`, `deactivatedAt`, `deactivatedByUserId`, `deactivationReason`.
+- **Deactivate** tombstone writes use **`lib/lifecycle/deactivateDocument.ts`** (`deactivateDocument`, `mergeDeactivationUpdate`).
+- **Anonymize** PII on inactive users via **`lib/lifecycle/anonymizeUserPii.ts`** + `userService.anonymizeUserPii` — see [`documentation/piiAnonymization.md`](documentation/piiAnonymization.md).
+- **Lifecycle links** (`Relationship`, `WorkplaceRelationship`) use **status enums** + `endedAt` instead of document removal.
+- Hard `deleteOne` / `findByIdAndDelete` is allowed only for **compensating rollback** in the same request (e.g. failed profile link). See [`documentation/dataLifecycle.md`](../documentation/dataLifecycle.md) and [`documentation/dataLifecycle.md`](documentation/dataLifecycle.md).
+
 ### User validation
 
 - **Mongoose models** define persisted field types, enums, and `required` rules at the schema level.
@@ -300,9 +315,10 @@ models/
 ### User and roles
 
 - One `User` per email. **Entity-owned** roles (horses, stables, riding clubs, transport, breeders) link via `mainOwnerUserId` on the entity (plus optional `coOwners[]` on horse, stable, riding club, transport, breeder) — not mirrored on `User`. **User-linked** roles (trainer, groom, vet, coach, rider, farrier) use `*ProfileId` on `User` plus `userId` on the role document. Ownership helpers: `lib/ownership/entityOwnership.ts`.
+- **Ownership changes** on entity-owned profiles use **`OwnershipTransfer`** (consent before apply): `transfer_main`, `remove_co_owner`, `promote_co_owner` — not user-linked services. See [`documentation/ownershipTransfer.md`](../documentation/ownershipTransfer.md) and [`equus/documentation/ownershipTransfer.md`](documentation/ownershipTransfer.md).
 - **Collaborators** at host role profiles (stable, breeder, riding club, transport) are **Users** linked via `WorkplaceRelationship` + host `collaborators[]` (stable, breeder, transport) — see [`documentation/workplaceRelationship.md`](../documentation/workplaceRelationship.md). Never grant host ownership on `User` to collaborators. Barn staff may act on a hosted horse when active collaboration + accepted horse↔stable `Relationship` exist.
 - **Horse relationships** use `Relationship` (consent + lifecycle link documents, not bare refs on entities).
-- **Visibility policy** is centralized in `lib/privacy/userVisibility.ts`; horse public cards combine horse discovery (`Horse.profileVisibility`, `Horse.contactDisplay`) with user privacy filters in `lib/services/horseService.ts`.
+- **Visibility policy** is centralized in `lib/privacy/userVisibility.ts`; public user profile reads use `lib/privacy/userPublicProfile.ts` (`getPublicUserForRequester`). Horse public cards combine horse discovery (`Horse.profileVisibility`, `Horse.contactDisplay`) with user privacy filters in `lib/services/horseService.ts`.
 - **Stable discovery:** `isPublic` (default `true`) and `acceptsNewHorses` on `Stable`; entity-level business contact; rules in `lib/stables/stableDiscoveryAccess.ts` and `lib/services/stableService.ts`.
 - **Transport discovery:** `isPublic` (default `true`) and `acceptsNewBookings` on `Transport`; entity-level business contact; rules in `lib/transports/transportDiscoveryAccess.ts` and `lib/services/transportService.ts`.
 - No `activeAccountContext`; no user-level `ownerPreferences`. Horse discovery is per-horse; stable and transport discovery are per-entity. See [`documentation/userModule.md`](../documentation/userModule.md).

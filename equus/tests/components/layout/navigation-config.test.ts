@@ -9,6 +9,7 @@ import {
   filterHomeSubsectionLinks,
   MY_OWN_LINKS,
   PLURAL_OWNED_CREATE_ENTITIES,
+  USER_ACTIVITY_LINKS,
 } from "@/components/layout/navigation-config.ts";
 import type { UserOwnedNavigation } from "@/lib/services/navigationService.ts";
 
@@ -47,6 +48,11 @@ describe("navigation-config", () => {
       "/create/transport",
       "/create/veterinary",
     ]);
+  });
+
+  it("exposes ownership transfer inbox in user activity links", () => {
+    const ownershipLink = USER_ACTIVITY_LINKS.find((item) => item.key === "ownershipTransfers");
+    expect(ownershipLink?.href).toBe("/ownership-transfers");
   });
 
   it("orders home subsection links: businesses, services, horses last", () => {

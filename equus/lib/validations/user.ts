@@ -13,6 +13,10 @@ import {
   userProfileVisibilityEnums,
 } from "../../utils/enums.ts";
 import { isKnownCountryCode } from "../data/countries.ts";
+import { objectIdSchema } from "./common.ts";
+
+/** `GET /api/v1/users/:id` path param */
+export const userIdParamSchema = objectIdSchema;
 
 const countryCodeSchema = z
   .string()

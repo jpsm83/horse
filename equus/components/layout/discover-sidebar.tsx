@@ -4,6 +4,7 @@ import { horseHead } from "@lucide/lab";
 import { Icon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { DISCOVER_LINKS } from "@/components/layout/navigation-config.ts";
+import { useAppAuth } from "@/hooks/use-app-auth.ts";
 import {
   Sidebar,
   SidebarContent,
@@ -15,6 +16,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link, usePathname } from "@/i18n/navigation.ts";
+import { resolveAppHomePath } from "@/lib/navigation/postAuthRedirect.ts";
 import { cn } from "@/lib/utils";
 
 type DiscoverSidebarProps = {
@@ -25,6 +27,8 @@ type DiscoverSidebarProps = {
 export function DiscoverSidebar({ onHoverChange }: DiscoverSidebarProps) {
   const t = useTranslations("header.discover");
   const pathname = usePathname();
+  const { isAuthenticated } = useAppAuth();
+  const homeHref = resolveAppHomePath(isAuthenticated);
 
   return (
     <Sidebar
@@ -37,7 +41,7 @@ export function DiscoverSidebar({ onHoverChange }: DiscoverSidebarProps) {
         <SidebarMenu className="w-full">
           <SidebarMenuItem>
             <SidebarMenuButton
-              render={<Link href="/" />}
+              render={<Link href={homeHref} />}
               tooltip="Equus"
               className={cn(
                 "h-14 items-center rounded-none px-3 text-lg",

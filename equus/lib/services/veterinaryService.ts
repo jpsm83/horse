@@ -19,6 +19,7 @@ import {
   buildPublicVeterinaryCard,
   type PublicVeterinaryCard,
 } from "@/lib/veterinaries/buildPublicVeterinaryCard.ts";
+import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
   createVeterinarySchema,
@@ -149,6 +150,8 @@ export async function getPublicVeterinaryCard(
   if (!veterinary) {
     throw new ApiError(404, "Veterinary profile not found", "NOT_FOUND");
   }
+
+  await assertPublicReadAllowed(veterinary as Record<string, unknown>, "Veterinary");
 
   const requesterUserId = requester?.id;
   const hasRelationship =

@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ApiError } from "@/lib/api/errors.ts";
 import User from "@/models/User.ts";
 import * as authService from "@/lib/services/authService.ts";
+import * as userService from "@/lib/services/userService.ts";
 import { verifyAccessToken, verifyRefreshToken } from "@/lib/auth/jwt.ts";
 import { handleResetPassword } from "@/lib/auth/resetPassword.ts";
 
@@ -122,6 +123,54 @@ describe("authService", () => {
     await expect(authService.refresh(registered.refreshToken)).rejects.toMatchObject({
       statusCode: 401,
     });
+  });
+
+  it("refresh fails after account softDelete bumps refreshSessionVersion", async () => {
+    const registered = await authService.register({
+      email: "soft-delete-refresh@example.com",
+      password: "TestPass1!",
+    });
+
+    await userService.softDelete(registered.user.id);
+
+    await expect(authService.refresh(registered.refreshToken)).rejects.toMatchObject({
+      statusCode: 401,
+    });
+
+    await expect(
+      authService.buildSessionForUserId(registered.user.id),
+    ).rejects.toMatchObject({ statusCode: 401 });
+  });
+
+  it("refresh rejects inactive users via establishSession when token version still matches", async () => {
+    const registered = await authService.register({
+      email: "inactive-refresh@example.com",
+      password: "TestPass1!",
+    });
+
+    await User.updateOne({ _id: registered.user.id }, { $set: { isActive: false } });
+
+    await expect(authService.refresh(registered.refreshToken)).rejects.toMatchObject({
+      statusCode: 401,
+    });
+  });
+
+  it("validateCredentials returns null for inactive users", async () => {
+    await authService.register({
+      email: "inactive-creds@example.com",
+      password: "TestPass1!",
+    });
+
+    await User.updateOne(
+      { "personalDetails.email": "inactive-creds@example.com" },
+      { $set: { emailVerified: true, isActive: false } },
+    );
+
+    const result = await authService.validateCredentials(
+      "inactive-creds@example.com",
+      "TestPass1!",
+    );
+    expect(result).toBeNull();
   });
 
   it("validateCredentials returns null for wrong password", async () => {

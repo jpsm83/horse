@@ -3,6 +3,9 @@
  *
  * Canonical collaboration document; `Stable.collaborators[]` is a denormalized index
  * of active collaboration ids. Called by workplaceRelationshipService and REST routes.
+ *
+ * Lifecycle: use `status` + `endedAt` — never hard-delete except invite-email rollback.
+ * See `documentation/dataLifecycle.md`.
  */
 
 import mongoose, { Schema, model } from "mongoose";

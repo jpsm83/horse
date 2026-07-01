@@ -12,8 +12,10 @@ import { TextField } from "@/components/forms/text-field.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
+import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated.ts";
 import { Link, useRouter } from "@/i18n/navigation.ts";
 import { registerWithCredentials, resolveInviteRef } from "@/lib/api/authClient.ts";
+import { resolvePostAuthPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { isStaffMembershipRef } from "@/lib/utils/inviteRef.ts";
 import {
   authFormMessagesFromTranslations,
@@ -31,9 +33,18 @@ function SignUpContent() {
   const tValidation = useTranslations("validation");
   const ref = searchParams.get("ref")?.trim() ?? "";
   const isStaffRef = ref ? isStaffMembershipRef(ref) : false;
+  const postAuthPath = resolvePostAuthPath(searchParams.get("next"));
+
+  useRedirectIfAuthenticated(postAuthPath);
 
   const [apiError, setApiError] = useState<string | null>(null);
-  const [inviteBanner, setInviteBanner] = useState<string | null>(null);
+  const [relationshipInviteBanner, setRelationshipInviteBanner] = useState<string | null>(null);
+
+  const inviteBanner = useMemo(() => {
+    if (!ref) return null;
+    if (isStaffRef) return tInvites("staffBanner");
+    return relationshipInviteBanner;
+  }, [ref, isStaffRef, relationshipInviteBanner, tInvites]);
 
   const { signUpFormSchema } = useMemo(
     () =>
@@ -54,28 +65,35 @@ function SignUpContent() {
   const isSubmitting = form.formState.isSubmitting;
 
   useEffect(() => {
-    if (!ref) return;
+    if (!ref || isStaffRef) return;
 
-    if (isStaffRef) {
-      setInviteBanner(tInvites("staffBanner"));
-      return;
-    }
+    let cancelled = false;
 
-    void (async () => {
-      const preview = await resolveInviteRef(ref);
-      if (preview?.kind === "relationship") {
-        const parts = [tInvites("relationshipBanner")];
-        if (preview.horseName) {
-          parts.push(t("horseLabel", { name: preview.horseName }));
+    resolveInviteRef(ref)
+      .then((preview) => {
+        if (cancelled) return;
+        if (preview?.kind === "relationship") {
+          const parts = [tInvites("relationshipBanner")];
+          if (preview.horseName) {
+            parts.push(t("horseLabel", { name: preview.horseName }));
+          }
+          if (preview.requesterLabel) {
+            parts.push(tCommon("from", { label: preview.requesterLabel }));
+          }
+          setRelationshipInviteBanner(parts.join(" "));
+          return;
         }
-        if (preview.requesterLabel) {
-          parts.push(tCommon("from", { label: preview.requesterLabel }));
+        setRelationshipInviteBanner(tInvites("relationshipBanner"));
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setRelationshipInviteBanner(tInvites("relationshipBanner"));
         }
-        setInviteBanner(parts.join(" "));
-      } else {
-        setInviteBanner(tInvites("relationshipBanner"));
-      }
-    })();
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [ref, isStaffRef, t, tCommon, tInvites]);
 
   async function onSubmit(data: SignUpFormValues) {
@@ -95,7 +113,7 @@ function SignUpContent() {
       } else if (ref && !isStaffRef) {
         router.push("/relationships");
       } else {
-        router.push("/");
+        router.push(resolvePostAuthPath(searchParams.get("next")));
       }
       router.refresh();
     } catch (err) {
@@ -172,6 +190,7 @@ function SignUpContent() {
 
       <GoogleSignInButton
         disabled={isSubmitting}
+        callbackUrl={postAuthPath}
         onError={(message) => setApiError(message)}
       />
     </AuthPageShell>

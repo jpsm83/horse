@@ -8,6 +8,7 @@ import type { NavigationEntityKey } from "@/components/layout/navigation-config.
 import { CREATE_LINKS, MY_OWN_LINKS, PLURAL_OWNED_CREATE_ENTITIES } from "@/components/layout/navigation-config.ts";
 import { useRouter } from "@/i18n/navigation.ts";
 import { fetchCurrentUser } from "@/lib/api/authClient.ts";
+import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 
 type AuthEntityPlaceholderMode = "owned" | "create";
 
@@ -35,7 +36,7 @@ export function MyPlaceholderPage({ entity, mode = "owned" }: MyPlaceholderPageP
     try {
       await fetchCurrentUser();
     } catch {
-      router.replace(`/signin?next=${encodeURIComponent(href)}`);
+      router.replace(buildSignInPath(href));
     } finally {
       setIsLoading(false);
     }

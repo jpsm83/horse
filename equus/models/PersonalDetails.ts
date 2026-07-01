@@ -14,7 +14,13 @@ const { idTypeEnums, genderEnums } = enums;
 
 export const personalDetailsSchema = new Schema(
   {
-    username: { type: String },
+    /** Public handle — sparse unique index on User (`personalDetails.username`). */
+    username: {
+      type: String,
+      lowercase: true,
+      trim: true,
+      maxlength: 50,
+    },
     email: {
       type: String,
       required: [true, "Email is required!"],

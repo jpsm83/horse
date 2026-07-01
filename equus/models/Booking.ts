@@ -1,7 +1,13 @@
 import mongoose, { Schema, model } from "mongoose";
+import { deactivationAuditFields } from "./sharedSchemas/deactivationAudit.ts";
 import * as enums from "../utils/enums.ts";
 
 const { bookingStatusEnums, accountTypeEnums } = enums;
+
+/**
+ * Booking model — scheduled service request between owner and provider.
+ * Primary lifecycle via `status`; tombstone fields for void/hide without hard delete.
+ */
 
 const bookingSchema = new Schema(
   {
@@ -53,6 +59,8 @@ const bookingSchema = new Schema(
 
     /** Optional link to chat thread used for coordination */
     chatThreadId: { type: String },
+
+    ...deactivationAuditFields,
   },
   {
     timestamps: true,

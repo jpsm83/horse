@@ -77,6 +77,10 @@ Target timeline: ~8–10 weeks after validation (see `validationPlaybook.md`).
 - **Established relationships are permanent** — see `businessPlan.md` relationship rules
 - **Invitation policy:** horse owner initiates horse links; host entities invite services only; services never initiate (see `userModule.md` §6)
 
+#### Entity ownership transfer (user module — beyond 1A unless MVP requires sale)
+- Consent-based `OwnershipTransfer` for horses and host businesses (stable, breeder, transport, riding club) — not services
+- Kinds: `transfer_main` (requires empty `coOwners[]`), `remove_co_owner`, `promote_co_owner` — see [`ownershipTransfer.md`](ownershipTransfer.md)
+
 #### Communication
 - Open live chat between users (WhatsApp-style)
 - In-app + push notifications for messages and relationship events

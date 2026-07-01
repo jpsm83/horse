@@ -5,36 +5,30 @@
  */
 
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { CreateHorseForm } from "@/components/horses/create-horse-form.tsx";
 import { CreateHorsePageSkeleton } from "@/components/horses/create-horse-page-skeleton.tsx";
 import { LoadingOverlay } from "@/components/ui/loading-overlay.tsx";
+import { useAppAuth } from "@/hooks/use-app-auth.ts";
 import { useRouter } from "@/i18n/navigation.ts";
-import { fetchCurrentUser } from "@/lib/api/authClient.ts";
+import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 
 export function CreateHorsePageContent() {
   const router = useRouter();
   const t = useTranslations("createHorse");
   const tCommon = useTranslations("common");
+  const { isAuthenticated, isLoading } = useAppAuth();
 
-  const [isAuthReady, setIsAuthReady] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const verifyAuth = useCallback(async () => {
-    try {
-      await fetchCurrentUser();
-      setIsAuthReady(true);
-    } catch {
-      router.replace("/signin?next=%2Fcreate%2Fhorse");
-    }
-  }, [router]);
-
   useEffect(() => {
-    void verifyAuth();
-  }, [verifyAuth]);
+    if (!isLoading && !isAuthenticated) {
+      router.replace(buildSignInPath("/create/horse"));
+    }
+  }, [isAuthenticated, isLoading, router]);
 
-  if (!isAuthReady) {
+  if (isLoading || !isAuthenticated) {
     return <CreateHorsePageSkeleton />;
   }
 

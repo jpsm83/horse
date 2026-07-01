@@ -1,5 +1,6 @@
 export { addressSchema } from "./address.ts";
 export { coOwnerSchema } from "./coOwner.ts";
+export { deactivationAuditFields } from "./deactivationAudit.ts";
 export { mediaAssetSchema } from "./mediaAsset.ts";
 export { serviceOfferingSchema } from "./serviceOffering.ts";
 export { weeklyAvailabilitySchema } from "./weeklyAvailability.ts";

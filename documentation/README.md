@@ -16,6 +16,8 @@ Canonical docs for product and engineering decisions.
 | [`validationPlaybook.md`](validationPlaybook.md) | Pre-build customer interviews and go/no-go |
 | [`productFlows.md`](productFlows.md) | Onboarding and core user journeys |
 | [`userModule.md`](userModule.md) | **User feature spec** — identity, roles, privacy, access paths |
+| [`dataLifecycle.md`](dataLifecycle.md) | **Data integrity** — no hard deletes; tombstone fields and lifecycle rules |
+| [`ownershipTransfer.md`](ownershipTransfer.md) | **Entity ownership transfer** — consent-based `OwnershipTransfer` |
 | [`metricsSpec.md`](metricsSpec.md) | Internal business metrics (Phase 1B) |
 
 ## Equus app docs (`equus/documentation/`)
@@ -25,6 +27,9 @@ Canonical docs for product and engineering decisions.
 | [`equus/documentation/auth.md`](../equus/documentation/auth.md) | Web + API session, token refresh, Google bridge |
 | [`equus/documentation/i18n.md`](../equus/documentation/i18n.md) | Locales, routing, `NEXT_LOCALE` cookie |
 | [`equus/documentation/profile.md`](../equus/documentation/profile.md) | Profile page UI, loading/skeleton, `PATCH /me`, clear fields |
+| [`equus/documentation/dataLifecycle.md`](../equus/documentation/dataLifecycle.md) | Engineering: tombstone fields, service conventions |
+| [`equus/documentation/piiAnonymization.md`](../equus/documentation/piiAnonymization.md) | GDPR PII scrub on inactive users (UA-31) |
+| [`equus/documentation/ownershipTransfer.md`](../equus/documentation/ownershipTransfer.md) | Planned ownership transfer REST API |
 
 ## Technical stack (summary)
 

@@ -9,8 +9,10 @@ Living document for planning, updating, and tracking **horse-facing** capabiliti
 - [`businessPlan.md`](businessPlan.md) — vision, monetization (Section 11), relationship rules, Section 10.3 Horse module
 - [`mvpScope.md`](mvpScope.md) — build phases vs production launch gate
 - [`userModule.md`](userModule.md) — identity, privacy, discovery layers
+- [`ownershipTransfer.md`](ownershipTransfer.md) — consent-based main/co-owner changes (`OwnershipTransfer`)
 - [`productFlows.md`](productFlows.md) — owner ↔ provider flows
 - [`stableModule.md`](stableModule.md) — barn operations on hosted horses (complementary, not duplicate)
+- [`dataLifecycle.md`](dataLifecycle.md) — no hard deletes; horse-attached records survive provider deactivation
 
 ---
 
@@ -21,7 +23,7 @@ Living document for planning, updating, and tracking **horse-facing** capabiliti
 3. **Owner pays per horse** — subscription is on the horse (`Horse.subscription`); main owner is payer of record; co-owners do not duplicate billing (see `businessPlan.md` Section 11).
 4. **Two-layer discovery** — `Horse.profileVisibility` and `Horse.contactDisplay` gate the public card; when `useOwnerContact: true`, owner identity/contact is filtered through `User.preferences` via `lib/privacy/userVisibility.ts`.
 5. **Relationship-first access** — providers act on a horse only through accepted `Relationship` documents (or barn operational path for hosted horses). Provider links are **not** stored as bare refs on `Horse`.
-6. **Permanent history** — established relationships and timeline entries remain after a horse leaves a stable or a provider link ends; owners retain read access to their horse data per policy.
+6. **Permanent history** — established relationships and timeline entries remain after a horse leaves a stable or a provider link ends; owners retain read access to their horse data per policy (see [`dataLifecycle.md`](dataLifecycle.md) § horse-attached records).
 7. **Portable record** — horse data follows the horse across stables and providers; EquineM parity on core profile, health, documents, and location history, plus ecosystem discovery and horse-scoped reviews.
 
 ---
@@ -63,11 +65,11 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
 | H-OWN-01 | Main owner (`mainOwnerUserId`) on create; `createdByUserId` audit | Beyond | done |
-| H-OWN-02 | Co-owners array with ownership percentage | Parity | planned |
+| H-OWN-02 | Co-owners array with ownership percentage (`coOwners[]` embed) | Parity | done |
 | H-OWN-03 | Co-owner billing responsibility flag (who pays when syndicate) | Beyond | planned |
-| H-OWN-04 | Ownership history (current and past owners with dates) | Parity | planned |
+| H-OWN-04 | Ownership history via `OwnershipTransfer` audit trail | Parity | planned |
 | H-OWN-05 | Owner/co-owner authorization for discovery PATCH and sensitive fields | Beyond | done |
-| H-OWN-06 | Transfer main ownership workflow (with audit trail) | Beyond | planned |
+| H-OWN-06 | Transfer / co-owner lifecycle via `OwnershipTransfer` ([`ownershipTransfer.md`](ownershipTransfer.md)) | Beyond | planned |
 
 ---
 

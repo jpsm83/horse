@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
+import User from "@/models/User.ts";
+import * as userService from "@/lib/services/userService.ts";
 import {
+  buildAuthUserSessionFromUserId,
   isProfileComplete,
   refreshTokenPayloadVersionMatchesDb,
 } from "@/lib/auth/session.ts";
@@ -78,6 +81,20 @@ describe("session helpers", () => {
     expect(refreshTokenPayloadVersionMatchesDb(undefined, 0)).toBe(true);
     expect(refreshTokenPayloadVersionMatchesDb(undefined, 1)).toBe(false);
     expect(refreshTokenPayloadVersionMatchesDb(1, 1)).toBe(true);
+  });
+
+  it("buildAuthUserSessionFromUserId returns null when user is inactive", async () => {
+    const created = await userService.createCredentialsUser({
+      email: "inactive-session@example.com",
+      password: "TestPass1!",
+      firstName: "Inactive",
+      lastName: "User",
+    });
+
+    await User.updateOne({ _id: created._id }, { $set: { isActive: false } });
+
+    const session = await buildAuthUserSessionFromUserId(String(created._id));
+    expect(session).toBeNull();
   });
 });
 

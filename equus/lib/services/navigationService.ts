@@ -3,16 +3,23 @@
  *
  * Called by `GET /api/v1/users/me/navigation`. Collaborations are excluded.
  * Entity-owned roles use mainOwnerUserId / coOwners[] queries; position-linked roles
- * use `*ProfileId` on User.
+ * use `*ProfileId` on User. Inactive tombstones are excluded from operator nav.
  */
 
 import { ownedByUserQuery } from "@/lib/ownership/entityOwnership.ts";
+import { mergeActiveOnly, profileLinkIsActive } from "@/lib/lifecycle/activeQuery.ts";
 import Breeder from "@/models/Breeder.ts";
+import Coach from "@/models/Coach.ts";
+import Farrier from "@/models/Farrier.ts";
+import Groom from "@/models/Groom.ts";
 import Horse from "@/models/Horse.ts";
 import RidingClub from "@/models/RidingClub.ts";
+import Rider from "@/models/Rider.ts";
 import Stable from "@/models/Stable.ts";
+import Trainer from "@/models/Trainer.ts";
 import Transport from "@/models/Transport.ts";
 import User from "@/models/User.ts";
+import Veterinary from "@/models/Veterinary.ts";
 
 export type UserOwnedNavigation = {
   stables: boolean;
@@ -50,31 +57,41 @@ export async function getUserOwnedNavigation(userId: string): Promise<UserOwnedN
     await Promise.all([
       User.findById(userId)
         .select(
-          "trainerProfileId veterinaryProfileId coachProfileId groomProfileId farrierProfileId riderProfileId",
+          "trainerProfileId veterinaryProfileId coachProfileId groomProfileId farrierProfileId riderProfileId isActive",
         )
         .lean(),
-      Horse.exists(ownershipQuery),
-      Stable.exists(ownershipQuery),
-      RidingClub.exists(ownershipQuery),
-      Transport.exists(ownershipQuery),
-      Breeder.exists(ownershipQuery),
+      Horse.exists(mergeActiveOnly(ownershipQuery)),
+      Stable.exists(mergeActiveOnly(ownershipQuery)),
+      RidingClub.exists(mergeActiveOnly(ownershipQuery)),
+      Transport.exists(mergeActiveOnly(ownershipQuery)),
+      Breeder.exists(mergeActiveOnly(ownershipQuery)),
     ]);
 
-  if (!user) {
+  if (!user || user.isActive === false) {
     return { ...EMPTY_OWNED };
   }
 
+  const [hasTrainer, hasVeterinary, hasCoach, hasGroom, hasFarrier, hasRider] =
+    await Promise.all([
+      profileLinkIsActive(Trainer, user.trainerProfileId),
+      profileLinkIsActive(Veterinary, user.veterinaryProfileId),
+      profileLinkIsActive(Coach, user.coachProfileId),
+      profileLinkIsActive(Groom, user.groomProfileId),
+      profileLinkIsActive(Farrier, user.farrierProfileId),
+      profileLinkIsActive(Rider, user.riderProfileId),
+    ]);
+
   return {
     stables: ownsStable !== null,
-    veterinaries: Boolean(user.veterinaryProfileId),
+    veterinaries: hasVeterinary,
     transport: ownsTransport !== null,
     breeders: ownsBreeder !== null,
-    coaches: Boolean(user.coachProfileId),
+    coaches: hasCoach,
     horses: ownsHorse !== null,
     ridingClubs: ownsRidingClub !== null,
-    trainers: Boolean(user.trainerProfileId),
-    groomers: Boolean(user.groomProfileId),
-    farriers: Boolean(user.farrierProfileId),
-    riders: Boolean(user.riderProfileId),
+    trainers: hasTrainer,
+    groomers: hasGroom,
+    farriers: hasFarrier,
+    riders: hasRider,
   };
 }

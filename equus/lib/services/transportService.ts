@@ -19,6 +19,7 @@ import {
   buildPublicTransportCard,
   type PublicTransportCard,
 } from "@/lib/transports/buildPublicTransportCard.ts";
+import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
   createTransportSchema,
@@ -146,6 +147,8 @@ export async function getPublicTransportCard(
   if (!transport) {
     throw new ApiError(404, "Transport not found", "NOT_FOUND");
   }
+
+  await assertPublicReadAllowed(transport as Record<string, unknown>, "Transport");
 
   const requesterUserId = requester?.id;
   const hasRelationship =

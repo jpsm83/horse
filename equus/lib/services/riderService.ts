@@ -19,6 +19,7 @@ import {
   buildPublicRiderCard,
   type PublicRiderCard,
 } from "@/lib/riders/buildPublicRiderCard.ts";
+import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
   createRiderSchema,
@@ -140,6 +141,8 @@ export async function getPublicRiderCard(
   if (!rider) {
     throw new ApiError(404, "Rider not found", "NOT_FOUND");
   }
+
+  await assertPublicReadAllowed(rider as Record<string, unknown>, "Rider");
 
   const requesterUserId = requester?.id;
   const hasRelationship =

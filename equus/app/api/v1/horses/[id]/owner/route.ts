@@ -16,15 +16,8 @@ export async function GET(request: Request, context: RouteContext) {
     await connectDb();
     const session = await requireAuthFromRequest(request);
     const { id } = await context.params;
-    const horse = await horseService.getHorseForOwner(session.id, id);
+    const horse = await horseService.getOwnerHorseHubSummary(session.id, id);
 
-    return ok({
-      horse: {
-        id: String(horse._id),
-        name: horse.name as string | undefined,
-        breed: horse.breed as string | undefined,
-        sex: horse.sex as string | undefined,
-      },
-    });
+    return ok({ horse });
   });
 }

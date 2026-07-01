@@ -1,4 +1,5 @@
 import mongoose, { Schema, model } from "mongoose";
+import { deactivationAuditFields } from "./sharedSchemas/deactivationAudit.ts";
 import * as enums from "../utils/enums.ts";
 
 const { notificationTypeEnums } = enums;
@@ -33,6 +34,8 @@ const notificationSchema = new Schema(
       type: [{ type: Schema.Types.ObjectId, ref: "User" }],
       default: undefined,
     },
+
+    ...deactivationAuditFields,
   },
   {
     timestamps: true,

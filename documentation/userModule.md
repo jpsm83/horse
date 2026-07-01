@@ -14,6 +14,9 @@ Living document for planning, updating, and tracking **user identity, roles, pri
 - [`productFlows.md`](productFlows.md) — onboarding journeys
 - [`stack.md`](stack.md) — technical stack and API layout
 - [`equus/documentation/profile.md`](../equus/documentation/profile.md) — profile page UI and `PATCH /api/v1/users/me`
+- [`userAuthTodo.md`](userAuthTodo.md) — **execution checklist** for user/auth gaps not yet implemented (audit 2026-06-30)
+- [`ownershipTransfer.md`](ownershipTransfer.md) — consent-based entity ownership changes (`OwnershipTransfer`)
+- [`dataLifecycle.md`](dataLifecycle.md) — no hard deletes; tombstone fields and lifecycle rules
 
 ---
 
@@ -28,6 +31,7 @@ Living document for planning, updating, and tracking **user identity, roles, pri
 7. **Two access paths for providers** — **horse `Relationship`** (owner ↔ provider on a horse) vs **stable `WorkplaceRelationship`** (User collaborates at a host role profile). Barn staff on hosted horses need **both** active workplace collaboration and accepted horse ↔ stable relationship. Direct providers (e.g. vet at owner's home) need only horse `Relationship`. Full rules: [`workplaceRelationship.md`](workplaceRelationship.md).
 8. **Collaborators are Users** — barn staff are never owned by a stable profile. The profile owner invites a User; they accept; permissions live on `WorkplaceRelationship`, not on `User`.
 9. **Multi-role single login** — one User may own horses, operate a stable, hold a trainer profile, and collaborate at another barn simultaneously.
+10. **No hard deletes** — domain documents are never physically removed in product flows; use `isActive` + deactivation audit fields, status enums, or lifecycle collections (`Relationship`, `OwnershipTransfer`). See [`dataLifecycle.md`](dataLifecycle.md).
 
 ---
 
@@ -74,8 +78,12 @@ See [`equus/documentation/auth.md`](../equus/documentation/auth.md).
 | U-PROF-04 | `profileComplete` gate for onboarding (`lib/auth/session.ts`) | Beyond | done |
 | U-PROF-05 | Preferred language sync (`NEXT_LOCALE` cookie on register/login/profile save) | Beyond | done |
 | U-PROF-06 | Profile page UI with skeleton + `LoadingOverlay` (`/profile`) | Beyond | done |
+| U-PROF-08 | Global incomplete-profile banner in `AppShell` (link to `/profile`; hidden on `/profile`) | Beyond | done |
+| U-PROF-07 | Account deactivation (`DELETE /api/v1/users/me` → `softDelete`; tombstone, not delete) | Beyond | done |
 
 `profileComplete` is separate from discovery visibility — it tracks required `personalDetails` and address fields for onboarding, not whether the user appears on entity cards.
+
+Account deactivation sets `isActive: false`, `deactivatedAt`, `deactivatedByUserId`, revokes refresh tokens, and clears REST cookies. The `User` document is retained for referential integrity — see [`dataLifecycle.md`](dataLifecycle.md) § Account deactivation flow. **Web UI:** `/profile` Account section with confirm dialog (`components/profile/profile-deactivate-account.tsx`) calls `DELETE /api/v1/users/me` and redirects to sign-in. **PII erasure** (GDPR) is a separate step: `anonymizeUserPii` after deactivation — [`equus/documentation/piiAnonymization.md`](../equus/documentation/piiAnonymization.md).
 
 ---
 
@@ -115,7 +123,32 @@ There is **no** planned global people directory, people search index, or user `s
 | U-PRIV-02 | Users never searchable — entity-only discovery (no `searchable` on User) | Beyond | done |
 | U-PRIV-03 | `allowDirectMessagesFrom` preference | Beyond | done |
 | U-PRIV-04 | Owner contact on public **horse** cards filtered through user privacy when `useOwnerContact: true` | Beyond | done |
-| U-PRIV-05 | Public user profile page (view-only; deep-linked from entities — **never** in search results) | Beyond | planned |
+| U-PRIV-05 | Public user profile page (view-only; deep-linked from entities — **never** in search results) | Beyond | done |
+
+### Public user profile (U-PRIV-05 — shipped)
+
+Entity-linked view-only user card. Users are **not** searchable; entry is only from future entity owner/operator links (e.g. stable card → owner).
+
+| Surface | Path | Auth | Notes |
+|---------|------|------|-------|
+| API | `GET /api/v1/users/:id` | Optional (httpOnly cookie or `Authorization: Bearer`) | Returns `{ user: PublicUserProfileCard }`; `404 NOT_FOUND` when user missing, inactive, or `profileVisibility` blocks requester |
+| Web | `/users/[userId]` (locale-prefixed, e.g. `/es/users/…`) | Optional | Skeleton on route nav; card loaded client-side via `lib/api/userClient.ts`; not in discover navigation |
+
+**Service:** `lib/privacy/userPublicProfile.ts` — `getPublicUserForRequester(targetUserId, requester?)` resolves requester audience (`public` / `platform` / `relationship` / `collaboration`) from accepted horse `Relationship` and active host `WorkplaceRelationship`, then maps via `toPublicUserIdentity` + safe display fields.
+
+**Response card fields** (subset; identity fields gated by U-PRIV-01 matrix):
+
+| Field | Notes |
+|-------|-------|
+| `id` | Always present |
+| `firstName`, `lastName`, `email`, `phone` | Omitted when `profileVisibility` blocks requester |
+| `username`, `imageUrl`, `bio` | Included when set on profile; not separately gated beyond visibility check. `username` is unique (case-insensitive; sparse index + service check — UA-23) |
+
+No `preferences`, credentials, or full `personalDetails` / address. Full account data remains on `GET /api/v1/users/me`.
+
+**Tests:** `tests/lib/privacy/userPublicProfile.visibilityMatrix.test.ts`, `tests/app/api/v1/users/[id]/route.get.test.ts`.
+
+Developer detail: [`equus/documentation/profile.md`](../equus/documentation/profile.md) § Public read.
 
 Horse discovery (`Horse.profileVisibility`, `Horse.contactDisplay`) is documented in [`horseModule.md`](horseModule.md) §3 and [`equus/documentation/horses.md`](../equus/documentation/horses.md).
 
@@ -132,16 +165,29 @@ Horse discovery (`Horse.profileVisibility`, `Horse.contactDisplay`) is documente
 
 **Co-owners** (`coOwners[]`: `userId`, `ownershipPercentage`, `isBillingResponsible`) on Horse, Stable, RidingClub, Transport, Breeder grant profile-owner capabilities (navigation, workplaces, collaboration invites). This is **ownership**, not operational staff — staff use `WorkplaceRelationship`.
 
+**Ownership changes** (who is main owner, who is in `coOwners[]`) use the **`OwnershipTransfer`** collection — consent required before any change applies. Applies only to **entity-owned** types above; **not** user-linked services (trainer, vet, groom, etc.). See [`ownershipTransfer.md`](ownershipTransfer.md).
+
 `Relationship`, `Booking`, `Rating`, etc. use `accountTypeEnums` — role profiles (`stable`, `trainer`, …) or `horse` for the ownership side of a horse link (user operator, not a `User.*ProfileId`).
+
+### Ownership transfer kinds (locked)
+
+| Kind | Purpose | Precondition |
+|------|---------|--------------|
+| `transfer_main` | Hand entity to another user (sale / gift) | `coOwners[]` **empty** (each removal accepted via `remove_co_owner` first) |
+| `remove_co_owner` | Main owner removes a co-owner | Target user is in `coOwners[]`; **co-owner accepts** exclusion |
+| `promote_co_owner` | Co-owner becomes main owner | Target is in `coOwners[]`; **co-owner accepts**; other co-owners **remain** |
+
+Until accept: entity `mainOwnerUserId` and `coOwners[]` are unchanged. On accept for `transfer_main` / `promote_co_owner`: former main owner **loses** owner access.
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
 | U-ROLE-01 | Entity-owned models with `mainOwnerUserId` | Beyond | done |
 | U-ROLE-02 | User-linked models with `*ProfileId` on User | Beyond | done |
-| U-ROLE-03 | Co-owners array on entity-owned types | Parity | planned |
+| U-ROLE-03 | `coOwners[]` embed on entity-owned models | Parity | done |
 | U-ROLE-04 | Ownership helpers (`lib/ownership/entityOwnership.ts`) | Beyond | done |
 | U-ROLE-05 | User-linked ownership helpers (`lib/*/userLinkedProfileAccess.ts`) | Beyond | done |
-| U-ROLE-06 | Transfer main ownership / co-owner partnership APIs | Beyond | planned |
+| U-ROLE-06 | `OwnershipTransfer` model + APIs (`transfer_main`, `remove_co_owner`, `promote_co_owner`) | Beyond | done |
+| U-ROLE-07 | Ownership transfer inbox UI (`/ownership-transfers`) | Beyond | done |
 
 ### Create APIs (baseline shipped)
 
@@ -166,6 +212,11 @@ Do **not** write horse/stable arrays on `User` for entity-owned types.
 
 | Route pattern | Purpose |
 |---------------|---------|
+| `/` | Guest marketing landing — signed-in users redirect to `/home` |
+| `/home` | Signed-in user home hub — welcome, add horse, owned subsection links (`components/home/user-home-page.tsx`) |
+| `/me` | Legacy redirect → `/home` |
+| `/profile` | Account settings — personal details, preferences, deactivation (not post-auth landing) |
+| `/users/[userId]` | Public user profile card — entity-linked only; not in discover nav (U-PRIV-05) |
 | `/stables`, `/groomers`, … | Public discover directory for **entities** (horses, businesses, services — not people; mostly placeholder) |
 | `/my/stables`, `/my/horses`, … | Owned profile hub — auth required (mostly placeholder) |
 | `/create/horse`, `/create/stable`, `/create/trainer`, … | Add a role subsection (horse create **shipped**; others placeholder) |
@@ -179,6 +230,7 @@ Create routes: singular segments for user-linked roles (`/create/trainer`, `/cre
 | U-NAV-03 | Create-horse web flow (`/create/horse`) | Beyond | done |
 | U-NAV-04 | Create flows for other role types (web UI) | Parity | planned |
 | U-NAV-05 | `/my/*` owned hubs with real lists | Parity | planned |
+| U-NAV-06 | Public user profile page (`/users/[userId]`) + `GET /api/v1/users/:id` | Beyond | done |
 
 ---
 
@@ -270,9 +322,9 @@ Role-profile discovery is **per document**, not per User. Business contact lives
 | Coach | User-linked | [`equus/documentation/coaches.md`](../equus/documentation/coaches.md) | done |
 | Farrier | User-linked | [`equus/documentation/farriers.md`](../equus/documentation/farriers.md) | done |
 | Rider | User-linked | [`equus/documentation/riders.md`](../equus/documentation/riders.md) | done |
-| Riding club | Entity | — | planned |
+| Riding club | Entity | [`equus/documentation/riding-clubs.md`](../equus/documentation/riding-clubs.md) | done |
 
-Riding club baseline API and `equus/documentation/riding-clubs.md` remain planned.
+Riding club baseline API is implemented; hub UI and events remain future work.
 
 ---
 
@@ -302,6 +354,7 @@ Cross-module production gate (all must be ready together): see [`mvpScope.md`](m
 - [ ] Browse-first: new users can discover without creating roles
 - [ ] Multi-role navigation reflects owned profiles and collaborations
 - [ ] User privacy preferences enforced on personal and delegated horse contact
+- [x] Public user profile (`GET /api/v1/users/:id`, `/users/[userId]`) respects `profileVisibility` for all audiences (U-PRIV-05)
 - [ ] Workplace invite → accept → hierarchy; collaborator never gains entity ownership
 - [ ] Barn staff horse access follows dual-gate policy
 - [ ] Horse ↔ provider relationship invite/accept completes in minutes
@@ -318,3 +371,7 @@ Cross-module production gate (all must be ready together): see [`mvpScope.md`](m
 | 2026-06-30 | Create-horse web UI; veterinary baseline API shipped |
 | 2026-06-29 | Entity-owned `mainOwnerUserId`; collaborators as Users; workplace APIs |
 | 2026-06-30 | Entity-first discovery locked: no people search; removed `User.preferences.searchable`; only entities are searchable |
+| 2026-06-30 | OwnershipTransfer spec: consent-based `transfer_main`, `remove_co_owner`, `promote_co_owner`; entity-owned only |
+| 2026-06-30 | U-PRIV-05 shipped: `GET /api/v1/users/:id`, `/users/[userId]` web page; visibility matrix tests |
+| 2026-06-30 | U-PROF-07 shipped: account deactivation UI on `/profile` (UA-10) |
+| 2026-06-30 | U-PROF-08 shipped: global incomplete-profile banner in AppShell (UA-12) |

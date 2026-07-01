@@ -8,16 +8,20 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
 import { HorseProviderInvites } from "@/components/invites/horse-provider-invites.tsx";
+import { HorseOwnershipHub } from "@/components/horses/horse-ownership-hub.tsx";
 import { HorseHubPageSkeleton } from "@/components/horses/horse-hub-page-skeleton.tsx";
 import { Link, useRouter } from "@/i18n/navigation.ts";
 import {
   fetchCurrentUser,
   isApiClientError,
   type PublicRelationship,
+  type PublicOwnershipTransfer,
 } from "@/lib/api/authClient.ts";
+import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import {
   fetchHorseForOwner,
   fetchPendingSentRelationships,
+  fetchPendingSentOwnershipTransfers,
   HorseClientError,
 } from "@/lib/api/horseClient.ts";
 import type { OwnerHorseSummary } from "@/lib/api/horseClient.ts";
@@ -26,6 +30,25 @@ type HorseHubPageContentProps = {
   horseId: string;
 };
 
+type HorseHubPageData = {
+  horseData: OwnerHorseSummary;
+  relationships: PublicRelationship[];
+  ownershipTransfers: PublicOwnershipTransfer[];
+};
+
+async function fetchHorseHubPageData(horseId: string): Promise<HorseHubPageData> {
+  await fetchCurrentUser();
+  const horseData = await fetchHorseForOwner(horseId);
+  const [relationships, ownershipTransfers] = await Promise.all([
+    fetchPendingSentRelationships(horseId),
+    horseData.isMainOwner
+      ? fetchPendingSentOwnershipTransfers(horseId)
+      : Promise.resolve([]),
+  ]);
+
+  return { horseData, relationships, ownershipTransfers };
+}
+
 export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
   const router = useRouter();
   const t = useTranslations("horseHub");
@@ -33,22 +56,30 @@ export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
 
   const [horse, setHorse] = useState<OwnerHorseSummary | null>(null);
   const [pendingRelationships, setPendingRelationships] = useState<PublicRelationship[]>([]);
+  const [pendingOwnershipTransfers, setPendingOwnershipTransfers] = useState<
+    PublicOwnershipTransfer[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const applyPageData = useCallback((data: HorseHubPageData) => {
+    setHorse(data.horseData);
+    setPendingRelationships(data.relationships);
+    setPendingOwnershipTransfers(data.ownershipTransfers);
+  }, []);
+
   const loadPage = useCallback(async () => {
-    await fetchCurrentUser();
-    const [horseData, relationships] = await Promise.all([
-      fetchHorseForOwner(horseId),
-      fetchPendingSentRelationships(horseId),
-    ]);
-    setHorse(horseData);
-    setPendingRelationships(relationships);
-  }, [horseId]);
+    const data = await fetchHorseHubPageData(horseId);
+    applyPageData(data);
+  }, [applyPageData, horseId]);
 
   useEffect(() => {
     let cancelled = false;
 
-    loadPage()
+    fetchHorseHubPageData(horseId)
+      .then((data) => {
+        if (cancelled) return;
+        applyPageData(data);
+      })
       .catch((err) => {
         if (cancelled) return;
         if (err instanceof HorseClientError && err.statusCode === 403) {
@@ -56,7 +87,7 @@ export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
           return;
         }
         if (isApiClientError(err) && err.statusCode === 401) {
-          router.replace(`/signin?next=${encodeURIComponent(`/my/horses/${horseId}`)}`);
+          router.replace(buildSignInPath(`/my/horses/${horseId}`));
           return;
         }
         router.replace("/my/horses");
@@ -68,7 +99,7 @@ export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
     return () => {
       cancelled = true;
     };
-  }, [horseId, loadPage, router]);
+  }, [applyPageData, horseId, router]);
 
   if (isLoading || !horse) {
     return <HorseHubPageSkeleton />;
@@ -90,6 +121,13 @@ export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
           {[horse.breed, horse.sex].filter(Boolean).join(" · ") || t("subtitle")}
         </p>
       </div>
+
+      <HorseOwnershipHub
+        horseId={horseId}
+        horse={horse}
+        pendingTransfers={pendingOwnershipTransfers}
+        onChanged={loadPage}
+      />
 
       <section className="space-y-4">
         <div>

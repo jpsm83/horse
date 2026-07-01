@@ -19,6 +19,7 @@ import {
   buildPublicFarrierCard,
   type PublicFarrierCard,
 } from "@/lib/farriers/buildPublicFarrierCard.ts";
+import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
   createFarrierSchema,
@@ -139,6 +140,8 @@ export async function getPublicFarrierCard(
   if (!farrier) {
     throw new ApiError(404, "Farrier not found", "NOT_FOUND");
   }
+
+  await assertPublicReadAllowed(farrier as Record<string, unknown>, "Farrier");
 
   const requesterUserId = requester?.id;
   const hasRelationship =

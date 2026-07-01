@@ -8,6 +8,7 @@
 import mongoose, { Schema, model } from "mongoose";
 import { addressSchema } from "./sharedSchemas/address.ts";
 import {
+  deactivationAuditFields,
   mediaAssetSchema,
   ratingSummarySchema,
   verificationProfileSchema,
@@ -40,7 +41,7 @@ const farrierSchema = new Schema(
     acceptsNewClients: { type: Boolean, default: true },
 
     lastActiveAt: { type: Date },
-    isActive: { type: Boolean, default: true },
+    ...deactivationAuditFields,
     isPublic: { type: Boolean, default: true },
   },
   {

@@ -95,7 +95,7 @@ Trial active (30 days)
   → Co-owners remain linked but do not become payer unless ownership transfer occurs
 ```
 
-**Stable, riding club, transport, and breeder partnerships** use the same `mainOwnerUserId` + `coOwners[]` embed as horses (shared `coOwnerSchema`). Co-owners receive full profile-owner access; adding co-owners via API is future work.
+**Stable, riding club, transport, and breeder partnerships** use the same `mainOwnerUserId` + `coOwners[]` embed as horses (shared `coOwnerSchema`). Co-owners receive full profile-owner access. **Lifecycle changes** (transfer main, remove co-owner, promote co-owner) use [`ownershipTransfer.md`](ownershipTransfer.md) — not direct PATCH on the entity.
 
 ---
 
@@ -311,20 +311,48 @@ Examples:
 
 ---
 
-## Flow 10 — Horse ownership transfer
+## Flow 10 — Transfer main ownership (`transfer_main`)
+
+Applies to **Horse**, **Stable**, **Breeder**, **Transport**, **RidingClub** — not service profiles.
 
 ```
-Main owner initiates transfer
-  → Select new main owner user
-  → Confirm transfer
-  → Billing responsibility moves to new main owner
-  → Horse history and records remain intact
-  → Relationship permissions re-evaluated under new owner context
+Main owner agrees sale/handoff offline with buyer
+  → If coOwners[] not empty: complete Flow 11 for each co-owner first
+  → Main owner sends OwnershipTransfer (transfer_main) to buyer
+  → Buyer accepts or declines
+  → On accept: mainOwnerUserId → buyer; coOwners[] empty; former main loses owner access
+  → Horse history / stable records remain on entity; billing moves to new main owner (horses)
 ```
 
 ---
 
-## Flow 11 — Relationship end / rejection
+## Flow 11 — Remove co-owner (`remove_co_owner`)
+
+```
+Main owner and co-owner agree offline
+  → Main owner sends OwnershipTransfer (remove_co_owner) to that co-owner
+  → Co-owner accepts or declines exclusion
+  → On accept: user removed from coOwners[]; main owner unchanged
+```
+
+Required before **Flow 10** when syndicate / partnership co-owners exist.
+
+---
+
+## Flow 12 — Promote co-owner to main (`promote_co_owner`)
+
+```
+Main owner and co-owner agree offline (e.g. partner takes over operation)
+  → Main owner sends OwnershipTransfer (promote_co_owner) to that co-owner
+  → Co-owner accepts or declines
+  → On accept: co-owner → mainOwnerUserId; removed from coOwners[]; other co-owners unchanged; former main loses owner access
+```
+
+No requirement to remove other co-owners before this flow.
+
+---
+
+## Flow 13 — Relationship end / rejection
 
 ```
 Relationship rejected or ended

@@ -12,6 +12,11 @@
 
 import bcrypt from "bcrypt";
 import User from "../../models/User.ts";
+import { deactivateDocument } from "../lifecycle/deactivateDocument.ts";
+import {
+  applyUserPiiAnonymization,
+  isUserPiiAnonymized,
+} from "../lifecycle/anonymizeUserPii.ts";
 import { normalizeLocale, type AppLocale } from "@/i18n/resolveLocale.ts";
 import { isProfileComplete } from "../auth/session.ts";
 import type { AuthProvider, GoogleProfileInput } from "../auth/types.ts";
@@ -30,6 +35,13 @@ import type { z } from "zod";
 import type { updatePersonalDetailsSchema } from "../validations/user.ts";
 import { linkInvitesByEmail } from "./workplaceRelationshipService.ts";
 import { linkRelationshipByReferral } from "./relationshipService.ts";
+import {
+  assertUsernameAvailable,
+  normalizeUsername,
+} from "../users/username.ts";
+import { linkGoogleToExistingUser } from "../auth/googleAccountLinking.ts";
+import { isDocumentActive } from "../lifecycle/activeQuery.ts";
+import { ApiError } from "../api/errors.ts";
 
 export type UpdatePersonalDetailsInput = z.infer<typeof updatePersonalDetailsSchema>;
 
@@ -193,7 +205,11 @@ export async function createCredentialsUser(input: {
   const firstName = input.firstName?.trim();
   const lastName = input.lastName?.trim();
 
-  if (username) personalDetails.username = username.slice(0, 50);
+  if (username) {
+    const normalizedUsername = normalizeUsername(username);
+    await assertUsernameAvailable(normalizedUsername);
+    personalDetails.username = normalizedUsername.slice(0, 50);
+  }
   if (firstName) personalDetails.firstName = firstName.slice(0, 50);
   if (lastName) personalDetails.lastName = lastName.slice(0, 50);
   personalDetails.preferredLanguage = normalizeLocale(input.preferredLanguage);
@@ -227,23 +243,16 @@ export async function findOrCreateFromGoogle(profile: GoogleProfileInput) {
   const normalizedEmail = profile.email.toLowerCase().trim();
   const existingBySub = await findByGoogleSubjectId(profile.sub);
   if (existingBySub) {
+    if (!isDocumentActive(existingBySub) || isUserPiiAnonymized(existingBySub)) {
+      throw new ApiError(403, "Account is not active", "FORBIDDEN");
+    }
     return { user: existingBySub, created: false };
   }
 
   const existingByEmail = await findByEmail(normalizedEmail);
   if (existingByEmail) {
-    existingByEmail.googleSubjectId = profile.sub;
-    if (!existingByEmail.authProvider) {
-      existingByEmail.authProvider = "google";
-    }
-    if (profile.emailVerified) {
-      existingByEmail.emailVerified = true;
-    }
-    if (profile.image && !existingByEmail.personalDetails.imageUrl) {
-      existingByEmail.personalDetails.imageUrl = profile.image;
-    }
-    await existingByEmail.save();
-    return { user: existingByEmail, created: false };
+    const user = await linkGoogleToExistingUser(String(existingByEmail._id), profile);
+    return { user, created: false };
   }
 
   const personalDetails: Record<string, unknown> = {
@@ -297,10 +306,18 @@ function shouldUnset(value: unknown): boolean {
 
 /** Patch `personalDetails` fields validated by `updatePersonalDetailsSchema`. */
 export async function updatePersonalDetails(userId: string, data: UpdatePersonalDetailsInput) {
+  const patch = { ...data };
+
+  if (patch.username !== undefined && !shouldUnset(patch.username)) {
+    const normalizedUsername = normalizeUsername(patch.username);
+    await assertUsernameAvailable(normalizedUsername, userId);
+    patch.username = normalizedUsername;
+  }
+
   const set: Record<string, unknown> = {};
   const unset: Record<string, ""> = {};
 
-  for (const [key, value] of Object.entries(data)) {
+  for (const [key, value] of Object.entries(patch)) {
     if (value === undefined) {
       continue;
     }
@@ -414,16 +431,53 @@ export async function updateProfileImage(userId: string, imageFile: UploadInputF
   return toPublicUser(updated as Record<string, unknown>);
 }
 
-/** Deactivate the account without deleting the document. */
+/** Deactivate the account without deleting the document. Revokes refresh tokens via session version bump. */
 export async function softDelete(userId: string) {
-  const user = await User.findByIdAndUpdate(
+  const user = await deactivateDocument(
+    User,
     userId,
-    { $set: { isActive: false } },
-    { returnDocument: "after" },
-  )
-    .select("-personalDetails.password")
-    .lean();
+    { deactivatedByUserId: userId },
+    {
+      select: "-personalDetails.password",
+      additionalUpdate: { $inc: { refreshSessionVersion: 1 } },
+    },
+  );
 
   if (!user) return null;
-  return toPublicUser(user as Record<string, unknown>);
+  return toPublicUser(user);
 }
+
+/**
+ * Scrub personal PII on a deactivated user (GDPR-style erasure stub).
+ * Requires prior `softDelete`. Does not remove horse-attached records or foreign keys.
+ */
+export async function anonymizeUserPii(
+  userId: string,
+  options: { anonymizedByUserId: string },
+) {
+  const user = await User.findById(userId).select("personalDetails.imageUrl piiAnonymizedAt").lean();
+  if (!user) {
+    return null;
+  }
+
+  if (!isUserPiiAnonymized(user)) {
+    const imageUrl = (user.personalDetails as { imageUrl?: string } | undefined)?.imageUrl;
+    if (imageUrl) {
+      try {
+        const deleteResult = await deleteFilesCloudinary(imageUrl);
+        assertCloudinaryDeleteSuccess(deleteResult);
+      } catch (error) {
+        console.error("PII anonymization: failed to delete Cloudinary avatar:", error);
+      }
+    }
+  }
+
+  const updated = await applyUserPiiAnonymization(userId, {
+    anonymizedByUserId: options.anonymizedByUserId,
+  });
+
+  if (!updated) return null;
+  return toPublicUser(updated);
+}
+
+export { isUserPiiAnonymized };

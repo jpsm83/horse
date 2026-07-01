@@ -19,6 +19,7 @@ import {
   buildPublicBreederCard,
   type PublicBreederCard,
 } from "@/lib/breeders/buildPublicBreederCard.ts";
+import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
   createBreederSchema,
@@ -137,6 +138,8 @@ export async function getPublicBreederCard(
   if (!breeder) {
     throw new ApiError(404, "Breeder not found", "NOT_FOUND");
   }
+
+  await assertPublicReadAllowed(breeder as Record<string, unknown>, "Breeder");
 
   const requesterUserId = requester?.id;
   const hasRelationship =

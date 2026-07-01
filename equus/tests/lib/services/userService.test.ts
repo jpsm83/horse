@@ -128,6 +128,63 @@ describe("userService", () => {
     });
   });
 
+  it("updatePersonalDetails rejects duplicate usernames", async () => {
+    await userService.createCredentialsUser({
+      email: "username-owner@example.com",
+      password: "TestPass1!",
+      username: "publicowner",
+    });
+
+    const other = await userService.createCredentialsUser({
+      email: "username-other@example.com",
+      password: "TestPass1!",
+    });
+
+    await expect(
+      userService.updatePersonalDetails(String(other._id), {
+        username: "PublicOwner",
+      }),
+    ).rejects.toMatchObject({
+      statusCode: 409,
+      code: "CONFLICT",
+    });
+  });
+
+  it("updatePersonalDetails allows keeping the same username", async () => {
+    const user = await userService.createCredentialsUser({
+      email: "username-keep@example.com",
+      password: "TestPass1!",
+      username: "KeepMe",
+    });
+
+    const updated = await userService.updatePersonalDetails(String(user._id), {
+      username: "keepme",
+      bio: "Still me",
+    });
+
+    expect(updated?.personalDetails.username).toBe("keepme");
+    expect(updated?.personalDetails.bio).toBe("Still me");
+  });
+
+  it("createCredentialsUser rejects duplicate usernames at signup", async () => {
+    await userService.createCredentialsUser({
+      email: "signup-username-a@example.com",
+      password: "TestPass1!",
+      username: "signupuser",
+    });
+
+    await expect(
+      userService.createCredentialsUser({
+        email: "signup-username-b@example.com",
+        password: "TestPass1!",
+        username: "SignupUser",
+      }),
+    ).rejects.toMatchObject({
+      statusCode: 409,
+      code: "CONFLICT",
+    });
+  });
+
   it("toPublicUser omits null fields from personalDetails", async () => {
     const created = await userService.createCredentialsUser({
       email: "legacy@example.com",
@@ -215,19 +272,29 @@ describe("userService", () => {
 
     expect(created).toBe(false);
     expect(user.googleSubjectId).toBe("google-sub-link");
+    expect(user.authProvider).toBe("credentials");
+    expect(userService.userHasPassword(user.toObject() as Record<string, unknown>)).toBe(
+      true,
+    );
   });
 
-  it("softDelete sets isActive to false", async () => {
+  it("softDelete deactivates account and bumps refreshSessionVersion", async () => {
     const created = await userService.createCredentialsUser({
       email: "delete@example.com",
       password: "TestPass1!",
     });
+
+    const before = await User.findById(created._id).select("refreshSessionVersion").lean();
+    const versionBefore = before?.refreshSessionVersion ?? 0;
 
     const deleted = await userService.softDelete(String(created._id));
     expect(deleted?.isActive).toBe(false);
 
     const reloaded = await User.findById(created._id).lean();
     expect(reloaded?.isActive).toBe(false);
+    expect(reloaded?.refreshSessionVersion).toBe(versionBefore + 1);
+    expect(reloaded?.deactivatedAt).toBeInstanceOf(Date);
+    expect(String(reloaded?.deactivatedByUserId)).toBe(String(created._id));
   });
 
   it("updateProfileImage uploads to Cloudinary and stores secure URL", async () => {

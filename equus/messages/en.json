@@ -45,7 +45,8 @@
     "account": {
       "sectionLabel": "My account",
       "workplaces": "Workplaces",
-      "relationships": "Relationship requests"
+      "relationships": "Relationship requests",
+      "ownershipTransfers": "Ownership transfers"
     },
     "myOwn": {
       "sectionLabel": "My profiles",
@@ -192,7 +193,11 @@
       "wrongAccount": "This invitation is for a different account. Sign in with the invited email address.",
       "emailUnverified": "Please verify your email before signing in."
     },
-    "requestFailed": "Request failed"
+    "requestFailed": "Request failed",
+    "error": {
+      "title": "Something went wrong",
+      "description": "This page could not be loaded. You can try again or return home."
+    }
   },
   "invites": {
     "workplaces": {
@@ -213,6 +218,27 @@
       "decline": "Decline",
       "accepted": "Relationship accepted.",
       "declined": "Relationship declined."
+    },
+    "ownershipTransfers": {
+      "title": "Ownership transfer requests",
+      "description": "Pending ownership changes waiting for your response.",
+      "empty": "You have no pending ownership transfer requests.",
+      "accept": "Accept",
+      "decline": "Decline",
+      "accepted": "Ownership transfer accepted.",
+      "declined": "Ownership transfer declined.",
+      "entityTypes": {
+        "horse": "Horse",
+        "stable": "Stable",
+        "breeder": "Breeder",
+        "transport": "Transport",
+        "ridingClub": "Riding club"
+      },
+      "transferKinds": {
+        "transfer_main": "Transfer main ownership",
+        "remove_co_owner": "Remove co-owner",
+        "promote_co_owner": "Promote co-owner"
+      }
     },
     "signup": {
       "staffBanner": "You were invited to join a workplace on Equus. Sign up with the invited email address.",
@@ -285,6 +311,7 @@
     "title": "Your profile",
     "description": "Update your personal details and preferences.",
     "incompleteBanner": "Your profile is incomplete. You can save changes at any time and finish the rest later.",
+    "incompleteGlobalBannerLink": "Complete your profile",
     "submit": "Save profile",
     "submitting": "Saving…",
     "saved": "Profile saved.",
@@ -298,7 +325,8 @@
       "visibility": "Visibility and privacy",
       "address": "Address",
       "photo": "Photo",
-      "security": "Security"
+      "security": "Security",
+      "account": "Account"
     },
     "username": "Username",
     "preferredLanguage": "Preferred language",
@@ -338,6 +366,15 @@
     "passwordChange": "Change password",
     "passwordChangeDescription": "We will email you a link to reset your password.",
     "passwordEmailFailed": "Could not send password email. Please try again.",
+    "deactivateAccount": "Deactivate account",
+    "deactivateDescription": "Deactivate your Equus login. Your data is retained for horses, relationships, and records you participated in.",
+    "deactivateDialogTitle": "Deactivate your account?",
+    "deactivateDialogDescription": "You will be signed out and will not be able to sign in again with this account. This does not delete horses or business records linked to you.",
+    "deactivateCancel": "Cancel",
+    "deactivateConfirm": "Deactivate account",
+    "deactivateSubmitting": "Deactivating…",
+    "deactivateSuccess": "Account deactivated.",
+    "deactivateFailed": "Could not deactivate account. Please try again.",
     "selectPlaceholder": "Select…",
     "genderOptions": {
       "Man": "Man",
@@ -439,11 +476,43 @@
       "Other": "Other"
     }
   },
+  "userProfile": {
+    "title": "User profile",
+    "description": "Equus member profile linked from horses and other listings. Users are not searchable.",
+    "eyebrow": "Equus member",
+    "about": "About",
+    "noBio": "No bio provided.",
+    "contact": "Contact",
+    "email": "Email",
+    "phone": "Phone",
+    "memberFallback": "Equus member"
+  },
   "horseHub": {
     "backToHorses": "Back to my horses",
     "subtitle": "Manage this horse",
     "connectTitle": "Connect providers",
-    "connectDescription": "Invite stables, vets, trainers, and other providers. They accept or decline — providers never send requests to your horse."
+    "connectDescription": "Invite stables, vets, trainers, and other providers. They accept or decline — providers never send requests to your horse.",
+    "ownership": {
+      "title": "Ownership",
+      "description": "Transfer this horse or manage co-owners. Changes apply only after the other party accepts.",
+      "transferTitle": "Transfer ownership",
+      "transferDescription": "Send ownership to another person by email. They accept the request in their ownership inbox.",
+      "coOwnersTitle": "Manage co-owners",
+      "coOwnersDescription": "Remove or promote co-owners. Each person must accept before the change applies.",
+      "coOwnersBlockTransfer": "Remove all co-owners before you can transfer main ownership.",
+      "emailLabel": "New owner email",
+      "nameLabel": "Name (optional)",
+      "sendTransfer": "Send transfer request",
+      "removeCoOwner": "Remove",
+      "promoteCoOwner": "Promote to main owner",
+      "pending": "Pending",
+      "cancelPending": "Cancel request",
+      "transferSent": "Ownership transfer request sent.",
+      "removeSent": "Co-owner removal request sent.",
+      "promoteSent": "Promotion request sent.",
+      "cancelled": "Request cancelled.",
+      "ownershipPercentage": "{percentage}% ownership"
+    }
   },
   "errors": {
     "EMAIL_NOT_VERIFIED": "Please verify your email before signing in.",

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import Relationship from "@/models/Relationship.ts";
+import Horse from "@/models/Horse.ts";
 import User from "@/models/User.ts";
 import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
 import * as userService from "@/lib/services/userService.ts";
@@ -28,6 +29,9 @@ describe("horseService", () => {
     expect(String(horse.mainOwnerUserId)).toBe(String(owner._id));
     expect(String(horse.createdByUserId)).toBe(String(owner._id));
     expect(horse.profileVisibility).toBe("public");
+    expect(String((horse.subscription as { payerUserId?: unknown })?.payerUserId)).toBe(
+      String(owner._id),
+    );
     expect((horse.contactDisplay as { useOwnerContact?: boolean })?.useOwnerContact).toBe(true);
   });
 
@@ -190,6 +194,72 @@ describe("horseService", () => {
       id: String(collaborator._id),
     });
     expect(card.id).toBe(String(horse._id));
+  });
+
+  it("returns 404 for public card when horse is inactive", async () => {
+    const owner = await createUser("horse-inactive@example.com");
+    const created = await horseService.createHorse(String(owner._id), {
+      name: "Retired",
+      breed: "Warmblood",
+      sex: "Mare",
+      profileVisibility: "public",
+    });
+
+    await Horse.updateOne({ _id: created._id }, { $set: { isActive: false } });
+
+    await expect(
+      horseService.getPublicHorseCard(String(created._id), { isAuthenticated: false }),
+    ).rejects.toMatchObject({ statusCode: 404 });
+  });
+
+  it("returns 404 for public card when owner account is deactivated", async () => {
+    const owner = await createUser("horse-deactivated-owner@example.com");
+    const created = await horseService.createHorse(String(owner._id), {
+      name: "Orphan Card",
+      breed: "Warmblood",
+      sex: "Gelding",
+      profileVisibility: "public",
+    });
+
+    await userService.softDelete(String(owner._id));
+
+    await expect(
+      horseService.getPublicHorseCard(String(created._id), { isAuthenticated: false }),
+    ).rejects.toMatchObject({ statusCode: 404 });
+  });
+
+  it("returns owner hub summary with main-owner flag and co-owner labels", async () => {
+    const main = await createUser("hub-summary-main@example.com");
+    const partner = await createUser("hub-summary-partner@example.com");
+    const created = await horseService.createHorse(String(main._id), {
+      name: "Summary Horse",
+      breed: "Lusitano",
+      sex: "Gelding",
+    });
+
+    await Horse.updateOne(
+      { _id: created._id },
+      {
+        $push: {
+          coOwners: { userId: partner._id, ownershipPercentage: 25 },
+        },
+      },
+    );
+
+    const mainSummary = await horseService.getOwnerHorseHubSummary(
+      String(main._id),
+      String(created._id),
+    );
+    expect(mainSummary.isMainOwner).toBe(true);
+    expect(mainSummary.coOwners).toHaveLength(1);
+    expect(mainSummary.coOwners[0]?.userId).toBe(String(partner._id));
+
+    const partnerSummary = await horseService.getOwnerHorseHubSummary(
+      String(partner._id),
+      String(created._id),
+    );
+    expect(partnerSummary.isMainOwner).toBe(false);
+    expect(partnerSummary.coOwners).toHaveLength(1);
   });
 });
 
