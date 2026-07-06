@@ -40,6 +40,7 @@ See [`stack.md`](stack.md) for full detail.
 - **API:** REST via Next.js Route Handlers (`/api/v1/*`)
 - **Auth:** Auth.js (web) + JWT endpoints (mobile)
 - **Data:** MongoDB Atlas + Mongoose (`equus/models/`)
+- **Data Fetching:** TanStack Query (React Query v5) — all client API calls
 - **Media:** Cloudinary
 - **Language:** 100% TypeScript
 

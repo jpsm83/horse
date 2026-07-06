@@ -19,9 +19,7 @@ describe("username helpers", () => {
       username: "takenhandle",
     });
 
-    await expect(assertUsernameAvailable("TakenHandle")).rejects.toMatchObject<
-      Partial<ApiError>
-    >({
+    await expect(assertUsernameAvailable("TakenHandle")).rejects.toMatchObject({
       statusCode: 409,
       code: "CONFLICT",
     });

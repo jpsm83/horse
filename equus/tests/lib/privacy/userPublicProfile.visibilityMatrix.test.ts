@@ -223,7 +223,7 @@ describe("user public profile visibility matrix", () => {
         String(owner!._id),
         "stable",
         String(stable._id),
-        { email: "matrix-private-collab@example.com", hierarchyLevel: "staff" },
+        { email: "matrix-private-collab@example.com", hierarchyLevel: "staff", title: "Staff", description: "Staff member" },
       );
       await workplaceRelationshipService.acceptInvite(String(collaborator._id), invited.id);
 

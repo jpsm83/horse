@@ -1,7 +1,6 @@
 /**
  * Horse hub — main-owner actions to transfer ownership or manage co-owners.
- *
- * Calls ownership transfer REST APIs; receivers accept at `/ownership-transfers`.
+ * Uses TanStack Query mutations with automatic cache invalidation.
  */
 
 "use client";
@@ -13,12 +12,9 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
-import {
-  cancelOwnershipTransfer,
-  createOwnershipTransfer,
-  isApiClientError,
-  type PublicOwnershipTransfer,
-} from "@/lib/api/authClient.ts";
+import { useCreateOwnershipTransfer, useCancelOwnershipTransfer, type CreateOwnershipTransferInput } from "@/hooks/queries/useOwnershipTransfer";
+import { isFetchError } from "@/lib/api/fetchWithAuth";
+import type { PublicOwnershipTransfer } from "@/lib/api/authClient";
 import type { OwnerHorseSummary } from "@/lib/api/horseClient.ts";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +22,6 @@ type HorseOwnershipHubProps = {
   horseId: string;
   horse: OwnerHorseSummary;
   pendingTransfers: PublicOwnershipTransfer[];
-  onChanged: () => Promise<void>;
 };
 
 function pendingForCoOwner(
@@ -57,7 +52,6 @@ export function HorseOwnershipHub({
   horseId,
   horse,
   pendingTransfers,
-  onChanged,
 }: HorseOwnershipHubProps) {
   const t = useTranslations("horseHub.ownership");
   const tKinds = useTranslations("invites.ownershipTransfers.transferKinds");
@@ -66,9 +60,12 @@ export function HorseOwnershipHub({
 
   const [invitedEmail, setInvitedEmail] = useState("");
   const [invitedName, setInvitedName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [actingTransferId, setActingTransferId] = useState<string | null>(null);
   const [actingCoOwnerId, setActingCoOwnerId] = useState<string | null>(null);
+
+  const createTransfer = useCreateOwnershipTransfer();
+  const cancelTransfer = useCancelOwnershipTransfer();
+  const isSubmitting = createTransfer.isPending;
 
   if (!horse.isMainOwner) {
     return null;
@@ -77,29 +74,27 @@ export function HorseOwnershipHub({
   const pendingMain = pendingTransferMain(pendingTransfers);
   const hasCoOwners = horse.coOwners.length > 0;
 
-  async function handleCreateTransfer(
-    input: Parameters<typeof createOwnershipTransfer>[0],
+  function handleCreateTransfer(
+    input: CreateOwnershipTransferInput,
     successMessage: string,
   ) {
-    setIsSubmitting(true);
-    try {
-      await createOwnershipTransfer(input);
-      toast.success(successMessage);
-      await onChanged();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : tStatus("requestFailed"));
-    } finally {
-      setIsSubmitting(false);
-      setActingCoOwnerId(null);
-    }
+    createTransfer.mutate(input, {
+      onSuccess: () => {
+        toast.success(successMessage);
+        setActingCoOwnerId(null);
+      },
+      onError: (err) => {
+        toast.error(err instanceof Error ? err.message : tStatus("requestFailed"));
+      },
+    });
   }
 
-  async function handleTransferMain(event: React.FormEvent<HTMLFormElement>) {
+  function handleTransferMain(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const email = invitedEmail.trim();
     if (!email) return;
 
-    await handleCreateTransfer(
+    handleCreateTransfer(
       {
         entityType: "horse",
         entityId: horseId,
@@ -113,9 +108,9 @@ export function HorseOwnershipHub({
     setInvitedName("");
   }
 
-  async function handleRemoveCoOwner(userId: string) {
+  function handleRemoveCoOwner(userId: string) {
     setActingCoOwnerId(userId);
-    await handleCreateTransfer(
+    handleCreateTransfer(
       {
         entityType: "horse",
         entityId: horseId,
@@ -126,9 +121,9 @@ export function HorseOwnershipHub({
     );
   }
 
-  async function handlePromoteCoOwner(userId: string) {
+  function handlePromoteCoOwner(userId: string) {
     setActingCoOwnerId(userId);
-    await handleCreateTransfer(
+    handleCreateTransfer(
       {
         entityType: "horse",
         entityId: horseId,
@@ -139,21 +134,22 @@ export function HorseOwnershipHub({
     );
   }
 
-  async function handleCancel(transferId: string) {
+  function handleCancel(transferId: string) {
     setActingTransferId(transferId);
-    try {
-      await cancelOwnershipTransfer(transferId);
-      toast.success(t("cancelled"));
-      await onChanged();
-    } catch (err) {
-      if (isApiClientError(err) && err.statusCode === 403) {
-        toast.error(tStatus("requestFailed"));
-        return;
-      }
-      toast.error(err instanceof Error ? err.message : tStatus("requestFailed"));
-    } finally {
-      setActingTransferId(null);
-    }
+    cancelTransfer.mutate(transferId, {
+      onSuccess: () => {
+        toast.success(t("cancelled"));
+        setActingTransferId(null);
+      },
+      onError: (err) => {
+        if (isFetchError(err) && err.statusCode === 403) {
+          toast.error(tStatus("requestFailed"));
+          return;
+        }
+        toast.error(err instanceof Error ? err.message : tStatus("requestFailed"));
+        setActingTransferId(null);
+      },
+    });
   }
 
   return (

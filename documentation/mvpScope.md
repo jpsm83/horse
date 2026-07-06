@@ -31,6 +31,7 @@ Aligned with `stack.md`:
 | Auth | Auth.js (web); JWT login/refresh endpoints (mobile-ready) |
 | Validation | Zod at API boundary and web forms |
 | Database | MongoDB Atlas + Mongoose (`equus/models/`) |
+| Data Fetching | TanStack Query — all client-side API calls (web); same patterns for React Native |
 | Uploads | Cloudinary |
 | Chat | REST messages; Socket.io realtime when chat UX requires it (`stack.md` §9.3) |
 | Mobile app | React Native (Expo) — API designed for mobile from day one; native app can follow web |

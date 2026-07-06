@@ -2,104 +2,56 @@
 
 /**
  * Horse owner hub — horse summary and provider invitation pickers.
+ * Data fetching and mutations handled by TanStack Query.
  */
 
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { HorseProviderInvites } from "@/components/invites/horse-provider-invites.tsx";
 import { HorseOwnershipHub } from "@/components/horses/horse-ownership-hub.tsx";
 import { HorseHubPageSkeleton } from "@/components/horses/horse-hub-page-skeleton.tsx";
-import { Link, useRouter } from "@/i18n/navigation.ts";
-import {
-  fetchCurrentUser,
-  isApiClientError,
-  type PublicRelationship,
-  type PublicOwnershipTransfer,
-} from "@/lib/api/authClient.ts";
+import { Link } from "@/i18n/navigation.ts";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import {
-  fetchHorseForOwner,
-  fetchPendingSentRelationships,
-  fetchPendingSentOwnershipTransfers,
-  HorseClientError,
-} from "@/lib/api/horseClient.ts";
-import type { OwnerHorseSummary } from "@/lib/api/horseClient.ts";
+  useOwnerHorse,
+  useHorsePendingRelationships,
+  useHorseOwnershipTransfers,
+} from "@/hooks/queries/useHorse.ts";
+import { useAppAuth } from "@/hooks/use-app-auth.ts";
+import { isFetchError } from "@/lib/api/fetchWithAuth";
 
 type HorseHubPageContentProps = {
   horseId: string;
 };
-
-type HorseHubPageData = {
-  horseData: OwnerHorseSummary;
-  relationships: PublicRelationship[];
-  ownershipTransfers: PublicOwnershipTransfer[];
-};
-
-async function fetchHorseHubPageData(horseId: string): Promise<HorseHubPageData> {
-  await fetchCurrentUser();
-  const horseData = await fetchHorseForOwner(horseId);
-  const [relationships, ownershipTransfers] = await Promise.all([
-    fetchPendingSentRelationships(horseId),
-    horseData.isMainOwner
-      ? fetchPendingSentOwnershipTransfers(horseId)
-      : Promise.resolve([]),
-  ]);
-
-  return { horseData, relationships, ownershipTransfers };
-}
 
 export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
   const router = useRouter();
   const t = useTranslations("horseHub");
   const tCommon = useTranslations("common");
 
-  const [horse, setHorse] = useState<OwnerHorseSummary | null>(null);
-  const [pendingRelationships, setPendingRelationships] = useState<PublicRelationship[]>([]);
-  const [pendingOwnershipTransfers, setPendingOwnershipTransfers] = useState<
-    PublicOwnershipTransfer[]
-  >([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated, isLoading: isAuthLoading } = useAppAuth();
+  const { data: horse, isLoading: isHorseLoading, error: horseError } = useOwnerHorse(horseId);
+  const { data: relationships = [] } = useHorsePendingRelationships(horseId);
+  const { data: ownershipTransfers = [] } = useHorseOwnershipTransfers(
+    horse?.isMainOwner ? horseId : undefined,
+  );
 
-  const applyPageData = useCallback((data: HorseHubPageData) => {
-    setHorse(data.horseData);
-    setPendingRelationships(data.relationships);
-    setPendingOwnershipTransfers(data.ownershipTransfers);
-  }, []);
+  const isLoading = isAuthLoading || isHorseLoading;
 
-  const loadPage = useCallback(async () => {
-    const data = await fetchHorseHubPageData(horseId);
-    applyPageData(data);
-  }, [applyPageData, horseId]);
+  if (!isLoading && !isAuthenticated) {
+    router.replace(buildSignInPath(`/my/horses/${horseId}`));
+    return null;
+  }
 
-  useEffect(() => {
-    let cancelled = false;
-
-    fetchHorseHubPageData(horseId)
-      .then((data) => {
-        if (cancelled) return;
-        applyPageData(data);
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        if (err instanceof HorseClientError && err.statusCode === 403) {
-          router.push("/not-allowed?reason=wrong_account");
-          return;
-        }
-        if (isApiClientError(err) && err.statusCode === 401) {
-          router.replace(buildSignInPath(`/my/horses/${horseId}`));
-          return;
-        }
-        router.replace("/my/horses");
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [applyPageData, horseId, router]);
+  if (horseError) {
+    if (isFetchError(horseError) && horseError.statusCode === 403) {
+      router.push("/not-allowed?reason=wrong_account");
+      return null;
+    }
+    router.replace("/my/horses");
+    return null;
+  }
 
   if (isLoading || !horse) {
     return <HorseHubPageSkeleton />;
@@ -125,8 +77,7 @@ export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
       <HorseOwnershipHub
         horseId={horseId}
         horse={horse}
-        pendingTransfers={pendingOwnershipTransfers}
-        onChanged={loadPage}
+        pendingTransfers={ownershipTransfers}
       />
 
       <section className="space-y-4">
@@ -136,8 +87,7 @@ export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
         </div>
         <HorseProviderInvites
           horseId={horseId}
-          pendingRelationships={pendingRelationships}
-          onInvited={() => void loadPage()}
+          pendingRelationships={relationships}
         />
       </section>
     </div>

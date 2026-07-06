@@ -17,6 +17,7 @@ import {
 } from "@/components/layout/navigation-config.ts";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAppAuth } from "@/hooks/use-app-auth.ts";
+import { useUserNavigation, useUserProfile } from "@/hooks/queries/useCurrentUser.ts";
 import { Link, usePathname, useRouter } from "@/i18n/navigation.ts";
 import { buildSignInPath, USER_HOME_PATH } from "@/lib/navigation/postAuthRedirect.ts";
 import { cn } from "@/lib/utils";
@@ -157,28 +158,37 @@ export function UserHomePage() {
   const t = useTranslations("home");
   const tCreate = useTranslations("header.create");
   const tMyOwn = useTranslations("header.myOwn");
-  const { user, isAuthenticated, isLoading, displayName, profileImageUrl, ownedNavigation } =
-    useAppAuth();
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAppAuth();
+  const { data: ownedNavigation, isPending: isNavPending } = useUserNavigation(isAuthenticated);
+  const { data: profile, isPending: isProfilePending } = useUserProfile(isAuthenticated);
+
+  const isLoading = isAuthLoading || (isAuthenticated && (isNavPending || isProfilePending));
 
   useEffect(() => {
     if (pathname !== USER_HOME_PATH) return;
-    if (!isLoading && !isAuthenticated) {
+    if (!isAuthLoading && !isAuthenticated) {
       router.replace(buildSignInPath());
     }
-  }, [isAuthenticated, isLoading, pathname, router]);
+  }, [isAuthenticated, isAuthLoading, pathname, router]);
 
   if (isLoading || !isAuthenticated || !user) {
     return <UserHomePageSkeleton />;
   }
 
-  const subsectionLinks = filterHomeSubsectionLinks(ownedNavigation);
+  const details = profile?.personalDetails ?? {};
+  const profileFirstName = typeof details.firstName === "string" ? details.firstName : undefined;
+  const profileLastName = typeof details.lastName === "string" ? details.lastName : undefined;
+  const profileImageUrlValue = typeof details.imageUrl === "string" ? details.imageUrl.trim() || undefined : undefined;
+  const displayName = [profileFirstName, profileLastName].filter(Boolean).join(" ") || user.email;
+
+  const subsectionLinks = filterHomeSubsectionLinks(ownedNavigation ?? null);
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-8 sm:gap-10 sm:py-12">
       <UserHomeWelcomeHero
         title={displayName ? t("welcomeUser", { name: displayName }) : t("guestTitle")}
         subtitle={t("welcomeSubtitle")}
-        avatarUrl={profileImageUrl}
+        avatarUrl={profileImageUrlValue}
         avatarLabel={displayName ?? undefined}
       />
 

@@ -19,6 +19,7 @@ import {
   USER_ACTIVITY_LINKS,
 } from "@/components/layout/navigation-config.ts";
 import type { AppAuthState } from "@/hooks/use-app-auth.ts";
+import { useUserNavigation, useUserProfile } from "@/hooks/queries/useCurrentUser.ts";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -48,10 +49,21 @@ export function UserMenu({ auth }: UserMenuProps) {
   const tMyOwn = useTranslations("header.myOwn");
   const tCommon = useTranslations("common");
 
-  const myOwnLinks = filterMyOwnLinks(auth.ownedNavigation);
+  const { data: ownedNavigation } = useUserNavigation(auth.isAuthenticated);
+  const { data: profile } = useUserProfile(auth.isAuthenticated);
+
+  const myOwnLinks = filterMyOwnLinks(auth.isAuthenticated ? (ownedNavigation ?? null) : null);
   const hasMyOwn = myOwnLinks.length > 0;
   const HorseIcon = CREATE_MENU_HORSE_LINK.icon;
   const homeHref = resolveAppHomePath(auth.isAuthenticated);
+
+  const details = auth.isAuthenticated ? (profile?.personalDetails ?? {}) : {};
+  const profileFirstName = typeof details.firstName === "string" ? details.firstName : undefined;
+  const profileLastName = typeof details.lastName === "string" ? details.lastName : undefined;
+  const profileImageUrlValue = typeof details.imageUrl === "string" ? details.imageUrl.trim() || undefined : undefined;
+  const displayName = auth.user
+    ? [profileFirstName, profileLastName].filter(Boolean).join(" ") || auth.user.email
+    : null;
 
   return (
     <DropdownMenu modal={false}>
@@ -61,8 +73,8 @@ export function UserMenu({ auth }: UserMenuProps) {
         suppressHydrationWarning
       >
         <Avatar size="sm" className="size-8">
-          {auth.profileImageUrl ? (
-            <AvatarImage src={auth.profileImageUrl} alt="" />
+          {profileImageUrlValue ? (
+            <AvatarImage src={profileImageUrlValue} alt="" />
           ) : null}
           <AvatarFallback>
             <UserRound className="size-4" />
@@ -74,7 +86,7 @@ export function UserMenu({ auth }: UserMenuProps) {
           <>
             <div className="px-2 py-1.5">
               <p className="truncate text-sm font-medium">
-                {auth.displayName ?? auth.user.email}
+                {displayName ?? auth.user.email}
               </p>
               <p className="truncate text-xs text-muted-foreground">{auth.user.email}</p>
             </div>

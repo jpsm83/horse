@@ -97,7 +97,7 @@ describe("ownershipTransferService", () => {
         transferKind: "transfer_main",
         receiverUserId: String(buyer._id),
       }),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 409,
       code: "CONFLICT",
     });
@@ -121,7 +121,7 @@ describe("ownershipTransferService", () => {
           transferKind: "transfer_main",
           receiverUserId: String(buyer._id),
         }),
-      ).rejects.toMatchObject<Partial<ApiError>>({ statusCode: 409 });
+      ).rejects.toMatchObject({ statusCode: 409 });
 
       for (const partner of [partnerA, partnerB]) {
         const removePending = await ownershipTransferService.createOwnershipTransfer(
@@ -191,7 +191,7 @@ describe("ownershipTransferService", () => {
 
       const reloaded = await Horse.findById(horse._id).lean();
       expect(String(reloaded?.mainOwnerUserId)).toBe(String(promoted._id));
-      expect((reloaded?.coOwners ?? []).map((entry) => String(entry.userId))).toEqual([
+      expect((reloaded?.coOwners ?? []).map((entry: { userId: unknown }) => String(entry.userId))).toEqual([
         String(remaining._id),
       ]);
       expect(userOwnsEntity(String(main._id), reloaded as Record<string, unknown>)).toBe(false);
@@ -209,7 +209,7 @@ describe("ownershipTransferService", () => {
           transferKind: "remove_co_owner",
           targetCoOwnerUserId: String(remaining._id),
         }),
-      ).rejects.toMatchObject<Partial<ApiError>>({ statusCode: 403 });
+      ).rejects.toMatchObject({ statusCode: 403 });
     });
   });
 });

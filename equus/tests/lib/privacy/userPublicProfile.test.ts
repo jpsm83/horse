@@ -157,7 +157,7 @@ describe("getPublicUserForRequester", () => {
       String(stableOwner!._id),
       "stable",
       String(stable._id),
-      { email: "stable-collab-profile@example.com", hierarchyLevel: "staff" },
+      { email: "stable-collab-profile@example.com", hierarchyLevel: "staff", title: "Staff", description: "Staff member" },
     );
     await workplaceRelationshipService.acceptInvite(String(collaborator!._id), invited.id);
 

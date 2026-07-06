@@ -1,6 +1,6 @@
 import type { AuthProvider, AuthUser } from "@/lib/auth/types.ts";
 import type { PublicUser, UpdatePersonalDetailsInput } from "@/lib/services/userService.ts";
-import type { UserOwnedNavigation } from "@/lib/services/navigationService.ts";
+
 import type { PublicOwnershipTransfer } from "@/lib/services/ownershipTransferService.ts";
 import type { PublicWorkplace } from "@/lib/services/workplaceRelationshipService.ts";
 
@@ -73,7 +73,7 @@ const AUTH_NO_REFRESH_PATHS = [
   "/api/v1/auth/me",
 ] as const;
 
-function shouldAttemptTokenRefresh(url: string): boolean {
+export function shouldAttemptTokenRefresh(url: string): boolean {
   return !AUTH_NO_REFRESH_PATHS.some((path) => url.startsWith(path));
 }
 
@@ -126,7 +126,7 @@ export async function runWithSilentAuthFailure<T>(fn: () => Promise<T>): Promise
 }
 
 /** Exchange refresh cookie for a new access token (deduped when multiple requests 401). */
-async function refreshAccessToken(): Promise<boolean> {
+export async function refreshAccessToken(): Promise<boolean> {
   if (refreshInFlight) {
     return refreshInFlight;
   }
@@ -168,7 +168,7 @@ const apiFetch = async (input: string, init?: RequestInit): Promise<Response> =>
 
 /** In-memory cache so public pages (e.g. home) do not re-hit /auth/me on locale navigation. */
 let optionalUserCache: AuthUser | null | undefined;
-let navigationCache: UserOwnedNavigation | undefined;
+
 const authStateListeners = new Set<() => void>();
 let ensureRestSessionInFlight: Promise<AuthUser | null> | null = null;
 
@@ -193,19 +193,18 @@ function isAuthenticatedCache(value: AuthUser | null | undefined): boolean {
 export function resetOptionalUserCache(): void {
   const wasAuthenticated = isAuthenticatedCache(optionalUserCache);
   optionalUserCache = undefined;
-  navigationCache = undefined;
   if (wasAuthenticated) {
     notifyAuthStateChanged();
   }
 }
 
-function setOptionalUserCache(user: AuthUser | null): AuthUser | null {
+function setOptionalUserCache(user: AuthUser | null, notify = true): AuthUser | null {
   const wasAuthenticated = isAuthenticatedCache(optionalUserCache);
   const willBeAuthenticated = isAuthenticatedCache(user);
   const userIdChanged =
     optionalUserCache != null && user != null && optionalUserCache.id !== user.id;
   optionalUserCache = user;
-  if (wasAuthenticated !== willBeAuthenticated || userIdChanged) {
+  if ((wasAuthenticated !== willBeAuthenticated || userIdChanged) && notify) {
     notifyAuthStateChanged();
   }
   return user;
@@ -431,20 +430,6 @@ export async function fetchUserProfile(): Promise<{ user: PublicUser }> {
   return parseApiResponse(await apiFetch("/api/v1/users/me"));
 }
 
-export async function fetchUserNavigation(force = false): Promise<UserOwnedNavigation> {
-  if (!force && navigationCache !== undefined) {
-    return navigationCache;
-  }
-
-  const data = await parseApiResponse<{ owned: UserOwnedNavigation }>(
-    await apiFetch("/api/v1/users/me/navigation"),
-  );
-  navigationCache = data.owned;
-  return data.owned;
-}
-
-export type { UserOwnedNavigation };
-
 /** Deactivate the signed-in account (`DELETE /api/v1/users/me`). Clears REST session cookies server-side. */
 export async function deactivateCurrentUserAccount(): Promise<{ user: PublicUser }> {
   const data = await parseApiResponse<{ user: PublicUser }>(
@@ -518,7 +503,7 @@ async function runEnsureRestSession(
 
   const existing = await runWithSilentAuthFailure(() => probeAuthMe());
   if (existing) {
-    return setOptionalUserCache(existing);
+    return setOptionalUserCache(existing, false);
   }
 
   const shouldBridge = attemptBridge || Boolean(nextAuthUserId);
@@ -530,11 +515,11 @@ async function runEnsureRestSession(
 
     const afterBridge = await runWithSilentAuthFailure(() => probeAuthMe());
     if (afterBridge) {
-      return setOptionalUserCache(afterBridge);
+      return setOptionalUserCache(afterBridge, false);
     }
   }
 
-  setOptionalUserCache(null);
+  setOptionalUserCache(null, false);
 
   if (required) {
     notifySessionExpired();
@@ -559,7 +544,7 @@ async function bridgeFromNextAuth(): Promise<AuthUser | null> {
     return null;
   }
 
-  return setOptionalUserCache(body.data.user);
+  return setOptionalUserCache(body.data.user, false);
 }
 
 export type EnsureRestSessionOptions = {
@@ -611,7 +596,7 @@ export async function tryFetchCurrentUser(force = false): Promise<AuthUser | nul
   }
 
   const user = await runWithSilentAuthFailure(() => probeAuthMe());
-  return setOptionalUserCache(user);
+  return setOptionalUserCache(user, false);
 }
 
 export async function fetchCurrentUser(): Promise<AuthUser> {

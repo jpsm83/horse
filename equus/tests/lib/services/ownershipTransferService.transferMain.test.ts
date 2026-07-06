@@ -88,7 +88,7 @@ describe("ownershipTransferService.transfer_main", () => {
         transferKind: "transfer_main",
         receiverUserId: String(buyer._id),
       }),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 409,
       code: "CONFLICT",
     });
@@ -118,7 +118,7 @@ describe("ownershipTransferService.transfer_main", () => {
 
     await expect(
       ownershipTransferService.acceptOwnershipTransfer(String(buyer._id), pending.id),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 409,
       code: "CONFLICT",
     });
@@ -171,7 +171,7 @@ describe("ownershipTransferService.transfer_main", () => {
 
     await expect(
       ownershipTransferService.acceptOwnershipTransfer(String(stranger._id), pending.id),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 403,
       code: "FORBIDDEN",
     });
@@ -188,7 +188,7 @@ describe("ownershipTransferService.transfer_main", () => {
         transferKind: "transfer_main",
         receiverUserId: String(main._id),
       }),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 400,
       code: "VALIDATION_ERROR",
     });

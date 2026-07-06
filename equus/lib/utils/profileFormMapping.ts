@@ -145,9 +145,9 @@ export function mapUserToProfileFormValues(
     idType: readString(personalDetails.idType),
     idNumber: readString(personalDetails.idNumber),
     profileVisibility:
-      readString(preferences?.profileVisibility) || "public",
+      (readString(preferences?.profileVisibility) || "public") as ProfileFormValues["profileVisibility"],
     allowDirectMessagesFrom:
-      readString(preferences?.allowDirectMessagesFrom) || "everyone",
+      (readString(preferences?.allowDirectMessagesFrom) || "everyone") as ProfileFormValues["allowDirectMessagesFrom"],
     address: {
       country: readCountryCode(address?.country),
       state: readString(address?.state),

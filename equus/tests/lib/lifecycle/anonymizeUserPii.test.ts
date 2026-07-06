@@ -22,7 +22,6 @@ async function createUser(email: string) {
     password: "TestPass1!",
     firstName: "PII",
     lastName: "Subject",
-    phoneNumber: "+351911111111",
   });
 }
 

@@ -26,6 +26,7 @@ Related docs:
 | Database | MongoDB Atlas + Mongoose | Models in `equus/models/` |
 | Media | Cloudinary | All file uploads (photos, videos, documents) |
 | Push | Firebase Cloud Messaging | When notifications ship |
+| Data Fetching | TanStack Query | All client API calls (web + mobile); replaces manual fetch + in-memory cache |
 | Language | TypeScript everywhere | Web, API, mobile, shared schemas |
 
 **Not in scope:** NestJS, Fastify (separate server), Redis, Python, separate backend service, custom auth from scratch, Clerk/Better Auth (for now).
@@ -400,3 +401,61 @@ Optimize for:
 5. **Customer learning** over infrastructure debates
 
 The competitive advantage is understanding horse businesses, not the choice of ORM or websocket library.
+
+---
+
+## 15. Data fetching — TanStack Query
+
+All client-side data fetching and mutations use **TanStack Query** (React Query v5).
+
+### 15.1 What it replaces
+
+| Old pattern | New pattern |
+|-------------|-------------|
+| `useEffect` + `useState` for async data | `useQuery()` / `useSuspenseQuery()` |
+| Manual in-memory cache (`optionalUserCache`, `navigationCache`) | TanStack Query cache (stale-while-revalidate, automatic GC) |
+| Duplicated `apiFetch` in each client file | Shared `lib/api/fetchWithAuth.ts` utility (handles cookies, token refresh); TanStack hooks call it |
+| Manual refetch on navigation/mount | Automatic refetch on mount, window focus, interval |
+
+### 15.2 Query hooks
+
+Per-domain custom hooks in `hooks/queries/`:
+
+| Hook | Domain | Example |
+|------|--------|---------|
+| `useCurrentUser()` | Auth | `useQuery({ queryKey: ["auth", "me"], queryFn: fetchMe })` |
+| `useHorses()` | Entity list | Paginated list of owned horses |
+| `useHorse(id)` | Single entity | Single horse by ID |
+| `useCreateHorse()` | Mutation | `useMutation({ mutationFn: createHorse, onSuccess: … })` |
+| *(same pattern for stables, trainers, etc.)* | | |
+
+### 15.3 Rules
+
+1. **All client-initiated API calls** go through TanStack Query — no bare `fetch()` calls in components
+2. **Auth infra stays separate** — `lib/api/authClient.ts` owns token refresh, session bridge, auth state. TanStack hooks consume it via `apiFetch`
+3. **Query keys** — structured per `lib/api/queryKeys.ts` for targeted invalidation
+4. **Mutations** — always call `queryClient.invalidateQueries` on success (or optimistic updates for latency-critical flows)
+5. **Mobile** — React Native will use TanStack Query too, sharing query key patterns and the same REST API
+
+### 15.4 Auth state and TanStack Query
+
+- `useAppAuth()` remains as the auth context hook (driven by `authClient` observer pattern)
+- TanStack Query is **not** used for auth session state — auth state is synchronous context, not server cache
+- TanStack Query **is** used for any async data that depends on auth (user profile, owned entities, relationships)
+
+### 15.5 Provider setup
+
+`QueryClientProvider` is mounted once in `AppProviders` (`components/providers/app-providers.tsx`) with sensible defaults:
+
+```ts
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,       // 30s — data is fresh; no refetch on mount
+      gcTime: 5 * 60_000,      // 5min — keep inactive queries in cache
+      retry: 1,                // retry once on failure
+      refetchOnWindowFocus: true,
+    },
+  },
+});
+```

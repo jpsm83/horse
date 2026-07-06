@@ -1,11 +1,12 @@
 /**
  * Reusable filterable provider search + invite control for horse and host contexts.
+ * Uses TanStack Query for search and mutations.
  */
 
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
 import { ChevronsUpDownIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button.tsx";
@@ -20,15 +21,9 @@ import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
-import {
-  searchDiscoverProviders,
-  type DiscoverProviderCard,
-  type DiscoverProviderType,
-} from "@/lib/api/discoverClient.ts";
-import {
-  createRelationshipInvite,
-  RelationshipClientError,
-} from "@/lib/api/relationshipClient.ts";
+import { useDiscoverProviders } from "@/hooks/queries/useDiscover";
+import { useCreateRelationshipInvite } from "@/hooks/queries/useRelationship";
+import type { DiscoverProviderCard, DiscoverProviderType } from "@/lib/api/discoverClient";
 import { businessRoleTypeEnums } from "@/utils/enums.ts";
 
 const ENTITY_OWNED_TYPES = new Set<string>(businessRoleTypeEnums);
@@ -39,7 +34,6 @@ export type ProviderInvitePickerProps = {
   relationshipType: DiscoverProviderType;
   disabled?: boolean;
   isPending?: boolean;
-  onInvited?: () => void;
 };
 
 export function ProviderInvitePicker({
@@ -48,7 +42,6 @@ export function ProviderInvitePicker({
   relationshipType,
   disabled = false,
   isPending = false,
-  onInvited,
 }: ProviderInvitePickerProps) {
   const t = useTranslations("invites.horseProviders");
   const tStatus = useTranslations("status");
@@ -56,89 +49,71 @@ export function ProviderInvitePicker({
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [providers, setProviders] = useState<DiscoverProviderCard[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [showEmailFallback, setShowEmailFallback] = useState(false);
   const [invitedEmail, setInvitedEmail] = useState("");
   const [invitedName, setInvitedName] = useState("");
 
   const supportsEmailInvite = inviteContext === "horse" && !ENTITY_OWNED_TYPES.has(relationshipType);
-  const isDisabled = disabled || isPending || isSubmitting;
 
-  const runSearch = useCallback(
-    async (searchQuery: string) => {
-      setIsSearching(true);
-      try {
-        const results = await searchDiscoverProviders({
-          type: relationshipType,
-          q: searchQuery,
-          limit: 20,
-          scope: inviteContext,
-        });
-        setProviders(results);
-      } catch {
-        setProviders([]);
-      } finally {
-        setIsSearching(false);
-      }
-    },
-    [inviteContext, relationshipType],
+  const { data: providers = [], isLoading: isSearching } = useDiscoverProviders(
+    relationshipType,
+    debouncedQuery,
   );
+
+  const createInvite = useCreateRelationshipInvite();
+  const isSubmitting = createInvite.isPending;
+  const isDisabled = disabled || isPending || isSubmitting;
 
   useEffect(() => {
     if (!open) return;
-    const handle = window.setTimeout(() => {
-      void runSearch(query);
-    }, 300);
+    const handle = window.setTimeout(() => setDebouncedQuery(query), 300);
     return () => window.clearTimeout(handle);
-  }, [open, query, runSearch]);
+  }, [open, query]);
 
   async function handleInviteByProfile(provider: DiscoverProviderCard) {
     if (inviteContext !== "horse") return;
 
-    setIsSubmitting(true);
-    try {
-      await createRelationshipInvite({
+    createInvite.mutate(
+      {
         horseId: targetId,
         relationshipType,
         receiverAccountId: provider.id,
-      });
-      toast.success(t("invited"));
-      setOpen(false);
-      onInvited?.();
-    } catch (err) {
-      const message =
-        err instanceof RelationshipClientError ? err.message : tStatus("requestFailed");
-      toast.error(message);
-    } finally {
-      setIsSubmitting(false);
-    }
+      },
+      {
+        onSuccess: () => {
+          toast.success(t("invited"));
+          setOpen(false);
+        },
+        onError: (err) => {
+          toast.error(err instanceof Error ? err.message : tStatus("requestFailed"));
+        },
+      },
+    );
   }
 
   async function handleInviteByEmail() {
     if (!supportsEmailInvite || !invitedEmail.trim()) return;
 
-    setIsSubmitting(true);
-    try {
-      await createRelationshipInvite({
+    createInvite.mutate(
+      {
         horseId: targetId,
         relationshipType,
         invitedEmail: invitedEmail.trim(),
         invitedName: invitedName.trim() || undefined,
-      });
-      toast.success(t("invited"));
-      setInvitedEmail("");
-      setInvitedName("");
-      setShowEmailFallback(false);
-      onInvited?.();
-    } catch (err) {
-      const message =
-        err instanceof RelationshipClientError ? err.message : tStatus("requestFailed");
-      toast.error(message);
-    } finally {
-      setIsSubmitting(false);
-    }
+      },
+      {
+        onSuccess: () => {
+          toast.success(t("invited"));
+          setInvitedEmail("");
+          setInvitedName("");
+          setShowEmailFallback(false);
+        },
+        onError: (err) => {
+          toast.error(err instanceof Error ? err.message : tStatus("requestFailed"));
+        },
+      },
+    );
   }
 
   if (isPending) {

@@ -66,7 +66,7 @@ describe("ownershipTransferService.promote_co_owner", () => {
     const reloaded = await Horse.findById(horse._id).lean();
     expect(String(reloaded?.mainOwnerUserId)).toBe(String(promoted._id));
     expect(String(reloaded?.createdByUserId)).toBe(String(main._id));
-    const remainingIds = (reloaded?.coOwners ?? []).map((entry) => String(entry.userId));
+    const remainingIds = (reloaded?.coOwners ?? []).map((entry: { userId: unknown }) => String(entry.userId));
     expect(remainingIds).toEqual([String(other._id)]);
     expect(remainingIds).not.toContain(String(promoted._id));
     expect(userOwnsEntity(String(main._id), reloaded as Record<string, unknown>)).toBe(
@@ -96,7 +96,7 @@ describe("ownershipTransferService.promote_co_owner", () => {
 
     const reloaded = await Horse.findById(horse._id).lean();
     expect(String(reloaded?.mainOwnerUserId)).toBe(String(main._id));
-    expect((reloaded?.coOwners ?? []).map((entry) => String(entry.userId))).toEqual([
+    expect((reloaded?.coOwners ?? []).map((entry: { userId: unknown }) => String(entry.userId))).toEqual([
       String(promoted._id),
     ]);
   });
@@ -119,7 +119,7 @@ describe("ownershipTransferService.promote_co_owner", () => {
         transferKind: "promote_co_owner",
         targetCoOwnerUserId: String(stranger._id),
       }),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 400,
       code: "VALIDATION_ERROR",
     });
@@ -139,7 +139,7 @@ describe("ownershipTransferService.promote_co_owner", () => {
         transferKind: "promote_co_owner",
         targetCoOwnerUserId: String(promoted._id),
       }),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 403,
       code: "FORBIDDEN",
     });
@@ -171,7 +171,7 @@ describe("ownershipTransferService.promote_co_owner", () => {
 
     const reloaded = await Horse.findById(horse._id).lean();
     expect(String(reloaded?.mainOwnerUserId)).toBe(String(main._id));
-    expect((reloaded?.coOwners ?? []).map((entry) => String(entry.userId))).toEqual([
+    expect((reloaded?.coOwners ?? []).map((entry: { userId: unknown }) => String(entry.userId))).toEqual([
       String(promoted._id),
       String(other._id),
     ]);
@@ -198,7 +198,7 @@ describe("ownershipTransferService.promote_co_owner", () => {
 
     const reloaded = await Horse.findById(horse._id).lean();
     expect(String(reloaded?.mainOwnerUserId)).toBe(String(main._id));
-    expect((reloaded?.coOwners ?? []).map((entry) => String(entry.userId))).toEqual([
+    expect((reloaded?.coOwners ?? []).map((entry: { userId: unknown }) => String(entry.userId))).toEqual([
       String(promoted._id),
     ]);
   });
@@ -224,7 +224,7 @@ describe("ownershipTransferService.promote_co_owner", () => {
 
     await expect(
       ownershipTransferService.acceptOwnershipTransfer(String(other._id), pending.id),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 403,
       code: "FORBIDDEN",
     });
@@ -253,7 +253,7 @@ describe("ownershipTransferService.promote_co_owner", () => {
 
     await expect(
       ownershipTransferService.acceptOwnershipTransfer(String(promoted._id), pending.id),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 409,
       code: "CONFLICT",
     });
@@ -285,7 +285,7 @@ describe("ownershipTransferService.promote_co_owner", () => {
 
     const reloaded = await Stable.findById(stable._id).lean();
     expect(String(reloaded?.mainOwnerUserId)).toBe(String(promoted._id));
-    expect((reloaded?.coOwners ?? []).map((entry) => String(entry.userId))).toEqual([
+    expect((reloaded?.coOwners ?? []).map((entry: { userId: unknown }) => String(entry.userId))).toEqual([
       String(other._id),
     ]);
   });

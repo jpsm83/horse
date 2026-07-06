@@ -1,20 +1,16 @@
 /**
- * Public user profile page — client fetch after mount (cookie auth optional).
+ * Public user profile page — TanStack Query fetch after mount (cookie auth optional).
  */
 
 "use client";
 
-import { useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { PublicUserProfileCardView } from "@/components/users/public-user-profile-card.tsx";
 import { PublicUserProfilePageSkeleton } from "@/components/users/public-user-profile-page-skeleton.tsx";
-import {
-  fetchPublicUserProfile,
-  isApiClientError,
-  type PublicUserProfileCard,
-} from "@/lib/api/userClient.ts";
+import { usePublicUser } from "@/hooks/queries/useUser.ts";
+import { isFetchError } from "@/lib/api/fetchWithAuth";
 
 type PublicUserProfilePageContentProps = {
   userId: string;
@@ -22,41 +18,13 @@ type PublicUserProfilePageContentProps = {
 
 export function PublicUserProfilePageContent({ userId }: PublicUserProfilePageContentProps) {
   const t = useTranslations("userProfile");
-  const [user, setUser] = useState<PublicUserProfileCard | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isNotFound, setIsNotFound] = useState(false);
-  const [fatalError, setFatalError] = useState<Error | null>(null);
+  const { data: user, isLoading, error } = usePublicUser(userId);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    fetchPublicUserProfile(userId)
-      .then((profile) => {
-        if (!cancelled) setUser(profile);
-      })
-      .catch((error) => {
-        if (cancelled) return;
-        if (isApiClientError(error) && (error.statusCode === 404 || error.statusCode === 400)) {
-          setIsNotFound(true);
-          return;
-        }
-        setFatalError(error instanceof Error ? error : new Error("Failed to load user profile"));
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [userId]);
-
-  if (isNotFound) {
-    notFound();
-  }
-
-  if (fatalError) {
-    throw fatalError;
+  if (error) {
+    if (isFetchError(error) && (error.statusCode === 404 || error.statusCode === 400)) {
+      notFound();
+    }
+    throw error instanceof Error ? error : new Error("Failed to load user profile");
   }
 
   if (isLoading || !user) {

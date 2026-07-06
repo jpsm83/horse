@@ -31,7 +31,6 @@ const HORSE_PROVIDER_GROUPS: Array<{
 export type HorseProviderInvitesProps = {
   horseId: string;
   pendingRelationships: PublicRelationship[];
-  onInvited?: () => void;
 };
 
 function isPendingForType(
@@ -50,7 +49,6 @@ function isPendingForType(
 export function HorseProviderInvites({
   horseId,
   pendingRelationships,
-  onInvited,
 }: HorseProviderInvitesProps) {
   const t = useTranslations("invites.horseProviders");
 
@@ -79,7 +77,6 @@ export function HorseProviderInvites({
                   targetId={horseId}
                   relationshipType={relationshipType}
                   isPending={isPendingForType(pendingRelationships, horseId, relationshipType)}
-                  onInvited={onInvited}
                 />
               </li>
             ))}

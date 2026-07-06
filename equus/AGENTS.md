@@ -15,6 +15,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | UI (web client) | **React 19**, TypeScript, TailwindCSS (`app/`), **next-intl** (`en` / `es`) |
 | Auth | httpOnly cookies (web) + JWT Bearer (mobile/API); `lib/auth/establishSession.ts`; Google via NextAuth + `POST /api/v1/auth/session` bridge |
 | Data | MongoDB via Mongoose (`models/`, `lib/db.ts`) |
+| Data Fetching | **TanStack Query** (React Query v5) — all client-side API calls use `useQuery` / `useMutation` via domain hooks in `hooks/queries/` |
 | Tests | Vitest (`npm test`) |
 
 ### Project structure (Next.js layered)
@@ -50,13 +51,26 @@ tests/         → Vitest tests mirroring lib/
 * **Env vars** — auth secrets and URLs are read in `lib/auth/config.ts` (`AUTH_SECRET`, `REFRESH_SECRET`, `AUTH_URL`, Google OAuth). Other server-only vars are read in route handlers or `lib/`. Never expose secrets to client components.
 * **Docs** — when unsure about a Next.js API for this version, check `node_modules/next/dist/docs/` before guessing.
 
+#### Data fetching — TanStack Query
+
+All client-side data fetching uses **TanStack Query** (React Query v5). Domain hooks live in `hooks/queries/`.
+
+* **`useQuery` for reads** — every page/component that calls a REST endpoint uses a dedicated query hook (e.g. `useHorse(id)` → `GET /api/v1/horses/:id`). No bare `fetch()` or `useEffect` + `useState` for async data.
+* **`useMutation` for writes** — create, update, delete. Always invalidate related queries on success (e.g. `queryClient.invalidateQueries({ queryKey: ["horses"] })`).
+* **Query keys** — use the factory in `lib/api/queryKeys.ts` for consistency and targeted invalidation.
+* **Shared fetch utility** — `lib/api/fetchWithAuth.ts` handles cookies + token refresh; TanStack hooks call it. `lib/api/authClient.ts` is NOT replaced — it owns auth session state (synchronous context).
+* **Auth state is not TanStack Query** — `useAppAuth()` remains driven by the `authClient` observer pattern. TanStack Query only handles async server data.
+* **Default config** — `staleTime: 30_000`, `gcTime: 5 * 60_000`, `retry: 1`, `refetchOnWindowFocus: true`. Override per query when needed (e.g. `staleTime: 0` for real-time lists).
+* **Suspense** — prefer `useSuspenseQuery` for page-level data that must resolve before render. Use `loading.tsx` + `Suspense` boundary. Non-critical data can use `useQuery` with manual loading state.
+* **New hooks** — add domain hooks to `hooks/queries/` following the existing pattern. Keep query functions colocated with the hook (not in `lib/api/` client files).
+
 #### Loading states (web UI)
 
 * **Every locale page** should have a **Suspense** boundary and a **skeleton** that mirrors the loaded layout (shadcn [`Skeleton`](https://ui.shadcn.com/docs/components/radix/skeleton)). Profile is the reference — see [`documentation/profile.md`](documentation/profile.md).
 * **Route `loading.tsx`** — use the same skeleton component for segment navigations.
-* **Client-only REST fetches** (cookie auth) — load after mount (`useEffect` + skeleton), not `use()` during SSR. True data Suspense on the server requires fetching in a Server Component with `cookies()`.
+* **Client-only REST fetches** (cookie auth) — load after mount with TanStack Query hooks (not `useEffect`). TanStack handles retry, caching, and deduplication.
 * **`LoadingOverlay`** — in-flight **mutations** (e.g. profile save), not initial page load. Spinner is viewport-centered; header/sidebar stay visible.
-* **Do not** use `Alert` for page-level loading — use skeleton or `loading.tsx`.
+* **Do not** use `Alert` for page-level loading — use TanStack's `isPending`/`isLoading` state + skeleton or `loading.tsx`.
 
 #### Error handling (web UI)
 

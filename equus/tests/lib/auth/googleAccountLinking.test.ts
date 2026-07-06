@@ -63,7 +63,7 @@ describe("googleAccountLinking", () => {
         email: "link-mismatch@example.com",
         emailVerified: true,
       }),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 409,
       code: "GOOGLE_ACCOUNT_MISMATCH",
     });
@@ -83,7 +83,7 @@ describe("googleAccountLinking", () => {
         email: "link-inactive@example.com",
         emailVerified: true,
       }),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 403,
       code: "FORBIDDEN",
     });
@@ -103,7 +103,7 @@ describe("authService.register with Google-linked email", () => {
         email: "google-only-register@example.com",
         password: "TestPass1!",
       }),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 409,
       code: "ACCOUNT_EXISTS_GOOGLE",
     });
@@ -120,7 +120,7 @@ describe("authService.register with Google-linked email", () => {
         email: "credentials-register-block@example.com",
         password: "TestPass1!",
       }),
-    ).rejects.toMatchObject<Partial<ApiError>>({
+    ).rejects.toMatchObject({
       statusCode: 409,
       code: "CONFLICT",
     });
