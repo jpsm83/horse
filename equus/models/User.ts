@@ -110,7 +110,7 @@ const userSchema = new Schema(
     resetPasswordToken: { type: String, default: undefined },
     resetPasswordExpires: { type: Date, default: undefined },
     refreshSessionVersion: { type: Number, default: 0 },
-    googleSubjectId: { type: String, default: undefined, index: true },
+    googleSubjectId: { type: String, default: undefined },
     authProvider: {
       type: String,
       enum: ["credentials", "google"],
@@ -135,7 +135,6 @@ const userSchema = new Schema(
   }
 );
 
-userSchema.index({ "personalDetails.email": 1 }, { unique: true });
 userSchema.index({ "personalDetails.username": 1 }, { unique: true, sparse: true });
 userSchema.index({ "notifications.notificationId": 1 });
 userSchema.index({ verificationToken: 1 }, { sparse: true });

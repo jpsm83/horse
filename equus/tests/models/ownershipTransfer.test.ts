@@ -15,7 +15,7 @@ describe("OwnershipTransfer model", () => {
     });
     const horse = await Horse.create({
       name: "Transfer Test Horse",
-      breed: "TB",
+      breed: "Thoroughbred",
       sex: "Gelding",
       mainOwnerUserId: owner._id,
       createdByUserId: owner._id,
@@ -47,7 +47,7 @@ describe("OwnershipTransfer model", () => {
     });
     const horse = await Horse.create({
       name: "Co-owner Horse",
-      breed: "WB",
+      breed: "Dutch Warmblood",
       sex: "Mare",
       mainOwnerUserId: owner._id,
       createdByUserId: owner._id,
@@ -74,7 +74,7 @@ describe("OwnershipTransfer model", () => {
     });
     const horse = await Horse.create({
       name: "Invite Horse",
-      breed: "TB",
+      breed: "Thoroughbred",
       sex: "Gelding",
       mainOwnerUserId: owner._id,
       createdByUserId: owner._id,
@@ -102,7 +102,7 @@ describe("OwnershipTransfer model", () => {
     });
     const horse = await Horse.create({
       name: "Invalid Kind Horse",
-      breed: "TB",
+      breed: "Thoroughbred",
       sex: "Gelding",
       mainOwnerUserId: owner._id,
       createdByUserId: owner._id,

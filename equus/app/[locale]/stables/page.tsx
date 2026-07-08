@@ -1,5 +1,4 @@
-import { DiscoverPlaceholderPage } from "@/components/layout/discover-placeholder-page.tsx";
-
-export default function StablesPage() {
-  return <DiscoverPlaceholderPage entity="stables" />;
+import { EntityPageContent } from "@/components/layout/entity-page-content.tsx";
+export default function EntityPage() {
+  return <EntityPageContent entity="stables" owned={true} />;
 }

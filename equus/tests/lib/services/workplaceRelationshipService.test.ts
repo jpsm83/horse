@@ -298,7 +298,7 @@ describe("canCollaboratorActOnHorse", () => {
 
     const horse = await Horse.create({
       name: "Comet",
-      breed: "TB",
+      breed: "Thoroughbred",
       sex: "Gelding",
       mainOwnerUserId: owner._id,
       createdByUserId: owner._id,
@@ -339,7 +339,7 @@ describe("canCollaboratorActOnHorse", () => {
 
     const horse = await Horse.create({
       name: "Star",
-      breed: "WB",
+      breed: "Dutch Warmblood",
       sex: "Mare",
       mainOwnerUserId: owner._id,
       createdByUserId: owner._id,

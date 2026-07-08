@@ -1,5 +1,4 @@
-import { DiscoverPlaceholderPage } from "@/components/layout/discover-placeholder-page.tsx";
-
-export default function BreedersPage() {
-  return <DiscoverPlaceholderPage entity="breeders" />;
+import { EntityPageContent } from "@/components/layout/entity-page-content.tsx";
+export default function EntityPage() {
+  return <EntityPageContent entity="breeders" owned={true} />;
 }

@@ -184,7 +184,7 @@ describe("GET /api/v1/users/:id", () => {
 
     const horse = await Horse.create({
       name: "API Matrix Horse",
-      breed: "TB",
+      breed: "Thoroughbred",
       sex: "Gelding",
       mainOwnerUserId: target._id,
       createdByUserId: target._id,

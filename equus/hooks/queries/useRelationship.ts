@@ -2,9 +2,14 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import {
+  acceptRelationship,
+  declineRelationship,
+  fetchPendingRelationships,
+} from "@/lib/api/auth/invites";
 import { fetchWithAuth, parseApiResponse } from "@/lib/api/fetchWithAuth";
 import { queryKeys } from "@/lib/api/queryKeys";
-import type { PublicRelationship } from "@/lib/api/authClient";
+import type { PublicRelationship } from "@/lib/services/relationshipService";
 import type { DiscoverProviderType } from "@/lib/api/discoverClient";
 
 export type CreateRelationshipInvitePayload = {
@@ -15,32 +20,6 @@ export type CreateRelationshipInvitePayload = {
   invitedName?: string;
   requestMessage?: string;
 };
-
-async function fetchPendingRelationships(): Promise<PublicRelationship[]> {
-  const response = await fetchWithAuth("/api/v1/users/me/relationships?status=pending");
-  const data = await parseApiResponse<{ relationships: PublicRelationship[] }>(response);
-  return data.relationships;
-}
-
-async function acceptRelationshipApi(relationshipId: string): Promise<void> {
-  await parseApiResponse(
-    await fetchWithAuth(`/api/v1/relationships/${relationshipId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "accepted" }),
-    }),
-  );
-}
-
-async function declineRelationshipApi(relationshipId: string): Promise<void> {
-  await parseApiResponse(
-    await fetchWithAuth(`/api/v1/relationships/${relationshipId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "declined" }),
-    }),
-  );
-}
 
 async function createRelationshipInvite(payload: CreateRelationshipInvitePayload): Promise<PublicRelationship> {
   const response = await fetchWithAuth("/api/v1/relationships", {
@@ -64,7 +43,7 @@ export function useAcceptRelationship() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: acceptRelationshipApi,
+    mutationFn: acceptRelationship,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.relationships.pending() });
     },
@@ -75,7 +54,7 @@ export function useDeclineRelationship() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: declineRelationshipApi,
+    mutationFn: declineRelationship,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.relationships.pending() });
     },

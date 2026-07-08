@@ -88,7 +88,7 @@ describe("horseSubscriptionBilling", () => {
     const buyer = await createUser("bill-tm-buyer@example.com");
     const horse = await horseService.createHorse(String(main._id), {
       name: "Transfer Bill Horse",
-      breed: "Warmblood",
+      breed: "Dutch Warmblood",
       sex: "Gelding",
     });
 

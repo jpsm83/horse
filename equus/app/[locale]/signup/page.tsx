@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated.ts";
 import { Link, useRouter } from "@/i18n/navigation.ts";
-import { registerWithCredentials, resolveInviteRef } from "@/lib/api/authClient.ts";
+import { registerWithCredentials } from "@/lib/api/auth/credentials";
 import { resolvePostAuthPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { isStaffMembershipRef } from "@/lib/utils/inviteRef.ts";
 import {
@@ -22,6 +22,7 @@ import {
   createAuthFormSchemas,
   type SignUpFormValues,
 } from "@/lib/validations/authForms.ts";
+import { useInvitePreview } from "@/hooks/queries/useInvite";
 
 function SignUpContent() {
   const router = useRouter();
@@ -38,13 +39,31 @@ function SignUpContent() {
   useRedirectIfAuthenticated(postAuthPath);
 
   const [apiError, setApiError] = useState<string | null>(null);
-  const [relationshipInviteBanner, setRelationshipInviteBanner] = useState<string | null>(null);
+
+  const { data: invitePreview, isError: invitePreviewError } = useInvitePreview(
+    ref && !isStaffRef ? ref : undefined,
+  );
 
   const inviteBanner = useMemo(() => {
     if (!ref) return null;
     if (isStaffRef) return tInvites("staffBanner");
-    return relationshipInviteBanner;
-  }, [ref, isStaffRef, relationshipInviteBanner, tInvites]);
+
+    if (invitePreviewError) return tInvites("relationshipBanner");
+    if (!invitePreview) return null;
+
+    if (invitePreview.kind === "relationship") {
+      const parts = [tInvites("relationshipBanner")];
+      if (invitePreview.horseName) {
+        parts.push(t("horseLabel", { name: invitePreview.horseName }));
+      }
+      if (invitePreview.requesterLabel) {
+        parts.push(tCommon("from", { label: invitePreview.requesterLabel }));
+      }
+      return parts.join(" ");
+    }
+
+    return tInvites("relationshipBanner");
+  }, [ref, isStaffRef, invitePreview, invitePreviewError, t, tCommon, tInvites]);
 
   const { signUpFormSchema } = useMemo(
     () =>
@@ -63,38 +82,6 @@ function SignUpContent() {
   });
 
   const isSubmitting = form.formState.isSubmitting;
-
-  useEffect(() => {
-    if (!ref || isStaffRef) return;
-
-    let cancelled = false;
-
-    resolveInviteRef(ref)
-      .then((preview) => {
-        if (cancelled) return;
-        if (preview?.kind === "relationship") {
-          const parts = [tInvites("relationshipBanner")];
-          if (preview.horseName) {
-            parts.push(t("horseLabel", { name: preview.horseName }));
-          }
-          if (preview.requesterLabel) {
-            parts.push(tCommon("from", { label: preview.requesterLabel }));
-          }
-          setRelationshipInviteBanner(parts.join(" "));
-          return;
-        }
-        setRelationshipInviteBanner(tInvites("relationshipBanner"));
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setRelationshipInviteBanner(tInvites("relationshipBanner"));
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [ref, isStaffRef, t, tCommon, tInvites]);
 
   async function onSubmit(data: SignUpFormValues) {
     setApiError(null);

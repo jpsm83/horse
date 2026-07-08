@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatAuthProvider } from "@/lib/api/authClient.ts";
+import { formatAuthProvider } from "@/lib/api/auth/session";
 
 describe("formatAuthProvider", () => {
   it("formats known providers", () => {

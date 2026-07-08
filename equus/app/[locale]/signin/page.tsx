@@ -15,7 +15,8 @@ import { FieldGroup } from "@/components/ui/field";
 import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated.ts";
 import { Link, usePathname, useRouter } from "@/i18n/navigation.ts";
 import { normalizeLocale } from "@/i18n/resolveLocale.ts";
-import { isApiClientError, loginWithCredentials } from "@/lib/api/authClient.ts";
+import { loginWithCredentials } from "@/lib/api/auth/credentials";
+import { isApiClientError } from "@/lib/api/auth/session";
 import { resolvePostAuthPath } from "@/lib/navigation/postAuthRedirect.ts";
 import {
   authFormMessagesFromTranslations,

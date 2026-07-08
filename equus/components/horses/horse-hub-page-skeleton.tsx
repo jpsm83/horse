@@ -1,5 +1,5 @@
 /**
- * Loading skeleton for `/my/horses/[horseId]` — mirrors horse hub header, ownership, and provider invites.
+ * Loading skeleton for `/horses/[horseId]` — mirrors horse hub header, ownership, and provider invites.
  */
 
 import { Skeleton } from "@/components/ui/skeleton.tsx";

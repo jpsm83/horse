@@ -1,16 +1,15 @@
 /**
- * Shared option lists for profile flag selects (language, nationality, country).
+ * Profile-specific option lists.
+ * Shared country options live in `@/components/shared/country-options`.
  */
 
 import type { AppLocale } from "@/i18n/resolveLocale.ts";
-import { getCountryOptions, localeToFlagCode } from "@/lib/data/countries.ts";
+import { localeToFlagCode } from "@/lib/data/countries.ts";
 import { appLocaleEnums } from "@/utils/enums.ts";
+import type { FlagSelectOption } from "@/components/shared/country-options.ts";
 
-export type FlagSelectOption = {
-  value: string;
-  label: string;
-  flagCode: string;
-};
+export { getCountrySelectOptions } from "@/components/shared/country-options.ts";
+export type { FlagSelectOption } from "@/components/shared/country-options.ts";
 
 export function getLanguageSelectOptions(
   labels: Record<AppLocale, string>,
@@ -19,13 +18,5 @@ export function getLanguageSelectOptions(
     value: locale,
     label: labels[locale],
     flagCode: localeToFlagCode(locale),
-  }));
-}
-
-export function getCountrySelectOptions(locale: AppLocale): FlagSelectOption[] {
-  return getCountryOptions(locale).map((option) => ({
-    value: option.value,
-    label: option.label,
-    flagCode: option.value,
   }));
 }

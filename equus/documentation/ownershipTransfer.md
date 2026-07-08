@@ -62,7 +62,7 @@ Business logic: `lib/services/ownershipTransferService.ts`.
 ## Web UI (shipped — UA-19, UA-20)
 
 - Inbox: `/ownership-transfers` (locale-prefixed) — accept/decline pending transfers received by the signed-in user
-- Horse hub (`/my/horses/[id]`): main owner can **transfer ownership** (email invite when no co-owners) or **manage co-owners** (remove / promote); pending outbound requests can be cancelled
+- Horse hub (`/horses/[id]`): main owner can **transfer ownership** (email invite when no co-owners) or **manage co-owners** (remove / promote); pending outbound requests can be cancelled
 - Stable hub entry points — planned when stable owner hub ships
 - i18n namespaces: `invites.ownershipTransfers`, `horseHub.ownership`
 

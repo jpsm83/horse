@@ -2,8 +2,9 @@
  * Shared locale types and normalization for web, email, and future mobile.
  */
 
-export const SUPPORTED_LOCALES = ["en", "es"] as const;
-export type AppLocale = (typeof SUPPORTED_LOCALES)[number];
+import { appLocaleEnums } from "@/utils/enums.ts";
+
+export type AppLocale = (typeof appLocaleEnums)[number];
 
 export type EmailLocale = AppLocale;
 
@@ -15,7 +16,7 @@ export function normalizeLocale(input?: string | null): AppLocale {
 }
 
 export function isSupportedLocale(input: string): input is AppLocale {
-  return SUPPORTED_LOCALES.includes(input as AppLocale);
+  return appLocaleEnums.includes(input as AppLocale);
 }
 
 export const LOCALE_COOKIE_NAME = "NEXT_LOCALE";

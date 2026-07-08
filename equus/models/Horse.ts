@@ -12,6 +12,7 @@ import * as enums from "../utils/enums.ts";
 const {
   horseSexEnums,
   horseColorEnums,
+  horseBreedEnums,
   horseDisciplineEnums,
   saleStatusEnums,
   currencyEnums,
@@ -38,7 +39,7 @@ const horseSubscriptionSchema = new Schema(
     /** Business account that referred this horse (commission attribution) */
     attributedAccountType: { type: String, enum: accountTypeEnums },
     attributedAccountId: { type: Schema.Types.ObjectId },
-    referralReference: { type: String, index: true },
+    referralReference: { type: String },
     commissionEligibleUntil: { type: Date }, // first 12 paid months window
   },
   { _id: false }
@@ -78,7 +79,7 @@ const horseSchema = new Schema(
     registryId: { type: String, index: true },
     microchipId: { type: String, index: true, sparse: true },
     passportNumber: { type: String, index: true, sparse: true },
-    breed: { type: String, required: [true, "Breed is required!"] },
+    breed: { type: String, enum: horseBreedEnums, required: [true, "Breed is required!"] },
     sex: { type: String, enum: horseSexEnums, required: [true, "Sex is required!"] },
     dateOfBirth: { type: Date },
     ageYears: { type: Number, min: 0 },

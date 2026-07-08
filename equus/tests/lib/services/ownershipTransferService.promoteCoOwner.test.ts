@@ -106,7 +106,7 @@ describe("ownershipTransferService.promote_co_owner", () => {
     const stranger = await createUser("pco-stranger@example.com");
     const horse = await Horse.create({
       name: "Solo Promote Horse",
-      breed: "TB",
+      breed: "Thoroughbred",
       sex: "Gelding",
       mainOwnerUserId: main._id,
       createdByUserId: main._id,

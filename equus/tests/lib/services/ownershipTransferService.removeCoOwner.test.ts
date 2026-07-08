@@ -104,7 +104,7 @@ describe("ownershipTransferService.remove_co_owner", () => {
     const stranger = await createUser("rco-stranger@example.com");
     const horse = await Horse.create({
       name: "Solo Horse",
-      breed: "TB",
+      breed: "Thoroughbred",
       sex: "Gelding",
       mainOwnerUserId: main._id,
       createdByUserId: main._id,

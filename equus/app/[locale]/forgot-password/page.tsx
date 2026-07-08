@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { Link } from "@/i18n/navigation.ts";
-import { requestPasswordReset } from "@/lib/api/authClient.ts";
+import { requestPasswordReset } from "@/lib/api/auth/credentials";
 import {
   authFormMessagesFromTranslations,
   createAuthFormSchemas,

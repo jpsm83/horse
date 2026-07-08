@@ -21,9 +21,10 @@ import { useRouter } from "@/i18n/navigation.ts";
 import {
   ensureRestSession,
   subscribeAuthStateChanged,
-} from "@/lib/api/authClient.ts";
+} from "@/lib/api/auth/session";
 import { clearClientAuthSession } from "@/lib/auth/clearClientAuthSession.ts";
 import { GUEST_LANDING_PATH } from "@/lib/navigation/postAuthRedirect.ts";
+import { appToast } from "@/lib/ui/toast.ts";
 import type { AuthUser } from "@/lib/auth/types.ts";
 import type { AppAuthState } from "@/hooks/use-app-auth.ts";
 
@@ -47,7 +48,9 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
         nextAuthUserId,
       });
       setUser(currentUser);
-    } catch {
+    } catch (err) {
+      console.error("Auth session load failed:", err);
+      appToast.error("Failed to connect to server");
       setUser(null);
     }
   }, [nextAuthUserId]);

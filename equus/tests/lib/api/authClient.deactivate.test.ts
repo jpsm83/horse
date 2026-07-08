@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { deactivateCurrentUserAccount } from "@/lib/api/auth/profile";
+import { loginWithCredentials } from "@/lib/api/auth/credentials";
 import {
-  deactivateCurrentUserAccount,
-  loginWithCredentials,
   resetOptionalUserCache,
   subscribeAuthStateChanged,
   tryFetchCurrentUser,
-} from "@/lib/api/authClient.ts";
+} from "@/lib/api/auth/session";
 
 describe("deactivateCurrentUserAccount", () => {
   const originalFetch = globalThis.fetch;

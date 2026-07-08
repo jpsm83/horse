@@ -15,7 +15,7 @@ The REST API under `/api/v1/` is the integration surface for all clients. Web an
 
 ### Email and password
 
-1. `POST /api/v1/auth/login` (via `loginWithCredentials` in [`lib/api/authClient.ts`](../lib/api/authClient.ts))
+1. `POST /api/v1/auth/login` (via `loginWithCredentials` in [`lib/api/auth/credentials.ts`](../lib/api/auth/credentials.ts))
 2. Response sets REST cookies + returns user
 3. No NextAuth involved
 4. Web UI redirects to `/home` (user home) by default, or to a safe `?next=` path when present (`resolvePostAuthPath` / `buildSignInPath` in [`lib/navigation/postAuthRedirect.ts`](../lib/navigation/postAuthRedirect.ts)). `?next=` is omitted from the sign-in URL when the destination is already `/home`. `/` is the guest landing only; `/profile` is account settings, not the post-auth destination. Legacy `/me` URLs redirect to `/home`.
@@ -55,17 +55,47 @@ sequenceDiagram
   API->>REST: requireAuthFromRequest
 ```
 
-## Client API (`lib/api/authClient.ts`)
+## Client API
+
+Auth session state lives in `lib/api/auth/session.ts` — driven by an observer pattern, consumed via `useAppAuth()` context. Profile and navigation data are loaded via TanStack Query hooks, not auth context.
+
+### Auth session (`lib/api/auth/session.ts`)
 
 | Function | Use |
-|----------|-----|
+|----------|------|
 | `ensureRestSession({ nextAuthUserId?, attemptBridge?, required? })` | Load auth state; bridge from Google when REST missing |
 | `tryFetchCurrentUser()` | Optional probe on public pages (silent 401) |
 | `fetchCurrentUser()` | Protected pages; bridges then throws if still unauthenticated |
-| `fetchUserProfile()` | `GET /api/v1/users/me` — full `PublicUser` for profile form |
-| `createProfilePageDataPromise()` | Profile route — chains the two calls after client mount ([`profile.md`](./profile.md)) |
 | `runWithSilentAuthFailure()` | Internal — no redirect on optional probes |
 | `setSessionExpiredHandler()` | Registered by `AuthSessionProvider` — redirect + toast |
+| `resetOptionalUserCache(notify?)` | Clear in-memory auth cache; triggers re-probe on next access |
+| `refreshAccessToken()` | POST `/api/v1/auth/refresh` — deduped via shared `refreshInFlight` |
+
+### Credential auth flows (`lib/api/auth/credentials.ts`)
+
+| Function | Use |
+|----------|------|
+| `loginWithCredentials(email, password)` | POST `/api/v1/auth/login` — sets REST cookies |
+| `registerWithCredentials(input)` | POST `/api/v1/auth/register` |
+| `confirmEmail(token)` | POST `/api/v1/auth/confirm-email` |
+| `requestPasswordReset(email)` | POST `/api/v1/auth/request-password-reset` |
+| `resetPassword(token, newPassword)` | POST `/api/v1/auth/reset-password` |
+
+### Profile CRUD (`lib/api/auth/profile.ts`)
+
+| Function | Use |
+|----------|------|
+| `updateUserProfile(input, imageFile?)` | PATCH `/api/v1/users/me` (JSON or multipart) |
+| `deactivateCurrentUserAccount()` | DELETE `/api/v1/users/me` — tombstone account |
+
+### TanStack Query hooks
+
+| Hook | Endpoint | File |
+|------|----------|------|
+| `useUserProfile()` | `GET /api/v1/users/me` — full `PublicUser` for profile form, user menu, user home | `hooks/queries/useCurrentUser.ts` |
+| `useUserNavigation()` | `GET /api/v1/users/me/navigation` — sidebar navigation links | `hooks/queries/useCurrentUser.ts` |
+
+**Rule:** Auth state in context (`useAppAuth()`), async server data in TanStack hooks. Never put profile or navigation in auth context.
 
 ### Token refresh
 

@@ -4,9 +4,9 @@ import {
   acceptOwnershipTransfer,
   declineOwnershipTransfer,
   fetchPendingOwnershipTransfers,
-  loginWithCredentials,
-  resetOptionalUserCache,
-} from "@/lib/api/authClient.ts";
+} from "@/lib/api/auth/invites";
+import { loginWithCredentials } from "@/lib/api/auth/credentials";
+import { resetOptionalUserCache } from "@/lib/api/auth/session";
 
 describe("ownership transfer authClient", () => {
   const originalFetch = globalThis.fetch;

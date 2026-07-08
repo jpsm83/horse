@@ -1,9 +1,8 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { fetchWithAuth, parseApiResponse } from "@/lib/api/fetchWithAuth";
-import { resetOptionalUserCache } from "@/lib/api/authClient";
 import { queryKeys } from "@/lib/api/queryKeys";
 import type { PublicUser } from "@/lib/services/userService";
 import type { UserOwnedNavigation } from "@/lib/services/navigationService";
@@ -36,17 +35,4 @@ export function useUserNavigation(enabled = true) {
     staleTime: 60_000,
     enabled,
   });
-}
-
-/**
- * Invalidate current user data across both authClient and TanStack caches.
- * Triggers authClient to re-probe /api/v1/auth/me and refetch profile/navigation.
- */
-export function useInvalidateCurrentUser() {
-  const queryClient = useQueryClient();
-  return () => {
-    resetOptionalUserCache();
-    queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
-    queryClient.invalidateQueries({ queryKey: queryKeys.users.navigation });
-  };
 }

@@ -29,13 +29,13 @@ export function IncompleteProfileBanner() {
   }
 
   return (
-    <div className="border-b border-border bg-muted/40 px-4 py-2">
+    <div className="border-b border-border px-4 py-2 bg-taupe-600">
       <Alert className="mx-auto max-w-3xl border-0 bg-transparent p-0 shadow-none">
-        <AlertDescription>
+        <AlertDescription className="text-gray-300 flex items-center gap-4">
           {t("incompleteBanner")}{" "}
           <Link
             href="/profile"
-            className="font-medium text-foreground underline-offset-4 hover:underline"
+            className="font-medium text-white underline-offset-4 hover:underline"
           >
             {t("incompleteGlobalBannerLink")}
           </Link>

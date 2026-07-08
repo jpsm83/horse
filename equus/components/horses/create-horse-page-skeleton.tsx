@@ -14,6 +14,15 @@ function HorseFieldSkeleton() {
   );
 }
 
+function HorseTextareaSkeleton() {
+  return (
+    <div className="space-y-2" aria-hidden>
+      <Skeleton className="h-4 w-24" />
+      <Skeleton className="h-20 w-full" />
+    </div>
+  );
+}
+
 function HorseFormSkeleton() {
   return (
     <div className="space-y-6 sm:space-y-8" aria-hidden>
@@ -27,6 +36,18 @@ function HorseFormSkeleton() {
             <HorseFieldSkeleton />
             <HorseFieldSkeleton />
             <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+          </div>
+          <HorseFieldSkeleton />
+          <HorseTextareaSkeleton />
+          <div className="grid gap-5 sm:grid-cols-2">
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
           </div>
         </FieldGroup>
       </FieldSet>
@@ -35,6 +56,57 @@ function HorseFormSkeleton() {
 
       <FieldSet>
         <Skeleton className="h-5 w-40 pb-3" />
+        <FieldGroup>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+          </div>
+        </FieldGroup>
+      </FieldSet>
+
+      <hr className="my-4" />
+
+      <FieldSet>
+        <Skeleton className="h-5 w-36 pb-3" />
+        <FieldGroup>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+            <HorseFieldSkeleton />
+          </div>
+          <HorseTextareaSkeleton />
+        </FieldGroup>
+      </FieldSet>
+
+      <hr className="my-4" />
+
+      <FieldSet>
+        <Skeleton className="h-5 w-24 pb-3" />
+        <FieldGroup>
+          <div className="flex items-center gap-4">
+            <Skeleton className="size-24 shrink-0 rounded-full" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <Skeleton className="aspect-square rounded-lg" />
+            <Skeleton className="aspect-square rounded-lg" />
+            <Skeleton className="aspect-square rounded-lg" />
+          </div>
+          <HorseTextareaSkeleton />
+          <HorseTextareaSkeleton />
+        </FieldGroup>
+      </FieldSet>
+
+      <hr className="my-4" />
+
+      <FieldSet>
+        <Skeleton className="h-5 w-44 pb-3" />
         <FieldGroup>
           <div className="grid gap-5 sm:grid-cols-2">
             <HorseFieldSkeleton />

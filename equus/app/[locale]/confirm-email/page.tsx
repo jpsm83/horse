@@ -8,7 +8,7 @@ import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation.ts";
-import { confirmEmail } from "@/lib/api/authClient.ts";
+import { confirmEmail } from "@/lib/api/auth/credentials";
 import { cn } from "@/lib/utils";
 
 type FlowState = "loading" | "success" | "error" | "missing";

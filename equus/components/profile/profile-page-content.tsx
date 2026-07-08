@@ -1,10 +1,6 @@
 "use client";
 
-/**
- * Profile page body — loads REST data after mount and renders the form.
- * Uses skeleton (not `use()`) because auth fetch requires browser cookies.
- */
-
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
@@ -14,60 +10,42 @@ import { ProfilePageSkeleton } from "@/components/profile/profile-page-skeleton.
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LoadingOverlay } from "@/components/ui/loading-overlay.tsx";
 import { useRouter } from "@/i18n/navigation.ts";
-import {
-  createProfilePageDataPromise,
-  type ProfilePageData,
-} from "@/lib/profile/loadProfilePageData.ts";
+import { useAppAuth } from "@/hooks/use-app-auth.ts";
+import { useUserProfile } from "@/hooks/queries/useCurrentUser.ts";
+import { queryKeys } from "@/lib/api/queryKeys";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
-import type { AuthUser } from "@/lib/auth/types.ts";
-import type { PublicUser } from "@/lib/services/userService.ts";
 
 export function ProfilePageContent() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const t = useTranslations("profile");
   const tCommon = useTranslations("common");
 
-  const [data, setData] = useState<ProfilePageData | null>(null);
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [personalDetails, setPersonalDetails] = useState<Record<string, unknown> | null>(
-    null,
-  );
-  const [preferences, setPreferences] = useState<Record<string, unknown> | null>(
-    null,
-  );
-  const [hasPassword, setHasPassword] = useState(false);
+  const { user, isAuthenticated, isLoading: authLoading } = useAppAuth();
+  const { data: profile, isPending: profileLoading } = useUserProfile(isAuthenticated);
+
   const [isSaving, setIsSaving] = useState(false);
   const [isDeactivating, setIsDeactivating] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-
-    createProfilePageDataPromise(() => {
+    if (!authLoading && !isAuthenticated) {
       router.replace(buildSignInPath("/profile"));
-    }).then((result) => {
-      if (cancelled) return;
-      setData(result);
-      setUser(result.currentUser);
-      setPersonalDetails(result.profileResult.user.personalDetails);
-      setPreferences(result.profileResult.user.preferences as Record<string, unknown>);
-      setHasPassword(
-        result.profileResult.user.hasPassword ?? result.currentUser.hasPassword ?? false,
-      );
-    });
+    }
+  }, [authLoading, isAuthenticated, router]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [router]);
+  const isLoading = authLoading || profileLoading;
 
-  if (!data || !user || !personalDetails || !preferences) {
+  if (isLoading || !user) {
     return <ProfilePageSkeleton />;
   }
 
+  const personalDetails = (profile?.personalDetails ?? {}) as Record<string, unknown>;
+  const preferences = (profile?.preferences ?? {}) as Record<string, unknown>;
   const email =
     typeof personalDetails.email === "string" ? personalDetails.email : user.email;
   const imageUrl =
     typeof personalDetails.imageUrl === "string" ? personalDetails.imageUrl : undefined;
+  const hasPassword = profile?.hasPassword ?? user.hasPassword ?? false;
 
   return (
     <div
@@ -95,19 +73,8 @@ export function ProfilePageContent() {
           hasPassword={hasPassword}
           imageUrl={imageUrl}
           onSavingChange={setIsSaving}
-          onSaved={(savedUser: PublicUser) => {
-            setPersonalDetails(savedUser.personalDetails);
-            setPreferences(savedUser.preferences as Record<string, unknown>);
-            setHasPassword(savedUser.hasPassword);
-            setUser((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    emailVerified: savedUser.emailVerified,
-                    profileComplete: savedUser.profileComplete,
-                  }
-                : prev,
-            );
+          onSaved={() => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
           }}
         />
 

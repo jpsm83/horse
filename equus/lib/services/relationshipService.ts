@@ -157,7 +157,7 @@ export async function createRelationshipInvite(
   let receiverUserId: string | undefined;
   let invitedEmail: string | undefined;
   let receiverLabel: string | undefined;
-  let referralReference = generateRelationshipReferralReference();
+  const referralReference = generateRelationshipReferralReference();
 
   if (input.receiverAccountId) {
     const provider = await resolveProviderProfile(relationshipType, input.receiverAccountId);

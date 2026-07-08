@@ -71,44 +71,27 @@ export const DISCOVER_LINKS: NavigationLinkItem[] = [
 ];
 
 export const MY_OWN_LINKS: NavigationLinkItem[] = [
-  { key: "stables", href: "/my/stables", icon: Building2 },
-  { key: "veterinaries", href: "/my/veterinaries", icon: Stethoscope },
-  { key: "transport", href: "/my/transport", icon: Truck },
-  { key: "breeders", href: "/my/breeders", icon: Sprout },
-  { key: "coaches", href: "/my/coaches", icon: GraduationCap },
-  { key: "horses", href: "/my/horses", icon: ChessKnight  },
-  { key: "ridingClubs", href: "/my/riding-clubs", icon: Users },
-  { key: "trainers", href: "/my/trainers", icon: Dumbbell },
-  { key: "groomers", href: "/my/groomers", icon: Brush },
-  { key: "farriers", href: "/my/farriers", icon: Hammer },
-  { key: "riders", href: "/my/riders", icon: PersonStanding },
+  { key: "stables", href: "/stables", icon: Building2 },
+  { key: "veterinaries", href: "/veterinaries", icon: Stethoscope },
+  { key: "transport", href: "/transport", icon: Truck },
+  { key: "breeders", href: "/breeders", icon: Sprout },
+  { key: "coaches", href: "/coaches", icon: GraduationCap },
+  { key: "horses", href: "/horses?mine=true", icon: ChessKnight  },
+  { key: "ridingClubs", href: "/riding-clubs", icon: Users },
+  { key: "trainers", href: "/trainers", icon: Dumbbell },
+  { key: "groomers", href: "/groomers", icon: Brush },
+  { key: "farriers", href: "/farriers", icon: Hammer },
+  { key: "riders", href: "/riders", icon: PersonStanding },
 ];
 
-/**
- * URL segments for /create/* — matches `app/[locale]/create/` folder names.
- * Singular role profiles; short singular segments for horse, stable, riding club, transport.
- */
-export const CREATE_ENTITY_ROUTE_SEGMENT: Record<NavigationEntityKey, string> = {
-  horses: "horse",
-  stables: "stable",
-  ridingClubs: "riding-club",
-  transport: "transport",
-  breeders: "breeder",
-  coaches: "coache",
-  trainers: "trainer",
-  groomers: "groomer",
-  farriers: "farrier",
-  riders: "rider",
-  veterinaries: "veterinary",
-};
-
-function createEntityHref(key: NavigationEntityKey): string {
-  return `/create/${CREATE_ENTITY_ROUTE_SEGMENT[key]}`;
+function entityKeyToPath(key: NavigationEntityKey): string {
+  if (key === "ridingClubs") return "riding-clubs";
+  return key;
 }
 
 export const CREATE_LINKS: NavigationLinkItem[] = MY_OWN_LINKS.map((item) => ({
   ...item,
-  href: createEntityHref(item.key),
+  href: `/${entityKeyToPath(item.key)}/new`,
 }));
 
 /** User may own many of these — plural copy on /create/* titles and descriptions. */

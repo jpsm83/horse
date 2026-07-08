@@ -77,7 +77,7 @@ describe("horseService", () => {
 
     const created = await horseService.createHorse(String(owner._id), {
       name: "Shadow",
-      breed: "Warmblood",
+      breed: "Dutch Warmblood",
       sex: "Stallion",
       profileVisibility: "public",
     });
@@ -128,7 +128,7 @@ describe("horseService", () => {
     const vetUser = await createUser("horse-rel-vet@example.com");
     const created = await horseService.createHorse(String(owner._id), {
       name: "Rex",
-      breed: "Quarter Horse",
+      breed: "American Quarter Horse",
       sex: "Gelding",
       profileVisibility: "relationship",
     });
@@ -200,7 +200,7 @@ describe("horseService", () => {
     const owner = await createUser("horse-inactive@example.com");
     const created = await horseService.createHorse(String(owner._id), {
       name: "Retired",
-      breed: "Warmblood",
+      breed: "Dutch Warmblood",
       sex: "Mare",
       profileVisibility: "public",
     });
@@ -216,7 +216,7 @@ describe("horseService", () => {
     const owner = await createUser("horse-deactivated-owner@example.com");
     const created = await horseService.createHorse(String(owner._id), {
       name: "Orphan Card",
-      breed: "Warmblood",
+      breed: "Dutch Warmblood",
       sex: "Gelding",
       profileVisibility: "public",
     });

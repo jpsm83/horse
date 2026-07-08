@@ -26,10 +26,8 @@ import {
 } from "@/components/ui/field";
 import { useRouter } from "@/i18n/navigation.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
-import {
-  deactivateCurrentUserAccount,
-  isApiClientError,
-} from "@/lib/api/authClient.ts";
+import { deactivateCurrentUserAccount } from "@/lib/api/auth/profile";
+import { isApiClientError } from "@/lib/api/auth/session";
 
 type ProfileDeactivateAccountProps = {
   onDeactivatingChange?: (active: boolean) => void;

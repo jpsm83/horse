@@ -1,4 +1,4 @@
-export { useUserProfile, useUserNavigation, useInvalidateCurrentUser } from "./useCurrentUser";
+export { useUserProfile, useUserNavigation } from "./useCurrentUser";
 export { usePublicUser } from "./useUser";
 export { useOwnerHorse, useHorsePendingRelationships, useHorseOwnershipTransfers, useCreateHorse } from "./useHorse";
 export { useStable, useCreateStable } from "./useStable";

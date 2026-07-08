@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { Link, useRouter } from "@/i18n/navigation.ts";
-import { resetPassword } from "@/lib/api/authClient.ts";
+import { resetPassword } from "@/lib/api/auth/credentials";
 import { clearClientAuthSession } from "@/lib/auth/clearClientAuthSession.ts";
 import { cn } from "@/lib/utils";
 import {

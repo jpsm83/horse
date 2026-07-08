@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  CREATE_ENTITY_ROUTE_SEGMENT,
   CREATE_MENU_BUSINESS_LINKS,
   CREATE_MENU_HORSE_LINK,
   CREATE_MENU_SERVICE_LINKS,
@@ -14,12 +13,12 @@ import {
 import type { UserOwnedNavigation } from "@/lib/services/navigationService.ts";
 
 describe("navigation-config", () => {
-  it("maps CREATE_LINKS to create folder segments (not my href replace)", () => {
+  it("maps CREATE_LINKS to /<entity>/new paths", () => {
     expect(CREATE_LINKS).toHaveLength(MY_OWN_LINKS.length);
 
     for (const myLink of MY_OWN_LINKS) {
       const createLink = CREATE_LINKS.find((item) => item.key === myLink.key);
-      expect(createLink?.href).toBe(`/create/${CREATE_ENTITY_ROUTE_SEGMENT[myLink.key]}`);
+      expect(createLink?.href).toBe(`${myLink.href.split("?")[0]}/new`);
     }
 
     const keys = MY_OWN_LINKS.map((item) => item.key);
@@ -33,20 +32,20 @@ describe("navigation-config", () => {
   });
 
   it("groups create menu links for the user menu", () => {
-    expect(CREATE_MENU_HORSE_LINK.href).toBe("/create/horse");
+    expect(CREATE_MENU_HORSE_LINK.href).toBe("/horses/new");
     expect(CREATE_MENU_BUSINESS_LINKS.map((item) => item.href)).toEqual([
-      "/create/stable",
-      "/create/riding-club",
+      "/stables/new",
+      "/riding-clubs/new",
     ]);
     expect(CREATE_MENU_SERVICE_LINKS.map((item) => item.href)).toEqual([
-      "/create/breeder",
-      "/create/coache",
-      "/create/farrier",
-      "/create/groomer",
-      "/create/rider",
-      "/create/trainer",
-      "/create/transport",
-      "/create/veterinary",
+      "/breeders/new",
+      "/coaches/new",
+      "/farriers/new",
+      "/groomers/new",
+      "/riders/new",
+      "/trainers/new",
+      "/transport/new",
+      "/veterinaries/new",
     ]);
   });
 

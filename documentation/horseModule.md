@@ -44,19 +44,19 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 
 ## 1. Horse profile and identity
 
-**Baseline API (shipped):** minimal create + discovery PATCH + public read — `POST /api/v1/horses`, `PATCH /api/v1/horses/:id/discovery`, `GET /api/v1/horses/:id`. See [`equus/documentation/horses.md`](../equus/documentation/horses.md). Full profile CRUD, gallery, and directory search remain below.
+**Baseline API (shipped):** create with all profile fields + discovery PATCH + public read — `POST /api/v1/horses`, `PATCH /api/v1/horses/:id/discovery`, `GET /api/v1/horses/:id`. Media upload via `POST /api/v1/media/upload`. See [`equus/documentation/horses.md`](../equus/documentation/horses.md). Full profile CRUD, directory search remain below.
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
-| H-PROF-01 | Core identity: name, breed, sex, color, date of birth / age | Parity | in progress |
-| H-PROF-02 | Registered name, registry id, microchip, passport number | Parity | planned |
-| H-PROF-03 | Height, marks, country of birth, import/export status | Parity | planned |
-| H-PROF-04 | Primary discipline and discipline list | Parity | planned |
-| H-PROF-05 | Description, notes, profile image | Parity | planned |
-| H-PROF-06 | Photo and video gallery | Parity | planned |
-| H-PROF-07 | Pedigree / bloodline (manual + import e.g. HorseTelex) | Parity | planned |
+| H-PROF-01 | Core identity: name, breed, sex, color, date of birth / age | Parity | done |
+| H-PROF-02 | Registered name, registry id, microchip, passport number | Parity | done |
+| H-PROF-03 | Height, marks, country of birth, import/export status | Parity | done |
+| H-PROF-04 | Primary discipline and discipline list | Parity | done |
+| H-PROF-05 | Description, notes, profile image | Parity | done |
+| H-PROF-06 | Photo and video gallery (`FileUpload` + `POST /api/v1/media/upload`) | Parity | done |
+| H-PROF-07 | Pedigree / bloodline (manual) | Parity | done |
 | H-PROF-08 | Full owner/co-owner edit of profile fields (PATCH horse) | Parity | planned |
-| H-PROF-09 | Commercial fields: estimated value, sale status, asking price (visibility-controlled) | Beyond | planned |
+| H-PROF-09 | Commercial fields: estimated value, sale status, asking price, showValuePublicly | Beyond | done |
 
 ---
 
@@ -83,7 +83,7 @@ Two-layer model: horse visibility (`profileVisibility`: `public` / `relationship
 | H-DISC-02 | Per-horse `contactDisplay` (owner contact vs delegate) | Beyond | done |
 | H-DISC-03 | Public horse card with resolved contact (`GET /api/v1/horses/:id`) | Beyond | done |
 | H-DISC-04 | Owner/co-owner discovery PATCH (`PATCH /api/v1/horses/:id/discovery`) | Beyond | done |
-| H-DISC-05 | `showValuePublicly` and sale listing visibility | Beyond | planned |
+| H-DISC-05 | `showValuePublicly` and sale listing visibility | Beyond | done |
 | H-DISC-06 | Discover directory / search (location, discipline, for sale) | Beyond | planned |
 | H-DISC-07 | Anonymous vs relationship-scoped visibility enforcement | Beyond | done |
 
@@ -115,7 +115,7 @@ Provider links use `Relationship` documents (`relationshipType`: stable, trainer
 | H-DASH-02 | Unified timeline (health, training, stable, transport, competition) | Parity | planned |
 | H-DASH-03 | Filter timeline by source (stable, vet, trainer, owner) | Parity | planned |
 | H-DASH-04 | Owner expense summary per horse (invoices, stable charges) | Beyond | planned |
-| H-DASH-05 | Multi-horse list for owner (`/my/horses`) | Parity | planned |
+| H-DASH-05 | Multi-horse list for owner (`/horses`) | Parity | done |
 | H-DASH-06 | Notifications for timeline updates and relationship events | Beyond | planned |
 | H-DASH-07 | Owner retains read access after provider relationship ends | Beyond | planned |
 
@@ -236,5 +236,5 @@ Cross-module production gate (all must be ready together): see [`mvpScope.md`](m
 
 | Date | Change |
 |------|--------|
-| 2026-06-30 | Create-horse web UI at `/create/horse` (baseline identity + discovery fields); H-PROF-01 partial |
+| 2026-06-30 | Create-horse web UI at `/horses/new` (baseline identity + discovery fields); H-PROF-01 partial |
 | 2026-06-30 | Initial specification from `businessPlan.md` §4.1 / §10.3, `mvpScope.md`, `equinem.md`, and shipped horse discovery API |

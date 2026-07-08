@@ -43,7 +43,7 @@ describe("mapHorseFormValuesToCreatePayload", () => {
     const payload = mapHorseFormValuesToCreatePayload({
       ...emptyCreateHorseFormValues,
       name: "Shadow",
-      breed: "Warmblood",
+      breed: "Dutch Warmblood",
       sex: "Stallion",
       contactDisplay: {
         useOwnerContact: "false",

@@ -119,7 +119,7 @@ describe("getPublicUserForRequester", () => {
 
     const horse = await Horse.create({
       name: "Comet",
-      breed: "TB",
+      breed: "Thoroughbred",
       sex: "Gelding",
       mainOwnerUserId: owner!._id,
       createdByUserId: owner!._id,

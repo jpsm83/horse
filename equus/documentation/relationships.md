@@ -72,7 +72,7 @@ Referral references use `REF-{uuid}` (not staff membership ObjectIds).
 
 ## Related modules
 
-- Horse hub at `/my/horses/[horseId]` — owner invite pickers call discover + `POST /api/v1/relationships`.
+- Horse hub at `/horses/[horseId]` — owner invite pickers call discover + `POST /api/v1/relationships`.
 - Barn staff operational access still requires **both** accepted horse ↔ stable `Relationship` and active `WorkplaceRelationship` — see user module §6.
 
 ## Discover providers (`GET /api/v1/discover/providers`)

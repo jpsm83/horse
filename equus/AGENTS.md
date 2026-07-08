@@ -58,8 +58,8 @@ All client-side data fetching uses **TanStack Query** (React Query v5). Domain h
 * **`useQuery` for reads** — every page/component that calls a REST endpoint uses a dedicated query hook (e.g. `useHorse(id)` → `GET /api/v1/horses/:id`). No bare `fetch()` or `useEffect` + `useState` for async data.
 * **`useMutation` for writes** — create, update, delete. Always invalidate related queries on success (e.g. `queryClient.invalidateQueries({ queryKey: ["horses"] })`).
 * **Query keys** — use the factory in `lib/api/queryKeys.ts` for consistency and targeted invalidation.
-* **Shared fetch utility** — `lib/api/fetchWithAuth.ts` handles cookies + token refresh; TanStack hooks call it. `lib/api/authClient.ts` is NOT replaced — it owns auth session state (synchronous context).
-* **Auth state is not TanStack Query** — `useAppAuth()` remains driven by the `authClient` observer pattern. TanStack Query only handles async server data.
+* **Shared fetch utility** — `lib/api/fetchWithAuth.ts` handles cookies + token refresh; TanStack hooks call it. `lib/api/auth/session.ts` owns auth session state (synchronous context).
+* **Auth state is not TanStack Query** — `useAppAuth()` remains driven by the `session.ts` observer pattern. TanStack Query only handles async server data (profile, navigation, entities).
 * **Default config** — `staleTime: 30_000`, `gcTime: 5 * 60_000`, `retry: 1`, `refetchOnWindowFocus: true`. Override per query when needed (e.g. `staleTime: 0` for real-time lists).
 * **Suspense** — prefer `useSuspenseQuery` for page-level data that must resolve before render. Use `loading.tsx` + `Suspense` boundary. Non-critical data can use `useQuery` with manual loading state.
 * **New hooks** — add domain hooks to `hooks/queries/` following the existing pattern. Keep query functions colocated with the hook (not in `lib/api/` client files).
@@ -75,7 +75,7 @@ All client-side data fetching uses **TanStack Query** (React Query v5). Domain h
 #### Error handling (web UI)
 
 * **Uncaught render errors** — `react-error-boundary` via `AppErrorBoundary` in `AppProviders`; Next.js `app/[locale]/error.tsx` and `app/global-error.tsx`. Shared UI: `components/errors/error-recovery-page.tsx`. See [`documentation/errors.md`](documentation/errors.md).
-* **API / auth failures** — `try/catch` in features; toasts (`useAppToast`) or redirect — **not** error boundaries.
+* **API / auth failures** — `try/catch` in features; toasts (`useAppToast`) or redirect — **not** error boundaries. Auth-load failures (network down on initial load) render the unauthenticated view with `console.error` + toast — never an infinite spinner.
 * **Do not** use error boundaries for expected load failures; use skeleton + redirect patterns from [`profile.md`](documentation/profile.md).
 
 ### Web UI i18n
@@ -336,7 +336,7 @@ models/
 - **Stable discovery:** `isPublic` (default `true`) and `acceptsNewHorses` on `Stable`; entity-level business contact; rules in `lib/stables/stableDiscoveryAccess.ts` and `lib/services/stableService.ts`.
 - **Transport discovery:** `isPublic` (default `true`) and `acceptsNewBookings` on `Transport`; entity-level business contact; rules in `lib/transports/transportDiscoveryAccess.ts` and `lib/services/transportService.ts`.
 - No `activeAccountContext`; no user-level `ownerPreferences`. Horse discovery is per-horse; stable and transport discovery are per-entity. See [`documentation/userModule.md`](../documentation/userModule.md).
-- **Horse API:** `POST /api/v1/horses`, `PATCH /api/v1/horses/:id/discovery`, `GET /api/v1/horses/:id` — see [`documentation/horses.md`](documentation/horses.md).
+- **Horse API:** `GET /api/v1/horses` (list), `POST /api/v1/horses` (create), `PATCH /api/v1/horses/:id/discovery`, `GET /api/v1/horses/:id` — see [`documentation/horses.md`](documentation/horses.md).
 - **Stable API:** `POST /api/v1/stables`, `PATCH /api/v1/stables/:id/discovery`, `GET /api/v1/stables/:id` — see [`documentation/stables.md`](documentation/stables.md).
 - **Breeder API:** `POST /api/v1/breeders`, `PATCH /api/v1/breeders/:id/discovery`, `GET /api/v1/breeders/:id` — see [`documentation/breeders.md`](documentation/breeders.md).
 - **Transport API:** `POST /api/v1/transports`, `PATCH /api/v1/transports/:id/discovery`, `GET /api/v1/transports/:id` — see [`documentation/transports.md`](documentation/transports.md).
@@ -346,3 +346,4 @@ models/
 - **Farrier API:** `POST /api/v1/farriers`, `PATCH /api/v1/farriers/:id/discovery`, `GET /api/v1/farriers/:id` — see [`documentation/farriers.md`](documentation/farriers.md).
 - **Rider API:** `POST /api/v1/riders`, `PATCH /api/v1/riders/:id/discovery`, `GET /api/v1/riders/:id` — see [`documentation/riders.md`](documentation/riders.md).
 - **Veterinary API:** `POST /api/v1/veterinaries`, `PATCH /api/v1/veterinaries/:id/discovery`, `GET /api/v1/veterinaries/:id` — see [`documentation/veterinaries.md`](documentation/veterinaries.md).
+- **Media upload:** `POST /api/v1/media/upload` — reusable multipart upload for images, videos, PDFs via Cloudinary

@@ -2,6 +2,7 @@
 
 /**
  * Create-horse page body — auth gate, skeleton, form, and mutation overlay.
+ * Follows the same pattern as profile-page-content.tsx.
  */
 
 import { useTranslations } from "next-intl";
@@ -24,7 +25,7 @@ export function CreateHorsePageContent() {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace(buildSignInPath("/create/horse"));
+      router.replace(buildSignInPath("/horses/new"));
     }
   }, [isAuthenticated, isLoading, router]);
 

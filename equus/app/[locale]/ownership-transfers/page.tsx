@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
@@ -11,13 +11,12 @@ import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { AppHomeLink } from "@/components/navigation/app-home-link.tsx";
 import { useRouter } from "@/i18n/navigation.ts";
 import {
-  acceptOwnershipTransfer,
-  declineOwnershipTransfer,
-  fetchCurrentUser,
-  fetchPendingOwnershipTransfers,
-  isApiClientError,
-  type PublicOwnershipTransfer,
-} from "@/lib/api/authClient.ts";
+  useAcceptOwnershipTransfer,
+  useDeclineOwnershipTransfer,
+} from "@/hooks/queries/useOwnershipTransfer.ts";
+import { useAppAuth } from "@/hooks/use-app-auth";
+import { usePendingOwnershipTransfers } from "@/hooks/queries/useAuthData";
+import { isApiClientError } from "@/lib/api/auth/session";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { cn } from "@/lib/utils";
 
@@ -34,45 +33,28 @@ function OwnershipTransfersContent() {
   const toast = useAppToast();
   const highlightTransferId = searchParams.get("transfer");
 
-  const [transfers, setTransfers] = useState<PublicOwnershipTransfer[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated, isLoading: authLoading } = useAppAuth();
+  const { data: transfers = [], isPending } = usePendingOwnershipTransfers();
+  const acceptMutation = useAcceptOwnershipTransfer();
+  const declineMutation = useDeclineOwnershipTransfer();
+
   const [actingId, setActingId] = useState<string | null>(null);
 
-  const loadTransfers = useCallback(async () => {
-    await fetchCurrentUser();
-    return fetchPendingOwnershipTransfers();
-  }, []);
-
   useEffect(() => {
-    let cancelled = false;
-
-    loadTransfers()
-      .then((data) => {
-        if (!cancelled) setTransfers(data);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        const next = highlightTransferId
-          ? `/ownership-transfers?transfer=${encodeURIComponent(highlightTransferId)}`
-          : "/ownership-transfers";
-        router.replace(buildSignInPath(next));
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [highlightTransferId, loadTransfers, router]);
+    if (!authLoading && !isAuthenticated) {
+      const next = highlightTransferId
+        ? `/ownership-transfers?transfer=${encodeURIComponent(highlightTransferId)}`
+        : "/ownership-transfers";
+      router.replace(buildSignInPath(next));
+    }
+  }, [authLoading, isAuthenticated, highlightTransferId, router]);
 
   async function handleAccept(transferId: string) {
     setActingId(transferId);
 
     try {
-      await acceptOwnershipTransfer(transferId);
+      await acceptMutation.mutateAsync(transferId);
       toast.success(t("accepted"));
-      setTransfers(await loadTransfers());
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
@@ -88,9 +70,8 @@ function OwnershipTransfersContent() {
     setActingId(transferId);
 
     try {
-      await declineOwnershipTransfer(transferId);
+      await declineMutation.mutateAsync(transferId);
       toast.success(t("declined"));
-      setTransfers(await loadTransfers());
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
@@ -102,18 +83,18 @@ function OwnershipTransfersContent() {
     }
   }
 
-  function entityLabel(transfer: PublicOwnershipTransfer): string {
+  function entityLabel(transfer: { entityName?: string; entityType: string }): string {
     if (transfer.entityName?.trim()) {
       return transfer.entityName.trim();
     }
     return t(`entityTypes.${transfer.entityType}` as "entityTypes.horse");
   }
 
-  function transferKindLabel(transfer: PublicOwnershipTransfer): string {
+  function transferKindLabel(transfer: { transferKind: string }): string {
     return t(`transferKinds.${transfer.transferKind}` as "transferKinds.transfer_main");
   }
 
-  if (isLoading) {
+  if (isPending || authLoading) {
     return <OwnershipTransfersLoadingShell />;
   }
 

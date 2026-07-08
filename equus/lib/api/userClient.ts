@@ -3,7 +3,7 @@
  * Kept for backward compatibility during migration.
  */
 
-import { isApiClientError } from "@/lib/api/authClient.ts";
+import { ApiClientError, isApiClientError } from "@/lib/api/auth/session";
 import type { PublicUserProfileCard } from "@/lib/privacy/userPublicProfile.ts";
 import { fetchWithAuth, parseApiResponse, FetchError } from "@/lib/api/fetchWithAuth";
 
@@ -14,8 +14,6 @@ async function apiFetchCatch(input: string, init?: RequestInit): Promise<Respons
     return await fetchWithAuth(input, init);
   } catch (err) {
     if (err instanceof FetchError) {
-      // Convert to ApiClientError for callers that catch it
-      const { ApiClientError } = await import("@/lib/api/authClient.ts");
       throw new ApiClientError(err.statusCode, err.message, err.code);
     }
     throw err;

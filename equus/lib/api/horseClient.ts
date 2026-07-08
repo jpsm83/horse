@@ -2,8 +2,8 @@
  * @deprecated Use TanStack Query hooks from `hooks/queries/useHorse.ts` instead.
  * Kept for backward compatibility during migration.
  */
-import { resetOptionalUserCache } from "@/lib/api/authClient.ts";
-import type { PublicRelationship } from "@/lib/api/authClient.ts";
+import { resetOptionalUserCache } from "@/lib/api/auth/session";
+import type { PublicRelationship } from "@/lib/services/relationshipService";
 import type { PublicOwnershipTransfer } from "@/lib/services/ownershipTransferService.ts";
 import type { CreateHorsePayload } from "@/lib/utils/horseFormMapping.ts";
 import { fetchWithAuth, parseApiResponse, FetchError } from "@/lib/api/fetchWithAuth";

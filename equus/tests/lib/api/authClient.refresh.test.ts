@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { fetchCurrentUser, resetOptionalUserCache } from "@/lib/api/authClient.ts";
+import { fetchCurrentUser, resetOptionalUserCache } from "@/lib/api/auth/session";
+import { loginWithCredentials } from "@/lib/api/auth/credentials";
 
 describe("apiFetch 401 refresh retry", () => {
   const originalFetch = globalThis.fetch;
@@ -78,7 +79,7 @@ describe("apiFetch 401 refresh retry", () => {
       return new Response(null, { status: 404 });
     }) as typeof fetch;
 
-    const { loginWithCredentials, ApiClientError } = await import("@/lib/api/authClient.ts");
+    const { ApiClientError } = await import("@/lib/api/auth/session");
 
     await expect(
       loginWithCredentials("wrong@example.com", "WrongPass1!"),

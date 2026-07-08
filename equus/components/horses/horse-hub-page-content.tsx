@@ -40,7 +40,7 @@ export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
   const isLoading = isAuthLoading || isHorseLoading;
 
   if (!isLoading && !isAuthenticated) {
-    router.replace(buildSignInPath(`/my/horses/${horseId}`));
+    router.replace(buildSignInPath(`/horses/${horseId}`));
     return null;
   }
 
@@ -49,7 +49,7 @@ export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
       router.push("/not-allowed?reason=wrong_account");
       return null;
     }
-    router.replace("/my/horses");
+    router.replace("/horses");
     return null;
   }
 
@@ -61,7 +61,7 @@ export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-6 sm:py-12">
       <div className="space-y-2">
         <Link
-          href="/my/horses"
+          href="/horses"
           className="text-sm font-medium text-muted-foreground underline-offset-4 hover:underline"
         >
           {t("backToHorses")}

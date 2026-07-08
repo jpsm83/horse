@@ -106,47 +106,8 @@ export function SelectField({
   );
 }
 
-export function FlagSelectField({
-  id,
-  label,
-  placeholder,
-  value,
-  onChange,
-  invalid,
-  error,
-  options,
-}: SelectFieldBaseProps & { options: FlagSelectOption[] }) {
-  const t = useTranslations("profile");
-  const resolvedPlaceholder = placeholder ?? t("selectPlaceholder");
-  const selected = options.find((option) => option.value === value);
-
-  return (
-    <Field data-invalid={invalid}>
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
-      <Select
-        value={value || null}
-        onValueChange={(nextValue) => onChange(nextValue ?? "")}
-      >
-        <SelectTrigger id={id} className="w-full" aria-invalid={invalid}>
-          {selected ? (
-            <SelectOptionRow
-              flagCode={selected.flagCode}
-              label={selected.label}
-              inTrigger
-            />
-          ) : (
-            <SelectValue placeholder={resolvedPlaceholder} />
-          )}
-        </SelectTrigger>
-        <SelectContent {...SELECT_CONTENT_PROPS}>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              <SelectOptionRow flagCode={option.flagCode} label={option.label} />
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      {invalid ? <FieldError errors={[error]} /> : null}
-    </Field>
-  );
-}
+/**
+ * @deprecated FlagSelectField moved to @/components/shared/flag-select-field.tsx.
+ * Re-exported for backward compatibility.
+ */
+export { FlagSelectField } from "@/components/shared/flag-select-field.tsx";

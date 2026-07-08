@@ -11,7 +11,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { Link } from "@/i18n/navigation.ts";
-import { isApiClientError, requestEmailConfirmation } from "@/lib/api/authClient.ts";
+import { requestEmailConfirmation } from "@/lib/api/auth/credentials";
+import { isApiClientError } from "@/lib/api/auth/session";
 import { cn } from "@/lib/utils";
 import {
   authFormMessagesFromTranslations,

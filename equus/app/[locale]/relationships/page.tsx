@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
@@ -11,13 +11,12 @@ import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { AppHomeLink } from "@/components/navigation/app-home-link.tsx";
 import { useRouter } from "@/i18n/navigation.ts";
 import {
-  acceptRelationship,
-  declineRelationship,
-  fetchCurrentUser,
-  fetchPendingRelationships,
-  isApiClientError,
-  type PublicRelationship,
-} from "@/lib/api/authClient.ts";
+  useAcceptRelationship,
+  useDeclineRelationship,
+} from "@/hooks/queries/useRelationship.ts";
+import { useAppAuth } from "@/hooks/use-app-auth";
+import { usePendingRelationships } from "@/hooks/queries/useAuthData";
+import { isApiClientError } from "@/lib/api/auth/session";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { cn } from "@/lib/utils";
 
@@ -34,45 +33,28 @@ function RelationshipsContent() {
   const toast = useAppToast();
   const highlightRelationshipId = searchParams.get("relationship");
 
-  const [relationships, setRelationships] = useState<PublicRelationship[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated, isLoading: authLoading } = useAppAuth();
+  const { data: relationships = [], isPending } = usePendingRelationships();
+  const acceptMutation = useAcceptRelationship();
+  const declineMutation = useDeclineRelationship();
+
   const [actingId, setActingId] = useState<string | null>(null);
 
-  const loadRelationships = useCallback(async () => {
-    await fetchCurrentUser();
-    return fetchPendingRelationships();
-  }, []);
-
   useEffect(() => {
-    let cancelled = false;
-
-    loadRelationships()
-      .then((data) => {
-        if (!cancelled) setRelationships(data);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        const next = highlightRelationshipId
-          ? `/relationships?relationship=${encodeURIComponent(highlightRelationshipId)}`
-          : "/relationships";
-        router.replace(buildSignInPath(next));
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [highlightRelationshipId, loadRelationships, router]);
+    if (!authLoading && !isAuthenticated) {
+      const next = highlightRelationshipId
+        ? `/relationships?relationship=${encodeURIComponent(highlightRelationshipId)}`
+        : "/relationships";
+      router.replace(buildSignInPath(next));
+    }
+  }, [authLoading, isAuthenticated, highlightRelationshipId, router]);
 
   async function handleAccept(relationshipId: string) {
     setActingId(relationshipId);
 
     try {
-      await acceptRelationship(relationshipId);
+      await acceptMutation.mutateAsync(relationshipId);
       toast.success(t("accepted"));
-      setRelationships(await loadRelationships());
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
@@ -88,9 +70,8 @@ function RelationshipsContent() {
     setActingId(relationshipId);
 
     try {
-      await declineRelationship(relationshipId);
+      await declineMutation.mutateAsync(relationshipId);
       toast.success(t("declined"));
-      setRelationships(await loadRelationships());
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
@@ -102,7 +83,7 @@ function RelationshipsContent() {
     }
   }
 
-  if (isLoading) {
+  if (isPending || authLoading) {
     return <RelationshipsLoadingShell />;
   }
 

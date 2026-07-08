@@ -81,6 +81,7 @@ export type PublicWorkplace = {
   profileName?: string;
 };
 
+// Active invite statuses derived from workplaceRelationshipStatusEnums
 const ACTIVE_INVITE_STATUSES = ["invited", "active"] as const;
 
 const MODEL_BY_ROLE_TYPE = {

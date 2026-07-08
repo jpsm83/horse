@@ -2,12 +2,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   ensureRestSession,
-  loginWithCredentials,
   resetOptionalUserCache,
   runWithSuppressedSessionExpired,
   setSessionExpiredHandler,
   subscribeAuthStateChanged,
-} from "@/lib/api/authClient.ts";
+} from "@/lib/api/auth/session";
+import { loginWithCredentials } from "@/lib/api/auth/credentials";
 
 describe("ensureRestSession", () => {
   const originalFetch = globalThis.fetch;

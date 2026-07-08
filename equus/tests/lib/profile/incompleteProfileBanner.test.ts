@@ -17,9 +17,7 @@ describe("shouldShowIncompleteProfileBanner", () => {
   it("hides while auth is loading", () => {
     expect(
       shouldShowIncompleteProfileBanner({
-        pathname: "/create/horse",
-        isAuthenticated: true,
-        isLoading: true,
+        pathname: "/horses/new",
         profileComplete: false,
       }),
     ).toBe(false);
@@ -39,9 +37,7 @@ describe("shouldShowIncompleteProfileBanner", () => {
   it("hides when profile is complete", () => {
     expect(
       shouldShowIncompleteProfileBanner({
-        pathname: "/create/horse",
-        isAuthenticated: true,
-        isLoading: false,
+        pathname: "/horses/new",
         profileComplete: true,
       }),
     ).toBe(false);

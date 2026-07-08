@@ -74,7 +74,7 @@ async function linkUsersWithAcceptedRelationship(
 ): Promise<void> {
   const horse = await Horse.create({
     name: "Matrix Horse",
-    breed: "TB",
+    breed: "Thoroughbred",
     sex: "Gelding",
     mainOwnerUserId: ownerId,
     createdByUserId: ownerId,

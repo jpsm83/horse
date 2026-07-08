@@ -3,7 +3,7 @@
  * Kept for backward compatibility during migration.
  */
 
-import type { PublicRelationship } from "@/lib/api/authClient.ts";
+import type { PublicRelationship } from "@/lib/services/relationshipService";
 import type { DiscoverProviderType } from "@/lib/api/discoverClient.ts";
 import { fetchWithAuth, parseApiResponse } from "@/lib/api/fetchWithAuth";
 

@@ -60,7 +60,7 @@
   --foreground: #0f0c0a;
   --card: #f0e8df;
   --card-foreground: #3d1e10;
-  --popover: #f0e8df;
+  --popover: #ffffff;
   --popover-foreground: #3d1e10;
   --primary: #914d21;
   --primary-foreground: #f7f2ec;
@@ -85,7 +85,7 @@
   --sidebar-foreground: #f7f2ec;
   --sidebar-primary: #be8450;
   --sidebar-primary-foreground: #0f0c0a;
-  --sidebar-accent: #4d4a44;
+  --sidebar-accent: #1c0a02;
   --sidebar-accent-foreground: #be8450;
   --sidebar-border: #4d4a44;
   --sidebar-ring: #be8450;
@@ -174,22 +174,58 @@
   }
 
   /* Form inputs — white fill in every state (incl. browser autofill blue on focus). */
-  [data-slot="input"] {
+  :is(
+    [data-slot="input"],
+    [data-slot="textarea"],
+    [data-slot="select-trigger"]
+  ) {
     color-scheme: light;
     background-color: var(--input-background);
   }
 
-  [data-slot="input"]:hover,
-  [data-slot="input"]:focus,
-  [data-slot="input"]:focus-visible,
-  [data-slot="input"]:active {
+  :is(
+    [data-slot="input"],
+    [data-slot="textarea"],
+    [data-slot="select-trigger"]
+  ):hover,
+  :is(
+    [data-slot="input"],
+    [data-slot="textarea"],
+    [data-slot="select-trigger"]
+  ):focus,
+  :is(
+    [data-slot="input"],
+    [data-slot="textarea"],
+    [data-slot="select-trigger"]
+  ):focus-visible,
+  :is(
+    [data-slot="input"],
+    [data-slot="textarea"],
+    [data-slot="select-trigger"]
+  ):active {
     background-color: var(--input-background);
   }
 
-  [data-slot="input"]:-webkit-autofill,
-  [data-slot="input"]:-webkit-autofill:hover,
-  [data-slot="input"]:-webkit-autofill:focus,
-  [data-slot="input"]:-webkit-autofill:active {
+  :is(
+    [data-slot="input"],
+    [data-slot="textarea"],
+    [data-slot="select-trigger"]
+  ):-webkit-autofill,
+  :is(
+    [data-slot="input"],
+    [data-slot="textarea"],
+    [data-slot="select-trigger"]
+  ):-webkit-autofill:hover,
+  :is(
+    [data-slot="input"],
+    [data-slot="textarea"],
+    [data-slot="select-trigger"]
+  ):-webkit-autofill:focus,
+  :is(
+    [data-slot="input"],
+    [data-slot="textarea"],
+    [data-slot="select-trigger"]
+  ):-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 1000px var(--input-background) inset !important;
     box-shadow: 0 0 0 1000px var(--input-background) inset !important;
     -webkit-text-fill-color: var(--foreground) !important;
@@ -197,8 +233,16 @@
     transition: background-color 99999s ease-in-out 0s;
   }
 
-  [data-slot="input"]:-moz-autofill,
-  [data-slot="input"]:-moz-autofill-preview {
+  :is(
+    [data-slot="input"],
+    [data-slot="textarea"],
+    [data-slot="select-trigger"]
+  ):-moz-autofill,
+  :is(
+    [data-slot="input"],
+    [data-slot="textarea"],
+    [data-slot="select-trigger"]
+  ):-moz-autofill-preview {
     background-color: var(--input-background) !important;
     color: var(--foreground) !important;
   }

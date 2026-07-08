@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { NotificationsPlaceholderSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
 import { useRouter } from "@/i18n/navigation.ts";
-import { fetchCurrentUser } from "@/lib/api/authClient.ts";
+import { fetchCurrentUser } from "@/lib/api/auth/session";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 
 /** Auth-gated notifications placeholder. */

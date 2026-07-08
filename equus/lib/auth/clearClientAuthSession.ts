@@ -15,7 +15,7 @@ import {
   resetOptionalUserCache,
   runWithSilentAuthFailure,
   runWithSuppressedSessionExpired,
-} from "@/lib/api/authClient.ts";
+} from "@/lib/api/auth/session";
 
 export async function clearClientAuthSession(): Promise<void> {
   await runWithSuppressedSessionExpired(async () => {

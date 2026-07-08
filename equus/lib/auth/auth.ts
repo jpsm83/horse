@@ -20,6 +20,13 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: AUTH_CONFIG.GOOGLE_CLIENT_ID,
       clientSecret: AUTH_CONFIG.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
     }),
   ],
   callbacks: {

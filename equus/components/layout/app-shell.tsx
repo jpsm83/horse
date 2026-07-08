@@ -2,17 +2,16 @@
 
 import { useState } from "react";
 
-import { AppHeader } from "@/components/layout/app-header.tsx";
-import { DiscoverSidebar } from "@/components/layout/discover-sidebar.tsx";
+import { AppSidebar } from "@/components/layout/app-sidebar.tsx";
 import { IncompleteProfileBanner } from "@/components/layout/incomplete-profile-banner.tsx";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile.ts";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 type AppShellProps = {
   children: React.ReactNode;
 };
 
-/** App chrome — discover sidebar (desktop) + header + page content. */
+/** App chrome — sidebar (all nav + user menu) + page content. */
 export function AppShell({ children }: AppShellProps) {
   const isMobile = useIsMobile();
   const [sidebarHovered, setSidebarHovered] = useState(false);
@@ -27,9 +26,13 @@ export function AppShell({ children }: AppShellProps) {
         }
       }}
     >
-      <DiscoverSidebar onHoverChange={setSidebarHovered} />
+      <AppSidebar onHoverChange={setSidebarHovered} />
       <SidebarInset className="flex min-h-svh flex-1 flex-col">
-        <AppHeader />
+        {/* Mobile-only trigger bar */}
+        <div className="flex h-14 items-center gap-2 border-b px-4 md:hidden">
+          <SidebarTrigger />
+          <span className="text-lg font-semibold">Equus</span>
+        </div>
         <IncompleteProfileBanner />
         <div className="flex flex-1 flex-col">{children}</div>
       </SidebarInset>

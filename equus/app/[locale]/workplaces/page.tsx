@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
@@ -11,14 +11,13 @@ import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { AppHomeLink } from "@/components/navigation/app-home-link.tsx";
 import { useRouter } from "@/i18n/navigation.ts";
 import {
-  acceptWorkplaceInvitation,
-  declineWorkplaceInvitation,
-  fetchCurrentUser,
-  fetchWorkplaces,
-  isApiClientError,
-} from "@/lib/api/authClient.ts";
+  useAcceptWorkplaceInvitation,
+  useDeclineWorkplaceInvitation,
+  useWorkplaces,
+} from "@/hooks/queries/useAuthData";
+import { useAppAuth } from "@/hooks/use-app-auth";
+import { isApiClientError } from "@/lib/api/auth/session";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
-import type { PublicWorkplace } from "@/lib/services/workplaceRelationshipService.ts";
 import { cn } from "@/lib/utils";
 
 function WorkplacesLoadingShell() {
@@ -34,45 +33,25 @@ function WorkplacesContent() {
   const toast = useAppToast();
   const highlightInvitationId = searchParams.get("membership");
 
-  const [workplaces, setWorkplaces] = useState<PublicWorkplace[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated, isLoading: authLoading } = useAppAuth();
+  const { data: workplaces = [], isPending } = useWorkplaces();
+  const acceptMutation = useAcceptWorkplaceInvitation();
+  const declineMutation = useDeclineWorkplaceInvitation();
+
   const [actingId, setActingId] = useState<string | null>(null);
 
-  const loadWorkplaces = useCallback(async () => {
-    await fetchCurrentUser();
-    return fetchWorkplaces();
-  }, []);
-
   useEffect(() => {
-    let cancelled = false;
-
-    loadWorkplaces()
-      .then((data) => {
-        if (!cancelled) setWorkplaces(data);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        const next = highlightInvitationId
-          ? `/workplaces?membership=${encodeURIComponent(highlightInvitationId)}`
-          : "/workplaces";
-        router.replace(buildSignInPath(next));
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [highlightInvitationId, loadWorkplaces, router]);
+    if (!authLoading && !isAuthenticated) {
+      router.replace(buildSignInPath("/workplaces"));
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   async function handleAccept(invitationId: string) {
     setActingId(invitationId);
 
     try {
-      await acceptWorkplaceInvitation(invitationId);
+      await acceptMutation.mutateAsync(invitationId);
       toast.success(t("accepted"));
-      setWorkplaces(await loadWorkplaces());
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
@@ -88,9 +67,8 @@ function WorkplacesContent() {
     setActingId(invitationId);
 
     try {
-      await declineWorkplaceInvitation(invitationId);
+      await declineMutation.mutateAsync(invitationId);
       toast.success(t("declined"));
-      setWorkplaces(await loadWorkplaces());
     } catch (err) {
       if (isApiClientError(err) && err.statusCode === 403) {
         router.push("/not-allowed?reason=wrong_account");
@@ -102,7 +80,7 @@ function WorkplacesContent() {
     }
   }
 
-  if (isLoading) {
+  if (isPending || authLoading) {
     return <WorkplacesLoadingShell />;
   }
 

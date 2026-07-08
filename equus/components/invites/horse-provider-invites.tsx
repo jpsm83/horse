@@ -7,7 +7,7 @@
 import { useTranslations } from "next-intl";
 
 import { ProviderInvitePicker } from "@/components/invites/provider-invite-picker.tsx";
-import type { PublicRelationship } from "@/lib/api/authClient.ts";
+import type { PublicRelationship } from "@/lib/services/relationshipService";
 import type { DiscoverProviderType } from "@/lib/api/discoverClient.ts";
 
 const HORSE_PROVIDER_GROUPS: Array<{

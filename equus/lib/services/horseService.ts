@@ -31,6 +31,42 @@ import type {
 export type CreateHorseInput = z.infer<typeof createHorseSchema>;
 export type UpdateHorseDiscoveryInput = z.infer<typeof updateHorseDiscoverySchema>;
 
+// --- List types ---
+
+export type HorseListItem = {
+  id: string;
+  name?: string;
+  breed?: string;
+  sex?: string;
+  color?: string;
+  primaryDiscipline?: string;
+  profileImageUrl?: string;
+  profileVisibility?: string;
+  updatedAt?: string;
+};
+
+export type HorseListResult = {
+  horses: HorseListItem[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
+export type HorseListFilters = {
+  mine?: boolean;
+  breed?: string;
+  sex?: string;
+  countryOfBirth?: string;
+  ageMin?: number;
+  ageMax?: number;
+  valueMin?: number;
+  valueMax?: number;
+  page?: number;
+  limit?: number;
+};
+
+// --- Public card type ---
+
 export type PublicHorseCard = {
   id: string;
   name?: string;
@@ -117,15 +153,10 @@ async function hasActiveHorseCollaboration(
 export async function createHorse(actorUserId: string, input: CreateHorseInput) {
   ensureObjectId(actorUserId, "user id");
 
-  const horse = await Horse.create({
+  const doc: Record<string, unknown> = {
     name: input.name,
     breed: input.breed,
     sex: input.sex,
-    dateOfBirth: input.dateOfBirth,
-    color: input.color,
-    primaryDiscipline: input.primaryDiscipline,
-    ...(input.profileVisibility ? { profileVisibility: input.profileVisibility } : {}),
-    ...(input.contactDisplay ? { contactDisplay: input.contactDisplay } : {}),
     mainOwnerUserId: actorUserId,
     createdByUserId: actorUserId,
     subscription: {
@@ -134,9 +165,133 @@ export async function createHorse(actorUserId: string, input: CreateHorseInput) 
       currency: "USD",
       payerUserId: actorUserId,
     },
-  });
+  };
 
+  // Identity
+  if (input.registeredName) doc.registeredName = input.registeredName;
+  if (input.registryId) doc.registryId = input.registryId;
+  if (input.microchipId) doc.microchipId = input.microchipId;
+  if (input.passportNumber) doc.passportNumber = input.passportNumber;
+  if (input.dateOfBirth) doc.dateOfBirth = input.dateOfBirth;
+  if (input.ageYears !== undefined) doc.ageYears = input.ageYears;
+  if (input.color) doc.color = input.color;
+  if (input.marksDescription) doc.marksDescription = input.marksDescription;
+  if (input.heightHands !== undefined) doc.heightHands = input.heightHands;
+  if (input.primaryDiscipline) doc.primaryDiscipline = input.primaryDiscipline;
+  if (input.disciplines && input.disciplines.length > 0) doc.disciplines = input.disciplines;
+  if (input.countryOfBirth) doc.countryOfBirth = input.countryOfBirth;
+  if (input.importExportStatus) doc.importExportStatus = input.importExportStatus;
+
+  // Commercial
+  if (input.estimatedValue !== undefined) doc.estimatedValue = input.estimatedValue;
+  if (input.valueCurrency) doc.valueCurrency = input.valueCurrency;
+  if (input.saleStatus) doc.saleStatus = input.saleStatus;
+  if (input.askingPrice !== undefined) doc.askingPrice = input.askingPrice;
+  if (input.acquisitionDate) doc.acquisitionDate = input.acquisitionDate;
+  if (input.acquisitionSource) doc.acquisitionSource = input.acquisitionSource;
+  if (input.showValuePublicly !== undefined) doc.showValuePublicly = input.showValuePublicly;
+
+  // Pedigree
+  if (input.pedigree) {
+    const pedigree: Record<string, unknown> = {};
+    if (input.pedigree.sireName) pedigree.sireName = input.pedigree.sireName;
+    if (input.pedigree.sireId) pedigree.sireId = input.pedigree.sireId;
+    if (input.pedigree.damName) pedigree.damName = input.pedigree.damName;
+    if (input.pedigree.damId) pedigree.damId = input.pedigree.damId;
+    if (input.pedigree.bloodlineNotes) pedigree.bloodlineNotes = input.pedigree.bloodlineNotes;
+    doc.pedigree = pedigree;
+  }
+
+  // Media
+  if (input.profileImageUrl) doc.profileImageUrl = input.profileImageUrl;
+  if (input.gallery && input.gallery.length > 0) {
+    doc.gallery = input.gallery.map((url: string) => ({
+      url,
+      type: url.match(/\.(mp4|webm|mov|avi|mkv)$/i) ? "video" : "image",
+    }));
+  }
+  if (input.description) doc.description = input.description;
+  if (input.notes) doc.notes = input.notes;
+
+  // Discovery
+  if (input.profileVisibility) doc.profileVisibility = input.profileVisibility;
+  if (input.contactDisplay) doc.contactDisplay = input.contactDisplay;
+
+  const horse = await Horse.create(doc);
   return horse.toObject();
+}
+
+// --- List ---
+
+function toHorseListItem(doc: Record<string, unknown>): HorseListItem {
+  return {
+    id: String(doc._id),
+    name: doc.name as string | undefined,
+    breed: doc.breed as string | undefined,
+    sex: doc.sex as string | undefined,
+    color: doc.color as string | undefined,
+    primaryDiscipline: doc.primaryDiscipline as string | undefined,
+    profileImageUrl: doc.profileImageUrl as string | undefined,
+    profileVisibility: doc.profileVisibility as string | undefined,
+    updatedAt: (doc.updatedAt as Date | undefined)?.toISOString(),
+  };
+}
+
+export async function listHorses(
+  actorUserId: string | undefined,
+  filters: HorseListFilters,
+): Promise<HorseListResult> {
+  const page = Math.max(1, filters.page ?? 1);
+  const limit = Math.min(100, Math.max(1, filters.limit ?? 20));
+  const skip = (page - 1) * limit;
+
+  let query: Record<string, unknown> = {};
+
+  if (filters.mine && actorUserId) {
+    query = { ...ownedByUserQuery(actorUserId) };
+  } else {
+    query.profileVisibility = "public";
+    query.isActive = { $ne: false };
+  }
+
+  // Apply optional filters
+  if (filters.breed) {
+    query.breed = filters.breed;
+  }
+  if (filters.sex) {
+    query.sex = filters.sex;
+  }
+  if (filters.countryOfBirth) {
+    query.countryOfBirth = { $regex: filters.countryOfBirth, $options: "i" };
+  }
+  if (filters.ageMin !== undefined || filters.ageMax !== undefined) {
+    const ageFilter: Record<string, number> = {};
+    if (filters.ageMin !== undefined) ageFilter.$gte = filters.ageMin;
+    if (filters.ageMax !== undefined) ageFilter.$lte = filters.ageMax;
+    query.ageYears = ageFilter;
+  }
+  if (filters.valueMin !== undefined || filters.valueMax !== undefined) {
+    const valueFilter: Record<string, number> = {};
+    if (filters.valueMin !== undefined) valueFilter.$gte = filters.valueMin;
+    if (filters.valueMax !== undefined) valueFilter.$lte = filters.valueMax;
+    query.estimatedValue = valueFilter;
+  }
+
+  const [docs, total] = await Promise.all([
+    Horse.find(query)
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Horse.countDocuments(query),
+  ]);
+
+  return {
+    horses: (docs as Record<string, unknown>[]).map(toHorseListItem),
+    total,
+    page,
+    limit,
+  };
 }
 
 export async function updateHorseDiscovery(

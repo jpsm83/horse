@@ -10,7 +10,13 @@ import RidingClub from "../../models/RidingClub.ts";
 import Transport from "../../models/Transport.ts";
 import { isStaffMembershipRef } from "@/lib/utils/inviteRef.ts";
 import * as relationshipService from "./relationshipService.ts";
-import type { InviteRefPreview } from "../api/authClient.ts";
+export type InviteRefPreview = {
+  kind: "staff" | "relationship";
+  profileName?: string;
+  horseName?: string;
+  relationshipType?: string;
+  requesterLabel?: string;
+};
 
 const MODEL_BY_ROLE_TYPE = {
   stable: Stable,

@@ -148,7 +148,7 @@ Product rules: [`ownershipTransfer.md`](ownershipTransfer.md). API sketch: [`equ
 | userModule ID | Item | Owner module |
 |---------------|------|----------------|
 | U-NAV-04 | Create flows for other role types (web) | Per-role modules |
-| U-NAV-05 | `/my/*` hubs with real lists | Horse, stable, etc. |
+| U-NAV-05 | `/<entity>` owned hubs with real lists | Horse, stable, etc. |
 | U-WORK-06 | `assign_activities` | Stable / activity |
 | U-DIFF-04/06/07 | Network dashboard, portable record UI | Horse / owner dashboard |
 | §8 discover directories | `/stables`, `/veterinaries`, … search UI | Entity discover |

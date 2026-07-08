@@ -15,8 +15,8 @@ describe("resolvePostAuthPath", () => {
   });
 
   it("accepts safe relative paths", () => {
-    expect(resolvePostAuthPath("/my/horses")).toBe("/my/horses");
-    expect(resolvePostAuthPath("/create/horse")).toBe("/create/horse");
+    expect(resolvePostAuthPath("/horses")).toBe("/horses");
+    expect(resolvePostAuthPath("/horses/new")).toBe("/horses/new");
     expect(resolvePostAuthPath("/profile")).toBe("/profile");
   });
 
@@ -48,6 +48,6 @@ describe("buildSignInPath", () => {
 
   it("includes next when the destination differs from the default", () => {
     expect(buildSignInPath("/profile")).toBe("/signin?next=%2Fprofile");
-    expect(buildSignInPath("/create/horse")).toBe("/signin?next=%2Fcreate%2Fhorse");
+    expect(buildSignInPath("/horses/new")).toBe("/signin?next=%2Fhorses%2Fnew");
   });
 });

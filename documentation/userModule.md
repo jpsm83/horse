@@ -193,7 +193,7 @@ Until accept: entity `mainOwnerUserId` and `coOwners[]` are unchanged. On accept
 
 | Kind | `POST` path | Notes |
 |------|-------------|-------|
-| Horse | `/api/v1/horses` | Sets `mainOwnerUserId`, `createdByUserId`; web UI at `/create/horse` |
+| Horse | `/api/v1/horses` | Sets `mainOwnerUserId`, `createdByUserId`; web UI at `/horses/new` |
 | Stable | `/api/v1/stables` | Entity-owned |
 | Transport | `/api/v1/transports` | Entity-owned |
 | Breeder | `/api/v1/breeders` | Entity-owned; multiple per User |
@@ -218,18 +218,18 @@ Do **not** write horse/stable arrays on `User` for entity-owned types.
 | `/profile` | Account settings — personal details, preferences, deactivation (not post-auth landing) |
 | `/users/[userId]` | Public user profile card — entity-linked only; not in discover nav (U-PRIV-05) |
 | `/stables`, `/groomers`, … | Public discover directory for **entities** (horses, businesses, services — not people; mostly placeholder) |
-| `/my/stables`, `/my/horses`, … | Owned profile hub — auth required (mostly placeholder) |
-| `/create/horse`, `/create/stable`, `/create/trainer`, … | Add a role subsection (horse create **shipped**; others placeholder) |
+| `/stables`, `/horses`, … | Owned profile hub — auth required (mostly placeholder) |
+| `/horses/new`, `/stables/new`, `/horses/new`, … | Add a role subsection (horse create **shipped**; others placeholder) |
 
-Create routes: singular segments for user-linked roles (`/create/trainer`, `/create/groomer`, …); short segments for entity-owned (`/create/horse`, `/create/stable`, `/create/riding-club`, `/create/transport`).
+Create routes: canonical `/<entity>/new` pattern — `/horses/new`, `/trainers/new`, `/groomers/new`, `/riding-clubs/new`, `/stables/new`, `/transport/new`.
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
 | U-NAV-01 | `GET /api/v1/users/me/navigation` owned flags | Beyond | done |
 | U-NAV-02 | App shell: discover sidebar + header (`AppShell`) | Beyond | done |
-| U-NAV-03 | Create-horse web flow (`/create/horse`) | Beyond | done |
+| U-NAV-03 | Create-horse web flow (`/horses/new`) | Beyond | done |
 | U-NAV-04 | Create flows for other role types (web UI) | Parity | planned |
-| U-NAV-05 | `/my/*` owned hubs with real lists | Parity | planned |
+| U-NAV-05 | Owned hubs with real lists (`/<entity>`) | Parity | planned |
 | U-NAV-06 | Public user profile page (`/users/[userId]`) + `GET /api/v1/users/:id` | Beyond | done |
 
 ---

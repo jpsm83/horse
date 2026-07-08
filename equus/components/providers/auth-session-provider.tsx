@@ -9,7 +9,7 @@ import { useEffect } from "react";
 
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { usePathname, useRouter } from "@/i18n/navigation.ts";
-import { setSessionExpiredHandler } from "@/lib/api/authClient.ts";
+import { setSessionExpiredHandler } from "@/lib/api/auth/session";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 
 export function AuthSessionProvider({ children }: { children: React.ReactNode }) {

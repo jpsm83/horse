@@ -34,7 +34,7 @@ Related:
 | Data load | `components/profile/profile-page-content.tsx` — `useEffect` + skeleton until REST data arrives |
 | Skeleton | `components/profile/profile-page-skeleton.tsx` — mirrors `profile-form.tsx` layout ([shadcn Skeleton](https://ui.shadcn.com/docs/components/radix/skeleton)) |
 | Form | `components/profile/profile-form.tsx` |
-| Client fetch | `lib/profile/loadProfilePageData.ts` — `fetchCurrentUser` + `fetchUserProfile` |
+| Client fetch | `useAppAuth()` (auth context) + `useUserProfile()` (TanStack Query) — see [`auth.md`](./auth.md) |
 | API | `PATCH /api/v1/users/me` — JSON or `multipart/form-data` (avatar) |
 
 ---
@@ -45,9 +45,11 @@ Every app page should use **Suspense** and a **skeleton** that matches the real 
 
 1. **`loading.tsx`** — Next.js shows `ProfilePageSkeleton` while the route segment loads.
 2. **`page.tsx` `Suspense`** — same skeleton as fallback around `ProfilePage`.
-3. **`ProfilePageContent`** — after mount, calls `createProfilePageDataPromise()` and shows `ProfilePageSkeleton` until data is ready.
+3. **`ProfilePageContent`** — after mount, uses `useAppAuth()` for auth state and `useUserProfile()` (TanStack Query) for profile data. Shows `ProfilePageSkeleton` until both are ready.
 
-**Why not `use()` on the fetch promise?** Profile auth uses browser `credentials: "include"`. Running that fetch during SSR (or hydrating a server-created promise) fails without cookies and can leave Suspense stuck on the skeleton. Client-only load via `useEffect` is intentional until profile data is fetched on the server with `cookies()` in a Server Component.
+**Why not `use()` on the fetch promise?** Profile auth uses browser `credentials: "include"`. Running that fetch during SSR (or hydrating a server-created promise) fails without cookies and can leave Suspense stuck on the skeleton. Client-only load via TanStack's `useQuery` is intentional until profile data is fetched on the server with `cookies()` in a Server Component.
+
+**Why TanStack Query for profile data?** Auth state is instant (context); profile data is async (server). Separating the two avoids the cascade bug where a navigation fetch failure would wipe auth state. Profile data is shared across components (`app-sidebar`, `user-home`, `profile-page`) via TanStack's cache with `staleTime: 60_000`.
 
 Unauthenticated users are redirected to `/signin?next=%2Fprofile`.
 

@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label.tsx";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { useCreateOwnershipTransfer, useCancelOwnershipTransfer, type CreateOwnershipTransferInput } from "@/hooks/queries/useOwnershipTransfer";
 import { isFetchError } from "@/lib/api/fetchWithAuth";
-import type { PublicOwnershipTransfer } from "@/lib/api/authClient";
+import type { PublicOwnershipTransfer } from "@/lib/services/ownershipTransferService";
 import type { OwnerHorseSummary } from "@/lib/api/horseClient.ts";
 import { cn } from "@/lib/utils";
 

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { fetchWithAuth, parseApiResponse } from "@/lib/api/fetchWithAuth";
 import { queryKeys } from "@/lib/api/queryKeys";
-import type { InviteRefPreview } from "@/lib/api/authClient";
+import type { InviteRefPreview } from "@/lib/services/invitePreviewService";
 
 async function fetchInvitePreview(ref: string): Promise<InviteRefPreview | null> {
   const response = await fetchWithAuth(`/api/v1/invites/preview?ref=${encodeURIComponent(ref)}`);

@@ -18,12 +18,13 @@ import { isDocumentActive } from "@/lib/lifecycle/activeQuery.ts";
 import { ownedByUserQuery } from "@/lib/ownership/entityOwnership.ts";
 import type { BusinessRoleType } from "@/lib/roleProfiles/businessRoleProfile.ts";
 import {
+  businessRoleTypeEnums,
+} from "@/utils/enums.ts";
+import {
   canExposeUserIdentity,
   resolveAudienceForRequester,
   toPublicUserIdentity,
 } from "@/lib/privacy/userVisibility.ts";
-
-const HOST_COLLABORATION_ROLE_TYPES = ["stable", "breeder", "ridingClub", "transport"] as const;
 
 export type PublicUserProfileRequester = {
   id?: string;
@@ -115,7 +116,7 @@ async function hasActiveCollaborationBetweenUsers(
       userId: requesterUserId,
       status: "active",
       active: true,
-      hostRoleType: { $in: HOST_COLLABORATION_ROLE_TYPES },
+      hostRoleType: { $in: businessRoleTypeEnums },
     })
       .select("hostRoleType hostRoleProfileId")
       .lean(),
@@ -123,7 +124,7 @@ async function hasActiveCollaborationBetweenUsers(
       userId: targetUserId,
       status: "active",
       active: true,
-      hostRoleType: { $in: HOST_COLLABORATION_ROLE_TYPES },
+      hostRoleType: { $in: businessRoleTypeEnums },
     })
       .select("hostRoleType hostRoleProfileId")
       .lean(),

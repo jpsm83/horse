@@ -17,7 +17,7 @@ import {
   SelectField,
 } from "@/components/forms/select-field.tsx";
 import { TextField } from "@/components/forms/text-field.tsx";
-import { ProfilePhotoField } from "@/components/profile/profile-photo-field.tsx";
+import { ProfilePhotoField } from "@/components/shared/profile-photo-field.tsx";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -33,11 +33,9 @@ import { usePathname, useRouter } from "@/i18n/navigation.ts";
 import type { AppLocale } from "@/i18n/resolveLocale.ts";
 import { syncLocaleCookie } from "@/i18n/syncLocaleCookie.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
-import {
-  formatAuthProvider,
-  requestPasswordResetForCurrentUser,
-  updateUserProfile,
-} from "@/lib/api/authClient.ts";
+import { formatAuthProvider } from "@/lib/api/auth/session";
+import { requestPasswordResetForCurrentUser } from "@/lib/api/auth/credentials";
+import { updateUserProfile } from "@/lib/api/auth/profile";
 import type { PublicUser } from "@/lib/services/userService.ts";
 import {
   mapProfileFormValuesToPatch,
