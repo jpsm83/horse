@@ -33,7 +33,7 @@ export function SubscriptionPageContent() {
   const t = useTranslations("subscription");
   const { isAuthenticated } = useAppAuth();
 
-  const { data: billing, isPending, error } = useQuery({
+  const { data: billing, isPending, isFetching, error } = useQuery({
     queryKey: ["billing", "current"],
     queryFn: fetchBilling,
     enabled: isAuthenticated,
@@ -65,7 +65,7 @@ export function SubscriptionPageContent() {
     }
   }
 
-  if (isPending) {
+  if (isFetching) {
     return (
       <div className="max-w-2xl mx-auto p-6 animate-pulse">
         <div className="h-8 bg-gray-200 rounded w-48 mb-4" />
