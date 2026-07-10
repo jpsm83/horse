@@ -90,16 +90,15 @@ All prices are **monthly** and stored in **cents** (minor currency unit) to avoi
 
 1. Add a new `TierId` literal to the union type
 2. Add a new entry in `SUBSCRIPTION_PLANS` with all currencies
-3. Create Stripe Product + Prices per currency (see Stripe setup below)
-4. Add the Stripe Price IDs to `lib/billing/stripe.ts` or env vars
-5. Add the tier to `tierEnums` in `models/User.ts` and `utils/enums.ts`
+3. Create a Stripe Product in the dashboard and set `STRIPE_PRODUCT_<TIER>` env var
+4. Add the tier to `tierEnums` in `models/User.ts` and `utils/enums.ts`
+5. Prices are created **dynamically** from `plans.ts` — no Stripe Price setup needed
 
 ### Adding a new currency
 
 1. Add the currency code to `CurrencyCode` type
-2. Add prices for every existing plan
-3. Create Stripe Prices for each plan in the new currency
-4. Store the new Stripe Price IDs
+2. Add prices for every existing plan in `plans.ts`
+3. No Stripe configuration needed — prices are created dynamically at checkout
 
 ### Helpers
 
@@ -119,24 +118,28 @@ getRequiredTierForHorseCount(count: number): TierId
 
 Create one Stripe **Product** per tier (Bronze, Silver, Gold, Diamond). The Free tier has no Stripe product.
 
-For each product, create one Stripe **Price** per supported currency (8 prices per tier = 32 total prices). All prices are **recurring monthly**.
+No Stripe Prices need to be created manually. Prices are created **dynamically** at checkout from the hardcoded values in `lib/billing/plans.ts`. This keeps pricing configuration in one place and avoids managing 32 Stripe Price IDs.
 
 **Stripe Dashboard steps:**
 
-1. Products → Add Product (name: "Bronze", "Silver", etc.)
-2. Add pricing model: "Standard pricing" → "Recurring" → "Monthly"
-3. Create one price per currency (use the cents values from the table above)
-4. Copy the Price IDs (`price_xxx`) into the configuration
+1. Products → Add Product (name: "Bronze", "Silver", "Gold", "Diamond")
+2. No pricing needed — prices are set dynamically from code
+3. Copy each Product ID (`prod_xxx`) into env vars (see below)
 
 ### Environment variables
 
 ```
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+
+# Stripe Product IDs (one per paid tier, created in Stripe Dashboard)
+STRIPE_PRODUCT_BRONZE=prod_xxx
+STRIPE_PRODUCT_SILVER=prod_xxx
+STRIPE_PRODUCT_GOLD=prod_xxx
+STRIPE_PRODUCT_DIAMOND=prod_xxx
 ```
 
-In development, use `sk_test_` / `pk_test_` keys and the Stripe CLI for webhook forwarding.
+In development, use `sk_test_` keys and the Stripe CLI for webhook forwarding.
 
 ### Webhook endpoint
 

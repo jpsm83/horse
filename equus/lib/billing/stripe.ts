@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import User from "@/models/User.ts";
-import { SUBSCRIPTION_PLANS, type TierId, type CurrencyCode, getPlan } from "./plans.ts";
+import { getPlan, type TierId, type CurrencyCode } from "./plans.ts";
 
 function getStripe(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -8,62 +8,38 @@ function getStripe(): Stripe {
   return new Stripe(key, {});
 }
 
-// Stripe Price IDs per tier per currency — set these env vars in Stripe dashboard
-const STRIPE_PRICE_IDS: Record<string, Record<string, string>> = {
-  bronze: {
-    USD: process.env.STRIPE_PRICE_BRONZE_USD || "",
-    EUR: process.env.STRIPE_PRICE_BRONZE_EUR || "",
-    GBP: process.env.STRIPE_PRICE_BRONZE_GBP || "",
-    BRL: process.env.STRIPE_PRICE_BRONZE_BRL || "",
-    CAD: process.env.STRIPE_PRICE_BRONZE_CAD || "",
-    AUD: process.env.STRIPE_PRICE_BRONZE_AUD || "",
-    CHF: process.env.STRIPE_PRICE_BRONZE_CHF || "",
-    JPY: process.env.STRIPE_PRICE_BRONZE_JPY || "",
-  },
-  silver: {
-    USD: process.env.STRIPE_PRICE_SILVER_USD || "",
-    EUR: process.env.STRIPE_PRICE_SILVER_EUR || "",
-    GBP: process.env.STRIPE_PRICE_SILVER_GBP || "",
-    BRL: process.env.STRIPE_PRICE_SILVER_BRL || "",
-    CAD: process.env.STRIPE_PRICE_SILVER_CAD || "",
-    AUD: process.env.STRIPE_PRICE_SILVER_AUD || "",
-    CHF: process.env.STRIPE_PRICE_SILVER_CHF || "",
-    JPY: process.env.STRIPE_PRICE_SILVER_JPY || "",
-  },
-  gold: {
-    USD: process.env.STRIPE_PRICE_GOLD_USD || "",
-    EUR: process.env.STRIPE_PRICE_GOLD_EUR || "",
-    GBP: process.env.STRIPE_PRICE_GOLD_GBP || "",
-    BRL: process.env.STRIPE_PRICE_GOLD_BRL || "",
-    CAD: process.env.STRIPE_PRICE_GOLD_CAD || "",
-    AUD: process.env.STRIPE_PRICE_GOLD_AUD || "",
-    CHF: process.env.STRIPE_PRICE_GOLD_CHF || "",
-    JPY: process.env.STRIPE_PRICE_GOLD_JPY || "",
-  },
-  diamond: {
-    USD: process.env.STRIPE_PRICE_DIAMOND_USD || "",
-    EUR: process.env.STRIPE_PRICE_DIAMOND_EUR || "",
-    GBP: process.env.STRIPE_PRICE_DIAMOND_GBP || "",
-    BRL: process.env.STRIPE_PRICE_DIAMOND_BRL || "",
-    CAD: process.env.STRIPE_PRICE_DIAMOND_CAD || "",
-    AUD: process.env.STRIPE_PRICE_DIAMOND_AUD || "",
-    CHF: process.env.STRIPE_PRICE_DIAMOND_CHF || "",
-    JPY: process.env.STRIPE_PRICE_DIAMOND_JPY || "",
-  },
+/** Stripe Product IDs — one per tier (set in env). Prices are created dynamically from plans.ts. */
+const STRIPE_PRODUCT_IDS: Record<string, string> = {
+  bronze: process.env.STRIPE_PRODUCT_BRONZE || "",
+  silver: process.env.STRIPE_PRODUCT_SILVER || "",
+  gold: process.env.STRIPE_PRODUCT_GOLD || "",
+  diamond: process.env.STRIPE_PRODUCT_DIAMOND || "",
 };
 
 export async function createCheckoutSession(userId: string, tierId: TierId, currency: CurrencyCode) {
   const user = await User.findById(userId).select("subscription.stripeCustomerId email");
   if (!user) throw new Error("User not found");
 
-  const priceId = STRIPE_PRICE_IDS[tierId]?.[currency];
-  if (!priceId) throw new Error(`No Stripe price configured for ${tierId} in ${currency}`);
+  const plan = getPlan(tierId);
+  const amount = plan.prices[currency];
+  if (!amount) throw new Error(`No price configured for ${tierId} in ${currency}`);
+
+  const productId = STRIPE_PRODUCT_IDS[tierId];
+  if (!productId) throw new Error(`No Stripe product configured for ${tierId}`);
+
+  // Create price dynamically from hardcoded plans.ts config
+  const price = await getStripe().prices.create({
+    unit_amount: amount,
+    currency: currency.toLowerCase(),
+    product: productId,
+    recurring: { interval: "month" },
+  });
 
   const session = await getStripe().checkout.sessions.create({
     customer: user.subscription?.stripeCustomerId || undefined,
     customer_email: user.subscription?.stripeCustomerId ? undefined : user.email,
     mode: "subscription",
-    line_items: [{ price: priceId, quantity: 1 }],
+    line_items: [{ price: price.id, quantity: 1 }],
     success_url: `${process.env.NEXTAUTH_URL}/subscription?success=true`,
     cancel_url: `${process.env.NEXTAUTH_URL}/subscription?canceled=true`,
     metadata: { userId, tierId },
