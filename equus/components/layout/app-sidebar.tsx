@@ -110,18 +110,6 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-3">
-        {/* Subscription — always visible */}
-        <div className="mb-2 group-data-[collapsible=icon]:hidden">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton render={<Link href="/subscription" />} isActive={pathname === "/subscription"} tooltip={tAccount("subscription")}>
-                <CreditCard className="size-4" />
-                <span>{tAccount("subscription")}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </div>
-
         {isAuthenticated && user ? (
           <>
             {/* Avatar + name row */}
@@ -164,6 +152,12 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
+                  <SidebarMenuButton render={<Link href="/subscription" />} isActive={pathname === "/subscription"} tooltip={tAccount("subscription")}>
+                    <CreditCard className="size-4" />
+                    <span>{tAccount("subscription")}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
                   <SidebarMenuButton
                     tooltip={tCommon("signOut")}
                     disabled={authLoading}
@@ -174,6 +168,7 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
                     <span>{tCommon("signOut")}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                {/* Subscription — last in list */}
               </SidebarMenu>
             </div>
           </>
@@ -196,6 +191,13 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
                   <SidebarMenuButton render={<Link href="/signup" />} tooltip={tCommon("signUp")}>
                     <UserRoundPen className="size-4" />
                     <span>{tCommon("signUp")}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                {/* Subscription — last in list */}
+                <SidebarMenuItem>
+                  <SidebarMenuButton render={<Link href="/subscription" />} isActive={pathname === "/subscription"} tooltip={tAccount("subscription")}>
+                    <CreditCard className="size-4" />
+                    <span>{tAccount("subscription")}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
