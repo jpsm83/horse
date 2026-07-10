@@ -650,6 +650,16 @@
     "FORBIDDEN": "You do not have permission to perform this action.",
     "UNAUTHORIZED": "Invalid credentials"
   },
+  "subscription": {
+    "title": "Subscription",
+    "currentPlan": "Current plan",
+    "horsesUsed": "horses used",
+    "manage": "Manage",
+    "subscribe": "Subscribe",
+    "change": "Change plan",
+    "updatePayment": "Update payment method",
+    "billingHistory": "Billing history"
+  },
   "metadata": {
     "home": { "title": "Equus — Horse & Equestrian Network", "description": "Connect with horse owners, stables, breeders, and equestrian professionals. Find horses, services, and build your equestrian network.", "keywords": "horses, equestrian, stables, breeders, horse network, equus" },
     "homeDashboard": { "title": "Home | Equus", "description": "Your Equus dashboard — manage horses, stables, and connections.", "keywords": "" },
@@ -677,6 +687,7 @@
     "profile": { "title": "Profile | Equus", "description": "Manage your Equus profile and preferences.", "keywords": "" },
     "notifications": { "title": "Notifications | Equus", "description": "Your Equus notifications.", "keywords": "" },
     "notFound": { "title": "Page Not Found | Equus", "description": "The page you are looking for does not exist or has been moved.", "keywords": "404, page not found, equus" },
-    "notAllowed": { "title": "Access Denied | Equus", "description": "You do not have permission to access this page.", "keywords": "" }
+    "notAllowed": { "title": "Access Denied | Equus", "description": "You do not have permission to access this page.", "keywords": "" },
+    "subscription": { "title": "Subscription | Equus", "description": "Manage your Equus subscription plan and billing.", "keywords": "" }
   }
 }

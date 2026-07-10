@@ -650,6 +650,16 @@
     "FORBIDDEN": "No tiene permiso para realizar esta acción.",
     "UNAUTHORIZED": "Credenciales inválidas"
   },
+  "subscription": {
+    "title": "Suscripción",
+    "currentPlan": "Plan actual",
+    "horsesUsed": "caballos usados",
+    "manage": "Gestionar",
+    "subscribe": "Suscribirse",
+    "change": "Cambiar plan",
+    "updatePayment": "Actualizar método de pago",
+    "billingHistory": "Historial de facturación"
+  },
   "metadata": {
     "home": { "title": "Equus — Red Ecuestre y de Caballos", "description": "Conecta con dueños de caballos, establos, criadores y profesionales ecuestres. Encuentra caballos, servicios y construye tu red ecuestre.", "keywords": "caballos, ecuestre, establos, criadores, red equina, equus" },
     "homeDashboard": { "title": "Inicio | Equus", "description": "Tu panel de Equus — gestiona caballos, establos y conexiones.", "keywords": "" },
@@ -677,6 +687,7 @@
     "profile": { "title": "Perfil | Equus", "description": "Gestiona tu perfil y preferencias de Equus.", "keywords": "" },
     "notifications": { "title": "Notificaciones | Equus", "description": "Tus notificaciones de Equus.", "keywords": "" },
     "notFound": { "title": "Página No Encontrada | Equus", "description": "La página que buscas no existe o ha sido movida.", "keywords": "404, página no encontrada, equus" },
-    "notAllowed": { "title": "Acceso Denegado | Equus", "description": "No tienes permiso para acceder a esta página.", "keywords": "" }
+    "notAllowed": { "title": "Acceso Denegado | Equus", "description": "No tienes permiso para acceder a esta página.", "keywords": "" },
+    "subscription": { "title": "Suscripción | Equus", "description": "Gestiona tu plan de suscripción y facturación de Equus.", "keywords": "" }
   }
 }

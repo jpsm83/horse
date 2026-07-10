@@ -249,6 +249,8 @@ export const expenseCategoryEnums = [
   "other",
 ] as const;
 
+export const tierEnums = ["free", "bronze", "silver", "gold", "diamond"] as const;
+
 export const horseBreedEnums = [
   "Akhal-Teke",
   "American Paint Horse",
