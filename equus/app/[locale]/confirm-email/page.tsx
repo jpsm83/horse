@@ -11,6 +11,16 @@ import { Link } from "@/i18n/navigation.ts";
 import { confirmEmail } from "@/lib/api/auth/credentials";
 import { cn } from "@/lib/utils";
 
+import type { Metadata } from "next";
+import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
+
+type PageProps = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  return generatePrivateMetadata(locale, "/confirm-email", "metadata.confirmEmail");
+}
+
 type FlowState = "loading" | "success" | "error" | "missing";
 
 function ConfirmEmailContent() {
