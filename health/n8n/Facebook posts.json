@@ -1,0 +1,736 @@
+{
+  "name": "Facebook posts",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Dynamic topic",
+        "height": 240,
+        "width": 256,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5024,
+        -1520
+      ],
+      "typeVersion": 1,
+      "id": "dbad9c4c-999f-4617-b4a7-0a09b3c6704a",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "mediaUrl": "={{ $json.postImage }}"
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        4640,
+        -1424
+      ],
+      "id": "df48e23f-a4d1-4c13-8762-fbe71ffa13bb",
+      "name": "Upload image BLOTATO",
+      "credentials": {
+        "blotatoApi": {
+          "id": "6ZlYVa6H32knyhu5",
+          "name": "Blotato account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g",
+          "mode": "list",
+          "cachedResultName": "womens-spot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 332199820,
+          "mode": "list",
+          "cachedResultName": "health",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g/edit#gid=332199820"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Input URL": "={{ $('Get URL row').item.json[\"Input URL\"] }}",
+            "Errors message": "={{ $json.error }}"
+          },
+          "matchingColumns": [
+            "Input URL"
+          ],
+          "schema": [
+            {
+              "id": "Input URL",
+              "displayName": "Input URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "JSON",
+              "displayName": "JSON",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "IMG Context",
+              "displayName": "IMG Context",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "EN",
+              "displayName": "EN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "IT",
+              "displayName": "IT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "FR",
+              "displayName": "FR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "DE",
+              "displayName": "DE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "PT",
+              "displayName": "PT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "ES",
+              "displayName": "ES",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Errors message",
+              "displayName": "Errors message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4624,
+        -1152
+      ],
+      "id": "9885f550-74bc-4e4b-8923-967b2846bd39",
+      "name": "Handle post create error",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        3824,
+        -1424
+      ],
+      "id": "0ae07a38-d4c7-4a00-a37c-cad66be5f849",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const enData = $('Get article by ID').first().json.article.languages.filter(lng => {\n  return lng.hreflang === \"en\"\n})\n\nreturn enData"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4448,
+        -1424
+      ],
+      "id": "0f8f3829-43d0-4f38-8ad5-451b94bc8b57",
+      "name": "Filter EN"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g",
+          "mode": "list",
+          "cachedResultName": "womens-spot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 332199820,
+          "mode": "list",
+          "cachedResultName": "health",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g/edit#gid=332199820"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Facebook",
+              "lookupValue": "false"
+            },
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "Created"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4016,
+        -1424
+      ],
+      "id": "9f5e221b-dbdb-4813-aee3-ae7607b9450c",
+      "name": "Get URL row",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://www.womensspot.org/api/v1/articles/by-id/{{ $json['Article ID'] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 3d71f10c9fcf78e3b09e6d000791ee2be787ffdbc428ff6aa987683781b5547c"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4208,
+        -1424
+      ],
+      "id": "e9f3f08a-27ce-45f1-8b58-10baea05514e",
+      "name": "Get article by ID",
+      "alwaysOutputData": false,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "platform": "facebook",
+        "accountId": {
+          "__rl": true,
+          "value": "12539",
+          "mode": "list",
+          "cachedResultName": "Joao P S Machado",
+          "cachedResultUrl": "https://backend.blotato.com/v2/accounts/12539"
+        },
+        "postContentText": "=Learn more: {{ $('Get article by ID').item.json.article.languages[0].seo.canonicalUrl }}\n{{ $('Get article by ID').item.json.article.languages[0].socialMedia.facebook.message }}",
+        "postContentMediaUrls": "={{ $json.url }}",
+        "facebookPageId": {
+          "__rl": true,
+          "value": "770791202793500",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        4848,
+        -1424
+      ],
+      "id": "49ef19f7-7156-456d-a77d-9583a7b4a79e",
+      "name": "Facebook [BLOTATO]",
+      "credentials": {
+        "blotatoApi": {
+          "id": "6ZlYVa6H32knyhu5",
+          "name": "Blotato account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Dynamic topic",
+        "height": 240,
+        "width": 256,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4560,
+        -1232
+      ],
+      "typeVersion": 1,
+      "id": "9cd8b219-01cc-4423-a569-1f399254db91",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g",
+          "mode": "list",
+          "cachedResultName": "womens-spot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 332199820,
+          "mode": "list",
+          "cachedResultName": "health",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g/edit#gid=332199820"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Article ID": "={{ $('Get URL row').item.json['Article ID'] }}",
+            "Facebook": "true"
+          },
+          "matchingColumns": [
+            "Article ID"
+          ],
+          "schema": [
+            {
+              "id": "Input URL",
+              "displayName": "Input URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "EN",
+              "displayName": "EN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Errors message",
+              "displayName": "Errors message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5088,
+        -1440
+      ],
+      "id": "825a3d33-86e5-4173-b52c-744c9a5d60d2",
+      "name": "Facebook created",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Dynamic topic",
+        "height": 240,
+        "width": 192,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3984,
+        -1488
+      ],
+      "typeVersion": 1,
+      "id": "4c1dc82b-2d56-4b2d-b7bc-2aa48409d9ad",
+      "name": "Sticky Note10"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Upload image BLOTATO": {
+      "main": [
+        [
+          {
+            "node": "Facebook [BLOTATO]",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get URL row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter EN": {
+      "main": [
+        [
+          {
+            "node": "Upload image BLOTATO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get URL row": {
+      "main": [
+        [
+          {
+            "node": "Get article by ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get article by ID": {
+      "main": [
+        [
+          {
+            "node": "Filter EN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle post create error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook [BLOTATO]": {
+      "main": [
+        [
+          {
+            "node": "Facebook created",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle post create error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "f447b65c-7405-4580-8172-c0145a6e4e63",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "da7fbb850bf8f4d2094c31cae4e2e2f700359b69a6ab74a883fb15b08b00a233"
+  },
+  "id": "sCYfv00jGtnCkMnb",
+  "tags": []
+}

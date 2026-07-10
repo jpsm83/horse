@@ -1,0 +1,2325 @@
+{
+  "name": "5 - PT - Post articles to social media",
+  "nodes": [
+    {
+      "parameters": {
+        "platform": "tiktok",
+        "accountId": {
+          "__rl": true,
+          "value": "24727",
+          "mode": "list",
+          "cachedResultName": "womens_spot_pt",
+          "cachedResultUrl": "https://backend.blotato.com/v2/accounts/24727"
+        },
+        "postContentText": "={{ $('Rebuild languages obj').item.json.socialMedia.tiktok.title }}\n\n{{ $('Rebuild languages obj').item.json.socialMedia.tiktok.caption }}\n\n{{ $('Rebuild languages obj').item.json.socialMedia.tiktok.hashtags }}",
+        "postContentMediaUrls": "={{ $json.url }}",
+        "postCreateTiktokOptionIsBrandedContent": true,
+        "postCreateTiktokOptionIsYourBrand": true,
+        "postCreateTiktokOptionIsAiGenerated": true,
+        "postCreateTiktokOptionAutoAddMusic": true,
+        "options": {}
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        6416,
+        -1040
+      ],
+      "id": "d81680db-86fc-4e45-9213-1fd9b93a5c31",
+      "name": "Tiktok [BLOTATO]",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "blotatoApi": {
+          "id": "6ZlYVa6H32knyhu5",
+          "name": "Blotato account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "accountId": {
+          "__rl": true,
+          "value": "20165",
+          "mode": "list",
+          "cachedResultName": "womens_spot_org_pt",
+          "cachedResultUrl": "https://backend.blotato.com/v2/accounts/20165"
+        },
+        "postContentText": "=Saber mais: {{ $('Rebuild languages obj').item.json.seo.canonicalUrl }}\n\n{{ $json.caption }}\n\n{{ $json.hashTags }}",
+        "postContentMediaUrls": "={{ $('Upload image BLOTATO').item.json.url }}",
+        "options": {}
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        6416,
+        -1248
+      ],
+      "id": "b5910784-48ca-471f-a8b0-b3fbeecea599",
+      "name": "Instagram [BLOTATO]",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "blotatoApi": {
+          "id": "6ZlYVa6H32knyhu5",
+          "name": "Blotato account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "platform": "twitter",
+        "accountId": {
+          "__rl": true,
+          "value": "9170",
+          "mode": "list",
+          "cachedResultName": "Womens_Spot_PT",
+          "cachedResultUrl": "https://backend.blotato.com/v2/accounts/9170"
+        },
+        "postContentText": "=Saber mais: {{ $('Rebuild languages obj').item.json.seo.canonicalUrl }}\n\n{{ $('Rebuild languages obj').item.json.socialMedia.xTwitter.hashtags }}",
+        "postContentMediaUrls": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        6416,
+        -1440
+      ],
+      "id": "dcccc6d3-1f42-4d19-a985-ba698f549d7a",
+      "name": "Twitter [BLOTATO]",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "blotatoApi": {
+          "id": "6ZlYVa6H32knyhu5",
+          "name": "Blotato account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "platform": "threads",
+        "accountId": {
+          "__rl": true,
+          "value": "3581",
+          "mode": "list",
+          "cachedResultName": "womens_spot_org_pt",
+          "cachedResultUrl": "https://backend.blotato.com/v2/accounts/3581"
+        },
+        "postContentText": "=Saber mais: {{ $('Rebuild languages obj').item.json.seo.canonicalUrl }}\n\n{{ ($('Rebuild languages obj').item.json.socialMedia.threads.text).slice(0,(\n(\n($('Rebuild languages obj').item.json.seo.canonicalUrl).length + 1 +\n($('Rebuild languages obj').item.json.socialMedia.threads.hashtags).length + 1\n)-480\n)) }}...\n\n{{ $('Rebuild languages obj').item.json.socialMedia.threads.hashtags }}",
+        "postContentMediaUrls": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        6416,
+        -1632
+      ],
+      "id": "ac00de77-40ea-428e-8108-635dfdceb3a0",
+      "name": "Threads [BLOTATO]",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "blotatoApi": {
+          "id": "6ZlYVa6H32knyhu5",
+          "name": "Blotato account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "platform": "pinterest",
+        "accountId": {
+          "__rl": true,
+          "value": "2994",
+          "mode": "list",
+          "cachedResultName": "womensspotorgpt",
+          "cachedResultUrl": "https://backend.blotato.com/v2/accounts/2994"
+        },
+        "postContentText": "={{ $('Rebuild languages obj').item.json.socialMedia.pinterest.description }}\n{{ $('Rebuild languages obj').item.json.socialMedia.pinterest.hashtags }}",
+        "postContentMediaUrls": "={{ $('Upload image BLOTATO').item.json.url }}",
+        "pinterestBoardId": {
+          "__rl": true,
+          "value": "={{ $json.boardId }}",
+          "mode": "id"
+        },
+        "postCreatePinterestOptionTitle": "={{ $('Rebuild languages obj').item.json.socialMedia.pinterest.title }}",
+        "options": {
+          "pinterestAltText": "={{ $('Rebuild languages obj').item.json.socialMedia.pinterest.altText }}",
+          "pinterestLink": "={{ $('Rebuild languages obj').item.json.seo.canonicalUrl }}"
+        }
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        6416,
+        -2032
+      ],
+      "id": "dc53612b-595d-4cae-89e7-6af182a88bd6",
+      "name": "Pinterest [BLOTATO]",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "blotatoApi": {
+          "id": "6ZlYVa6H32knyhu5",
+          "name": "Blotato account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "mediaUrl": "={{ $('Rebuild languages obj').item.json.postImage }}"
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        5904,
+        -1536
+      ],
+      "id": "56270da6-f1d7-49ed-8054-6ac85a5b1fd2",
+      "name": "Upload image BLOTATO",
+      "credentials": {
+        "blotatoApi": {
+          "id": "6ZlYVa6H32knyhu5",
+          "name": "Blotato account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "PT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Article ID": "={{ $('Get article by ID').first().json.article._id }}",
+            "Twitter X": "true"
+          },
+          "matchingColumns": [
+            "Article ID"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Social - PT",
+              "displayName": "Social - PT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Errors message",
+              "displayName": "Errors message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6752,
+        -1456
+      ],
+      "id": "23c0f847-c982-482d-97bf-5b2a58cfd634",
+      "name": "Twitter created",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "PT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Article ID": "={{ $('Get article by ID').first().json.article._id }}",
+            "Instagran": "true"
+          },
+          "matchingColumns": [
+            "Article ID"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Social - PT",
+              "displayName": "Social - PT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Errors message",
+              "displayName": "Errors message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6752,
+        -1264
+      ],
+      "id": "9c09e8b5-9336-4736-ac31-9a80a70237f2",
+      "name": "Instagram created",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Dynamic topic",
+        "height": 1472,
+        "width": 272,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6688,
+        -2144
+      ],
+      "typeVersion": 1,
+      "id": "2bdff533-e43b-479e-b803-87f0fea3bbac",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "PT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Article ID": "={{ $('Get article by ID').first().json.article._id }}",
+            "Threads": "true"
+          },
+          "matchingColumns": [
+            "Article ID"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Social - PT",
+              "displayName": "Social - PT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Errors message",
+              "displayName": "Errors message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6752,
+        -1648
+      ],
+      "id": "f4760ca4-b859-4eb7-b4be-3ca329305144",
+      "name": "Threads created",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "PT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Article ID": "={{ $('Get article by ID').first().json.article._id }}",
+            "Pintrest": "true"
+          },
+          "matchingColumns": [
+            "Article ID"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Social - PT",
+              "displayName": "Social - PT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Errors message",
+              "displayName": "Errors message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6752,
+        -2048
+      ],
+      "id": "d5982745-07dc-4826-b8e0-7e82abfbc0e4",
+      "name": "Pinterest created",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "PT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Article ID": "={{ $('Get article by ID').first().json.article._id }}",
+            "Tiktok": "true"
+          },
+          "matchingColumns": [
+            "Article ID"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Social - PT",
+              "displayName": "Social - PT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Errors message",
+              "displayName": "Errors message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6752,
+        -1056
+      ],
+      "id": "46bc9b67-c652-4fa4-8544-bf649d3530f6",
+      "name": "Tiktok created",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "PT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Errors message": "={{ $json.error }}",
+            "Article ID": "={{ $('Get article by ID').item.json.article._id }}"
+          },
+          "matchingColumns": [
+            "Article ID"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Social - PT",
+              "displayName": "Social - PT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Errors message",
+              "displayName": "Errors message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6752,
+        -864
+      ],
+      "id": "ba6c5875-ef62-4418-b06b-fe704ff1a452",
+      "name": "Handle post create error",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "platform": "facebook",
+        "accountId": {
+          "__rl": true,
+          "value": "12539",
+          "mode": "list",
+          "cachedResultName": "Joao P S Machado",
+          "cachedResultUrl": "https://backend.blotato.com/v2/accounts/12539"
+        },
+        "postContentText": "=Saber mais: {{ $('Rebuild languages obj').item.json.seo.canonicalUrl }}\n\n{{ $('Rebuild languages obj').item.json.socialMedia.facebook.message }}\n\n{{ $('Rebuild languages obj').item.json.socialMedia.facebook.hashtags }}",
+        "postContentMediaUrls": "={{ $json.url }}",
+        "facebookPageId": {
+          "__rl": true,
+          "value": "863615750163411",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        6416,
+        -1824
+      ],
+      "id": "41153d8e-47af-46d5-8963-ebd8feb0848b",
+      "name": "Facebook [BLOTATO]",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "blotatoApi": {
+          "id": "6ZlYVa6H32knyhu5",
+          "name": "Blotato account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "PT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Article ID": "={{ $('Get article by ID').first().json.article._id }}",
+            "Facebook": "true"
+          },
+          "matchingColumns": [
+            "Article ID"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Social - PT",
+              "displayName": "Social - PT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Errors message",
+              "displayName": "Errors message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6752,
+        -1840
+      ],
+      "id": "75ba7523-3b48-4a89-9b43-66be434317bd",
+      "name": "Facebook created",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.womensspot.org/api/v1/articles/by-id/{{ $json['Article ID'] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 3d71f10c9fcf78e3b09e6d000791ee2be787ffdbc428ff6aa987683781b5547c"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5456,
+        -1536
+      ],
+      "id": "47a7051a-75a6-4886-b22f-42885144e9e2",
+      "name": "Get article by ID",
+      "alwaysOutputData": false,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const articlesByLang = []\n\n// Iterate all URLs and inject postImage values into the right language objects\nfor (article of $('Get article by ID').first().json.article.languages) {\n  if(article.hreflang === \"pt\"){\n    articlesByLang.push(article)\n  }\n}\n\n// Return the modified article for your HTTP node\nreturn articlesByLang\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5696,
+        -1536
+      ],
+      "id": "5350391e-2a05-4050-95a8-ad5d021aa3a9",
+      "name": "Rebuild languages obj"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "PT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Twitter X",
+              "lookupValue": "="
+            },
+            {
+              "lookupColumn": "Facebook",
+              "lookupValue": "="
+            },
+            {
+              "lookupColumn": "Threads",
+              "lookupValue": "="
+            },
+            {
+              "lookupColumn": "Instagran",
+              "lookupValue": "="
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5248,
+        -1536
+      ],
+      "id": "0d35266c-42eb-4459-b8d9-5235756b8597",
+      "name": "Get row",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "# PT POSTS",
+        "height": 80,
+        "width": 208,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5184,
+        -1360
+      ],
+      "typeVersion": 1,
+      "id": "b341342f-29f2-4afd-a9a7-1892e7ae20a6",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## We dont need the outside ID because it will get the first row where all the social medias are empty",
+        "height": 512,
+        "width": 272,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5152,
+        -1760
+      ],
+      "typeVersion": 1,
+      "id": "7b317a9a-2405-47b3-8939-03f1afc11393",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "articleId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        5024,
+        -1536
+      ],
+      "id": "a1b1aa2d-10cc-45ed-bd04-a4eec9566199",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UGGFQc9oXksdqOIi",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/UGGFQc9oXksdqOIi"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "articleId": "={{ $('Get article by ID').item.json.article._id }}"
+          },
+          "matchingColumns": [
+            "articleId"
+          ],
+          "schema": [
+            {
+              "id": "articleId",
+              "displayName": "articleId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        7472,
+        -1456
+      ],
+      "id": "75c355d2-08ca-4004-ba38-8023ad48ea91",
+      "name": "Call - Create ES posts"
+    },
+    {
+      "parameters": {
+        "jsCode": "let hashTagsString;\n\nif(Array.isArray($('Rebuild languages obj').first().json.socialMedia.instagram.hashtags)){\n  hashTagsString = ($('Rebuild languages obj').first().json.socialMedia.instagram.hashtags).slice(0,28).join(\" \")\n} else {\n  hashTagsString = $('Rebuild languages obj').first().json.socialMedia.instagram.hashtags\n}\n\nconst hashObj = {\n  \"caption\": ($('Rebuild languages obj').first().json.socialMedia.instagram.caption).split(\" #\")[0],\n  \"hashTags\": hashTagsString\n};\n\nreturn hashObj"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6208,
+        -1248
+      ],
+      "id": "1710c737-2850-493d-b81a-6a7b1f99d917",
+      "name": "Set caption & hashtags",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "PT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Article ID": "={{ $('Get article by ID').first().json.article._id }}",
+            "Date": "={{ $now.toLocaleString() }}"
+          },
+          "matchingColumns": [
+            "Article ID"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Social - PT",
+              "displayName": "Social - PT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Errors message",
+              "displayName": "Errors message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        7264,
+        -1456
+      ],
+      "id": "6495cd12-391f-4480-bc1d-29793c966e9a",
+      "name": "Set post date",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const category = $('Get article by ID').first().json.article.category;\n\nconst boardMap = {\n  health: \"1067071774150698731\",\n  fitness: \"1067071774150698727\",\n  nutrition: \"1067071774150698729\",\n  intimacy: \"1067071774150698733\",\n  beauty: \"1067071774150698735\",\n  'weight-loss': \"1067071774150698732\",\n  life: \"1067071774150698737\",\n};\n\nconst boardId = boardMap[category] ?? null;\n\nreturn [\n  {\n    json: {\n      boardId,\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6208,
+        -2032
+      ],
+      "id": "c4da8f26-08e5-4022-9907-b0ec4523a03b",
+      "name": "Board ID"
+    },
+    {
+      "parameters": {
+        "numberInputs": 7
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        7056,
+        -1536
+      ],
+      "id": "8ec05a08-ed80-468f-8cae-26e2e8f59e9d",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Pinterest [BLOTATO]": {
+      "main": [
+        [
+          {
+            "node": "Pinterest created",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle post create error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twitter [BLOTATO]": {
+      "main": [
+        [
+          {
+            "node": "Twitter created",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle post create error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram [BLOTATO]": {
+      "main": [
+        [
+          {
+            "node": "Instagram created",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle post create error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threads [BLOTATO]": {
+      "main": [
+        [
+          {
+            "node": "Threads created",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle post create error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tiktok [BLOTATO]": {
+      "main": [
+        [
+          {
+            "node": "Tiktok created",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle post create error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload image BLOTATO": {
+      "main": [
+        [
+          {
+            "node": "Board ID",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Facebook [BLOTATO]",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Threads [BLOTATO]",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Twitter [BLOTATO]",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set caption & hashtags",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tiktok [BLOTATO]",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook [BLOTATO]": {
+      "main": [
+        [
+          {
+            "node": "Facebook created",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle post create error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get article by ID": {
+      "main": [
+        [
+          {
+            "node": "Rebuild languages obj",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rebuild languages obj": {
+      "main": [
+        [
+          {
+            "node": "Upload image BLOTATO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row": {
+      "main": [
+        [
+          {
+            "node": "Get article by ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook created": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Pinterest created": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threads created": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Twitter created": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Instagram created": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Handle post create error": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set caption & hashtags": {
+      "main": [
+        [
+          {
+            "node": "Instagram [BLOTATO]",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set post date": {
+      "main": [
+        [
+          {
+            "node": "Call - Create ES posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Board ID": {
+      "main": [
+        [
+          {
+            "node": "Pinterest [BLOTATO]",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tiktok created": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Set post date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "624a3e77-76f1-437b-8cb5-7130c349b18a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "da7fbb850bf8f4d2094c31cae4e2e2f700359b69a6ab74a883fb15b08b00a233"
+  },
+  "id": "mCoIkfi2nNvDfYs5",
+  "tags": []
+}

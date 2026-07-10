@@ -1,0 +1,525 @@
+{
+  "name": "Placid images generator",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "return [{ \"language\": \"Portuguese\", \"lang\": \"PT\"}, { \"language\": \"Spanish\", \"lang\": \"ES\"}, { \"language\": \"French\", \"lang\": \"FR\"}, { \"language\": \"Italian\", \"lang\": \"IT\"}, { \"language\": \"German\", \"lang\": \"DE\"}]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2224,
+        -80
+      ],
+      "id": "edcfa236-aecd-4232-b4fb-9aeaad5137b1",
+      "name": "Languages array"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2416,
+        -80
+      ],
+      "id": "d6c17588-3068-4ace-af73-c51fa24cf6cd",
+      "name": "Loop over languages"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3424,
+        -64
+      ],
+      "id": "5d479410-ee7e-447c-aefa-c5cabd97ad50",
+      "name": "Wait",
+      "webhookId": "67e25f27-0088-4dcd-9225-51be90595ca1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudinary.com/v1_1/jpsm83/image/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "=data"
+            },
+            {
+              "name": "upload_preset",
+              "value": "=health"
+            },
+            {
+              "name": "folder",
+              "value": "=health/articles/{{ $('When chat message received').item.json.chatInput }}/socialEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3376,
+        -416
+      ],
+      "id": "ebca7c1b-eef7-4d4b-8ad0-666798ae1c1e",
+      "name": "Cloudinary upload post image EN",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "egxZXMa33f6CRFAE",
+          "name": "Shotstack credentials"
+        },
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudinary.com/v1_1/jpsm83/image/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "=data"
+            },
+            {
+              "name": "upload_preset",
+              "value": "=health"
+            },
+            {
+              "name": "folder",
+              "value": "=health/articles/{{ $('When chat message received').item.json.chatInput }}/social{{ $('Languages array').item.json.lang }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3184,
+        -192
+      ],
+      "id": "f919caba-2a15-4713-976c-babe89d3c07d",
+      "name": "Cloudinary upload post image lang",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "egxZXMa33f6CRFAE",
+          "name": "Shotstack credentials"
+        },
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all resources from previous node\nconst resourcesImages = $('Cloudinary get images').first().json.resources || [];\n\n// Define the exact folder you want to keep\nconst targetFolder = \"health/articles/\"+$('When chat message received').first().json.chatInput;\n\n// Filter out images from subfolders (e.g., anything after the base folder)\nconst filteredImages = resourcesImages.filter(r => r.folder === targetFolder);\n\n// Build the output with the first 4 results\nreturn [\n  {\n    \"urlImage1\": filteredImages[0]?.secure_url || \"no image\",\n    \"urlImage2\": filteredImages[1]?.secure_url || \"no image\",\n    \"urlImage3\": filteredImages[2]?.secure_url || \"no image\",\n    \"urlImage4\": filteredImages[3]?.secure_url || \"no image\",\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2896,
+        -416
+      ],
+      "id": "50fc7cba-6e96-40fa-9b13-c479e64d96a3",
+      "name": "Populate media"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloudinary.com/v1_1/jpsm83/resources/image?type=upload&prefix=health/articles/{{ $('When chat message received').item.json.chatInput }}&max_results=100",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "upload_preset",
+              "value": "=health"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2688,
+        -416
+      ],
+      "id": "7688c0eb-e047-495b-83b5-0b701db763df",
+      "name": "Cloudinary get images",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "egxZXMa33f6CRFAE",
+          "name": "Shotstack credentials"
+        },
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.placid.app/u/fd4wvpasvm4jc",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "img1",
+              "value": "={{ $json.urlImage1 }}"
+            },
+            {
+              "name": "img2",
+              "value": "={{ $json.urlImage2 }}"
+            },
+            {
+              "name": "img3",
+              "value": "={{ $json.urlImage3 }}"
+            },
+            {
+              "name": "=main-text",
+              "value": "={{ $('Get article by ID').item.json.article.languages[0].socialMedia.xTwitter.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3120,
+        -416
+      ],
+      "id": "d2472873-5017-4df5-8c5a-cd1c44c7f0ce",
+      "name": "Placid create image EN",
+      "retryOnFail": true,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "oflmQzTxuo0Bdjqo",
+          "name": "Cloudflare"
+        },
+        "httpHeaderAuth": {
+          "id": "n02DHVmQt6JxLUYH",
+          "name": "Placid Credentials"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.placid.app/u/fd4wvpasvm4jc",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "img1",
+              "value": "={{ $('Populate media').item.json.urlImage1 }}"
+            },
+            {
+              "name": "img2",
+              "value": "={{ $('Populate media').item.json.urlImage2 }}"
+            },
+            {
+              "name": "img3",
+              "value": "={{ $('Populate media').item.json.urlImage3 }}"
+            },
+            {
+              "name": "=main-text",
+              "value": "={{ $json.message.content.articleContext }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2960,
+        -80
+      ],
+      "id": "dd5e8c6e-7a05-4749-9c91-b8303c0292a7",
+      "name": "Placid create images",
+      "retryOnFail": true,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "oflmQzTxuo0Bdjqo",
+          "name": "Cloudflare"
+        },
+        "httpHeaderAuth": {
+          "id": "n02DHVmQt6JxLUYH",
+          "name": "Placid Credentials"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.womensspot.org/api/v1/articles/by-id/{{ $json.chatInput }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 3d71f10c9fcf78e3b09e6d000791ee2be787ffdbc428ff6aa987683781b5547c"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2448,
+        -416
+      ],
+      "id": "e72e4a3e-7b75-4168-a877-ebfe78679183",
+      "name": "Get article by ID",
+      "alwaysOutputData": false,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        2256,
+        -416
+      ],
+      "id": "285ea319-4b1d-4653-be66-cd0224485e1c",
+      "name": "When chat message received",
+      "webhookId": "836475ae-42a3-46cd-a3be-69f3fec05ee7"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=## USER MESSAGE\n\n```\n{{ $('Get article by ID').item.json.article.languages[0].socialMedia.xTwitter.text }}\n\nRewrite the above phrase into {{ $json.language }} ({{ $json.lang.toLowerCase() }}):\n\nRules:\n1. REWRITE the input phrase into {{ $json.language }} culture\n2. CRITICAL: Respect same or similar character length of the original string\n3. Adapt cultural references to be appropriate for the target culture\n4. Output only the rewritten string\n```\n\n---\n\n# TRANSLATION INSTRUCTIONS\n\n**CONTEXT:** This content is for a women's wellness app covering intimate wellness, personal wellness, relationships, health, beauty, nutrition, and weight loss. These are educational topics focused on women's daily life experiences.\n\n**SAFETY NOTE:** Use \"intimate wellness,\" \"personal wellness,\" or \"relationship wellness\" instead of explicit terms to ensure content safety.\n\n## CORE REQUIREMENTS\n\n1. **REWRITE** the phrase into the target language while adapting cultural references\n2. **MAINTAIN** same or similar character length as the original\n3. **PRESERVE** all factual information and context\n4. **ADAPT** cultural references to be appropriate for the target culture\n5. **USE** natural, fluent language that sounds native to the target language\n6. **MAINTAIN** the casual, conversational tone that connects with readers\n7. **NO EMOJIS** - Do not add any emojis, symbols, or special characters\n\n## PRODUCT PRESERVATION RULES\n\n**CRITICAL: When content refers to products, items, merchandise, or anything purchasable, PRESERVE the exact names:**\n\n- **DO NOT translate** product names, brand names, model numbers, or product codes\n- **PRESERVE** product specifications, ingredient lists, color names, sizes, and variants\n- **MAINTAIN** exact product titles as they appear in stores or online marketplaces\n- **KEEP** store names and retailer information\n\nThis ensures users can easily find and purchase mentioned products regardless of the target language.\n\n## OUTPUT FORMAT\n\n**CRITICAL: Your response must be ONLY the rewritten phrase string, nothing else.**\n\n**CORRECT OUTPUT:**\n```\n{\n    \"articleContext\": \"Rewritten phrase content that has same or similar character length\"\n}\n```\n\n**WRONG OUTPUT FORMATS:**\n- \"Here is the rewrite: ...\"\n- \"The result is: ...\"\n- Any text before or after the rewrite\n- Comments or explanations\n- JSON format"
+            },
+            {
+              "content": "## SYSTEM MESSAGE\n\nYou are a professional translator specializing in women's wellness content. Your task is to rewrite phrases into different languages while adapting cultural references and maintaining the same character length as the original.\n\n**CONTEXT:** This content is for a women's wellness app covering intimate wellness, personal wellness, relationships, health, beauty, nutrition, and weight loss. These are educational topics focused on women's daily life experiences.\n\n**SAFETY NOTE:** Use \"intimate wellness,\" \"personal wellness,\" or \"relationship wellness\" instead of explicit terms to ensure content safety.\n\n## CORE REQUIREMENTS\n\n1. **REWRITE** the phrase into the target language while adapting cultural references\n2. **MAINTAIN** same or similar character length as the original\n3. **PRESERVE** all factual information and context\n4. **ADAPT** cultural references to be appropriate for the target culture\n5. **USE** natural, fluent language that sounds native to the target language\n6. **MAINTAIN** the casual, conversational tone that connects with readers\n7. **NO EMOJIS** - Do not add any emojis, symbols, or special characters\n\n## PRODUCT PRESERVATION RULES\n\n**CRITICAL: When content refers to products, items, merchandise, or anything purchasable, PRESERVE the exact names:**\n\n- **DO NOT translate** product names, brand names, model numbers, or product codes\n- **PRESERVE** product specifications, ingredient lists, color names, sizes, and variants\n- **MAINTAIN** exact product titles as they appear in stores or online marketplaces\n- **KEEP** store names and retailer information\n\nThis ensures users can easily find and purchase mentioned products regardless of the target language.\n\n## OUTPUT FORMAT\n\n**CRITICAL: Your response must be ONLY the rewritten phrase string, nothing else.**\n\n**CORRECT OUTPUT:**\n```\n{\n    \"articleContext\": \"Rewritten phrase content that has same or similar character length\"\n}\n```\n\n**WRONG OUTPUT FORMATS:**\n- \"Here is the rewrite: ...\"\n- \"The result is: ...\"\n- Any text before or after the rewrite\n- Comments or explanations\n- JSON format\n\n---",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2640,
+        -80
+      ],
+      "id": "a017d45d-c36b-44dc-8b16-aa84cb4fafe1",
+      "name": "Rewrite article context",
+      "executeOnce": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "Gqus3026ccdUj9Mc",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Languages array": {
+      "main": [
+        [
+          {
+            "node": "Loop over languages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over languages": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Rewrite article context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop over languages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cloudinary upload post image EN": {
+      "main": [
+        [
+          {
+            "node": "Languages array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cloudinary upload post image lang": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Populate media": {
+      "main": [
+        [
+          {
+            "node": "Placid create image EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cloudinary get images": {
+      "main": [
+        [
+          {
+            "node": "Populate media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Placid create image EN": {
+      "main": [
+        [
+          {
+            "node": "Cloudinary upload post image EN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Placid create images": {
+      "main": [
+        [
+          {
+            "node": "Cloudinary upload post image lang",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Get article by ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get article by ID": {
+      "main": [
+        [
+          {
+            "node": "Cloudinary get images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rewrite article context": {
+      "main": [
+        [
+          {
+            "node": "Placid create images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "51f70026-3970-472b-8f85-b3e5e3256649",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "da7fbb850bf8f4d2094c31cae4e2e2f700359b69a6ab74a883fb15b08b00a233"
+  },
+  "id": "Bxg06l08RDmrNxyW",
+  "tags": []
+}

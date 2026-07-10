@@ -1,0 +1,1292 @@
+{
+  "home": {
+    "title": "Tu Guía de Confianza para la Salud, Fitness y Bienestar Cotidiano de las Mujeres",
+    "subtitle": "Consejos de expertos e inspiración diaria sobre salud, fitness, nutrición, intimidad y bienestar - basados en la vida real.",
+    "buttonText": "Artículos Destacados",
+    "description": "Descubre una plataforma integral hecha para mujeres que abrazan el bienestar, el estilo y la alegría cotidiana. Donde fitness, salud, belleza, comida, viajes y hogar se unen en un destino diario inspirador. Este es tu lugar para recursos integrales de salud y bienestar.",
+    "heroImageAlt": "Salud y Bienestar",
+    "exploreByCategory": {
+      "title": "Explorar por Categoría",
+      "description": "Descubre insights de expertos y consejos prácticos en todas las áreas de salud y bienestar integral en nuestra plataforma."
+    },
+    "features": {
+      "articles": "Artículos de Salud",
+      "dashboard": "Panel Personal",
+      "profile": "Perfil de Usuario",
+      "createArticle": "Crear Contenido"
+    },
+    "featureDescriptions": {
+      "articles": "Accede a artículos de salud integrales e investigaciones",
+      "dashboard": "Rastrea tus objetivos de salud y progreso",
+      "profile": "Gestiona tu información personal de salud",
+      "createArticle": "Comparte tu conocimiento de salud con otros"
+    },
+    "languageInfo": {
+      "currentLanguage": "Idioma Actual"
+    },
+    "featuredArticles": {
+      "title": "Artículos Destacados",
+      "description": "Descubre nuestros últimos insights, consejos y guías para ayudarte a vivir una vida más saludable y plena."
+    },
+    "featureCards": {
+      "everydayHealthBalance": {
+        "title": "Salud y Equilibrio Cotidiano",
+        "description": "Contenido reflexivo para apoyar tu cuerpo, mente y bienestar diario"
+      },
+      "realLifeRealWomen": {
+        "title": "Vida Real, Mujeres Reales",
+        "description": "Ideas prácticas e inspiración diseñadas para rutinas y vidas reales"
+      },
+      "everyChapterOfWomanhood": {
+        "title": "Cada Capítulo de la Mujer",
+        "description": "Guía y aliento para cada edad, etapa y temporada"
+      },
+      "smartTrustedContent": {
+        "title": "Contenido Inteligente y Confiable",
+        "description": "Artículos cuidadosamente elaborados usando herramientas modernas para ofrecer información confiable"
+      }
+    }
+  },
+  "newsletterSignup": {
+    "title": "Mantente Actualizado con Insights de Salud",
+    "description": "Recibe los últimos consejos de salud para mujeres, asesoramiento de bienestar e insights de expertos directamente en tu bandeja de entrada.",
+    "emailPlaceholder": "Ingresa tu dirección de email",
+    "subscribeButton": "Suscribirse",
+    "privacyNote": "Respetamos tu privacidad. Cancela la suscripción en cualquier momento."
+  },
+  "categoryCarousel": {
+    "viewAll": "Ver todos",
+    "loading": "Cargando...",
+    "loadMore": "Cargar más",
+    "errorLoading": "Error al cargar artículos:"
+  },
+  "productsBanner": {
+    "salesNow": "¡Ofertas AHORA... No Te Pierdas Nuestras Mejores Ofertas en {category}!",
+    "salesNowNoCategory": "¡Ofertas AHORA... No Te Pierdas Nuestras Mejores Ofertas!",
+    "grabDealsProduct": "¡Aprovecha Estas Ofertas en {product} Antes de que Se Acaben!",
+    "grabDealsCategory": "¡Aprovecha las Mejores Ofertas en {category} Antes de que Se Acaben!",
+    "affiliateReminder": "Comprar a través de nuestros enlaces ayuda a mantener nuestra app sin costo adicional para ti"
+  },
+  "articleCard": {
+    "readTime": "{time} min de lectura",
+    "noContentAvailable": "No hay contenido disponible",
+    "categories": {
+      "health": "Salud",
+      "fitness": "Fitness",
+      "nutrition": "Nutrición",
+      "intimacy": "Intimidad",
+      "beauty": "Belleza",
+      "weight-loss": "Pérdida de Peso",
+      "life": "Vida"
+    }
+  },
+  "dashboard": {
+    "title": "Panel",
+    "subtitle": "Tu visión general de salud e insights",
+    "stats": {
+      "totalArticles": "Total de Artículos",
+      "totalViews": "Total de Visualizaciones",
+      "totalLikes": "Total de Me Gusta",
+      "totalComments": "Total de Comentarios"
+    },
+    "table": {
+      "title": "Gestión de Artículos",
+      "columns": {
+        "id": "ID",
+        "title": "Título",
+        "category": "Categoría",
+        "likes": "Me Gusta",
+        "comments": "Comentarios",
+        "views": "Visualizaciones",
+        "created": "Creado",
+        "actions": "Acciones"
+      },
+      "filter": {
+        "placeholder": "Filtrar por título...",
+        "columns": "Columnas"
+      },
+      "pagination": {
+        "rowsPerPage": "Filas por página",
+        "selected": "fila(s) seleccionada(s)",
+        "page": "Página",
+        "of": "de",
+        "previous": "Anterior",
+        "next": "Siguiente"
+      },
+      "noResults": "No se encontraron resultados"
+    },
+    "languageInfo": {
+      "language": "Idioma"
+    }
+  },
+  "navigation": {
+    "home": "Inicio",
+    "dashboard": "Panel",
+    "createArticle": "Crear Artículo",
+    "profile": "Perfil",
+    "favorites": "Favoritos",
+    "search": "Buscar",
+    "articles": "Artículos",
+    "language": "Idioma",
+    "searchArticles": "Buscar artículos...",
+    "articleCategories": "Categorías de Artículos",
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "signOut": "Cerrar Sesión",
+    "brandName": "Women's Spot",
+    "searchPlaceholder": "Buscar artículos...",
+    "categories": {
+      "health": "Salud",
+      "fitness": "Fitness",
+      "nutrition": "Nutrición",
+      "intimacy": "Intimidad",
+      "beauty": "Belleza",
+      "weight-loss": "Pérdida de Peso",
+      "life": "Vida"
+    }
+  },
+  "profile": {
+    "title": "Perfil de Usuario",
+    "subtitle": "Gestiona la configuración y preferencias de tu cuenta",
+    "sections": {
+      "personal": "Información Personal",
+      "profileImage": "Imagen de Perfil",
+      "preferences": "Preferencias",
+      "security": "Seguridad",
+      "categoryInterests": "Intereses por Categoría"
+    },
+    "fields": {
+      "username": "Nombre de Usuario",
+      "enterUsername": "Ingresa tu nombre de usuario",
+      "email": "Dirección de Email",
+      "enterEmail": "Ingresa tu email",
+      "role": "Rol",
+      "birthDate": "Fecha de Nacimiento",
+      "language": "Idioma Preferido",
+      "region": "Región",
+      "profileImage": "Imagen de Perfil (Opcional)",
+      "timezone": "Zona Horaria",
+      "notifications": "Notificaciones",
+      "newsletterFrequency": "Frecuencia del Boletín",
+      "categoryInterests": "Intereses por Categoría",
+      "selectCategories": "Seleccionar Categorías",
+      "selectFrequency": "Seleccionar Frecuencia"
+    },
+    "actions": {
+      "save": "Guardar Cambios",
+      "cancel": "Cancelar",
+      "remove": "Eliminar",
+      "resetPassword": "Restablecer Contraseña",
+      "changeImage": "Cambiar",
+      "removeImage": "Eliminar Imagen"
+    },
+    "updateFailed": "Error al actualizar el perfil",
+    "updateSuccess": "¡Perfil actualizado exitosamente!",
+    "passwordResetSent": "Email de restablecimiento de contraseña enviado exitosamente",
+    "passwordResetFailed": "Error al enviar email de restablecimiento",
+    "unexpectedError": "Ocurrió un error inesperado",
+    "validation": {
+      "usernameRequired": "El nombre de usuario es obligatorio",
+      "usernameTooShort": "El nombre de usuario debe tener al menos 5 caracteres",
+      "usernameTooLong": "El nombre de usuario no puede exceder 30 caracteres",
+      "usernameInvalidChars": "El nombre de usuario solo puede contener letras, números, guiones bajos y guiones",
+      "birthDateRequired": "La fecha de nacimiento es obligatoria",
+      "newsletterFrequencyRequired": "La frecuencia del boletín es obligatoria",
+      "invalidImageType": "Por favor selecciona un archivo de imagen válido",
+      "imageTooLarge": "El tamaño de la imagen debe ser menor a 5MB",
+      "userEmailNotFound": "Email de usuario no encontrado"
+    },
+    "languageInfo": {
+      "language": "Idioma"
+    },
+    "language": {
+      "preferences": "Preferencias de Idioma"
+    },
+    "stats": {
+      "emailStatus": "Estado del Email",
+      "verified": "Verificado",
+      "unverified": "No Verificado",
+      "likedArticles": "Artículos Gustados",
+      "comments": "Comentarios"
+    },
+    "security": {
+      "resetPasswordDescription": "Enviar un enlace de restablecimiento de contraseña a tu email"
+    },
+    "messages": {
+      "unexpectedError": "¡Error inesperado!",
+      "success": "Éxito",
+      "makeChangesToSave": "Haz cambios para habilitar el botón guardar",
+      "unexpectedErrorSendingEmailConfirmation": "Error al enviar confirmación de email",
+      "successSendingEmailConfirmation": "Confirmación de email enviada exitosamente",
+      "saving": "Guardando..."
+    },
+    "errors": {
+      "loadingUserData": "Error al cargar datos del usuario"
+    },
+    "emailConfirmation": {
+      "requestButton": "Solicitar Confirmación de Email",
+      "description": "Enviar un nuevo email de confirmación para verificar tu cuenta"
+    },
+    "options": {
+      "english": "English",
+      "portuguese": "Português",
+      "spanish": "Español",
+      "french": "Français",
+      "german": "Deutsch",
+      "italian": "Italiano",
+      "dutch": "Nederlands",
+      "utc": "UTC",
+      "easternTime": "Eastern Time",
+      "pacificTime": "Pacific Time",
+      "greenwichMeanTime": "Greenwich Mean Time"
+    },
+    "categories": {
+      "health": "Salud",
+      "fitness": "Fitness",
+      "nutrition": "Nutrición",
+      "intimacy": "Intimidad",
+      "beauty": "Belleza",
+      "weight-loss": "Pérdida de Peso",
+      "life": "Vida"
+    },
+    "frequencies": {
+      "daily": "Diario",
+      "weekly": "Semanal",
+      "monthly": "Mensual"
+    }
+  },
+  "createArticle": {
+    "title": "Crear Nuevo Artículo",
+    "subtitle": "Comparte tu conocimiento de salud con la comunidad",
+    "form": {
+      "title": "Título del Artículo",
+      "content": "Contenido del Artículo",
+      "category": "Categoría",
+      "selectCategory": "Selecciona una categoría",
+      "categories": {
+        "health": "Salud",
+        "fitness": "Fitness",
+        "nutrition": "Nutrición",
+        "wellness": "Bienestar"
+      },
+      "tags": "Etiquetas",
+      "tagsPlaceholder": "salud, fitness, consejos",
+      "submit": "Crear Artículo",
+      "cancel": "Cancelar"
+    },
+    "languageInfo": {
+      "language": "Idioma"
+    }
+  },
+  "search": {
+    "title": "Buscar artículos",
+    "subtitle": "Encuentra los artículos que te interesan",
+    "heroImageAlt": "Resultados de búsqueda",
+    "searchPlaceholder": "Buscar artículos...",
+    "loading": "Buscando...",
+    "errorLoading": "Error al buscar:",
+    "resultsCount": "{count} artículos encontrados",
+    "searchSuggestions": "Sugerencias de búsqueda",
+    "popularSearches": "Búsquedas populares",
+    "recentSearches": "Búsquedas recientes",
+    "resultsTitle": "Resultados de búsqueda",
+    "resultsFound": "Se encontró {count} resultado{count, plural, =1 {} other {s}} para \"{query}\"",
+    "noResultsTitle": "¡No se encontraron artículos!",
+    "noResultsDescription": "Intenta buscar con palabras clave diferentes a..."
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "goToPreviousPage": "Ir a la página anterior",
+    "goToNextPage": "Ir a la página siguiente",
+    "morePages": "Más páginas"
+  },
+  "SignUp": {
+    "createAccount": "Crea tu cuenta",
+    "section": {
+      "title": "Registrarse",
+      "description": "Crea tu cuenta para comenzar con contenido de salud personalizado"
+    },
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "signUp": "Registrarse",
+    "signIn": "Iniciar Sesión",
+    "username": "Nombre de usuario",
+    "enterUsername": "Ingresa tu nombre de usuario",
+    "emailAddress": "Dirección de email",
+    "enterEmail": "Ingresa tu email",
+    "birthDate": "Fecha de Nacimiento",
+    "password": "Contraseña",
+    "enterPassword": "Ingresa tu contraseña",
+    "confirmPassword": "Confirmar Contraseña",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden",
+    "passwordTooShort": "La contraseña debe tener al menos 6 caracteres",
+    "birthDateRequired": "La fecha de nacimiento es obligatoria",
+    "profileImage": "Imagen de Perfil (Opcional)",
+    "removeImage": "Eliminar",
+    "accountCreatedSuccess": "¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.",
+    "failedToCreateAccount": "Error al crear la cuenta",
+    "unexpectedError": "Ocurrió un error inesperado",
+    "backToHome": "Volver al Inicio",
+    "creatingAccount": "Creando tu cuenta...",
+    "pleaseWait": "Por favor espera mientras configuramos tu cuenta",
+    "redirectingBack": "Redirigiendo a página anterior...",
+    "signUpWithGoogle": "Registrarse con Google",
+    "signingUpWithGoogle": "Registrándose con Google...",
+    "googleSignUpFailed": "Error al registrarse con Google",
+    "tryAgainOrUseEmail": "Por favor, intente nuevamente o use correo electrónico/contraseña",
+    "or": "o"
+  },
+  "SignIn": {
+    "signInToAccount": "Inicia sesión en tu cuenta",
+    "section": {
+      "title": "Iniciar Sesión",
+      "description": "Inicia sesión en tu cuenta para acceder a tu panel de salud personalizado"
+    },
+    "createAccount": "Crea tu cuenta",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "signUp": "Registrarse",
+    "signIn": "Iniciar Sesión",
+    "signingIn": "Iniciando sesión...",
+    "signInWithGoogle": "Iniciar sesión con Google",
+    "signingInWithGoogle": "Iniciando sesión con Google...",
+    "signInSuccessful": "Inicio de sesión exitoso",
+    "redirecting": "Redirigiendo...",
+    "or": "o",
+    "emailAddress": "Dirección de email",
+    "enterEmail": "Ingresa tu email",
+    "password": "Contraseña",
+    "enterPassword": "Ingresa tu contraseña",
+    "authenticationFailed": "Error de autenticación",
+    "checkCredentials": "Por favor, verifique su correo electrónico y contraseña",
+    "googleSignInFailed": "Error al iniciar sesión con Google",
+    "tryAgainOrUseEmail": "Por favor, intente nuevamente o use correo electrónico/contraseña",
+    "unexpectedError": "Ocurrió un error inesperado",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "backToHome": "Volver al Inicio"
+  },
+  "ForgotPassword": {
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "section": {
+      "title": "Olvidé mi Contraseña",
+      "description": "Ingresa tu dirección de correo electrónico y te enviaremos un enlace para restablecer tu contraseña"
+    },
+    "enterEmailForReset": "Ingresa tu dirección de correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",
+    "emailAddress": "Dirección de correo electrónico",
+    "enterEmail": "Ingresa tu correo electrónico",
+    "emailRequired": "El correo electrónico es requerido",
+    "invalidEmailFormat": "Por favor ingresa una dirección de correo electrónico válida",
+    "sendResetLink": "Enviar Enlace de Restablecimiento",
+    "sendingResetLink": "Enviando enlace de restablecimiento...",
+    "resetEmailSent": "Correo de restablecimiento de contraseña enviado exitosamente",
+    "checkEmailInstructions": "Por favor revisa tu bandeja de entrada (y carpeta de spam) para el enlace de restablecimiento de contraseña. El enlace expirará en 1 hora.",
+    "failedToSendResetEmail": "Error al enviar el correo de restablecimiento",
+    "errorOccurred": "Ocurrió un error",
+    "testingMessage": "Para propósitos de prueba, puedes usar este enlace",
+    "unexpectedError": "Ocurrió un error inesperado",
+    "backToSignIn": "Volver a Iniciar Sesión",
+    "dontHaveAccount": "¿No tienes una cuenta? Regístrate",
+    "backToHome": "Volver al Inicio",
+    "loading": "Cargando...",
+    "formInstructions": "Te enviaremos un enlace seguro para restablecer tu contraseña.",
+    "emailPlaceholder": "tu.email@ejemplo.com"
+  },
+  "ResetPassword": {
+    "resetYourPassword": "Restablecer tu contraseña",
+    "section": {
+      "title": "Restablecer Contraseña",
+      "description": "Ingresa tu nueva contraseña a continuación para restablecer la contraseña de tu cuenta"
+    },
+    "enterNewPasswordBelow": "Ingresa tu nueva contraseña a continuación.",
+    "newPassword": "Nueva Contraseña",
+    "enterNewPassword": "Ingresa tu nueva contraseña",
+    "confirmNewPassword": "Confirmar Nueva Contraseña",
+    "resetPassword": "Restablecer Contraseña",
+    "resettingPassword": "Restableciendo contraseña...",
+    "resetTokenMissing": "Falta el token de restablecimiento",
+    "bothPasswordsRequired": "Ambos campos de contraseña son requeridos",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden",
+    "passwordTooShort": "La contraseña debe tener al menos 6 caracteres",
+    "failedToResetPassword": "Error al restablecer la contraseña",
+    "unexpectedError": "Ocurrió un error inesperado",
+    "invalidResetLink": "Enlace de Restablecimiento Inválido",
+    "resetLinkInvalidOrExpired": "Este enlace de restablecimiento de contraseña es inválido o ha expirado.",
+    "requestNewPasswordReset": "Solicitar un nuevo restablecimiento de contraseña",
+    "backToSignIn": "Volver al Inicio de Sesión",
+    "newPasswordRequired": "La nueva contraseña es requerida",
+    "confirmPasswordRequired": "La confirmación de contraseña es requerida",
+    "passwordResetSuccess": "Contraseña restablecida exitosamente",
+    "redirectingToSignIn": "Redirigiendo a la página de inicio de sesión...",
+    "errorOccurred": "Ocurrió un error",
+    "backToHome": "Volver al Inicio",
+    "loading": "Cargando...",
+    "formInstructions": "Crea una contraseña segura para tu cuenta.",
+    "passwordRequirements": "Debe tener al menos 6 caracteres con 1 mayúscula, 1 minúscula, 1 número y 1 símbolo",
+    "passwordValidationError": "La contraseña debe contener al menos una letra minúscula, una letra mayúscula, un dígito, un símbolo y tener al menos 6 caracteres",
+    "confirmPasswordInstructions": "Por favor confirma tu nueva contraseña"
+  },
+  "metadata": {
+    "home": {
+      "title": "Women's Spot - Tu Plataforma Integral de Salud y Bienestar",
+      "description": "Descubre artículos, consejos y recursos para mejorar tu salud y bienestar. Accede a contenido de salud integral en múltiples idiomas.",
+      "keywords": "salud, bienestar, fitness, nutrición, artículos, consejos, recursos, multilingüe"
+    },
+    "signin": {
+      "title": "Iniciar Sesión - Women's Spot",
+      "description": "Inicia sesión en tu cuenta Women's Spot para acceder a tu panel de salud personalizado, artículos y recursos de bienestar.",
+      "keywords": "iniciar sesión, login, Women's Spot, cuenta, autenticación, panel de salud"
+    },
+    "signup": {
+      "title": "Registrarse - Women's Spot",
+      "description": "Crea tu cuenta Women's Spot para acceder a contenido de salud personalizado, rastrear tu jornada de bienestar y unirte a nuestra comunidad de salud.",
+      "keywords": "registrarse, crear cuenta, Women's Spot, comunidad de salud, seguimiento de bienestar"
+    },
+    "dashboard": {
+      "title": "Panel - Women's Spot",
+      "description": "Tu visión general de salud personalizada e insights. Rastrea tus objetivos de salud, progreso y accede a tus artículos y recursos de salud.",
+      "keywords": "panel de salud, objetivos de salud, seguimiento de progreso, insights de salud, salud personal, seguimiento de bienestar"
+    },
+    "profile": {
+      "title": "Perfil - Women's Spot",
+      "description": "Gestiona la configuración de tu cuenta Women's Spot, preferencias e información personal. Personaliza tu experiencia de salud y preferencias de idioma.",
+      "keywords": "perfil de usuario, configuración de cuenta, preferencias, información personal, configuración Women's Spot, preferencias de idioma"
+    },
+    "createArticle": {
+      "title": "Crear Artículo - Women's Spot",
+      "description": "Comparte tu conocimiento de salud con la comunidad. Crea y publica artículos de salud, consejos y contenido de bienestar en múltiples idiomas.",
+      "keywords": "crear artículo, escribir contenido de salud, publicar consejos de salud, artículos de bienestar, compartir conocimiento de salud, creación de contenido"
+    },
+    "forgotPassword": {
+      "title": "Olvidaste la Contraseña - Women's Spot",
+      "description": "Restablece tu contraseña Women's Spot. Ingresa tu dirección de email y te enviaremos un enlace seguro para restablecer tu contraseña.",
+      "keywords": "olvidaste contraseña, restablecer contraseña, recuperación de contraseña, login Women's Spot, recuperación de cuenta"
+    },
+    "resetPassword": {
+      "title": "Restablecer Contraseña - Women's Spot",
+      "description": "Establece tu nueva contraseña para tu cuenta Women's Spot. Ingresa tu nueva contraseña a continuación para completar el proceso de restablecimiento de contraseña.",
+      "keywords": "restablecer contraseña, nueva contraseña, cambio de contraseña, seguridad Women's Spot, seguridad de cuenta"
+    },
+    "about": {
+      "title": "Acerca de Nosotros - Women's Spot",
+      "description": "Women's Spot es tu fuente confiable de contenido de salud, fitness y estilo de vida. Empoderando a las mujeres para vivir sus mejores vidas.",
+      "keywords": "acerca de nosotros, Women's Spot, salud, fitness, estilo de vida, empoderamiento"
+    },
+    "termsConditions": {
+      "title": "Términos y Condiciones - Women's Spot",
+      "description": "Términos y condiciones para usar Women's Spot. Por favor lee antes de usar nuestra plataforma.",
+      "keywords": "términos y condiciones, Women's Spot, salud, fitness, estilo de vida, empoderamiento"
+    },
+    "privacyPolicy": {
+      "title": "Política de Privacidad - Women's Spot",
+      "description": "Política de privacidad para usar Women's Spot. Respetamos tu privacidad y nos comprometemos a proteger tu información personal.",
+      "keywords": "política de privacidad, Women's Spot, salud, fitness, estilo de vida, empoderamiento, privacidad"
+    },
+    "cookiePolicy": {
+      "title": "Política de Cookies - Women's Spot",
+      "description": "Política de cookies para usar Women's Spot. Usamos cookies para mejorar tu experiencia en nuestra plataforma.",
+      "keywords": "política de cookies, Women's Spot, salud, fitness, estilo de vida, empoderamiento, cookies"
+    },
+    "siteMap": {
+      "title": "Mapa del Sitio - Women's Spot",
+      "description": "Mapa del sitio para Women's Spot. Encuentra tu camino por nuestra plataforma y explora nuestro contenido.",
+      "keywords": "mapa del sitio, Women's Spot, salud, fitness, estilo de vida, empoderamiento, mapa del sitio"
+    },
+    "favorites": {
+      "title": "Mis Favoritos - Women's Spot",
+      "description": "Ve y gestiona tus artículos favoritos de salud y bienestar. Accede a tu colección personalizada de contenido guardado.",
+      "keywords": "favoritos, artículos guardados, contenido marcado, colección personal, artículos de salud, contenido de bienestar"
+    },
+    "search": {
+      "title": "Buscar - Women's Spot",
+      "description": "Busca artículos de salud y bienestar, consejos y guías. Encuentra la información que necesitas para mejorar tu bienestar.",
+      "keywords": "buscar, artículos de salud, contenido de bienestar, buscar artículos, encontrar consejos de salud, búsqueda de bienestar, búsqueda de artículos"
+    },
+    "health": {
+      "title": "Artículos de Salud",
+      "description": "Nuestros mejores insights sobre salud, una colección completa de artículos de salud, consejos y guías para ayudarte a vivir una vida más saludable y plena.",
+      "keywords": "artículos de salud, contenido de bienestar, consejos de salud, consejos médicos, artículos de estilo de vida, recursos de salud"
+    },
+    "fitness": {
+      "title": "Artículos de Fitness",
+      "description": "Nuestros mejores insights sobre fitness, una colección completa de artículos de fitness, consejos y guías para ayudarte a vivir una vida más saludable y plena.",
+      "keywords": "artículos de fitness, consejos de ejercicio, guías de entrenamiento, rutinas de fitness, salud y fitness, bienestar"
+    },
+    "nutrition": {
+      "title": "Artículos de Nutrición",
+      "description": "Nuestros mejores insights sobre nutrición, una colección completa de artículos de nutrición, consejos y guías para ayudarte a vivir una vida más saludable y plena.",
+      "keywords": "artículos de nutrición, alimentación saludable, consejos de dieta, guías de comida, consejos nutricionales, nutrición de bienestar"
+    },
+    "intimacy": {
+      "title": "Artículos de Intimidad",
+      "description": "Nuestros mejores insights sobre intimidad, una colección completa de artículos de intimidad, consejos y guías para ayudarte a vivir una vida más saludable y plena.",
+      "keywords": "artículos de intimidad, salud sexual, relaciones, intimidad, bienestar sexual, consejos de relaciones"
+    },
+    "beauty": {
+      "title": "Artículos de Belleza",
+      "description": "Nuestros mejores insights sobre belleza, una colección completa de artículos de belleza, consejos y guías para ayudarte a vivir una vida más saludable y plena.",
+      "keywords": "artículos de belleza, consejos de belleza, cuidado de la piel, maquillaje, rutinas de belleza, consejos de belleza"
+    },
+    "weight-loss": {
+      "title": "Artículos de Pérdida de Peso",
+      "description": "Nuestros mejores insights sobre pérdida de peso, una colección completa de artículos de pérdida de peso, consejos y guías para ayudarte a alcanzar tus objetivos de salud.",
+      "keywords": "artículos de pérdida de peso, consejos de pérdida de peso, gestión saludable del peso, consejos de dieta, fitness para pérdida de peso, estrategias de pérdida de peso"
+    },
+    "life": {
+      "title": "Artículos de Vida",
+      "description": "Nuestros mejores insights sobre vida, una colección completa de artículos de vida, consejos y guías para ayudarte a vivir tu mejor vida.",
+      "keywords": "artículos de vida, consejos de vida, consejos de estilo de vida, desarrollo personal, equilibrio de vida, objetivos de vida, inspiración de vida"
+    },
+    "confirmEmail": {
+      "title": "Confirmar Email - Women's Spot",
+      "description": "Confirma tu dirección de email para acceder a tu cuenta Women's Spot. Ingresa tu dirección de email y te enviaremos un enlace de confirmación.",
+      "keywords": "confirmar email, confirmación de email, cuenta Women's Spot, verificación de email, confirmación de cuenta"
+    },
+    "confirm-newsletter": {
+      "title": "Confirmar Suscripción al Newsletter - Women's Spot",
+      "description": "Confirma tu suscripción al newsletter para comenzar a recibir el contenido más reciente sobre salud y bienestar, consejos e insights de expertos de Women's Spot.",
+      "keywords": "confirmación de newsletter, suscribirse newsletter, newsletter de salud, actualizaciones de bienestar, newsletter Women's Spot, suscripción por email"
+    },
+    "unsubscribe": {
+      "title": "Cancelar Suscripción al Newsletter - Women's Spot",
+      "description": "Cancela tu suscripción al newsletter Women's Spot. Ingresa tu dirección de email para dejar de recibir nuestras actualizaciones de salud y bienestar.",
+      "keywords": "cancelar suscripción, newsletter, preferencias de email, parar emails, newsletter Women's Spot"
+    },
+    "notFound": {
+      "title": "404 - Página No Encontrada | Women's Spot",
+      "description": "La página que estás buscando no existe o ha sido movida.",
+      "keywords": "404, página no encontrada, error, Women's Spot"
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "Sobre Women's Spot",
+      "subtitle": "Tu destino confiable para todo lo que las mujeres necesitan para vivir sus mejores vidas. Nos enfocamos en la salud, el bienestar y el estilo de vida de las mujeres, ayudándote a crear una vida más feliz, saludable y plena a través de contenido basado en evidencia."
+    },
+    "mission": {
+      "title": "Nuestra Misión",
+      "description1": "Estamos comprometidos a ser tu autoridad número uno en salud, bienestar y estilo de vida de las mujeres, liderando la carga para ayudarte a crear una vida feliz, saludable y plena. Diariamente, producimos características informativas y educativas para apoyar tu viaje y, al hacerlo, abrazamos la conversación dentro de nuestras comunidades.",
+      "description2": "Nuestra plataforma se ha convertido en el destino único para millones de mujeres que buscan información confiable y accionable para mejorar todos los aspectos de sus vidas."
+    },
+    "whatWeDo": {
+      "title": "Qué Hacemos",
+      "cutThroughNoise": {
+        "title": "Cortar el Ruido",
+        "description": "Cortamos el ruido del bienestar para entregarte contenido positivo, atractivo e informativo que se basa en comentarios de expertos líderes e investigación científica."
+      },
+      "personalizedApproach": {
+        "title": "Enfoque Personalizado",
+        "description": "Entendemos que el bienestar es único para cada una de ustedes. Por eso encontrarás consejos accesibles, aplicables y accionables para todas las usuarias."
+      }
+    },
+    "team": {
+      "title": "Nuestro Equipo",
+      "description1": "Nuestro equipo refleja nuestra audiencia principal: mujeres como tú. Es así como entendemos y traducimos temas complejos en características informativas y noticias que querrás leer y compartir.",
+      "description2": "Nuestro equipo de editores trabaja en estrecha colaboración con la IA para elaborar la información más reciente y confiable, creando artículos muy confiables que están actualizados. No solo somos apasionados por la salud y el estilo de vida de las mujeres, sino que también estamos altamente capacitados en reportaje y edición sobre los temas que te preocupan. Todo nuestro contenido está respaldado por expertos verificados que son líderes en sus campos.",
+      "description3": "Nos enorgullece compartir que hoy, nuestra plataforma se ha convertido en el destino único para millones de mujeres que buscan información confiable para mejorar todos los aspectos de sus vidas."
+    },
+    "whatWeCover": {
+      "title": "Qué Cubrimos",
+      "healthWellness": {
+        "title": "Salud y Bienestar",
+        "description": "Cobertura integral de la salud física y mental de las mujeres, nutrición y salud reproductiva."
+      },
+      "fitnessBeauty": {
+        "title": "Fitness y Belleza",
+        "description": "Consejos expertos sobre entrenamientos, rutinas de belleza y prácticas de autocuidado."
+      },
+      "intimacy": {
+        "title": "Relaciones y Intimidad",
+        "description": "Discusiones abiertas y honestas sobre relaciones, intimidad y salud sexual para mujeres."
+      },
+      "weight-loss": {
+        "title": "Pérdida de Peso y Objetivos de Salud",
+        "description": "Orientación experta sobre gestión saludable del peso, fitness y logro de tus objetivos de salud."
+      },
+      "life": {
+        "title": "Vida y Desarrollo Personal",
+        "description": "Consejos de vida, desarrollo personal, consejos de estilo de vida e inspiración para vivir tu mejor vida."
+      }
+    },
+    "editorialStandards": {
+      "title": "Nuestros Estándares Editoriales",
+      "accuracy": {
+        "title": "Precisión",
+        "description": "La producción de noticias y características incluye entrevistas con expertos calificados y autores de estudios, así como un protocolo exhaustivo de edición y verificación de hechos antes de la publicación. El contenido publicado se verifica periódicamente, se revisa y se actualiza para asegurar que la información esté actualizada con investigaciones y experiencia más recientes."
+      },
+      "editorialIndependence": {
+        "title": "Independencia Editorial",
+        "description": "Nuestra plataforma es apoyada en parte por publicidad, sin embargo, nuestro contenido se produce de acuerdo con el código de conducta editorial. En algunos casos, los patrocinadores pueden tener aportes sobre conceptos amplios, pero no tienen influencia material sobre el producto final. Este contenido creado en colaboración con anunciantes está claramente marcado como tal."
+      },
+      "privacy": {
+        "title": "Privacidad",
+        "description": "Entendemos que la salud es un tema sensible, y mantenemos una política de privacidad estricta para proteger tu información personal y datos de navegación."
+      }
+    },
+    "callToAction": {
+      "title": "Únete a Nuestra Comunidad",
+      "description": "Comienza tu viaje hacia una vida mejor hoy. Explora nuestros artículos sobre todo, desde salud y fitness hasta belleza, relaciones y estilo de vida. Comparte tus experiencias y conviértete en parte de nuestra creciente comunidad de mujeres empoderadas.",
+      "button": "Comenzar a Explorar"
+    }
+  },
+  "privacyPolicy": {
+    "hero": {
+      "title": "Política de Privacidad",
+      "subtitle": "Respetamos tu privacidad y nos comprometemos a proteger tu información personal. Descubre cómo recopilamos, utilizamos y protegemos tus datos."
+    },
+    "title": "Aviso de Privacidad",
+    "lastUpdated": "Última Actualización:",
+    "highlights": {
+      "title": "Aviso de Privacidad – Aspectos Destacados",
+      "description": "Cuando usas o interactúas con el sitio web de Women's Spot, aplicación móvil u otros servicios digitales (cada uno un 'Servicio Digital') o completas formularios para suscribirte a nuestro contenido, participar en concursos o proporcionar tus datos en eventos, nosotros y terceros obtenemos cierta información sobre ti. En esta sección de Aspectos Destacados, proporcionamos una visión general de nuestras prácticas de privacidad relacionadas con los Servicios Digitales. Por favor, revisa nuestro Aviso de Privacidad completo a continuación para una explicación detallada de nuestras prácticas."
+    },
+    "sections": {
+      "whatInformationWeObtain": {
+        "title": "Qué Información Obtenemos",
+        "items": [
+          "Información que proporcionas cuando usas los Servicios Digitales o solicitas contenido, productos o servicios relacionados, incluyendo cuando te suscribes a boletines, creas una cuenta o te registras para una membresía a través de los Servicios Digitales. Esto puede incluir tu información de contacto, pago o demográfica.",
+          "Información que envías cuando eliges participar en una encuesta, sorteo, concurso, promoción, evento o iniciativa similar.",
+          "Información que nos das sobre otros, como la información de contacto de un amigo cuando solicitas una suscripción de regalo.",
+          "Información recopilada por Cookies y Tecnologías Similares. Esto incluye información sobre tu dispositivo y navegador, incluyendo dirección IP o identificadores publicitarios de dispositivos móviles, así como información sobre cómo tú y otros usan, interactúan o responden a los Servicios Digitales.",
+          "Información precisa de ubicación asociada con tu dispositivo cuando los servicios de ubicación están activos.",
+          "Información que obtenemos de otras fuentes, como socios comerciales, proveedores de datos y plataformas de redes sociales."
+        ]
+      },
+      "howWeUseInformation": {
+        "title": "Cómo Usamos la Información que Obtenemos y Nuestras Bases Legales para Hacerlo",
+        "items": [
+          "Para procesar tus solicitudes y suscripciones y proporcionarte los Servicios Digitales, incluyendo para entregar contenido personalizado o recomendaciones.",
+          "Para aprender sobre los usuarios de los Servicios Digitales y analizar cómo tú y otros interactúan y responden a los Servicios Digitales.",
+          "Para comunicarnos contigo, incluyendo para enviarte comunicaciones de marketing y promocionales.",
+          "Para propósitos de publicidad y marketing, incluyendo para entregar anuncios basados en intereses, para vinculación entre dispositivos y para analizar el rendimiento de las actividades de publicidad y marketing.",
+          "Para proteger nuestros derechos y los derechos de otros.",
+          "Procesamos información personal para diferentes propósitos en las siguientes bases legales: para cumplir con nuestro contrato contigo, para perseguir nuestros intereses legítimos, para cumplir con nuestras obligaciones legales y de otra manera con tu consentimiento o bajo tu dirección."
+        ]
+      },
+      "howWeShareInformation": {
+        "title": "Cómo Compartimos la Información",
+        "items": [
+          "Con proveedores de servicios que realizan servicios o manejan transacciones en nuestro nombre.",
+          "Con anunciantes, proveedores de servicios de publicidad y marketing y socios, así como empresas que nos ayudan a aprender cómo tú y otros interactúan con nuestro contenido.",
+          "Con plataformas de redes sociales y servicios similares, incluyendo cuando interactúas con nuestros Servicios Digitales que integran herramientas y servicios proporcionados por plataformas de redes sociales.",
+          "Con socios comerciales, como cuando nos asociamos con un tercero para ofrecer productos o servicios en una base co-marcada.",
+          "Otras partes cuando lo requiera la ley o sea necesario para proteger nuestros derechos, y en el contexto de transacciones corporativas.",
+          "Con tu consentimiento o de otra manera bajo tu dirección."
+        ]
+      },
+      "yourChoices": {
+        "title": "Tus Opciones, Incluyendo Marketing y Cancelaciones de Anuncios Basados en Intereses",
+        "items": [
+          "Puedes tomar medidas para limitar el uso de tu información para publicidad basada en intereses en tu navegador o dispositivo móvil.",
+          "Puedes cancelar la suscripción a nuestros emails de marketing o promocionales haciendo clic en el enlace 'Cancelar Suscripción' en nuestros emails."
+        ]
+      },
+      "additionalInformation": {
+        "title": "Información Adicional",
+        "items": [
+          "Usamos una variedad de tecnologías y procedimientos de seguridad para ayudar a proteger la información del acceso, uso o divulgación no autorizados.",
+          "Eliminamos tus datos cuando ya no son requeridos por razones comerciales legítimas o legales.",
+          "Implementamos salvaguardas apropiadas para proteger tus datos cuando son transferidos, almacenados y procesados en un país que no tiene leyes de protección de datos similares a la Unión Europea o Reino Unido.",
+          "Los Servicios Digitales no están destinados para uso por niños menores de 13 años."
+        ]
+      },
+      "howWeProtectAndStore": {
+        "title": "Cómo Protegemos y Almacenamos tu Información",
+        "description1": "Usamos una variedad de tecnologías y procedimientos de seguridad para ayudar a proteger la información del acceso, uso o divulgación no autorizados.",
+        "description2": "Mantendremos tu información personal durante el tiempo que tengamos una relación contigo. Una vez que nuestra relación contigo haya terminado, conservaremos tu información personal por un período de tiempo que nos permita:",
+        "items": [
+          "Mantener registros comerciales para análisis, comprensión de tendencias del mercado y/o propósitos de auditoría y para mejorar nuestros Servicios Digitales.",
+          "Cumplir con los requisitos de retención de registros bajo leyes aplicables u otros requisitos legales o regulatorios relevantes.",
+          "Defender, establecer, ejercer o presentar cualquier reclamo legal existente o potencial.",
+          "Llevar a cabo detección y prevención de fraude.",
+          "Manejar cualquier queja relacionada con los Servicios Digitales, nuestros productos y servicios."
+        ]
+      },
+      "internationalDataTransfer": {
+        "title": "Transferencia Internacional de Datos",
+        "description1": "En ciertas circunstancias, tu información personal será transferida, almacenada y procesada en países fuera de la Unión Europea o Reino Unido que no tienen leyes de protección de datos similares a la Unión Europea o Reino Unido.",
+        "description2": "En tales circunstancias implementamos salvaguardas apropiadas para proteger tus datos, incluyendo compromisos contractuales."
+      },
+      "childrensPrivacyRights": {
+        "title": "Derechos de Privacidad de los Niños",
+        "description": "Los Servicios Digitales no están destinados para uso por niños, especialmente aquellos menores de 13 años, y no recopilamos conscientemente información personal de niños menores de 13 años."
+      },
+      "linksToThirdParty": {
+        "title": "Enlaces a Sitios Web de Terceros, Aplicaciones Móviles u Otros Servicios",
+        "description1": "Los Servicios Digitales contienen enlaces a sitios web y aplicaciones móviles, incluyendo Plataformas de Redes Sociales, u otros canales no operados por o afiliados con Women's Spot (colectivamente \"Servicios de Terceros\").",
+        "description2": "Los operadores de estos Servicios de Terceros usan cookies y otras tecnologías para recopilar información sobre tu navegador o dispositivo, incluyendo información sobre tu navegación desde los Servicios Digitales a los Servicios de Terceros. Los datos recopilados de estos enlaces cuando dejas nuestros Servicios Digitales son determinados por los Servicios de Terceros, y actúan como controladores separados de tus datos.",
+        "description3": "No somos responsables de las prácticas de privacidad de ningún Servicio de Terceros, y te alentamos a revisar las políticas de privacidad o avisos publicados por los Servicios de Terceros que puedas visitar."
+      },
+      "changesToPrivacyNotice": {
+        "title": "Cambios a Este Aviso de Privacidad",
+        "description1": "Actualizamos este Aviso de Privacidad de vez en cuando para reflejar cambios en nuestras prácticas de privacidad o leyes aplicables. Donde los cambios a este Aviso de Privacidad tengan un impacto fundamental en la naturaleza del procesamiento o de otra manera tengan un impacto sustancial en ti, te daremos aviso anticipado para que tengas la oportunidad de ejercer tus derechos.",
+        "description2": "Publicaremos la versión actualizada en los Servicios Digitales relevantes e indicaremos en la parte superior del Aviso de Privacidad cuándo fue actualizado más recientemente. Tu uso de los Servicios Digitales será gobernado por la versión entonces actual del Aviso de Privacidad."
+      }
+    }
+  },
+  "cookiePolicy": {
+    "hero": {
+      "title": "Política de Cookies",
+      "subtitle": "Utilizamos cookies y tecnologías similares para mejorar tu experiencia en nuestra plataforma. Descubre cómo utilizamos cookies y cómo puedes gestionar tus preferencias."
+    },
+    "title": "Política de Cookies",
+    "introduction": {
+      "paragraph1": "Esta Política de Cookies se aplica al Servicio Digital que enlaza a esta Política de Cookies y forma parte del Aviso de Privacidad, que describe nuestras prácticas de manejo de datos y está disponible aquí. En los Servicios Digitales, Women's Spot ('nosotros', 'nosotras', 'nuestro' o 'Women's Spot') y terceros, incluyendo nuestros proveedores de servicios publicitarios y de marketing y socios, utilizan una variedad de tecnologías incluyendo cookies ('Cookies y Tecnologías Similares').",
+      "paragraph2": "Las Cookies y Tecnologías Similares varían dependiendo de los Servicios Digitales e incluyen cookies, web beacons, etiquetas, scripts, píxeles, objetos locales compartidos (incluyendo cookies HTML5) y kits de desarrollo de software ('SDKs'). Puedes leer más abajo sobre los tipos de cookies que utilizamos, por qué las utilizamos y cómo puedes ejercer tus opciones con respecto a las Cookies y Tecnologías Similares."
+    },
+    "sections": {
+      "whatAreCookies": {
+        "title": "¿QUÉ SON LAS COOKIES Y TECNOLOGÍAS SIMILARES?",
+        "paragraphs": [
+          "Los Servicios Digitales registran automáticamente cierta información sobre las visitas a los Servicios Digitales usando Cookies y Tecnologías Similares, como el número y frecuencia de visitantes, información técnica sobre navegadores y dispositivos utilizados para acceder a los Servicios Digitales, e información sobre fallos u otros problemas técnicos. Las Cookies y Tecnologías Similares que registran esta información son necesarias para permitir que los Servicios Digitales funcionen.",
+          "Nosotros y terceros podemos recopilar automáticamente cierta información a través de Cookies y Tecnologías Similares sobre tus actividades a lo largo del tiempo en los Servicios Digitales, así como en sitios, aplicaciones u otros medios de terceros. Las Cookies y Tecnologías Similares pueden estar incluidas en nuestras páginas web, aplicaciones móviles, correos electrónicos y otro contenido digital. Pueden asignar o recopilar IDs únicos de cookies u otros identificadores asociados con tu navegador o dispositivo. Pueden recopilar información mientras usas nuestros Servicios Digitales o mientras están ejecutándose en segundo plano de tu dispositivo.",
+          "Las Cookies y Tecnologías Similares en los Servicios Digitales pueden ser servidas directamente por Women's Spot (referidas como 'cookies de primera parte') o por otros como anunciantes y empresas de análisis de datos (referidas como 'cookies de terceros').",
+          "Las Cookies y Tecnologías Similares son específicas del navegador y dispositivo y pueden durar por diferentes períodos de tiempo. Algunas se eliminan automáticamente una vez que cierras tu navegador o sales del Servicio Digital. Estas a veces se refieren como 'cookies de sesión'. Otras cookies son 'cookies persistentes', lo que significa que permanecen en tu dispositivo después de que tu navegador esté cerrado."
+        ]
+      },
+      "whichCookies": {
+        "title": "¿QUÉ COOKIES UTILIZAMOS Y POR QUÉ LAS UTILIZAMOS?",
+        "description": "Nuestro Panel de Cookies proporciona información sobre las diferentes categorías de Cookies y Tecnologías Similares que utilizan los Servicios Digitales, las empresas que las sirven y por qué las utilizamos. El Panel de Cookies siempre está disponible desde nuestros sitios web. Si tienes alguna pregunta sobre nuestro uso de Cookies y Tecnologías Similares, por favor contáctanos usando los detalles proporcionados en la sección 'Contáctanos' de nuestro Aviso de Privacidad."
+      },
+      "yourChoices": {
+        "title": "TUS OPCIONES, INCLUYENDO CANCELACIONES",
+        "paragraphs": [
+          "Las Cookies y Tecnologías Similares nos ayudan a nosotros, nuestros proveedores de servicios y socios comerciales a proporcionar y personalizar los Servicios Digitales. Tienes el derecho de elegir si aceptar o no ciertas Cookies y Tecnologías Similares. Sin embargo, si eliges rechazar o eliminar Cookies y Tecnologías Similares, esto podría afectar la disponibilidad y funcionalidad de los Servicios Digitales.",
+          "Por favor, utiliza el Panel de Cookies para ajustar tus preferencias. Adicionalmente, dependiendo de cómo accedas a los Servicios Digitales, puedes ejercer tus opciones a través de otros canales como se indica a continuación:"
+        ],
+        "subsections": {
+          "websiteOptOut": {
+            "title": "Cancelación del Sitio Web (Navegador)",
+            "paragraphs": [
+              "La mayoría de los navegadores aceptan cookies por defecto. Puedes ser capaz de cambiar la configuración para que tu navegador rechace ciertas Cookies y Tecnologías Similares o te notifique antes de aceptar cookies. Para hacerlo, por favor sigue las instrucciones proporcionadas por tu navegador que usualmente se encuentran dentro de la facilidad 'Ayuda', 'Herramientas' o 'Editar'.",
+              "Algunos terceros también proporcionan la capacidad de rechazar sus cookies directamente haciendo clic en un enlace de cancelación y deberías revisar la política de cookies del tercero relevante para averiguar más sobre sus cookies.",
+              "También puedes seguir las instrucciones proporcionadas por la Alianza Europea de Publicidad Digital Interactiva ('EDAA') aquí para cancelar las Cookies de empresas que han elegido participar en el esquema de cancelación de la EDAA."
+            ]
+          },
+          "mobileAppOptOut": {
+            "title": "Cancelación de Aplicación Móvil",
+            "paragraphs": [
+              "Para limitar el seguimiento con fines publicitarios en tu dispositivo móvil, puedes revisar y ajustar la configuración proporcionada por el fabricante de tu dispositivo, como 'Limitar Seguimiento de Anuncios' para iOS o 'Cancelar anuncios basados en intereses' para Android.",
+              "Por favor ten en cuenta que a medida que el entorno móvil continúa evolucionando, pueden estar disponibles mecanismos de cancelación adicionales o configuraciones de privacidad. Te animamos a revisar la información sobre cancelaciones y configuraciones que los fabricantes de dispositivos, empresas de tecnología y asociaciones de la industria ponen a tu disposición también."
+            ]
+          },
+          "moreInformation": {
+            "title": "Más Información",
+            "description": "Para más información sobre Cookies y Tecnologías Similares y cómo ejercer tus opciones, por favor visita",
+            "links": {
+              "allaboutcookies": "www.allaboutcookies.org",
+              "youronlinechoices": "www.youronlinechoices.eu"
+            }
+          }
+        }
+      }
+    }
+  },
+  "termsConditions": {
+    "hero": {
+      "title": "Términos y Condiciones",
+      "subtitle": "Por favor, lee estos términos y condiciones cuidadosamente antes de usar nuestra plataforma. Al acceder o usar Women's Spot, aceptas estar sujeto a estos términos."
+    },
+    "title": "Términos y Condiciones",
+    "termsOfUse": {
+      "title": "Términos de uso",
+      "description": "Significados y definiciones utilizados en estos Términos:",
+      "definitions": [
+        {
+          "term": "Foro(s) de Discusión",
+          "definition": "significa las áreas de chat, tableros de anuncios o instalaciones de foro proporcionadas en los Sitios;"
+        },
+        {
+          "term": "Women's Spot",
+          "definition": "significa Women's Spot, el nombre comercial de Women's Spot Limited cuyas oficinas registradas están en [Dirección] y cualquiera de sus empresas subsidiarias o de empresa conjunta;"
+        },
+        {
+          "term": "Sitio(s)",
+          "definition": "significa el(los) sitio(s) web propiedad y operados por Women's Spot;"
+        },
+        {
+          "term": "Términos",
+          "definition": "significa estos términos de uso para usuarios de los Sitios."
+        }
+      ]
+    },
+    "sections": {
+      "introduction": {
+        "title": "1. INTRODUCCIÓN A LOS TÉRMINOS",
+        "items": [
+          "Este Sitio es propiedad y está operado por Women's Spot.",
+          "Estos Términos rigen el uso del Sitio, incluyendo la participación en los Foros de Discusión.",
+          "Los Sitios están diseñados para proporcionar un foro, agradable para todos, para el intercambio de opiniones, comentarios e información y, por lo tanto, Women's Spot requiere que sus usuarios cumplan con estos Términos. Tu uso del Sitio constituirá tu acuerdo para cumplir con estos Términos.",
+          "Si no estás de acuerdo con estos Términos, no debes usar los Sitios.",
+          "Women's Spot puede modificar estos Términos de vez en cuando. El uso continuado de los Sitios por ti constituirá tu aceptación de cualquier cambio o revisión de los Términos, por lo que es sabio revisar esta página regularmente.",
+          "Podemos terminar tu acceso a los Sitios, sin previo aviso, además de nuestros otros recursos si no sigues estos Términos.",
+          "De vez en cuando, nuestros Sitios pueden publicar artículos o características que algunos visitantes del sitio pueden encontrar ofensivos. Women's Spot no tiene la intención de ofender y sugiere que los visitantes del Sitio que encuentren el tono o contenido de los Sitios ofensivos, ya no visiten los Sitios. No se asume responsabilidad por ninguna ofensa causada."
+        ]
+      },
+      "useOfSites": {
+        "title": "2. USO DE LOS SITIOS POR TI",
+        "items": [
+          "Women's Spot o sus licenciantes poseen todo el material en los Sitios. Puedes recuperar y mostrar contenido de estos Sitios en una pantalla de computadora, imprimir páginas individuales en papel (pero no fotocopiarlas) y almacenar dichas páginas en forma electrónica en disco (pero no en ningún servidor u otro dispositivo de almacenamiento conectado a una red) para tu propio uso personal y no comercial. No puedes de ninguna manera hacer uso comercial o no autorizado, por publicación, re-transmisión, distribución, interpretación, almacenamiento en caché o de otra manera, del material obtenido a través de los Sitios.",
+          "Reconoces que todas las marcas de revistas son marcas comerciales y que no puedes usarlas sin el permiso previo por escrito de Women's Spot.",
+          "No puedes autorizar a otros a usar los Sitios, y eres responsable de todo tu propio uso de los Sitios. Acuerdas no usar ningún lenguaje obsceno, indecente u ofensivo, o colocar en los Sitios cualquier material que sea falso, difamatorio, abusivo, acosador u odioso. Además, no puedes colocar en los Sitios ningún material que esté encriptado, constituya correo basura o publicidad no autorizada, invada la privacidad de cualquier persona, anime conductas que constituirían un delito penal o den lugar a responsabilidad civil, o que de otra manera viole cualquier ley o regulación local, estatal, nacional o internacional. Acuerdas usar los Sitios solo para propósitos legales y reconoces que tu falla en hacerlo puede sujetarte a responsabilidad civil y penal.",
+          "Eres responsable de todas las actividades bajo tu contraseña o cuenta, y debes mantener tu contraseña confidencial. Debes notificarnos inmediatamente de cualquier uso no autorizado de tu contraseña o cuenta o cualquier otra violación de seguridad. No debes interrumpir el funcionamiento del Sitio, solicitar o usar la contraseña de otro usuario o de otra manera actuar de una manera que interfiera con el uso del Sitio por otros usuarios.",
+          "Además de conectarte a los servidores de Women's Spot por solicitudes HTTP usando un navegador web, no puedes intentar obtener acceso a los servidores de Women's Spot por cualquier medio, incluyendo, sin limitación, usando contraseñas de administrador o haciéndote pasar por un administrador mientras usas los Sitios o de otra manera.",
+          "Eres responsable de asegurar que cualquier material que proporciones a los Sitios o publiques en un Foro de Discusión, incluyendo pero no limitado a texto, fotografías y sonido, no viole los derechos de autor, marca comercial, secreto comercial o cualquier otro derecho personal o de propiedad de cualquier tercero.",
+          "Acuerdas no interrumpir, modificar o interferir con los Sitios o su software, hardware y servidores asociados de ninguna manera, y acuerdas no impedir o interferir con el uso de los Sitios por otros. Además acuerdas no alterar o manipular cualquier información o materiales en, o asociados con, los Sitios.",
+          "Reconoces que Women's Spot no ha revisado y no respalda el contenido de todos los sitios enlazados desde los Sitios y no es responsable del contenido o acciones de ningún otro sitio enlazado desde los Sitios. Enlazar a cualquier otro servicio o sitio desde este Sitio es bajo tu propio riesgo."
+        ]
+      },
+      "ageLimit": {
+        "title": "3. LÍMITE DE EDAD",
+        "description": "Al usar los Sitios o publicar contenido en cualquier Foro de Discusión confirmas que tienes 18 años o más o, si eres menor de 18 años, que has recibido el consentimiento de tu padre o tutor para celebrar estos Términos."
+      },
+      "useOfDiscussionForums": {
+        "title": "4. USO DE LOS FOROS DE DISCUSIÓN POR TI",
+        "items": [
+          "Estos Términos han sido puestos en su lugar para ayudar a asegurar que el Foro de Discusión sea un recurso acogedor y útil para todos los usuarios. Estos Términos describen lo que se considera comportamiento inaceptable y es importante leerlos cuidadosamente.",
+          "Los usuarios de los Foros de Discusión garantizan y se comprometen a que no: publicarán comentarios difamatorios o calumniosos; publicarán cualquier cosa relacionada con cualquier juicio en curso o pendiente; publicarán contenido que hayas copiado de otra persona (es decir, no posees los derechos de autor); usarán profanidades; publicarán un insulto personal sobre otro usuario; harán publicidad o solicitarán; se harán pasar por otro usuario; publicarán material que esté deliberadamente destinado a molestar a otros usuarios; o usarán los Foros de Discusión de cualquier otra manera que se consideraría ilegal, inmoral o irresponsable.",
+          "No podemos y no revisamos cada publicación antes de que aparezca en los Sitios. Women's Spot opera una política de 'aviso y eliminación' lo que significa que si Women's Spot nota o se entera de una publicación que contraviene estos Términos, Women's Spot se reserva el derecho de modificar o eliminar la publicación.",
+          "Women's Spot te anima a contactarnos si sientes que una publicación viola estos Términos. Por favor usa la función de reporte en el Sitio para hacérnoslo saber.",
+          "Eres responsable del contenido de tus publicaciones y Women's Spot no acepta ninguna responsabilidad por el contenido o precisión de tus mensajes.",
+          "Los usuarios del Sitio pueden enviar material para publicación en los Foros de Discusión. Women's Spot no acepta ninguna responsabilidad con respecto a cualquier material enviado por usuarios y publicado por Women's Spot y Women's Spot no es responsable de su contenido o precisión.",
+          "Si quieres enviar material a los Foros de Discusión puedes hacerlo en estos Términos.",
+          "Garantizas que el material que envías no es obsceno, ofensivo, acosador, difamatorio o de otra manera ilegal.",
+          "Reconoces que cualquier violación de estas garantías puede causar daño o pérdida a Women's Spot y acuerdas indemnizar y mantener indemne a Women's Spot completa y permanentemente contra cualquier responsabilidad de terceros, reclamos, costos, pérdida o daño incurrido por Women's Spot como resultado de publicar cualquier material que nos envíes, incluyendo pérdida consecuente.",
+          "Debería Women's Spot enterarse de cualquier actividad que sería contraria a los Términos o determinar en su única discreción ser inaceptable, entonces Women's Spot se reserva el derecho de tomar acción incluyendo eliminación temporal o permanente de contenido, filtrado de transmisiones de internet y/o excluir al usuario con efecto inmediato y, donde sea necesario, reenviar cualquier material incriminatorio en su posesión a la policía del Reino Unido u otras autoridades relevantes.",
+          "Aceptas que Women's Spot puede mantener un registro de tu IP y/o dirección de host solo para fines de referencia (para mantener un seguimiento de la cantidad de visitantes por día). En el evento de cualquier violación de estos Términos, Women's Spot puede ver y agregar tu IP y/o dirección de host a una 'base de datos de exclusión' para evitar que obtengas mayor acceso a los Sitios. Estas direcciones no son distribuidas o entregadas a ningún servicio de terceros."
+        ]
+      },
+      "useOfMaterialPosted": {
+        "title": "5. USO DEL MATERIAL PUBLICADO POR TI",
+        "description": "Las publicaciones en los Foros de Discusión no son privadas. Otorgas a Women's Spot una licencia perpetua libre de regalías no exclusiva para usar, reproducir, modificar, traducir, transmitir, distribuir y sub-licenciar cualquier información o material que proporciones o comuniques a los Sitios a través de dichas publicaciones, en cualquier medio ahora en existencia o desarrollado en el futuro, para cualquier propósito."
+      },
+      "privacy": {
+        "title": "6. PRIVACIDAD",
+        "description": "La información que proporcionas sobre ti mismo a Women's Spot solo será utilizada por Women's Spot de acuerdo con su Política de Privacidad disponible en nuestra página de política de privacidad. La Política de Privacidad no se aplica a sitios de terceros."
+      },
+      "safety": {
+        "title": "7. SEGURIDAD",
+        "description": "Por favor recuerda que publicar tu nombre, información de contacto o cualquier otra información personal en el Sitio coloca dicha información en el dominio público. Siempre usa precaución al dar información. Te aconsejamos que no reveles ninguna información sobre ti mismo o cualquier otra persona (por ejemplo: nombre completo, número de teléfono, dirección postal, dirección de email, dirección de casa o cualquier otro detalle que te permita ser identificado personalmente) en el Sitio."
+      },
+      "informationAndAvailability": {
+        "title": "8. INFORMACIÓN Y DISPONIBILIDAD",
+        "items": [
+          "Mientras Women's Spot toma todo el cuidado para asegurar que la información en estos Sitios sea precisa y completa, algo de ella es suministrada a Women's Spot por terceros y Women's Spot no puede verificar su precisión o completitud. Se te aconseja verificar la precisión de cualquier información antes de confiar en ella.",
+          "Además, debido a la naturaleza inherente de Internet, pueden ocurrir errores, interrupciones y retrasos en el servicio en cualquier momento. En consecuencia, los Sitios de Women's Spot se proporcionan \"tal como están\" sin ninguna garantía de ningún tipo y Women's Spot no acepta ninguna responsabilidad que surja de cualquier imprecisión u omisión en la información o interrupción en la disponibilidad."
+        ]
+      },
+      "links": {
+        "title": "9. ENLACES",
+        "items": [
+          "Cualquier sitio web de terceros que enlace a este Sitio no debe: crear un marco o cualquier otro entorno de navegador o borde alrededor del contenido de este Sitio; implicar que Women's Spot lo está respaldando o sus productos o servicios; usar cualquier marca comercial de Women's Spot mostrada en cualquier Sitio de Women's Spot sin permiso de Women's Spot; infringir cualquier derecho de propiedad intelectual u otro derecho de cualquier persona; ser un sitio web que contenga contenido que podría ser interpretado como de mal gusto, ofensivo o controvertido.",
+          "Women's Spot expresamente se reserva el derecho de solicitar que cualquier enlace en violación de estos Términos sea removido y tomar cualquier otra acción que considere apropiada.",
+          "En estos Sitios se te pueden ofrecer enlaces automáticos a otros sitios. Mientras Women's Spot espera que te interesarás en esos otros sitios, reconoces que sus propietarios pueden ser independientes de Women's Spot y Women's Spot no respalda ni acepta ninguna responsabilidad por su contenido.",
+          "Las páginas del Sitio pueden contener algunos enlaces de marketing de afiliados contextuales creados por terceros. Las compras realizadas en estos sitios de terceros son la única responsabilidad de ese sitio. Las compras realizadas a través de estos enlaces pueden resultar en una comisión siendo ganada por Women's Spot."
+        ]
+      },
+      "general": {
+        "title": "10. GENERAL",
+        "items": [
+          "Estos Términos junto con cualquier término adicional que se te llame la atención constituyen el acuerdo completo y entero entre las partes y reemplazan cualquier acuerdo previo, ya sea escrito u oral.",
+          "Si se encuentra que alguna disposición de estos Términos es inválida por cualquier tribunal que tenga jurisdicción competente, la invalidez de esa disposición no afectará la validez de las disposiciones restantes de estos Términos, que permanecerán en pleno vigor y efecto.",
+          "Estos Términos no están destinados a beneficiar o ser ejecutables por ningún tercero y la Ley de Contratos (Derechos de Terceros) de 1999 no se aplicará a estos Términos.",
+          "La falla de cualquiera de las partes para ejercer cualquier derecho o recurso bajo estos Términos no constituye una renuncia a ese derecho o recurso.",
+          "A menos que se especifique lo contrario en los Sitios, el contenido de los Sitios está dirigido únicamente a aquellos que acceden a los Sitios desde el Reino Unido. Women's Spot no hace ninguna representación de que cualquier contenido de los Sitios sea apropiado para uso en otro lugar, o disponible en cualquier otra ubicación. Aquellos que elijan acceder a los Sitios desde cualquier otra ubicación son únicamente responsables del cumplimiento de las leyes y regulaciones locales si y en la medida en que sean aplicables.",
+          "Acuerdas que estos Términos, para todos los propósitos, serán gobernados por y construidos de acuerdo con la ley inglesa. También acuerdas, sujeto a la siguiente cláusula, someterte a la jurisdicción exclusiva de los tribunales ingleses en cuanto a cualquier reclamo o asunto que surja bajo estos Términos.",
+          "Para el beneficio exclusivo de Women's Spot, Women's Spot retendrá el derecho de traer procedimientos en cuanto a la sustancia del asunto en los tribunales del país de tu residencia."
+        ]
+      }
+    },
+    "warning": {
+      "message": "Por favor abandona los Sitios ahora si no estás de acuerdo con estos Términos"
+    }
+  },
+  "confirmEmail": {
+    "title": "Confirmación de Email",
+    "loading": "Confirmando tu email...",
+    "section": {
+      "title": "Confirma tu Email",
+      "description": "Por favor verifica tu dirección de email para completar tu registro"
+    },
+    "success": {
+      "title": "¡Email Confirmado!",
+      "signInButton": "Iniciar Sesión"
+    },
+    "error": {
+      "title": "Confirmación Fallida",
+      "backToSignInButton": "Volver a Iniciar Sesión"
+    },
+    "messages": {
+      "noToken": "No se encontró token de verificación.",
+      "confirmationFailed": "La confirmación del email falló.",
+      "unexpectedError": "Ocurrió un error al confirmar tu email."
+    }
+  },
+  "footer": {
+    "brandName": "Salud y Bienestar",
+    "brandDescription": "Tu fuente confiable de contenido de salud, fitness y estilo de vida. Empoderando a las mujeres para vivir sus mejores vidas.",
+    "quickLinks": "Enlaces Rápidos",
+    "aboutUs": "Acerca de Nosotros",
+    "contact": "Contacto",
+    "privacyPolicy": "Política de Privacidad",
+    "getInTouch": "Ponte en Contacto",
+    "address": "Barcelona, Spain",
+    "copyright": "© 2024 Salud y Bienestar. Todos los derechos reservados.",
+    "termsOfService": "Términos de Servicio",
+    "followUs": "Síguenos",
+    "cookiePolicy": "Política de Cookies",
+    "siteMap": "Mapa del Sitio",
+    "termsAndConditions": "Términos y Condiciones",
+    "cookiesPolicy": "Política de Cookies"
+  },
+  "socialMedia": {
+    "followUs": "Síguenos",
+    "catchMessage": "Ayuda a nuestra comunidad a crecer siguiéndonos en redes sociales"
+  },
+  "article": {
+    "toasts": {
+      "likedSuccess": "Artículo marcado como me gusta exitosamente",
+      "likedSuccessMessage": "¡Tu me gusta ha sido agregado exitosamente!",
+      "unlikedSuccess": "Artículo desmarcado como me gusta exitosamente",
+      "unlikedSuccessMessage": "¡Tu me gusta ha sido removido exitosamente!",
+      "likeError": "Error al marcar como me gusta el artículo",
+      "likeErrorMessage": "Por favor intenta de nuevo más tarde"
+    },
+    "info": {
+      "category": "Categoría:",
+      "categotyTypes": {
+        "health": "Salud",
+        "fitness": "Fitness",
+        "nutrition": "Nutrición",
+        "beauty": "Belleza"
+      },
+      "published": "Publicado:",
+      "views": "Vistas:",
+      "likes": "Me gusta:",
+      "author": "Autor",
+      "language": "Idioma",
+      "slug": "Slug",
+      "date": "Fecha"
+    },
+    "actions": {
+      "likeArticle": "Me gusta artículo",
+      "unlikeArticle": "No me gusta artículo",
+      "likes": "Me gusta",
+      "edit": "Editar Artículo",
+      "delete": "Eliminar Artículo",
+      "backToList": "Volver a Artículos"
+    },
+    "deleteModal": {
+      "title": "Eliminar Artículo",
+      "description": "¿Estás seguro de que quieres eliminar este artículo? Esta acción no se puede deshacer y eliminará permanentemente el artículo y todos sus comentarios.",
+      "articleTitle": "Título del Artículo",
+      "confirm": "Sí, Eliminar Artículo",
+      "cancel": "Cancelar",
+      "deleting": "Eliminando...",
+      "success": "Artículo eliminado exitosamente",
+      "error": "Error al eliminar artículo"
+    },
+    "imageAlt": " - Sección ",
+    "exploreMore": "Artículos seleccionados solo para ti",
+    "exploreMoreDescription": "Descubre más artículos en esta categoría que puedan interesarte",
+    "error": {
+      "insufficientContent": "Contenido Insuficiente",
+      "insufficientContentMessage": "Este artículo no cumple con los requisitos mínimos de contenido para su visualización.",
+      "requiredSections": "Requerido: {required} secciones, Actual: {current} secciones"
+    }
+  },
+  "articles": {
+    "categoryNotFound": "Categoría no encontrada",
+    "noArticlesFound": "No se encontraron artículos",
+    "noArticlesAvailable": "No hay artículos disponibles en esta categoría en este momento.",
+    "health": {
+      "heroImageAlt": "Imagen hero de artículos de salud",
+      "title": "Artículos de Salud",
+      "description": "Nuestros mejores insights sobre salud, una colección completa de artículos de salud, consejos y guías para ayudarte a vivir una vida más saludable y plena.",
+      "featuredArticles": {
+        "title": " Artículos de Salud Destacados",
+        "description": "Descubre nuestras últimas noticias, consejos y guías, manteniéndote al día con las últimas tendencias en salud y bienestar."
+      },
+      "explore": {
+        "title": "Explorar Artículos de Salud",
+        "description": "Nuestra colección completa de artículos de salud, consejos, todo lo que necesitas saber sobre salud y bienestar."
+      }
+    },
+    "fitness": {
+      "heroImageAlt": "Imagen hero de artículos de fitness",
+      "title": "Artículos de Fitness",
+      "description": "Nuestros mejores insights sobre fitness, una colección completa de artículos de fitness, consejos y guías para ayudarte a vivir una vida más saludable y plena.",
+      "featuredArticles": {
+        "title": " Artículos de Fitness Destacados",
+        "description": "Descubre nuestras últimas noticias, consejos y guías, manteniéndote al día con las últimas tendencias en fitness y bienestar."
+      },
+      "explore": {
+        "title": "Explorar Artículos de Fitness",
+        "description": "Nuestra colección completa de artículos de fitness, consejos, todo lo que necesitas saber sobre fitness y bienestar."
+      }
+    },
+    "nutrition": {
+      "heroImageAlt": "Imagen hero de artículos de nutrición",
+      "title": "Artículos de Nutrición",
+      "description": "Nuestros mejores insights sobre nutrición, una colección completa de artículos de nutrición, consejos y guías para ayudarte a vivir una vida más saludable y plena.",
+      "featuredArticles": {
+        "title": " Artículos de Nutrición Destacados",
+        "description": "Descubre nuestras últimas noticias, consejos y guías, manteniéndote al día con las últimas tendencias en nutrición y bienestar."
+      },
+      "explore": {
+        "title": "Explorar Artículos de Nutrición",
+        "description": "Nuestra colección completa de artículos de nutrición, consejos, todo lo que necesitas saber sobre nutrición y bienestar."
+      }
+    },
+    "intimacy": {
+      "heroImageAlt": "Imagen hero de artículos de intimidad",
+      "title": "Artículos de Intimidad",
+      "description": "Nuestros mejores insights sobre intimidad, una colección completa de artículos de intimidad, consejos y guías para ayudarte a vivir una vida más saludable y plena.",
+      "featuredArticles": {
+        "title": " Artículos de Intimidad Destacados",
+        "description": "Descubre nuestras últimas noticias, consejos y guías, manteniéndote al día con las últimas tendencias en intimidad y bienestar."
+      },
+      "explore": {
+        "title": "Explorar Artículos de Intimidad",
+        "description": "Nuestra colección completa de artículos de intimidad, consejos, todo lo que necesitas saber sobre intimidad y bienestar."
+      }
+    },
+    "beauty": {
+      "heroImageAlt": "Imagen hero de artículos de belleza",
+      "title": "Artículos de Belleza",
+      "description": "Nuestros mejores insights sobre belleza, una colección completa de artículos de belleza, consejos y guías para ayudarte a vivir una vida más saludable y plena.",
+      "featuredArticles": {
+        "title": " Artículos de Belleza Destacados",
+        "description": "Descubre nuestras últimas noticias, consejos y guías, manteniéndote al día con las últimas tendencias en belleza y bienestar."
+      },
+      "explore": {
+        "title": "Explorar Artículos de Belleza",
+        "description": "Nuestra colección completa de artículos de belleza, consejos, todo lo que necesitas saber sobre belleza y bienestar."
+      }
+    },
+    "weight-loss": {
+      "heroImageAlt": "Imagen hero de artículos de pérdida de peso",
+      "title": "Artículos de Pérdida de Peso",
+      "description": "Nuestros mejores insights sobre pérdida de peso, una colección completa de artículos de pérdida de peso, consejos y guías para ayudarte a alcanzar tus objetivos de salud.",
+      "featuredArticles": {
+        "title": " Artículos de Pérdida de Peso Destacados",
+        "description": "Descubre nuestras últimas noticias, consejos y guías, manteniéndote al día con las últimas tendencias en pérdida de peso y bienestar."
+      },
+      "explore": {
+        "title": "Explorar Artículos de Pérdida de Peso",
+        "description": "Nuestra colección completa de artículos de pérdida de peso, consejos, todo lo que necesitas saber sobre gestión saludable del peso."
+      }
+    },
+    "life": {
+      "heroImageAlt": "Imagen hero de artículos de vida",
+      "title": "Artículos de Vida",
+      "description": "Nuestros mejores insights sobre vida, una colección completa de artículos de vida, consejos y guías para ayudarte a vivir tu mejor vida.",
+      "featuredArticles": {
+        "title": " Artículos de Vida Destacados",
+        "description": "Descubre nuestras últimas noticias, consejos y guías, manteniéndote al día con las últimas tendencias en vida y bienestar."
+      },
+      "explore": {
+        "title": "Explorar Artículos de Vida",
+        "description": "Nuestra colección completa de artículos de vida, consejos, todo lo que necesitas saber sobre vivir una vida plena."
+      }
+    }
+  },
+  "comments": {
+    "toasts": {
+      "createdSuccess": "Comentario creado exitosamente",
+      "createdSuccessMessage": "¡Tu comentario ha sido creado exitosamente!",
+      "createError": "Error al crear comentario",
+      "createErrorMessage": "Por favor intenta de nuevo más tarde",
+      "likedSuccess": "Comentario marcado como me gusta exitosamente",
+      "likedSuccessMessage": "¡Tu comentario ha sido marcado como me gusta exitosamente!",
+      "unlikedSuccess": "Comentario desmarcado como me gusta exitosamente",
+      "unlikedSuccessMessage": "¡Tu comentario ha sido desmarcado como me gusta exitosamente!",
+      "likeError": "Error al marcar como me gusta el comentario",
+      "likeErrorMessage": "Por favor intenta de nuevo más tarde",
+      "deletedSuccess": "Comentario eliminado exitosamente",
+      "deletedSuccessMessage": "¡Tu comentario ha sido eliminado exitosamente!",
+      "deleteError": "Error al eliminar comentario",
+      "deleteErrorMessage": "Por favor intenta de nuevo más tarde",
+      "reportedSuccess": "Comentario reportado exitosamente",
+      "reportedSuccessMessage": "¡Gracias por ayudar a mantener segura nuestra comunidad!",
+      "reportError": "Error al reportar comentario",
+      "reportErrorMessage": "Por favor intenta de nuevo más tarde"
+    },
+    "title": "Comentarios",
+    "form": {
+      "placeholder": "Comparte tus pensamientos...",
+      "charCount": "/1000 caracteres",
+      "submit": "Enviar Comentario",
+      "submitting": "Enviando...",
+      "alreadyCommented": "Ya has comentado en este artículo. ¡Gracias por tu contribución!",
+      "noComments": "Aún no hay comentarios. ¡Sé el primero en compartir tus pensamientos!"
+    },
+    "actions": {
+      "likeComment": "Me gusta comentario",
+      "unlikeComment": "No me gusta comentario",
+      "reportComment": "Reportar comentario",
+      "deleteComment": "Eliminar comentario"
+    },
+    "moderation": {
+      "reported": "Comentario reportado y bajo revisión",
+      "flagged": "Este comentario ha sido marcado para moderación"
+    },
+    "reportModal": {
+      "title": "Reportar Comentario",
+      "description": "Por favor selecciona una razón para reportar este comentario:",
+      "reasons": {
+        "badLanguage": "Lenguaje Inapropiado",
+        "racistContent": "Contenido Racista",
+        "spam": "Spam",
+        "harassment": "Acoso",
+        "inappropriateContent": "Contenido Inapropiado",
+        "falseInformation": "Información Falsa",
+        "other": "Otro"
+      },
+      "cancel": "Cancelar",
+      "submit": "Reportar Comentario",
+      "submitting": "Reportando..."
+    }
+  },
+  "newsletterConfirmation": {
+    "title": "Confirmación del Boletín",
+    "section": {
+      "title": "Confirma tu Suscripción al Boletín",
+      "description": "Por favor confirma tu suscripción para comenzar a recibir nuestro contenido más reciente sobre salud y bienestar"
+    },
+    "success": {
+      "title": "¡Suscripción Confirmada!",
+      "goHomeButton": "Ir a la Página Principal"
+    },
+    "error": {
+      "title": "Fallo en la Confirmación",
+      "backToHomeButton": "Volver al Inicio"
+    },
+    "messages": {
+      "missingParameters": "Se requieren token y email para confirmar tu suscripción.",
+      "confirmationFailed": "Hubo un error al confirmar tu suscripción. Intenta suscribirte de nuevo.",
+      "unexpectedError": "Ocurrió un error inesperado. Por favor intenta de nuevo más tarde."
+    }
+  },
+  "unsubscribe": {
+    "title": "Cancelar Suscripción al Boletín",
+    "description": "¡Lamentamos verte partir! Ingresa tu dirección de email para cancelar la suscripción a nuestro boletín.",
+    "section": {
+      "title": "Cancelar Suscripción al Boletín",
+      "description": "Gestiona tus preferencias de suscripción al boletín"
+    },
+    "processing": "Procesando...",
+    "processingMessage": "Espera mientras procesamos tu solicitud de cancelación.",
+    "successTitle": "Suscripción Cancelada Exitosamente",
+    "successMessage": "Has sido cancelado exitosamente de nuestro boletín. Ya no recibirás emails nuestros.",
+    "errorTitle": "Fallo en la Cancelación",
+    "errorMessage": "Hubo un error al procesar tu solicitud de cancelación. Intenta de nuevo.",
+    "invalidLinkTitle": "Enlace de Cancelación Inválido",
+    "invalidLinkMessage": "Este enlace de cancelación es inválido o ha expirado. Por favor contacta soporte si necesitas ayuda.",
+    "goHome": "Ir a la Página Principal"
+  },
+  "notFound": {
+    "title": "404 - Página No Encontrada",
+    "description": "La página que estás buscando no existe o ha sido movida.",
+    "heroImageAlt": "404 Página No Encontrada",
+    "returnHome": "Volver al Inicio"
+  },
+  "favorites": {
+    "title": "Mis Favoritos",
+    "subtitle": "Tienes {count} artículo favorito{count, plural, =1 {} other {s}}",
+    "heroImageAlt": "Mis Artículos Favoritos",
+    "noFavoritesTitle": "Aún No Hay Favoritos",
+    "noFavoritesDescription": "Comienza a dar me gusta a artículos para construir tu colección personal de contenido favorito de salud y bienestar."
+  },
+  "siteMap": {
+    "title": "Mapa del Sitio",
+    "description": "Navega por todas las páginas y características disponibles en Women's Spot. Encuentra todo, desde artículos de salud hasta herramientas de gestión de usuarios.",
+    "sections": {
+      "corePages": {
+        "title": "Páginas Principales",
+        "home": "Inicio",
+        "homeDescription": "Página principal",
+        "about": "Acerca de Nosotros",
+        "aboutDescription": "Conoce nuestra misión",
+        "search": "Buscar Artículos",
+        "searchDescription": "Encuentra contenido específico"
+      },
+      "articleCategories": {
+        "title": "Categorías de Artículos",
+        "health": "Salud",
+        "healthDescription": "Artículos de salud",
+        "fitness": "Fitness",
+        "fitnessDescription": "Artículos de fitness",
+        "nutrition": "Nutrición",
+        "nutritionDescription": "Artículos de nutrición",
+        "intimacy": "Intimidad",
+        "intimacyDescription": "Artículos de intimidad",
+        "beauty": "Belleza",
+        "beautyDescription": "Artículos de belleza",
+        "weight-loss": "Pérdida de Peso",
+        "weight-lossDescription": "Artículos de pérdida de peso",
+        "life": "Vida",
+        "lifeDescription": "Artículos de vida"
+      },
+      "userAccount": {
+        "title": "Cuenta de Usuario",
+        "signIn": "Iniciar Sesión",
+        "signInDescription": "Accede a tu cuenta",
+        "signUp": "Registrarse",
+        "signUpDescription": "Crear nueva cuenta",
+        "profile": "Perfil",
+        "profileDescription": "Gestiona tu perfil",
+        "dashboard": "Panel",
+        "dashboardDescription": "Tu panel personal",
+        "favorites": "Favoritos",
+        "favoritesDescription": "Artículos guardados"
+      },
+      "contentCreation": {
+        "title": "Creación de Contenido",
+        "createArticle": "Crear Artículo",
+        "createArticleDescription": "Escribir nuevos artículos"
+      },
+      "newsletter": {
+        "title": "Newsletter y Comunicación",
+        "confirmNewsletter": "Confirmar Newsletter",
+        "confirmNewsletterDescription": "Confirmación de newsletter",
+        "unsubscribe": "Cancelar Suscripción",
+        "unsubscribeDescription": "Gestionar suscripciones"
+      },
+      "security": {
+        "title": "Seguridad y Cuenta",
+        "forgotPassword": "Olvidé mi Contraseña",
+        "forgotPasswordDescription": "Restablecer tu contraseña",
+        "resetPassword": "Restablecer Contraseña",
+        "resetPasswordDescription": "Establecer nueva contraseña",
+        "confirmEmail": "Confirmar Email",
+        "confirmEmailDescription": "Verificar dirección de email"
+      },
+      "legal": {
+        "title": "Legal y Políticas",
+        "privacyPolicy": "Política de Privacidad",
+        "privacyPolicyDescription": "Información de protección de datos",
+        "termsConditions": "Términos y Condiciones",
+        "termsConditionsDescription": "Términos de servicio",
+        "cookiePolicy": "Política de Cookies",
+        "cookiePolicyDescription": "Información sobre uso de cookies"
+      },
+      "languageSupport": {
+        "title": "Soporte de Idiomas",
+        "description": "Disponible en múltiples idiomas:",
+        "english": "English",
+        "portuguese": "Português",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "italian": "Italiano"
+      },
+      "helpSupport": {
+        "title": "Ayuda y Soporte",
+        "siteMap": "Mapa del Sitio",
+        "siteMapDescription": "Esta página"
+      }
+    },
+    "footer": {
+      "description": "Este mapa del sitio muestra todas las páginas y características disponibles en Women's Spot. Usa el menú de navegación en la parte superior de cualquier página para acceder rápidamente a estas secciones."
+    }
+  }
+}

@@ -1,0 +1,399 @@
+{
+  "name": "Set data properly",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://www.womensspot.org/api/v1/articles/by-id/68ebccad6cc99e483f39bc5b",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 256e71d517af4eb62002b6903fa7a992f04ecba9b2f72d13667c93b2bc9c09cf"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2640,
+        -1120
+      ],
+      "id": "cae1c2e5-2585-4233-87ec-dd5d9d51da5d",
+      "name": "Get article by ID",
+      "alwaysOutputData": false,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4176,
+        -1120
+      ],
+      "id": "f9e3ffca-35cd-4340-80f1-27705e526f89",
+      "name": "Wait2",
+      "webhookId": "2344b018-d1f1-423c-a9f1-81eaa032c5c2"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ \"lang\": \"en\"}, { \"lang\": \"pt\"}, { \"lang\": \"es\"}, { \"lang\": \"fr\"}, { \"lang\": \"it\"}, { \"lang\": \"de\"}]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3328,
+        -1120
+      ],
+      "id": "34f78c80-7ed1-433d-b3e9-ccb2c5ba375d",
+      "name": "Languages array"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3552,
+        -1120
+      ],
+      "id": "655621e4-1054-4f44-986f-52f107ddf298",
+      "name": "Loop over languages"
+    },
+    {
+      "parameters": {
+        "content": "## Updated the existing data to have postImage",
+        "height": 176,
+        "width": 384
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3200,
+        -1360
+      ],
+      "typeVersion": 1,
+      "id": "426b87e3-4a4e-43d5-8c30-844aa57b9feb",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloudinary.com/v1_1/jpsm83/resources/image?type=upload&prefix=health/articles/{{ $json.article._id }}&max_results=100",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "upload_preset",
+              "value": "=health"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2912,
+        -1120
+      ],
+      "id": "adb1abe3-a53e-4d2c-9124-29021e1d5ef1",
+      "name": "Cloudinary get images",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "egxZXMa33f6CRFAE",
+          "name": "Shotstack credentials"
+        },
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://www.womensspot.org/api/v1/articles/by-id/{{ $('Get article by ID').item.json.article._id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 3d71f10c9fcf78e3b09e6d000791ee2be787ffdbc428ff6aa987683781b5547c"
+            },
+            {
+              "name": "Content-Type",
+              "value": "multipart/form-data"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "languages",
+              "value": "={{ JSON.stringify($json.data) }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4192,
+        -1280
+      ],
+      "id": "e6f49d0d-12fb-4735-befb-fba2c56f20e6",
+      "name": "Update ariticle",
+      "alwaysOutputData": false,
+      "executeOnce": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const urlsObj = {\n  pt: \"\",\n  es: \"\",\n  en: \"\",\n  de: \"\",\n  fr: \"\",\n  it: \"\"\n};\n\n$input.first().json.resources.forEach(img => {\n  const url = img.secure_url;\n\n  if (url.includes(\"socialPT\")) {\n    urlsObj.pt = url;\n  } else if (url.includes(\"socialSP\")) {\n    urlsObj.es = url;\n  } else if (url.includes(\"socialEN\")) {\n    urlsObj.en = url;\n  } else if (url.includes(\"socialDE\")) {\n    urlsObj.de = url;\n  } else if (url.includes(\"socialFR\")) {\n    urlsObj.fr = url;\n  } else if (url.includes(\"socialIT\")) {\n    urlsObj.it = url;\n  }\n});\n\nreturn [urlsObj];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3120,
+        -1120
+      ],
+      "id": "0b9298e1-a8f6-424d-9a92-4ef057d0ce69",
+      "name": "Set post url images"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"hreflang\": \"{{ $json.values()[0][0].hreflang }}\",\n  \"articleContext\": \"{{ $json.values()[0][0].articleContext || \"No article context\" }}\",\n  \"postImage\": \"{{ $('Set post url images').item.json[$('Loop over languages').item.json.lang] }}\",\n  \"seo\": {{ JSON.stringify($json.values()[0][0].seo) }},\n  \"content\": {{ JSON.stringify($json.values()[0][0].content) }},\n  \"socialMedia\": {{ JSON.stringify($json.values()[0][0].socialMedia) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3984,
+        -1120
+      ],
+      "id": "fbdf24ce-db92-42c1-b06c-127a27ba8b0a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const lang = $input.first().json.lang;\nconst article = $('Get article by ID').first().json.article;\n\nconst dataFilter = {\n  [lang]: article.languages.filter(l => l.hreflang === lang)\n};\n\nreturn [dataFilter];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3792,
+        -1120
+      ],
+      "id": "12a2df80-65ae-4ff3-932b-1604ee2fd1bf",
+      "name": "Filter by language"
+    },
+    {
+      "parameters": {
+        "aggregate": "={{ $json.lang }}",
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3792,
+        -1280
+      ],
+      "id": "2fd8db7b-ba0e-40ed-a453-11105a88ad1a",
+      "name": "Aggregate languages objects"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node (JavaScript)\nconst obj = $input.first().json.data;\n\nfunction removeIdKeys(obj) {\n  if (Array.isArray(obj)) {\n    return obj.map(removeIdKeys);\n  } else if (obj !== null && typeof obj === 'object') {\n    const newObj = {};\n    for (const key in obj) {\n      if (key !== '_id') {\n        newObj[key] = removeIdKeys(obj[key]);\n      }\n    }\n    return newObj;\n  }\n  return obj;\n}\n\nreturn items.map(item => ({\n  json: removeIdKeys(item.json)\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4000,
+        -1280
+      ],
+      "id": "9441b210-0210-4753-a5fb-b2926d501ba6",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        2448,
+        -1120
+      ],
+      "id": "006c1c18-e09b-4294-9ae6-0b85598f369f",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get article by ID": {
+      "main": [
+        [
+          {
+            "node": "Cloudinary get images",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Loop over languages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Languages array": {
+      "main": [
+        [
+          {
+            "node": "Loop over languages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over languages": {
+      "main": [
+        [
+          {
+            "node": "Aggregate languages objects",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Filter by language",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cloudinary get images": {
+      "main": [
+        [
+          {
+            "node": "Set post url images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set post url images": {
+      "main": [
+        [
+          {
+            "node": "Languages array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter by language": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate languages objects": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Update ariticle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get article by ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "4fea6d37-143e-43a4-ab8d-121a39ddd6ac",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "da7fbb850bf8f4d2094c31cae4e2e2f700359b69a6ab74a883fb15b08b00a233"
+  },
+  "id": "j6mewpvnacxy3XuP",
+  "tags": []
+}

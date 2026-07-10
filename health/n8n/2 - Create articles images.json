@@ -1,0 +1,1352 @@
+{
+  "name": "2 - Create articles images",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Payed Leonardo.AI\n- id: 7b592283-e8a7-4c5a-9ba6-d18c31f258b9\n- name: Lucid Origin\n  - 1024x1024\n  - 8 credits per image\n  - 32 credits per article",
+        "height": 240,
+        "width": 1600,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2368,
+        -256
+      ],
+      "typeVersion": 1,
+      "id": "f7bd082a-7952-46c5-b656-b19f567d5a14",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g",
+          "mode": "list",
+          "cachedResultName": "womens-spot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{\n  ({\n    Monday: 'fitness',\n    Tuesday: 'nutrition',\n    Wednesday: 'health',\n    Thursday: 'intimacy',\n    Friday: 'beauty',\n    Saturday: 'weight-loss'\n  }[new Date().toLocaleDateString('en-US', { weekday: 'long' })] || 'life')\n}}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Image Error",
+            "Article ID": "={{ $('Get article by ID').first().json.article._id }}",
+            "Errors message": "={{ $json.error }}"
+          },
+          "matchingColumns": [
+            "Article ID"
+          ],
+          "schema": [
+            {
+              "id": "Input URL",
+              "displayName": "Input URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "EN",
+              "displayName": "EN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Errors message",
+              "displayName": "Errors message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4080,
+        -192
+      ],
+      "id": "23c7f44d-69c2-4dc0-b39f-e2f45a7ad6cd",
+      "name": "Handle image generator error",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the imagesContext object\nconst images = $('Get article by ID').first().json.article.imagesContext\n\n// Convert each key/value into a separate item\nreturn Object.entries(images).map(([key, value]) => {\n  return {\n    json: {\n      imageKey: key,\n      imageText: value + \" Do not include absolutely any text, logos, or typography on the image. It should look like a realistic, high-quality photograph taken with a professional camera, featuring natural lighting and vivid, true-to-life colors. It must not resemble an illustration, painting, or cartoon.\"\n    }\n  };\n}).slice(0,4);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2816,
+        -448
+      ],
+      "id": "05a30c43-13b0-4ebb-b5ff-4423c6639bc9",
+      "name": "Array new images context"
+    },
+    {
+      "parameters": {
+        "content": "## Dynamic topic",
+        "height": 240,
+        "width": 272,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4000,
+        -256
+      ],
+      "typeVersion": 1,
+      "id": "5e7525b7-9bc0-48e9-8315-b13845fc9764",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2720,
+        -176
+      ],
+      "id": "6ebf4758-cfa7-46d9-8235-ead31fda3085",
+      "name": "Loop over Images Context"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all resources from previous node\nconst resourcesImages = $('Cloudinary get images').first().json.resources || [];\n\n// Define the exact folder you want to keep\nconst targetFolder = \"health/articles/\"+$('Get article by ID').first().json.article.category+\"/\"+$('Get article by ID').first().json.article._id;\n\n// Filter out images from subfolders (e.g., anything after the base folder)\nconst filteredImages = resourcesImages.filter(r => r.folder === targetFolder);\n\n// Build the output with the first 4 results\nreturn [\n  {\n    \"urlImage1\": filteredImages[0]?.secure_url || \"no image\",\n    \"urlImage2\": filteredImages[1]?.secure_url || \"no image\",\n    \"urlImage3\": filteredImages[2]?.secure_url || \"no image\",\n    \"urlImage4\": filteredImages[3]?.secure_url || \"no image\",\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3584,
+        -448
+      ],
+      "id": "23e3caf1-efe8-4922-b0c1-ada3d542380d",
+      "name": "Populate media"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloudinary.com/v1_1/jpsm83/resources/image?type=upload&prefix=health/articles/{{ $('Get article by ID').first().json.article.category }}/{{$('Get article by ID').first().json.article._id }}&max_results=100",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "upload_preset",
+              "value": "=health"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3360,
+        -448
+      ],
+      "id": "43fecb36-8682-4228-bf09-be65484801ab",
+      "name": "Cloudinary get images",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "egxZXMa33f6CRFAE",
+          "name": "Shotstack credentials"
+        },
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://www.womensspot.org/api/v1/articles/by-id/{{ $json.articleId }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 3d71f10c9fcf78e3b09e6d000791ee2be787ffdbc428ff6aa987683781b5547c"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2592,
+        -448
+      ],
+      "id": "4731ef73-8480-43c0-8c6f-34035b2b010d",
+      "name": "Get article by ID",
+      "alwaysOutputData": false,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://www.womensspot.org/api/v1/articles/by-id/{{ $('Get article by ID').first().json.article._id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 3d71f10c9fcf78e3b09e6d000791ee2be787ffdbc428ff6aa987683781b5547c"
+            },
+            {
+              "name": "Content-Type",
+              "value": "multipart/form-data"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "articleImages",
+              "value": "=[{{ JSON.stringify($json.urlImage1) }}, {{ JSON.stringify($json.urlImage2) }}, {{ JSON.stringify($json.urlImage3) }}, {{ JSON.stringify($json.urlImage4) }}]"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3792,
+        -448
+      ],
+      "id": "96d9869c-53bf-4a2c-8157-3baafe342ce5",
+      "name": "Update ariticle",
+      "alwaysOutputData": false,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4080,
+        352
+      ],
+      "id": "7a2b67ac-ffc8-4c77-9c8e-7492e3c43ec5",
+      "name": "Wait",
+      "webhookId": "9f89eafc-4ef4-4f7a-aff2-f0b0de1ee809"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "articleId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        2400,
+        -448
+      ],
+      "id": "d9c848a7-1bd0-4766-b4a3-b4b47d3fd74e",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "0UwHxsN9qiLLtKsK",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/0UwHxsN9qiLLtKsK"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "articleId": "={{ $('Get article by ID').item.json.article._id }}"
+          },
+          "matchingColumns": [
+            "articleId"
+          ],
+          "schema": [
+            {
+              "id": "articleId",
+              "displayName": "articleId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        4080,
+        -464
+      ],
+      "id": "6095fe9c-c9a2-4748-b03f-2be255b477d0",
+      "name": "Call - Create post images"
+    },
+    {
+      "parameters": {
+        "content": "## Free Cloudflare.AI\n**Add a prompt of what you want to generate on the node \"Get Flux Schnell image\"** \n- Free",
+        "height": 256,
+        "width": 1600,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2368,
+        288
+      ],
+      "typeVersion": 1,
+      "id": "19ad89d9-02dc-4a57-89a4-f07725e9f38e",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.cloudflare.com/client/v4/accounts/8a56de36ef8249a5f786ab8d2e0b9d7c/ai/run/@cf/black-forest-labs/flux-1-schnell",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={{ \n  JSON.stringify(\n    {\n      prompt: $('Loop over Images Context').item.json.imageText,\n      seed: Math.floor(Math.random() * 100000000),\n      \"width\": 1024,\n      \"height\": 1024,\n      \"steps\": 8\n    }\n  ) \n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3360,
+        368
+      ],
+      "id": "59767046-2012-48dc-9e32-8f3d3be4ad79",
+      "name": "Get Flux Schnell image",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "oflmQzTxuo0Bdjqo",
+          "name": "Cloudflare"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\n\nconst base64 = item.json.result.image; // your base64 data\nconst mime = \"image/jpeg\"; // adjust if needed\n\nreturn [\n  {\n    json: {\n      file: `data:${mime};base64,${base64}`\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3584,
+        368
+      ],
+      "id": "9e062b45-e31b-4e22-a61d-03acd21e2443",
+      "name": "Img sanitation to base"
+    },
+    {
+      "parameters": {
+        "url": "https://api.cloudflare.com/client/v4/accounts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3168,
+        368
+      ],
+      "id": "2bac734f-14d6-43a8-b387-5391e04ed968",
+      "name": "Cloudflare REST",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "oflmQzTxuo0Bdjqo",
+          "name": "Cloudflare"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Dynamic topic",
+        "height": 240,
+        "width": 272,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4000,
+        576
+      ],
+      "typeVersion": 1,
+      "id": "5e856259-7912-4dff-9ae0-82ce73c91f76",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g",
+          "mode": "list",
+          "cachedResultName": "womens-spot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{\n  ({\n    Monday: 'fitness',\n    Tuesday: 'nutrition',\n    Wednesday: 'health',\n    Thursday: 'intimacy',\n    Friday: 'beauty',\n    Saturday: 'weight-loss'\n  }[new Date().toLocaleDateString('en-US', { weekday: 'long' })] || 'life')\n}}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Image Error",
+            "Article ID": "={{ $('Get article by ID').first().json.article._id }}",
+            "Errors message": "={{ $json.error }}"
+          },
+          "matchingColumns": [
+            "Article ID"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Input URL",
+              "displayName": "Input URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "EN",
+              "displayName": "EN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Errors message",
+              "displayName": "Errors message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4080,
+        640
+      ],
+      "id": "0729e8db-9a1d-45f0-9653-aef9b2be4385",
+      "name": "Handle free image generator error",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "={{ $('Loop over Images Context').item.json.imageText }}",
+        "options": {
+          "dalleQuality": "standard",
+          "size": "1024x1024",
+          "style": "vivid",
+          "returnImageUrls": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        3584,
+        80
+      ],
+      "id": "e29d13ea-1943-4251-9743-5ba29dd4175d",
+      "name": "OpenAi image generator",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "openAiApi": {
+          "id": "Gqus3026ccdUj9Mc",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cloud.leonardo.ai/api/rest/v1/generations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n  {\n    \"height\": 1024,\n    \"width\": 1024,\n    \"num_images\": 1,\n    \"prompt\": $json.imageText,\n    \"modelId\": \"7b592283-e8a7-4c5a-9ba6-d18c31f258b9\",\n  }\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2944,
+        -176
+      ],
+      "id": "64dc1749-baeb-4627-90f3-bdd5fd9cc379",
+      "name": "Leo create image",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        },
+        "httpHeaderAuth": {
+          "id": "eQQK9zBz2Dm0PHHy",
+          "name": "Header Auth account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://cloud.leonardo.ai/api/rest/v1/generations/{{ $json.sdGenerationJob.generationId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3360,
+        -176
+      ],
+      "id": "1e7a0d5e-794d-467c-b0c4-2834ac0b7cd9",
+      "name": "Leo get image",
+      "executeOnce": false,
+      "retryOnFail": false,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        },
+        "httpHeaderAuth": {
+          "id": "eQQK9zBz2Dm0PHHy",
+          "name": "Header Auth account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3168,
+        -176
+      ],
+      "id": "e16c1128-64dc-491d-b20e-70d59fef832b",
+      "name": "Wait1",
+      "webhookId": "c25ceedd-4917-41b9-b488-121af7e89230"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudinary.com/v1_1/jpsm83/image/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "value": "={{ $json.generations_by_pk.generated_images[0].url }}"
+            },
+            {
+              "name": "upload_preset",
+              "value": "=health"
+            },
+            {
+              "name": "folder",
+              "value": "=health/articles/{{ $('Get article by ID').first().json.article.category }}/{{ $('Get article by ID').first().json.article._id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3792,
+        -176
+      ],
+      "id": "3ab12e6d-aa44-4350-aebc-6761586b27ce",
+      "name": "Leo to Cloudinary",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "egxZXMa33f6CRFAE",
+          "name": "Shotstack credentials"
+        },
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudinary.com/v1_1/jpsm83/image/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "upload_preset",
+              "value": "=health"
+            },
+            {
+              "name": "folder",
+              "value": "=health/articles/{{ $('Get article by ID').first().json.article.category }}/{{ $('Get article by ID').first().json.article._id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3792,
+        80
+      ],
+      "id": "a83f00dd-a05b-4228-8524-238365b16c55",
+      "name": "OpenAI to Cloudinary",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "egxZXMa33f6CRFAE",
+          "name": "Shotstack credentials"
+        },
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudinary.com/v1_1/jpsm83/image/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "value": "={{ $('Img sanitation to base').item.json.file }}"
+            },
+            {
+              "name": "upload_preset",
+              "value": "=health"
+            },
+            {
+              "name": "folder",
+              "value": "=health/articles/{{ $('Get article by ID').first().json.article.category }}/{{ $('Get article by ID').first().json.article._id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3792,
+        368
+      ],
+      "id": "6a582e7e-ce2c-4022-8c90-fc976172a569",
+      "name": "Flux to Cloudinary",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "egxZXMa33f6CRFAE",
+          "name": "Shotstack credentials"
+        },
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Payed Open.AI\n- Cheapest\n  - Vivid\n  - 1024x1024\n  - Standard\n  - 4c for a square image\n  - 16c total",
+        "height": 240,
+        "width": 1600,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2368,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "b4824453-8bf8-458e-8e3a-e03fcb107ea7",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3584,
+        -176
+      ],
+      "id": "14be03a8-cc58-4145-95c0-cbcce5f71d81",
+      "name": "Wait2",
+      "webhookId": "242434d3-2c18-4329-84f1-47b7fa2845af"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Handle image generator error": {
+      "main": [
+        []
+      ]
+    },
+    "Array new images context": {
+      "main": [
+        [
+          {
+            "node": "Loop over Images Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over Images Context": {
+      "main": [
+        [
+          {
+            "node": "Cloudinary get images",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Leo create image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Populate media": {
+      "main": [
+        [
+          {
+            "node": "Update ariticle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cloudinary get images": {
+      "main": [
+        [
+          {
+            "node": "Populate media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get article by ID": {
+      "main": [
+        [
+          {
+            "node": "Array new images context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update ariticle": {
+      "main": [
+        [
+          {
+            "node": "Call - Create post images",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle image generator error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop over Images Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get article by ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Flux Schnell image": {
+      "main": [
+        [
+          {
+            "node": "Img sanitation to base",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle free image generator error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Img sanitation to base": {
+      "main": [
+        [
+          {
+            "node": "Flux to Cloudinary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cloudflare REST": {
+      "main": [
+        [
+          {
+            "node": "Get Flux Schnell image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAi image generator": {
+      "main": [
+        [
+          {
+            "node": "OpenAI to Cloudinary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cloudflare REST",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leo create image": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAi image generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Leo get image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leo get image": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAi image generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI to Cloudinary": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cloudflare REST",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flux to Cloudinary": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle free image generator error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leo to Cloudinary": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAi image generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Leo to Cloudinary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "c490ccb2-edb7-432e-91ba-daaff45317c4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "da7fbb850bf8f4d2094c31cae4e2e2f700359b69a6ab74a883fb15b08b00a233"
+  },
+  "id": "kB652rQOyILTtcbU",
+  "tags": []
+}

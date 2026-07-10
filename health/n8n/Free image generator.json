@@ -1,0 +1,208 @@
+{
+  "name": "Free image generator",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Create image & upload to Cloudinary\n**Add a prompt of what you want to generate on the node \"Get Flux Schnell image\"** \n- Free",
+        "height": 112,
+        "width": 1072,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3632,
+        -976
+      ],
+      "typeVersion": 1,
+      "id": "bc80d76e-9ae8-457a-a477-a8342b68784b",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.cloudflare.com/client/v4/accounts/8a56de36ef8249a5f786ab8d2e0b9d7c/ai/run/@cf/black-forest-labs/flux-1-schnell",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={{ \n  JSON.stringify(\n    {\n      prompt: \"A calm evening scene depicting a family member and an elderly woman sitting together by a large window with dimmed lights. The family member holds the older adult's hand to provide comfort, while outside the window dusk approaches. The setting includes soft, muted colors and a serene atmosphere symbolizing patience, routine, and care strategies to soothe sundowning symptoms. The image should look like a real, high-quality photograph taken with a professional camera. It should not look like an illustration, painting, or cartoon. Do not include any text, logos, or typography. The image must be fully appropriate and non-sexual.\",\n      seed: Math.floor(Math.random() * 100000000),\n      \"width\": 1024,\n      \"height\": 1024,\n      \"steps\": 8\n    }\n  ) \n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4080,
+        -816
+      ],
+      "id": "faf872e9-c9a7-4795-9656-07043f226137",
+      "name": "Get Flux Schnell image",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "oflmQzTxuo0Bdjqo",
+          "name": "Cloudflare"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.cloudflare.com/client/v4/accounts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3872,
+        -816
+      ],
+      "id": "8069ff4e-1224-41af-ab1f-868d28e9a54a",
+      "name": "Image context",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "oflmQzTxuo0Bdjqo",
+          "name": "Cloudflare"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudinary.com/v1_1/jpsm83/image/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "value": "={{ $('Img sanitation to base').item.json.file }}"
+            },
+            {
+              "name": "upload_preset",
+              "value": "=health"
+            },
+            {
+              "name": "folder",
+              "value": "=health/testing"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4496,
+        -816
+      ],
+      "id": "e61766b1-16d5-4d06-82b6-e775eaec4ac9",
+      "name": "Cloudinary upload image",
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "egxZXMa33f6CRFAE",
+          "name": "Shotstack credentials"
+        },
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\n\nconst base64 = item.json.result.image; // your base64 data\nconst mime = \"image/jpeg\"; // adjust if needed\n\nreturn [\n  {\n    json: {\n      file: `data:${mime};base64,${base64}`\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4288,
+        -816
+      ],
+      "id": "7260dc66-91ce-486e-aa75-14fb14dab684",
+      "name": "Img sanitation to base"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        3680,
+        -816
+      ],
+      "id": "ce0728f9-a4b2-4dc7-8755-e73634c1cf66",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Flux Schnell image": {
+      "main": [
+        [
+          {
+            "node": "Img sanitation to base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image context": {
+      "main": [
+        [
+          {
+            "node": "Get Flux Schnell image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Img sanitation to base": {
+      "main": [
+        [
+          {
+            "node": "Cloudinary upload image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Image context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cloudinary upload image": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "b002197b-fa5b-47f7-bfbe-8b3ace8b0e2a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "da7fbb850bf8f4d2094c31cae4e2e2f700359b69a6ab74a883fb15b08b00a233"
+  },
+  "id": "OSlbyPrkjJGhiJ77",
+  "tags": []
+}

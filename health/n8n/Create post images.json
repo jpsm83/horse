@@ -1,0 +1,354 @@
+{
+  "name": "Create post images",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 12
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        2864,
+        -1120
+      ],
+      "id": "31185a04-302e-4398-91a8-6c6c4fcb9c23",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://www.womensspot.org/api/v1/articles/by-id/68f2b1aed49a2ddfd5f1508d",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 3d71f10c9fcf78e3b09e6d000791ee2be787ffdbc428ff6aa987683781b5547c"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3088,
+        -1120
+      ],
+      "id": "b1c725e8-5749-4be3-9979-4ff2c9f7cdd0",
+      "name": "Get article by ID",
+      "alwaysOutputData": false,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=## USER MESSAGE\n\n```\n\n{{ $('Get article by ID').item.json.article.languages[0].seo.metaDescription }}\n\nRewrite the above phrase into {{ $json.language }} ({{ $json.lang.toLowerCase() }}):\n\nRules:\n1. REWRITE the input phrase into {{ $json.language }} culture\n2. CRITICAL: Respect same or similar character length of the original string\n3. Adapt cultural references to be appropriate for the target culture\n4. The rewrite have to have the maximun on 205 characters\n5. Output only the rewritten string\n```\n\n---\n\n# TRANSLATION INSTRUCTIONS\n\n**CONTEXT:** This content is for a women's wellness app covering intimate wellness, personal wellness, relationships, health, beauty, nutrition, and weight loss. These are educational topics focused on women's daily life experiences.\n\n**SAFETY NOTE:** Use \"intimate wellness,\" \"personal wellness,\" or \"relationship wellness\" instead of explicit terms to ensure content safety.\n\n## CORE REQUIREMENTS\n\n1. **REWRITE** the phrase into the target language while adapting cultural references\n2. **PRESERVE** all factual information and context\n3. **ADAPT** cultural references to be appropriate for the target culture\n4. **USE** natural, fluent language that sounds native to the target language\n5. **MAINTAIN** the casual, conversational tone that connects with readers\n6. **NO EMOJIS** - Do not add any emojis, symbols, or special characters\n7. **CRITICAL - The new rewrite phraze must be maximun 205 characters long**\n\n## PRODUCT PRESERVATION RULES\n\n**CRITICAL: When content refers to products, items, merchandise, or anything purchasable, PRESERVE the exact names:**\n\n- **DO NOT translate** product names, brand names, model numbers, or product codes\n- **PRESERVE** product specifications, ingredient lists, color names, sizes, and variants\n- **MAINTAIN** exact product titles as they appear in stores or online marketplaces\n- **KEEP** store names and retailer information\n\nThis ensures users can easily find and purchase mentioned products regardless of the target language.\n\n## OUTPUT FORMAT\n\n**CRITICAL: Your response must be ONLY the rewritten phrase string, nothing else and the new rewrite phraze must be maximun 205 characters long.**\n\n**CORRECT OUTPUT:**\n```\n{\n    \"articleContext\": \"Rewritten phrase content that has maximun of 205 character length\"\n}\n```\n\n**WRONG OUTPUT FORMATS:**\n- \"Here is the rewrite: ...\"\n- \"The result is: ...\"\n- Any text before or after the rewrite\n- Comments or explanations\n- JSON format"
+            },
+            {
+              "content": "## SYSTEM MESSAGE\n\nYou are a professional translator specializing in women's wellness content. Your task is to rewrite phrases into different languages while adapting cultural references and must have maximun of 205 character length.\n\n**CONTEXT:** This content is for a women's wellness app covering intimate wellness, personal wellness, relationships, health, beauty, nutrition, and weight loss. These are educational topics focused on women's daily life experiences.\n\n**SAFETY NOTE:** Use \"intimate wellness,\" \"personal wellness,\" or \"relationship wellness\" instead of explicit terms to ensure content safety.\n\n## CORE REQUIREMENTS\n\n1. **REWRITE** the phrase into the target language while adapting cultural references\n2. **PRESERVE** all factual information and context\n3. **ADAPT** cultural references to be appropriate for the target culture\n4. **USE** natural, fluent language that sounds native to the target language\n5. **MAINTAIN** the casual, conversational tone that connects with readers\n6. The rewrite have to have the maximun on 205 characters\n7. **NO EMOJIS** - Do not add any emojis, symbols, or special characters\n\n## PRODUCT PRESERVATION RULES\n\n**CRITICAL: When content refers to products, items, merchandise, or anything purchasable, PRESERVE the exact names:**\n\n- **DO NOT translate** product names, brand names, model numbers, or product codes\n- **PRESERVE** product specifications, ingredient lists, color names, sizes, and variants\n- **MAINTAIN** exact product titles as they appear in stores or online marketplaces\n- **KEEP** store names and retailer information\n\nThis ensures users can easily find and purchase mentioned products regardless of the target language.\n\n## OUTPUT FORMAT\n\n**CRITICAL: Your response must be ONLY the rewritten phrase string, nothing else.**\n\n**CORRECT OUTPUT:**\n```\n{\n    \"articleContext\": \"Rewritten phrase content that has maximun of 205 character length\"\n}\n```\n\n**WRONG OUTPUT FORMATS:**\n- \"Here is the rewrite: ...\"\n- \"The result is: ...\"\n- Any text before or after the rewrite\n- Comments or explanations\n- JSON format\n\n---",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2976,
+        -912
+      ],
+      "id": "34b18a36-4d77-46a4-870a-c15ff14bb345",
+      "name": "Rewrite article context",
+      "executeOnce": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "Gqus3026ccdUj9Mc",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3744,
+        -864
+      ],
+      "id": "c1aac266-94f2-446e-9657-2e2101964115",
+      "name": "Wait2",
+      "webhookId": "87030da5-7e22-451e-b8a7-0984d7fb1fd9"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ \"language\": \"English\", \"lang\": \"EN\"}, { \"language\": \"Portuguese\", \"lang\": \"PT\"}, { \"language\": \"Spanish\", \"lang\": \"SP\"}, { \"language\": \"French\", \"lang\": \"FR\"}, { \"language\": \"Italian\", \"lang\": \"IT\"}, { \"language\": \"German\", \"lang\": \"DE\"}]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3328,
+        -1120
+      ],
+      "id": "f7044f71-237e-40ea-b37a-d3ef65e5a621",
+      "name": "Languages array"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2768,
+        -912
+      ],
+      "id": "580949ca-9ea7-4002-94c8-39a4a34d8c2f",
+      "name": "Loop over languages"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.placid.app/u/fd4wvpasvm4jc",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "img1",
+              "value": "={{ $('Get article by ID').item.json.article.articleImages[0] }}"
+            },
+            {
+              "name": "img2",
+              "value": "={{ $('Get article by ID').item.json.article.articleImages[1] }}"
+            },
+            {
+              "name": "img3",
+              "value": "={{ $('Get article by ID').item.json.article.articleImages[2] }}"
+            },
+            {
+              "name": "=main-text",
+              "value": "={{ $json.message.content.articleContext }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3328,
+        -912
+      ],
+      "id": "9a999aee-1b14-421c-ae86-3c469aae69a0",
+      "name": "Placid create images",
+      "retryOnFail": true,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "oflmQzTxuo0Bdjqo",
+          "name": "Cloudflare"
+        },
+        "httpHeaderAuth": {
+          "id": "n02DHVmQt6JxLUYH",
+          "name": "Placid Credentials"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudinary.com/v1_1/jpsm83/image/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "=data"
+            },
+            {
+              "name": "upload_preset",
+              "value": "=health"
+            },
+            {
+              "name": "folder",
+              "value": "=health/articles/{{ $('Get article by ID').item.json.article._id }}/social{{ $('Loop over languages').item.json.lang }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3552,
+        -864
+      ],
+      "id": "fb550310-2e70-4fd5-ae80-9e3f5db88473",
+      "name": "Cloudinary upload post image languages",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "egxZXMa33f6CRFAE",
+          "name": "Shotstack credentials"
+        },
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Create 6 images posts in different languages\n- Languages EN, SP, PT, IT, FR, DE\n- Copy and paste the article ID on the node \"Get article by ID\"",
+        "height": 192,
+        "width": 384
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3520,
+        -1120
+      ],
+      "typeVersion": 1,
+      "id": "4aff4b36-22a4-40f2-b17e-7f213c50c2f4",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get article by ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get article by ID": {
+      "main": [
+        [
+          {
+            "node": "Languages array",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Rewrite article context": {
+      "main": [
+        [
+          {
+            "node": "Placid create images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Loop over languages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Languages array": {
+      "main": [
+        [
+          {
+            "node": "Loop over languages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over languages": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Rewrite article context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Placid create images": {
+      "main": [
+        [
+          {
+            "node": "Cloudinary upload post image languages",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop over languages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cloudinary upload post image languages": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "864ba0b2-51a2-4381-b111-f26ebf9934f1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "da7fbb850bf8f4d2094c31cae4e2e2f700359b69a6ab74a883fb15b08b00a233"
+  },
+  "id": "ACWuq23sIiOBQddI",
+  "tags": []
+}

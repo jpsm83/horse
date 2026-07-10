@@ -1,0 +1,141 @@
+{
+  "name": "OpenAI image generator",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        48
+      ],
+      "id": "0e414d27-3ebf-4455-baaa-9100689acf6c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudinary.com/v1_1/jpsm83/image/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "upload_preset",
+              "value": "=health"
+            },
+            {
+              "name": "folder",
+              "value": "=health"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        48
+      ],
+      "id": "834042d2-dcf3-4adc-81f8-aedf523c688b",
+      "name": "Cloudinary upload image",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "egxZXMa33f6CRFAE",
+          "name": "Shotstack credentials"
+        },
+        "httpBasicAuth": {
+          "id": "ZPksvx1xl8CBzVn7",
+          "name": "Cloudinary credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "model": "gpt-image-1",
+        "prompt": "Create a high-quality, realistic photographic hero image for a webpage under the website “Women’s Spot,” for the home page hero image section. Critical Do not at any circumstances include any text or typography. The image should look like real photography, not illustration or cartoon. Show a random collage-style or softly blended composition featuring women daily life including family, exercise, fitness, nutrition, happiness, beauty, health. The atmosphere should feel warm, genuine, and emotionally rich, with natural lighting, gentle color tones, and a modern, random editorial random aesthetic. The layout should work as a wide website banner focus on women health daily life, do not add any text or html elements on the image.",
+        "options": {
+          "size": "1536x1024"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -320,
+        48
+      ],
+      "id": "b37070c2-e9e9-4a97-93d0-4cfb682cb64a",
+      "name": "OpenAI image generator",
+      "retryOnFail": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "Gqus3026ccdUj9Mc",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## OpenAI image generator\n**Add a prompt of what you want to generate on the node \"OpenAI image generator\"** \n- GPT image 1\n- 1536x1024\n- 0.24€",
+        "height": 176,
+        "width": 768,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -592,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "e54e05bb-46b0-49b3-a637-b43437019ae1",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "OpenAI image generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI image generator": {
+      "main": [
+        [
+          {
+            "node": "Cloudinary upload image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "587f084b-421d-4306-bd79-4293905dec84",
+  "meta": {
+    "instanceId": "da7fbb850bf8f4d2094c31cae4e2e2f700359b69a6ab74a883fb15b08b00a233"
+  },
+  "id": "n6oPQ5ie50VL9eXy",
+  "tags": []
+}

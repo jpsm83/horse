@@ -1,0 +1,1256 @@
+{
+  "name": "Set Exel Languages",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        3264,
+        -1696
+      ],
+      "id": "05e41295-6c40-405a-9652-d138e3a27375",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "content": "## Dynamic topic",
+        "height": 240,
+        "width": 192,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3440,
+        -1760
+      ],
+      "typeVersion": 1,
+      "id": "b3df62be-03d2-4bbe-aeef-12dab7728d07",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.womensspot.org/api/v1/articles/by-id/{{ $json['Article ID'] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 3d71f10c9fcf78e3b09e6d000791ee2be787ffdbc428ff6aa987683781b5547c"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3936,
+        -1696
+      ],
+      "id": "b84f49d6-8781-4795-a69a-0bbd817e679e",
+      "name": "Get article by ID",
+      "alwaysOutputData": false,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const enData = $('Get article by ID').first().json.article.languages.filter(lng => {\n  return lng.hreflang === \"pt\"\n})\n\nreturn enData"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4176,
+        -1696
+      ],
+      "id": "b360826a-d6eb-4efd-870b-f19ad6fd8a4b",
+      "name": "Filter PT"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "PT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Type": "={{ $('Get URL row Fitness').item.json.Type }}",
+            "Article ID": "={{ $('Loop Over Fitness').item.json['Article ID'] }}",
+            "Image url": "={{ $('Filter PT').item.json.postImage }}",
+            "Hashtags": "={{ $json.socialMedia.instagram.hashtags }}",
+            "Social - PT": "={{ $('Filter PT').item.json.socialMedia }}",
+            "Output URL": "={{ $('Filter PT').item.json.seo.canonicalUrl }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image url",
+              "displayName": "Image url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Social - PT",
+              "displayName": "Social - PT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hashtags",
+              "displayName": "Hashtags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4384,
+        -1696
+      ],
+      "id": "2a5c6d6b-2589-4701-bb2b-18c3c95c4be6",
+      "name": "Append row in PT",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g",
+          "mode": "list",
+          "cachedResultName": "womens-spot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 883417711,
+          "mode": "list",
+          "cachedResultName": "weight-loss",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VIDK6jaicE6HRZ88hx-iSAdtRlX4atPKXVoJph5WD2g/edit#gid=883417711"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "Created"
+            }
+          ]
+        },
+        "combineFilters": "OR",
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3472,
+        -1696
+      ],
+      "id": "aadf6d37-05be-4b45-912b-b3d1814334fb",
+      "name": "Get URL row Fitness",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3696,
+        -1696
+      ],
+      "id": "03bdfc1d-5147-46c5-a3a1-4afe13cc25e4",
+      "name": "Loop Over Fitness"
+    },
+    {
+      "parameters": {
+        "jsCode": "const enData = $('Get article by ID').first().json.article.languages.filter(lng => {\n  return lng.hreflang === \"it\"\n})\n\nreturn enData"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4176,
+        -1472
+      ],
+      "id": "d0bbbae4-7d4f-4243-b317-de9a79e462f9",
+      "name": "Filter IT"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1169853962,
+          "mode": "list",
+          "cachedResultName": "IT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=1169853962"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Type": "={{ $('Get URL row Fitness').item.json.Type }}",
+            "Article ID": "={{ $('Loop Over Fitness').item.json['Article ID'] }}",
+            "Image url": "={{ $('Filter IT').item.json.postImage }}",
+            "Hashtags": "={{ $json.socialMedia.instagram.hashtags }}",
+            "Output URL": "={{ $('Filter IT').item.json.seo.canonicalUrl }}",
+            "Social - IT": "={{ $('Filter IT').item.json.socialMedia }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image url",
+              "displayName": "Image url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Social - IT",
+              "displayName": "Social - IT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Hashtags",
+              "displayName": "Hashtags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4384,
+        -1472
+      ],
+      "id": "a0af1806-dad2-4080-b3c4-f971b8e8f725",
+      "name": "Append row in IT",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const enData = $('Get article by ID').first().json.article.languages.filter(lng => {\n  return lng.hreflang === \"fr\"\n})\n\nreturn enData"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4176,
+        -1248
+      ],
+      "id": "4037e9cc-3c5f-45d3-8dc8-8410f010c887",
+      "name": "Filter FR"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 131224802,
+          "mode": "list",
+          "cachedResultName": "FR",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=131224802"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Type": "={{ $('Get URL row Fitness').item.json.Type }}",
+            "Article ID": "={{ $('Loop Over Fitness').item.json['Article ID'] }}",
+            "Image url": "={{ $('Filter FR').item.json.postImage }}",
+            "Hashtags": "={{ $json.socialMedia.instagram.hashtags }}",
+            "Output URL": "={{ $('Filter FR').item.json.seo.canonicalUrl }}",
+            "Social - FR": "={{ $('Filter FR').item.json.socialMedia }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image url",
+              "displayName": "Image url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Social - FR",
+              "displayName": "Social - FR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Hashtags",
+              "displayName": "Hashtags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4384,
+        -1248
+      ],
+      "id": "e950dc33-a96e-43e5-98cf-780af191f0ae",
+      "name": "Append row in FR",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 422094267,
+          "mode": "list",
+          "cachedResultName": "DE",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=422094267"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Type": "={{ $('Get URL row Fitness').item.json.Type }}",
+            "Article ID": "={{ $('Loop Over Fitness').item.json['Article ID'] }}",
+            "Image url": "={{ $('Filter DE').item.json.postImage }}",
+            "Hashtags": "={{ $json.socialMedia.instagram.hashtags }}",
+            "Output URL": "={{ $('Filter DE').item.json.seo.canonicalUrl }}",
+            "Social - DE": "={{ $('Filter DE').item.json.socialMedia }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image url",
+              "displayName": "Image url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Social - DE",
+              "displayName": "Social - DE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Hashtags",
+              "displayName": "Hashtags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4384,
+        -1024
+      ],
+      "id": "ca792bc3-dd2a-4780-9ae0-a98d6842d226",
+      "name": "Append row in DE",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const enData = $('Get article by ID').first().json.article.languages.filter(lng => {\n  return lng.hreflang === \"es\" || lng.hreflang === \"sp\"\n})\n\nreturn enData"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4176,
+        -800
+      ],
+      "id": "8fc82b8e-348f-4c81-9c23-7cf472bb92ac",
+      "name": "Filter ES"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA",
+          "mode": "list",
+          "cachedResultName": "womens-spot-languages",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2011308784,
+          "mode": "list",
+          "cachedResultName": "ES",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z7oF6y4fbx6-WDwayALf-6CpZuYAf6JLyVd5HmrcEPA/edit#gid=2011308784"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Type": "={{ $('Get URL row Fitness').item.json.Type }}",
+            "Article ID": "={{ $('Loop Over Fitness').item.json['Article ID'] }}",
+            "Image url": "={{ $('Filter ES').item.json.postImage }}",
+            "Hashtags": "={{ $json.socialMedia.instagram.hashtags }}",
+            "Output URL": "={{ $('Filter ES').item.json.seo.canonicalUrl }}",
+            "Social - ES": "={{ $('Filter ES').item.json.socialMedia }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Article ID",
+              "displayName": "Article ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image url",
+              "displayName": "Image url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Social - ES",
+              "displayName": "Social - ES",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Hashtags",
+              "displayName": "Hashtags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Output URL",
+              "displayName": "Output URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tiktok",
+              "displayName": "Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Pintrest",
+              "displayName": "Pintrest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Twitter X",
+              "displayName": "Twitter X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Threads",
+              "displayName": "Threads",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Instagran",
+              "displayName": "Instagran",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4384,
+        -800
+      ],
+      "id": "b6739bbf-c736-4d55-8cb7-e8e5fb760279",
+      "name": "Append row in ES",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5osTTYhZaXHkk1mD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Dynamic topic",
+        "height": 1120,
+        "width": 224,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4336,
+        -1760
+      ],
+      "typeVersion": 1,
+      "id": "75dd74ae-380d-4419-a9a3-99d778dac161",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const enData = $('Get article by ID').first().json.article.languages.filter(lng => {\n  return lng.hreflang === \"de\"\n})\n\nreturn enData"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4176,
+        -1024
+      ],
+      "id": "8b3b3ee9-cac7-4d5f-9000-58210da3e0c9",
+      "name": "Filter DE"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hashTags = [];\n\n$('Filter DE').first().json.socialMedia.instagram.hashtags.forEach(hash => {\n  if (!hashTags.includes(hash)) {\n    hashTags.push(hash);\n  }\n});\n\nconst hashObj = {\n  \"hashTags\": hashTags.slice(0,28).join(\" \")\n};\n\nreturn hashObj"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4624,
+        -1024
+      ],
+      "id": "6a65574f-7a7e-4a96-8761-fbac4fa0c0df",
+      "name": "Convert hashtags DE1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hashTags = [];\n\n$('Filter ES').first().json.socialMedia.instagram.hashtags.forEach(hash => {\n  if (!hashTags.includes(hash)) {\n    hashTags.push(hash);\n  }\n});\n\nconst hashObj = {\n  \"hashTags\": hashTags.slice(0,28).join(\" \")\n};\n\nreturn hashObj"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4624,
+        -800
+      ],
+      "id": "0ddccad3-5320-41d5-9258-2a6a79626b44",
+      "name": "Convert hashtags ES1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hashTags = [];\n\n$('Filter FR').first().json.socialMedia.instagram.hashtags.forEach(hash => {\n  if (!hashTags.includes(hash)) {\n    hashTags.push(hash);\n  }\n});\n\nconst hashObj = {\n  \"hashTags\": hashTags.slice(0,28).join(\" \")\n};\n\nreturn hashObj"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4624,
+        -1248
+      ],
+      "id": "f6ae20d6-08a3-40df-acdb-f73f971a666b",
+      "name": "Convert hashtags FR1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hashTags = [];\n\n$('Filter IT').first().json.socialMedia.instagram.hashtags.forEach(hash => {\n  if (!hashTags.includes(hash)) {\n    hashTags.push(hash);\n  }\n});\n\nconst hashObj = {\n  \"hashTags\": hashTags.slice(0,28).join(\" \")\n};\n\nreturn hashObj"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4624,
+        -1472
+      ],
+      "id": "6e5c38ec-a025-4a8d-a0c7-7eea4dda3c54",
+      "name": "Convert hashtags IT1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hashTags = [];\n\n$('Filter PT').first().json.socialMedia.instagram.hashtags.forEach(hash => {\n  if (!hashTags.includes(hash)) {\n    hashTags.push(hash);\n  }\n});\n\nconst hashObj = {\n  \"hashTags\": hashTags.slice(0,28).join(\" \")\n};\n\nreturn hashObj"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4624,
+        -1696
+      ],
+      "id": "c71b7d23-5e3b-466c-89ff-28eb2d8b9940",
+      "name": "Convert hashtags PT1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get URL row Fitness",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get article by ID": {
+      "main": [
+        [
+          {
+            "node": "Filter PT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter PT": {
+      "main": [
+        [
+          {
+            "node": "Append row in PT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in PT": {
+      "main": [
+        [
+          {
+            "node": "Filter IT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get URL row Fitness": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Fitness",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Fitness": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get article by ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter IT": {
+      "main": [
+        [
+          {
+            "node": "Append row in IT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in IT": {
+      "main": [
+        [
+          {
+            "node": "Filter FR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter FR": {
+      "main": [
+        [
+          {
+            "node": "Append row in FR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in FR": {
+      "main": [
+        [
+          {
+            "node": "Filter DE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in DE": {
+      "main": [
+        [
+          {
+            "node": "Filter ES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter ES": {
+      "main": [
+        [
+          {
+            "node": "Append row in ES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in ES": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Fitness",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter DE": {
+      "main": [
+        [
+          {
+            "node": "Append row in DE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "5cdff240-e92a-4caa-ac42-7a326b7bd894",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "da7fbb850bf8f4d2094c31cae4e2e2f700359b69a6ab74a883fb15b08b00a233"
+  },
+  "id": "Er3f4qh1nyPTNMNI",
+  "tags": []
+}
