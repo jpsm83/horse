@@ -1,33 +1,22 @@
-### Task 1: Create `lib/seo/config.ts` — Site configuration constants
+### Task 1: Update documentation
 
 **Files:**
-- Create: `lib/seo/config.ts`
+- Modify: `documentation/businessPlan.md` (Section 11 — monetization)
+- Create: `documentation/billing.md`
 
-**Produces:** `SITE_NAME`, `DOMAIN`, `DEFAULT_OG_IMAGE`, `languageMap`, `supportedLocales`, OG dimensions
+Content for businessPlan.md Section 11 update:
+- Replace "$99/horse/month" text with the new tier model
+- Add tier table: Free (1 horse, $0), Bronze (3 horses, $89-$119 p/m depending on currency), Silver (5 horses, $149-$199), Gold (8 horses, $219-$299), Diamond (unlimited, $329-$439)
+- Add "region-based pricing" note (prices per market, not exchange rate)
+- Keep: 30-day trial, business accounts free, referral commissions
+- Add: subscription enforcement rules (horse limit, popup upgrade flow)
 
-- [ ] **Step 1: Write the file**
-
-```typescript
-export const SITE_NAME = "Equus";
-export const DOMAIN =
-  process.env.NEXTAUTH_URL || process.env.VERCEL_URL || "https://equus.app";
-
-export const DEFAULT_OG_IMAGE = "/og-image.png";
-
-export const languageMap: Record<string, string> = {
-  en: "en-US",
-  es: "es-ES",
-};
-
-export const supportedLocales = ["en", "es"];
-
-export const DEFAULT_OG_WIDTH = 1200;
-export const DEFAULT_OG_HEIGHT = 630;
-```
-
-- [ ] **Step 2: Commit**
-
-```bash
-git add lib/seo/config.ts
-git commit -m "feat(seo): add site configuration constants"
-```
+Content for billing.md:
+- Architecture overview (layers: config → service → enforcement → UI)
+- Tier config reference (how to add/edit plans and prices in lib/billing/plans.ts)
+- Stripe setup guide (products, prices, webhooks, env vars needed)
+- Discount system (how to apply per-user discounts via DB)
+- Admin operations reference (DB commands for discounts, manual tier changes — future admin page)
+- Webhook event reference (which Stripe events update what on User model)
+- Payment gating overview
+- FAQ / troubleshooting

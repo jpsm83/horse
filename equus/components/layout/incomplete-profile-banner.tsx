@@ -29,9 +29,8 @@ export function IncompleteProfileBanner() {
   }
 
   return (
-    <div className="border-b border-border px-4 py-2 bg-taupe-600">
-      <Alert className="mx-auto max-w-3xl border-0 bg-transparent p-0 shadow-none">
-        <AlertDescription className="text-gray-300 flex items-center gap-4">
+      <Alert className="flex justify-center rounded-none p-4 bg-taupe-600 w-full h-[56px]">
+        <AlertDescription className="text-gray-300 flex flex-wrap items-center gap-4">
           {t("incompleteBanner")}{" "}
           <Link
             href="/profile"
@@ -41,6 +40,5 @@ export function IncompleteProfileBanner() {
           </Link>
         </AlertDescription>
       </Alert>
-    </div>
   );
 }

@@ -18,6 +18,7 @@ import {
   userDirectMessageAudienceEnums,
   userProfileVisibilityEnums,
 } from "../utils/enums.ts";
+import { tierEnums } from "@/lib/billing/plans.ts";
 
 const notificationEntrySchema = new Schema(
   {
@@ -115,6 +116,28 @@ const userSchema = new Schema(
       type: String,
       enum: ["credentials", "google"],
       default: "credentials",
+    },
+
+    subscription: {
+      tier: { type: String, enum: tierEnums, default: "free" },
+      status: {
+        type: String,
+        enum: ["trial", "active", "past_due", "canceled", "incomplete"],
+        default: "trial",
+      },
+      stripeCustomerId: { type: String },
+      stripeSubscriptionId: { type: String },
+      trialEndsAt: { type: Date },
+      currentPeriodStart: { type: Date },
+      currentPeriodEnd: { type: Date },
+      currency: {
+        type: String,
+        enum: ["USD", "EUR", "GBP", "BRL", "CAD", "AUD", "CHF", "JPY"],
+        default: "USD",
+      },
+      discountPercentage: { type: Number, default: 0, min: 0, max: 100 },
+      discountValidUntil: { type: Date },
+      canceledAt: { type: Date },
     },
 
     lastLoginAt: { type: Date },
