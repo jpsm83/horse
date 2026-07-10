@@ -2,7 +2,11 @@ import Stripe from "stripe";
 import User from "@/models/User.ts";
 import { SUBSCRIPTION_PLANS, type TierId, type CurrencyCode, getPlan } from "./plans.ts";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+function getStripe(): Stripe {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error("STRIPE_SECRET_KEY is not configured");
+  return new Stripe(key, {});
+}
 
 // Stripe Price IDs per tier per currency — set these env vars in Stripe dashboard
 const STRIPE_PRICE_IDS: Record<string, Record<string, string>> = {
@@ -55,7 +59,7 @@ export async function createCheckoutSession(userId: string, tierId: TierId, curr
   const priceId = STRIPE_PRICE_IDS[tierId]?.[currency];
   if (!priceId) throw new Error(`No Stripe price configured for ${tierId} in ${currency}`);
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     customer: user.subscription?.stripeCustomerId || undefined,
     customer_email: user.subscription?.stripeCustomerId ? undefined : user.email,
     mode: "subscription",
@@ -71,7 +75,7 @@ export async function createCheckoutSession(userId: string, tierId: TierId, curr
 export async function createPortalSession(userId: string) {
   const user = await User.findById(userId).select("subscription.stripeCustomerId");
   if (!user?.subscription?.stripeCustomerId) throw new Error("No Stripe customer");
-  const session = await stripe.billingPortal.sessions.create({
+  const session = await getStripe().billingPortal.sessions.create({
     customer: user.subscription.stripeCustomerId,
     return_url: `${process.env.NEXTAUTH_URL}/subscription`,
   });
