@@ -1,12 +1,15 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { SUBSCRIPTION_PLANS, type TierId } from "@/lib/billing/plans";
+import { useAppAuth } from "@/hooks/use-app-auth";
+import { Link } from "@/i18n/navigation";
+import { buildSignInPath } from "@/lib/navigation/postAuthRedirect";
 
 async function fetchBilling() {
   const res = await fetch("/api/v1/billing/current");
-  if (!res.ok) throw new Error("Failed to fetch billing info");
+  if (!res.ok) return null;
   return res.json();
 }
 
@@ -28,13 +31,19 @@ async function openPortal() {
 
 export function SubscriptionPageContent() {
   const t = useTranslations("subscription");
+  const { isAuthenticated } = useAppAuth();
 
   const { data: billing, isPending, error } = useQuery({
     queryKey: ["billing", "current"],
     queryFn: fetchBilling,
+    enabled: isAuthenticated,
   });
 
   async function handleUpgrade(tierId: TierId) {
+    if (!isAuthenticated) {
+      window.location.href = buildSignInPath("/subscription");
+      return;
+    }
     try {
       const { url } = await createCheckout(tierId);
       window.location.href = url;
@@ -44,6 +53,10 @@ export function SubscriptionPageContent() {
   }
 
   async function handlePortal() {
+    if (!isAuthenticated) {
+      window.location.href = buildSignInPath("/subscription");
+      return;
+    }
     try {
       const { url } = await openPortal();
       window.location.href = url;
@@ -64,7 +77,7 @@ export function SubscriptionPageContent() {
     );
   }
 
-  if (error) {
+  if (error && isAuthenticated) {
     return (
       <div className="max-w-2xl mx-auto p-6">
         <p className="text-red-500">Failed to load subscription info.</p>
@@ -78,33 +91,34 @@ export function SubscriptionPageContent() {
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
 
-      {/* Current plan summary */}
-      <section className="mb-8 p-4 border rounded-lg bg-muted/30">
-        <h2 className="text-lg font-semibold mb-2">
-          {t("currentPlan")}:{" "}
-          <span className="capitalize">{billing?.tierId || "Free"}</span>
-        </h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          {billing?.current ?? 0} of{" "}
-          {billing?.limit === Infinity ? "∞" : billing?.limit} {t("horsesUsed")}
-        </p>
-        <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
-          <div
-            className="bg-primary h-3 rounded-full transition-all"
-            style={{
-              width: billing?.limit === Infinity
-                ? "100%"
-                : `${Math.min(100, ((billing?.current ?? 0) / (billing?.limit ?? 1)) * 100)}%`,
-            }}
-          />
-        </div>
-      </section>
+      {/* Current plan summary — only when authenticated */}
+      {isAuthenticated && billing && (
+        <section className="mb-8 p-4 border rounded-lg bg-muted/30">
+          <h2 className="text-lg font-semibold mb-2">
+            {t("currentPlan")}:{" "}
+            <span className="capitalize">{billing?.tierId || "Free"}</span>
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            {billing?.current ?? 0} of{" "}
+            {billing?.limit === Infinity ? "∞" : billing?.limit} {t("horsesUsed")}
+          </p>
+          <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+            <div
+              className="bg-primary h-3 rounded-full transition-all"
+              style={{
+                width: billing?.limit === Infinity
+                  ? "100%"
+                  : `${Math.min(100, ((billing?.current ?? 0) / (billing?.limit ?? 1)) * 100)}%`,
+              }}
+            />
+          </div>
+        </section>
+      )}
 
       {/* 5 vertical blocks — one per tier */}
       <div className="space-y-3 mb-8">
         {tiers.map((plan) => {
-          const isCurrentPlan = billing?.tierId === plan.id;
-          const isFree = plan.id === "free";
+          const isCurrentPlan = isAuthenticated && billing?.tierId === plan.id;
           const planPrice = plan.prices.USD;
           const formattedPrice = planPrice === 0
             ? "Free"
@@ -157,10 +171,9 @@ export function SubscriptionPageContent() {
                   <button
                     onClick={() => handleUpgrade(plan.id)}
                     className="py-2 px-4 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap"
-                    disabled={isPending}
                   >
-                    {isFree
-                      ? t("current")
+                    {!isAuthenticated
+                      ? t("subscribe")
                       : billing?.tierId === "free"
                         ? t("subscribe")
                         : t("change")}
@@ -172,21 +185,23 @@ export function SubscriptionPageContent() {
         })}
       </div>
 
-      {/* Payment & billing links */}
-      <section className="flex gap-4">
-        <button
-          onClick={handlePortal}
-          className="py-2 px-4 text-sm rounded-md border hover:bg-muted transition-colors"
-        >
-          {t("updatePayment")}
-        </button>
-        <button
-          onClick={handlePortal}
-          className="py-2 px-4 text-sm rounded-md border hover:bg-muted transition-colors"
-        >
-          {t("billingHistory")}
-        </button>
-      </section>
+      {/* Payment & billing links — only when authenticated */}
+      {isAuthenticated && (
+        <section className="flex gap-4">
+          <button
+            onClick={handlePortal}
+            className="py-2 px-4 text-sm rounded-md border hover:bg-muted transition-colors"
+          >
+            {t("updatePayment")}
+          </button>
+          <button
+            onClick={handlePortal}
+            className="py-2 px-4 text-sm rounded-md border hover:bg-muted transition-colors"
+          >
+            {t("billingHistory")}
+          </button>
+        </section>
+      )}
     </div>
   );
 }
