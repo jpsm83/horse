@@ -20,10 +20,7 @@ async function createHorse(ownerId: string, name: string, coOwners: Array<{ user
     sex: "Mare",
     mainOwnerUserId: ownerId,
     createdByUserId: ownerId,
-    subscription: {
-      status: "active_paid",
-      monthlyFee: 99,
-      currency: "USD",
+    registration: {
       payerUserId: ownerId,
     },
     ...(coOwners.length > 0 ? { coOwners } : {}),
@@ -164,7 +161,7 @@ describe("ownershipTransferService", () => {
       expect(String(sold?.mainOwnerUserId)).toBe(String(buyer._id));
       expect(String(sold?.createdByUserId)).toBe(String(main._id));
       expect(sold?.coOwners ?? []).toHaveLength(0);
-      expect(String((sold?.subscription as { payerUserId?: unknown })?.payerUserId)).toBe(
+      expect(String((sold?.registration as { payerUserId?: unknown })?.payerUserId)).toBe(
         String(buyer._id),
       );
       expect(userOwnsEntity(String(main._id), sold as Record<string, unknown>)).toBe(false);

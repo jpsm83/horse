@@ -17,30 +17,25 @@ const {
   saleStatusEnums,
   currencyEnums,
   visibilityEnums,
-  horseSubscriptionStatusEnums,
   accountTypeEnums,
 } = enums;
 
-const horseSubscriptionSchema = new Schema(
+const horseRegistrationSchema = new Schema(
   {
-    status: {
+    addedAt: { type: Date, default: Date.now },
+    isActive: { type: Boolean, default: true },
+    dateOfDeath: { type: Date, default: null },
+    dataAvailability: {
       type: String,
-      enum: horseSubscriptionStatusEnums,
-      default: "trial",
+      enum: ["available", "payment_blocked"],
+      default: "available",
     },
-    monthlyFee: { type: Number, default: 99 },
-    currency: { type: String, enum: currencyEnums, default: "USD" },
-    trialStartedAt: { type: Date },
-    trialEndsAt: { type: Date },
-    subscriptionStartedAt: { type: Date },
-    canceledAt: { type: Date },
-    /** User billed for this horse subscription (defaults to mainOwnerUserId; H-BILL-03). */
     payerUserId: { type: Schema.Types.ObjectId, ref: "User" },
-    /** Business account that referred this horse (commission attribution) */
+    // Commission tracking
     attributedAccountType: { type: String, enum: accountTypeEnums },
     attributedAccountId: { type: Schema.Types.ObjectId },
     referralReference: { type: String },
-    commissionEligibleUntil: { type: Date }, // first 12 paid months window
+    commissionEligibleUntil: { type: Date },
   },
   { _id: false }
 );
@@ -108,11 +103,11 @@ const horseSchema = new Schema(
     acquisitionDate: { type: Date },
     acquisitionSource: { type: String },
 
-    /** Subscription (owner pays per horse) */
-    subscription: {
-      type: horseSubscriptionSchema,
+    /** Registration — lifecycle + payment gating per horse */
+    registration: {
+      type: horseRegistrationSchema,
       required: true,
-      default: () => ({ status: "trial", monthlyFee: 99, currency: "USD" }),
+      default: () => ({}),
     },
 
     /** Pedigree / breeding */
@@ -148,8 +143,8 @@ const horseSchema = new Schema(
 horseSchema.index({ name: 1, mainOwnerUserId: 1 });
 horseSchema.index({ "coOwners.userId": 1 }, { sparse: true });
 horseSchema.index({ saleStatus: 1, primaryDiscipline: 1 });
-horseSchema.index({ "subscription.status": 1 });
-horseSchema.index({ "subscription.referralReference": 1 }, { sparse: true });
+horseSchema.index({ "registration.isActive": 1 });
+horseSchema.index({ "registration.referralReference": 1 }, { sparse: true });
 
 const Horse = mongoose.models.Horse || model("Horse", horseSchema);
 export default Horse;

@@ -159,10 +159,7 @@ export async function createHorse(actorUserId: string, input: CreateHorseInput) 
     sex: input.sex,
     mainOwnerUserId: actorUserId,
     createdByUserId: actorUserId,
-    subscription: {
-      status: "trial",
-      monthlyFee: 99,
-      currency: "USD",
+    registration: {
       payerUserId: actorUserId,
     },
   };

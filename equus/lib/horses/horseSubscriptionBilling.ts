@@ -1,5 +1,5 @@
 /**
- * Horse subscription billing — payer of record on `Horse.subscription` (H-BILL-03).
+ * Horse subscription billing — payer of record on `Horse.registration` (H-BILL-03).
  *
  * Main owner is the default payer. Called by `horseService.createHorse` and
  * `ownershipTransferService` when `transfer_main` is accepted on a horse.
@@ -25,7 +25,7 @@ export async function assignInitialHorseSubscriptionPayer(
 
   const updated = await Horse.findOneAndUpdate(
     { _id: horseId },
-    { $set: { "subscription.payerUserId": payerUserId } },
+    { $set: { "registration.payerUserId": payerUserId } },
   );
 
   if (!updated) {
@@ -46,7 +46,7 @@ export async function reassignHorseSubscriptionPayerAfterTransferMain(
 
   const updated = await Horse.findOneAndUpdate(
     { _id: horseId },
-    { $set: { "subscription.payerUserId": newPayerUserId } },
+    { $set: { "registration.payerUserId": newPayerUserId } },
     { returnDocument: "after" },
   );
 
@@ -54,8 +54,8 @@ export async function reassignHorseSubscriptionPayerAfterTransferMain(
     throw new ApiError(404, "Horse not found", "NOT_FOUND");
   }
 
-  const subscription = (updated as { subscription?: { payerUserId?: unknown } }).subscription;
-  if (String(subscription?.payerUserId) !== newPayerUserId) {
+  const registration = (updated as { registration?: { payerUserId?: unknown } }).registration;
+  if (String(registration?.payerUserId) !== newPayerUserId) {
     throw new ApiError(500, "Failed to reassign horse subscription payer", "INTERNAL_ERROR");
   }
 }

@@ -21,7 +21,7 @@ async function createUser(email: string) {
 }
 
 describe("horseSubscriptionBilling", () => {
-  it("assignInitialHorseSubscriptionPayer sets subscription.payerUserId", async () => {
+  it("assignInitialHorseSubscriptionPayer sets registration.payerUserId", async () => {
     const owner = await createUser("bill-assign@example.com");
     const horse = await Horse.create({
       name: "Payer Horse",
@@ -34,7 +34,7 @@ describe("horseSubscriptionBilling", () => {
     await assignInitialHorseSubscriptionPayer(String(horse._id), String(owner._id));
 
     const reloaded = await Horse.findById(horse._id).lean();
-    expect(String((reloaded?.subscription as { payerUserId?: unknown })?.payerUserId)).toBe(
+    expect(String((reloaded?.registration as { payerUserId?: unknown })?.payerUserId)).toBe(
       String(owner._id),
     );
   });
@@ -48,26 +48,24 @@ describe("horseSubscriptionBilling", () => {
       sex: "Gelding",
       mainOwnerUserId: main._id,
       createdByUserId: main._id,
-      subscription: {
-        status: "active_paid",
-        monthlyFee: 99,
-        currency: "USD",
+      registration: {
+        isActive: true,
+        dataAvailability: "available",
         payerUserId: main._id,
-        subscriptionStartedAt: new Date(),
       },
     });
 
     await reassignHorseSubscriptionPayerAfterTransferMain(String(horse._id), String(buyer._id));
 
     const reloaded = await Horse.findById(horse._id).lean();
-    const subscription = reloaded?.subscription as {
+    const registration = reloaded?.registration as {
       payerUserId?: unknown;
-      status?: string;
-      monthlyFee?: number;
+      isActive?: boolean;
+      dataAvailability?: string;
     };
-    expect(String(subscription?.payerUserId)).toBe(String(buyer._id));
-    expect(subscription?.status).toBe("active_paid");
-    expect(subscription?.monthlyFee).toBe(99);
+    expect(String(registration?.payerUserId)).toBe(String(buyer._id));
+    expect(registration?.isActive).toBe(true);
+    expect(registration?.dataAvailability).toBe("available");
   });
 
   it("createHorse sets payerUserId to the creating main owner", async () => {
@@ -78,7 +76,7 @@ describe("horseSubscriptionBilling", () => {
       sex: "Mare",
     });
 
-    expect(String((horse.subscription as { payerUserId?: unknown })?.payerUserId)).toBe(
+    expect(String((horse.registration as { payerUserId?: unknown })?.payerUserId)).toBe(
       String(owner._id),
     );
   });
@@ -103,7 +101,7 @@ describe("horseSubscriptionBilling", () => {
 
     const reloaded = await Horse.findById(horse._id).lean();
     expect(String(reloaded?.mainOwnerUserId)).toBe(String(buyer._id));
-    expect(String((reloaded?.subscription as { payerUserId?: unknown })?.payerUserId)).toBe(
+    expect(String((reloaded?.registration as { payerUserId?: unknown })?.payerUserId)).toBe(
       String(buyer._id),
     );
   });

@@ -29,7 +29,7 @@ describe("horseService", () => {
     expect(String(horse.mainOwnerUserId)).toBe(String(owner._id));
     expect(String(horse.createdByUserId)).toBe(String(owner._id));
     expect(horse.profileVisibility).toBe("public");
-    expect(String((horse.subscription as { payerUserId?: unknown })?.payerUserId)).toBe(
+    expect(String((horse.registration as { payerUserId?: unknown })?.payerUserId)).toBe(
       String(owner._id),
     );
     expect((horse.contactDisplay as { useOwnerContact?: boolean })?.useOwnerContact).toBe(true);

@@ -62,7 +62,7 @@ describe("ownershipTransferService.transfer_main", () => {
     expect(String(reloaded?.mainOwnerUserId)).toBe(String(buyer._id));
     expect(String(reloaded?.createdByUserId)).toBe(String(main._id));
     expect(reloaded?.coOwners ?? []).toHaveLength(0);
-    expect(String((reloaded?.subscription as { payerUserId?: unknown })?.payerUserId)).toBe(
+    expect(String((reloaded?.registration as { payerUserId?: unknown })?.payerUserId)).toBe(
       String(buyer._id),
     );
     expect(userOwnsEntity(String(main._id), reloaded as Record<string, unknown>)).toBe(

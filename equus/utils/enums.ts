@@ -148,13 +148,6 @@ export const ownershipTransferStatusEnums = [
 
 export const saleStatusEnums = ["not_for_sale", "for_sale"] as const;
 
-export const horseSubscriptionStatusEnums = [
-  "trial",
-  "active_paid",
-  "past_due",
-  "canceled",
-] as const;
-
 export const bookingStatusEnums = [
   "pending",
   "accepted",
