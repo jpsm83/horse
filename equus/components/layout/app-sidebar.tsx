@@ -4,6 +4,7 @@ import { horseHead } from "@lucide/lab";
 import {
   Bell,
   Briefcase,
+  CreditCard,
   Icon,
   Link2,
   LogOut,
@@ -148,6 +149,12 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
                   <SidebarMenuButton render={<Link href="/relationships" />} isActive={pathname === "/relationships"} tooltip={tAccount("relationships")}>
                     <Link2 className="size-4" />
                     <span>{tAccount("relationships")}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton render={<Link href="/subscription" />} isActive={pathname === "/subscription"} tooltip={tAccount("subscription")}>
+                    <CreditCard className="size-4" />
+                    <span>{tAccount("subscription")}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>

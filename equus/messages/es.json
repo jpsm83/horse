@@ -51,7 +51,8 @@
       "sectionLabel": "Mi cuenta",
       "workplaces": "Lugares de trabajo",
       "relationships": "Solicitudes de relación",
-      "ownershipTransfers": "Transferencias de propiedad"
+      "ownershipTransfers": "Transferencias de propiedad",
+      "subscription": "Suscripción"
     },
     "myOwn": {
       "sectionLabel": "Mis perfiles",
@@ -652,6 +653,7 @@
   },
   "subscription": {
     "title": "Suscripción",
+    "current": "Actual",
     "currentPlan": "Plan actual",
     "horsesUsed": "caballos usados",
     "manage": "Gestionar",

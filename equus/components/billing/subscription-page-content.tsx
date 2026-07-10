@@ -54,29 +54,29 @@ export function SubscriptionPageContent() {
 
   if (isPending) {
     return (
-      <div className="max-w-4xl mx-auto p-6 animate-pulse">
+      <div className="max-w-2xl mx-auto p-6 animate-pulse">
         <div className="h-8 bg-gray-200 rounded w-48 mb-4" />
         <div className="h-4 bg-gray-200 rounded w-96 mb-8" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-48 bg-gray-200 rounded" />
-          ))}
-        </div>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="h-24 bg-gray-200 rounded mb-4" />
+        ))}
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-2xl mx-auto p-6">
         <p className="text-red-500">Failed to load subscription info.</p>
       </div>
     );
   }
 
+  const tiers = Object.values(SUBSCRIPTION_PLANS);
+
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-2">{t("title")}</h1>
+    <div className="max-w-2xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
 
       {/* Current plan summary */}
       <section className="mb-8 p-4 border rounded-lg bg-muted/30">
@@ -100,10 +100,11 @@ export function SubscriptionPageContent() {
         </div>
       </section>
 
-      {/* Plan cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {Object.values(SUBSCRIPTION_PLANS).map((plan) => {
+      {/* 5 vertical blocks — one per tier */}
+      <div className="space-y-3 mb-8">
+        {tiers.map((plan) => {
           const isCurrentPlan = billing?.tierId === plan.id;
+          const isFree = plan.id === "free";
           const planPrice = plan.prices.USD;
           const formattedPrice = planPrice === 0
             ? "Free"
@@ -112,41 +113,60 @@ export function SubscriptionPageContent() {
           return (
             <div
               key={plan.id}
-              className={`border rounded-lg p-4 flex flex-col ${
-                isCurrentPlan ? "ring-2 ring-primary border-primary" : ""
+              className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
+                isCurrentPlan
+                  ? "ring-2 ring-primary border-primary bg-primary/5"
+                  : "hover:bg-muted/50"
               }`}
             >
-              <h3 className="text-lg font-bold capitalize mb-1">{plan.name}</h3>
-              <p className="text-3xl font-bold mb-1">
-                {formattedPrice}
-                {planPrice > 0 && (
-                  <span className="text-sm font-normal text-muted-foreground">/mo</span>
+              <div className="flex-1 min-w-0 mr-4">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold capitalize">{plan.name}</h3>
+                  {isCurrentPlan && (
+                    <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                      {t("current")}
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {plan.description}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {plan.horseLimit === Infinity ? "Unlimited horses" : `Up to ${plan.horseLimit} horses`}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-4 shrink-0">
+                <div className="text-right">
+                  <p className="text-xl font-bold">
+                    {formattedPrice}
+                    {planPrice > 0 && (
+                      <span className="text-xs font-normal text-muted-foreground">/mo</span>
+                    )}
+                  </p>
+                </div>
+
+                {isCurrentPlan ? (
+                  <button
+                    onClick={handlePortal}
+                    className="py-2 px-4 text-sm rounded-md border hover:bg-muted transition-colors whitespace-nowrap"
+                  >
+                    {t("manage")}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleUpgrade(plan.id)}
+                    className="py-2 px-4 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap"
+                    disabled={isPending}
+                  >
+                    {isFree
+                      ? t("current")
+                      : billing?.tierId === "free"
+                        ? t("subscribe")
+                        : t("change")}
+                  </button>
                 )}
-              </p>
-              <p className="text-sm text-muted-foreground mb-4">
-                {plan.horseLimit === Infinity ? "Unlimited horses" : `Up to ${plan.horseLimit} horses`}
-              </p>
-              <p className="text-xs text-muted-foreground mb-4 flex-1">
-                {plan.description}
-              </p>
-              {isCurrentPlan ? (
-                <button
-                  onClick={handlePortal}
-                  className="w-full py-2 px-4 text-sm rounded-md border hover:bg-muted transition-colors"
-                >
-                  {t("manage")}
-                </button>
-              ) : (
-                <button
-                  onClick={() => handleUpgrade(plan.id)}
-                  className="w-full py-2 px-4 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-                  disabled={isPending}
-                >
-                  {billing?.tierId === "free" && plan.id !== "free"
-                    ? t("subscribe")
-                    : t("change")}
-                </button>
-              )}
+              </div>
             </div>
           );
         })}
