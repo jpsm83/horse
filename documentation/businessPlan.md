@@ -746,29 +746,39 @@ This keeps the platform extensible without losing focus.
 
 ---
 
-## Section 11 — Monetization Model (Simple And Clear)
+## Section 11 — Monetization Model (Subscription Tiers)
 
-This monetization model is intentionally straightforward:
+Revenue comes from **monthly subscription tiers** based on how many horses a user owns. Business/service accounts remain free. Per-horse pricing has been replaced with a tier model that caps owned horses per plan.
 
-- **Horse owner pays per horse (monthly fee)**
-- **Business account types use the app for free**
-- **Pricing is tied to horse ownership, not profession**
+### 11.1 Subscription tiers
 
-### 11.1 Core billing rule
+Users pick a plan based on the number of horses they own. Each plan defines a horse limit — users cannot own more horses than their plan allows.
 
-If a user account has horses under ownership, billing is:
+| Tier | Horse Limit | Monthly Price Range* |
+|------|-------------|---------------------|
+| **Free** | 1 horse | $0 |
+| **Bronze** | 3 horses | $89–$119 |
+| **Silver** | 5 horses | $149–$199 |
+| **Gold** | 8 horses | $219–$299 |
+| **Diamond** | Unlimited | $329–$439 |
 
-`monthly amount = number of owned horses x fee per horse`
+*\* Prices vary by market (USD, EUR, GBP, BRL, CAD, AUD, CHF, JPY). Each market has its own price — not a simple exchange-rate conversion. See the billing implementation guide for exact per-currency prices.*
 
-Examples:
-- Owner with 1 horse -> pays 1 monthly fee
-- Owner with 3 horses -> pays 3 monthly fees
-- Vet account with no horse ownership -> pays 0
-- Vet account that also owns 1 horse -> pays 1 monthly fee
-- Trainer account that also owns 2 horses -> pays 2 monthly fees
+**Pricing philosophy:**
+- Prices per horse *decrease* at higher tiers (e.g., Silver is ~$30/horse vs. Bronze ~$33/horse)
+- The Free tier ensures zero-friction onboarding and long-term value for single-horse owners
+- Region-based pricing means users see prices in their local currency at locally competitive rates
+
+**Examples:**
+- Owner with 1 horse → Free tier ($0)
+- Owner with 3 horses → Bronze ($89–$119/month depending on region)
+- Owner with 5 horses → Silver ($149–$199/month)
+- Owner with 8 horses → Gold ($219–$299/month)
+- Vet account with no horses → Free tier
+- Vet who also owns 2 horses → Bronze tier
 
 Important clarification:
-- The same person can have multiple account types, but billing only applies to horses they own.
+- The same person can have multiple account types, but billing is tied to the user account, not the role.
 
 ### 11.2 Free business usage (distribution strategy)
 
@@ -790,23 +800,19 @@ Why:
 
 ### 11.3 30-day free trial (owner side)
 
-Owner horse billing includes a 30-day free trial.
+Every new user starts on a 30-day trial with the Free tier. During the trial, they can add up to 1 horse at no cost. If they need more horses, they upgrade to a paid tier — the trial applies as a free period before first payment.
 
 Trial intent:
 - Let owners experience full value before payment
 - Increase trust and reduce purchase hesitation
 - Improve conversion after real usage (updates, schedules, invoices, records)
 
-Operational note:
-- Trial can be attached to first horse onboarding and/or first paid horse slot
-- Exact trial enforcement details to be defined in product requirements
-
 ### 11.4 Business referral incentives
 
-Business accounts earn ongoing commission when they refer paying horse subscriptions.
+Business accounts earn ongoing commission when they refer paying subscriptions.
 
 Primary incentive:
-- **10% commission for the first year** on referred paying horses (see Section 19)
+- **10% commission for the first year** on referred paying subscriptions (see Section 19)
 
 Additional optional incentives (non-core):
 - Verification/status visibility boosts
@@ -816,12 +822,23 @@ Additional optional incentives (non-core):
 Principle:
 - Businesses are rewarded for successful owner conversion and active platform participation.
 
-### 11.5 Billing policy decision
+### 11.5 Subscription enforcement
+
+Horse limits are enforced at the API layer — users cannot exceed their tier's horse limit:
+
+- **Horse creation (at limit):** If the user tries to create a horse while at their plan limit, the server returns an error. The frontend shows a modal with an upgrade suggestion: *"You've reached your [tier] limit of [limit] horses. Upgrade to [required tier] to add more horses."*
+- **Ownership transfer (receiving):** Accepting a transferred horse is also guarded — if the recipient is at their limit, they must upgrade before accepting.
+- **Plan downgrade:** If a user tries to downgrade to a tier that can't hold their current horse count, the flow is blocked until they resolve the overage.
+- **Payment gating:** If a subscription payment fails and enters `past_due` status, horse data access becomes restricted after a grace period. Horse names and basic info remain visible, but detailed records (medical, training, documents) are blocked until payment is restored.
+
+All subscription management (upgrade, downgrade, payment method, cancellation) is handled via Stripe Customer Portal. The Equus subscription page shows current plan, usage, and links to Stripe for all financial operations.
+
+### 11.6 Billing policy decision
 
 There will be no inactive-horse billing exception in this model.
 
 Policy:
-- If a user wants to add a horse as an owner, that horse is billable.
+- If a user wants to add a horse as an owner, they must be on a plan that accommodates it.
 - No separate inactive/archived horse state for billing relief.
 
 Rationale:
@@ -829,15 +846,16 @@ Rationale:
 - Prevents edge-case abuse
 - Matches target market economics (horse owners already sustain high monthly costs)
 
-### 11.6 Monetization summary
+### 11.7 Monetization summary
 
 1. Businesses use the app free of charge
 2. Horse ownership drives revenue
-3. One horse = one monthly fee (**$99 placeholder** — subject to revision before launch)
-4. Multi-role users pay only for owned horses
+3. Subscription tiers cap owned horses at increasing price levels
+4. Multi-role users pay the same subscription regardless of roles
 5. 30-day trial helps owner conversion
 6. Business referrals accelerate growth
-7. Modular competitor pricing (stable-paid, per-module) often passes through to owners; our model bills the owner directly for the connected hub
+7. Per-market pricing ensures competitive rates internationally
+8. Modular competitor pricing (stable-paid, per-module) often passes through to owners; our model bills the owner directly for the connected hub
 
 ---
 

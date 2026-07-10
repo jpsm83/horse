@@ -1,29 +1,16 @@
-# Task 1 Report: Create `lib/seo/config.ts` — Site Configuration Constants
+# Task 1 Report: Update documentation
 
-## What I implemented
-
-Created `lib/seo/config.ts` with the following exports:
-
-- `SITE_NAME` — constant string `"Equus"`
-- `DOMAIN` — reads `NEXTAUTH_URL`, falls back to `VERCEL_URL`, then `"https://equus.app"`
-- `DEFAULT_OG_IMAGE` — path string `"/og-image.png"`
-- `languageMap` — maps locale codes `en`/`es` to full language tags
-- `supportedLocales` — array `["en", "es"]`
-- `DEFAULT_OG_WIDTH` / `DEFAULT_OG_HEIGHT` — OG image dimensions (1200×630)
-
-## What I tested and results
-
-Ran `npx tsc --noEmit` to type-check the entire project. The new file compiled without errors. Two pre-existing type errors exist in test files (`tests/lib/profile/incompleteProfileBanner.test.ts`, `tests/lib/validations/horseForms.test.ts`) — unrelated to this change.
+**Completed:** 2026-07-10
 
 ## Files changed
 
-- `lib/seo/config.ts` — created (new file)
+| File | Action |
+|------|--------|
+| `documentation/businessPlan.md` | Modified — Section 11 updated with tier model |
+| `equus/documentation/billing.md` | Created — full implementation guide |
 
-## Self-review findings
+## Summary
 
-- No concerns. The file is small, follows the exact specification, and is consistent with the project's TypeScript conventions.
-- No tests apply to this file (pure constants, no logic to test).
+**businessPlan.md Section 11:** Replaced the old per-horse $99 model with a 5-tier subscription model (Free/Bronze/Silver/Gold/Diamond). Added tier table with horse limits and monthly price ranges per market. Added region-based pricing note and subscription enforcement rules (horse limit guards, payment gating). Kept existing subsections for free business usage, 30-day trial, and referral incentives.
 
-## Issues or concerns
-
-None.
+**billing.md:** Created implementation guide covering architecture overview (4 layers), tier config reference (plans.ts structure, prices, helpers), Stripe setup guide (products, prices, webhook events, env vars), discount system, admin operations (DB commands for discounts/tier changes/force cancel), webhook event reference table, payment gating state machine, and FAQ/troubleshooting.
