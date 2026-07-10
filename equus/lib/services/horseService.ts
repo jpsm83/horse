@@ -11,6 +11,7 @@ import User from "@/models/User.ts";
 import Relationship from "@/models/Relationship.ts";
 import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
+import { guardHorseCreation } from "@/lib/billing/subscriptionGuard.ts";
 import { ownedByUserQuery } from "@/lib/ownership/entityOwnership.ts";
 import {
   canViewHorseDiscovery,
@@ -152,6 +153,16 @@ async function hasActiveHorseCollaboration(
 
 export async function createHorse(actorUserId: string, input: CreateHorseInput) {
   ensureObjectId(actorUserId, "user id");
+
+  // Subscription guard
+  const guard = await guardHorseCreation(actorUserId);
+  if (!guard.ok) {
+    throw new ApiError(
+      403,
+      `Horse limit reached (${guard.current}/${guard.limit}). Upgrade to ${guard.requiredTier} to add more horses.`,
+      guard.code,
+    );
+  }
 
   const doc: Record<string, unknown> = {
     name: input.name,
