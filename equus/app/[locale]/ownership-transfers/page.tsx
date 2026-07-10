@@ -19,6 +19,15 @@ import { usePendingOwnershipTransfers } from "@/hooks/queries/useAuthData";
 import { isApiClientError } from "@/lib/api/auth/session";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { cn } from "@/lib/utils";
+import type { Metadata } from "next";
+import { generatePublicMetadata } from "@/lib/seo/metadata-factory.ts";
+
+type PageProps = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  return generatePublicMetadata(locale, "/ownership-transfers", "metadata.ownershipTransfers");
+}
 
 function OwnershipTransfersLoadingShell() {
   return <InviteHubPageSkeleton titleNamespace="invites.ownershipTransfers" />;
