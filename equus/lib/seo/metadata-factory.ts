@@ -29,7 +29,7 @@ async function loadMetadata(
   locale: string,
   titleKey: string
 ): Promise<MetadataInput> {
-  const t = await getTranslations({ locale, namespace: "metadata" });
+  const t = await getTranslations({ locale });
   return {
     title: t(`${titleKey}.title`),
     description: t(`${titleKey}.description`),
