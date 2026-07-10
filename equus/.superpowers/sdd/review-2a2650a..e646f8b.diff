@@ -1,0 +1,7 @@
+﻿# Review package: 2a2650a..HEAD
+## Commits
+e646f8b feat(seo): add canonical URL and hreflang utilities
+## Files changed
+ equus/lib/seo/canonical.ts | 23 +++++++++++++++++++++++  1 file changed, 23 insertions(+)
+## Diff
+diff --git a/equus/lib/seo/canonical.ts b/equus/lib/seo/canonical.ts new file mode 100644 index 0000000..4c30886 --- /dev/null +++ b/equus/lib/seo/canonical.ts @@ -0,0 +1,23 @@ +import { DOMAIN, languageMap, supportedLocales } from "./config.ts"; + +export function generateCanonicalUrl(locale: string, path: string): string { +  const base = DOMAIN.endsWith("/") ? DOMAIN.slice(0, -1) : DOMAIN; +  const normalizedPath = path.startsWith("/") ? path : `/${path}`; +  const prefix = locale === "en" ? "" : `/${locale}`; +  return `${base}${prefix}${normalizedPath}`; +} + +export function generateLanguageAlternates( +  route: string +): Record<string, string> { +  const alternates: Record<string, string> = {}; +  const normalizedRoute = route.startsWith("/") ? route : `/${route}`; + +  for (const locale of supportedLocales) { +    const langCode = languageMap[locale]; +    const path = locale === "en" ? normalizedRoute : `/${locale}${normalizedRoute}`; +    alternates[langCode] = `${DOMAIN}${path}`; +  } + +  return alternates; +}
