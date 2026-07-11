@@ -380,6 +380,9 @@ export async function updatePersonalDetails(userId: string, data: UpdatePersonal
         unset.userType = "";
       } else {
         set.userType = value;
+        if (value === "individual") {
+          unset.businessDetails = "";
+        }
       }
       continue;
     }
