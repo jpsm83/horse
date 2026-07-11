@@ -134,3 +134,12 @@ export function getAccessTokenFromRequest(request: Request): string | null {
   const cookies = parseCookies(request.headers.get("cookie"));
   return cookies[AUTH_CONFIG.ACCESS_COOKIE_NAME] ?? null;
 }
+
+/**
+ * Extract the refresh token from the request cookies (httpOnly).
+ * Used by the `/auth/me` probe to signal whether token refresh is possible.
+ */
+export function getRefreshTokenFromRequest(request: Request): string | null {
+  const cookies = parseCookies(request.headers.get("cookie"));
+  return cookies[AUTH_CONFIG.REFRESH_COOKIE_NAME] ?? null;
+}

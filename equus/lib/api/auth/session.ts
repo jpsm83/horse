@@ -146,32 +146,33 @@ export function setOptionalUserCache(user: AuthUser | null, notify = true): Auth
   return user;
 }
 
+type AuthMeResponse = { user: AuthUser | null; canRefresh: boolean };
+
 async function probeAuthMe(): Promise<AuthUser | null> {
-  let response = await fetch("/api/v1/auth/me", { credentials: "include" });
+  const response = await fetch("/api/v1/auth/me", { credentials: "include" });
 
-  if (response.status === 401) {
-    const body = (await response.json().catch(() => ({}))) as ApiErrorBody;
-    const message = "error" in body ? body.error?.message : undefined;
-
-    // Anonymous visitor — no access cookie; skip refresh (avoids extra 401 noise).
-    if (message === "No access token provided") {
-      return null;
-    }
-
-    const refreshed = await refreshAccessToken();
-    if (refreshed) {
-      response = await fetch("/api/v1/auth/me", { credentials: "include" });
-    } else {
-      return null;
-    }
-  }
-
-  if (response.status === 401) {
+  if (!response.ok) {
     return null;
   }
 
-  const data = await parseApiResponse<{ user: AuthUser }>(response);
-  return data.user;
+  const { user, canRefresh } = await parseApiResponse<AuthMeResponse>(response);
+
+  if (user) {
+    return user;
+  }
+
+  if (canRefresh) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+      const retryResponse = await fetch("/api/v1/auth/me", { credentials: "include" });
+      if (retryResponse.ok) {
+        const { user: retryUser } = await parseApiResponse<AuthMeResponse>(retryResponse);
+        return retryUser ?? null;
+      }
+    }
+  }
+
+  return null;
 }
 
 async function bridgeFromNextAuth(): Promise<AuthUser | null> {

@@ -68,15 +68,15 @@ describe("ensureRestSession", () => {
         if (meCalls === 1) {
           return new Response(
             JSON.stringify({
-              error: { message: "No access token provided", code: "UNAUTHORIZED" },
+              data: { user: null, canRefresh: false },
             }),
-            { status: 401, headers: { "Content-Type": "application/json" } },
+            { status: 200, headers: { "Content-Type": "application/json" } },
           );
         }
 
         return new Response(
           JSON.stringify({
-            data: { user: { id: "google-1", email: "google@example.com", type: "user" } },
+            data: { user: { id: "google-1", email: "google@example.com", type: "user" }, canRefresh: false },
           }),
           { status: 200, headers: { "Content-Type": "application/json" } },
         );
@@ -114,9 +114,9 @@ describe("ensureRestSession", () => {
       if (url.includes("/api/v1/auth/me")) {
         return new Response(
           JSON.stringify({
-            error: { message: "No access token provided", code: "UNAUTHORIZED" },
+            data: { user: null, canRefresh: false },
           }),
-          { status: 401, headers: { "Content-Type": "application/json" } },
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
 
@@ -135,9 +135,9 @@ describe("ensureRestSession", () => {
       if (url.includes("/api/v1/auth/me")) {
         return new Response(
           JSON.stringify({
-            error: { message: "No access token provided", code: "UNAUTHORIZED" },
+            data: { user: null, canRefresh: false },
           }),
-          { status: 401, headers: { "Content-Type": "application/json" } },
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
 
@@ -164,9 +164,9 @@ describe("ensureRestSession", () => {
       if (url.includes("/api/v1/auth/me")) {
         return new Response(
           JSON.stringify({
-            error: { message: "No access token provided", code: "UNAUTHORIZED" },
+            data: { user: null, canRefresh: false },
           }),
-          { status: 401, headers: { "Content-Type": "application/json" } },
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
 
@@ -198,9 +198,9 @@ describe("ensureRestSession", () => {
       if (url.includes("/api/v1/auth/me")) {
         return new Response(
           JSON.stringify({
-            error: { message: "No access token provided", code: "UNAUTHORIZED" },
+            data: { user: null, canRefresh: false },
           }),
-          { status: 401, headers: { "Content-Type": "application/json" } },
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
 
@@ -234,9 +234,9 @@ describe("ensureRestSession", () => {
         meCalls += 1;
         return new Response(
           JSON.stringify({
-            error: { message: "No access token provided", code: "UNAUTHORIZED" },
+            data: { user: null, canRefresh: false },
           }),
-          { status: 401, headers: { "Content-Type": "application/json" } },
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
       return new Response(null, { status: 404 });
@@ -262,9 +262,9 @@ describe("ensureRestSession", () => {
       if (url.includes("/api/v1/auth/me")) {
         return new Response(
           JSON.stringify({
-            error: { message: "No access token provided", code: "UNAUTHORIZED" },
+            data: { user: null, canRefresh: false },
           }),
-          { status: 401, headers: { "Content-Type": "application/json" } },
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
       return new Response(null, { status: 404 });
@@ -364,9 +364,9 @@ describe("runWithSuppressedSessionExpired", () => {
       if (url.includes("/api/v1/auth/me")) {
         return new Response(
           JSON.stringify({
-            error: { message: "No access token provided", code: "UNAUTHORIZED" },
+            data: { user: null, canRefresh: false },
           }),
-          { status: 401, headers: { "Content-Type": "application/json" } },
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
 

@@ -12,7 +12,7 @@ import Relationship from "@/models/Relationship.ts";
 import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { guardHorseCreation } from "@/lib/billing/subscriptionGuard.ts";
-import { ownedByUserQuery } from "@/lib/ownership/entityOwnership.ts";
+import { ownedByUserQuery, userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
 import {
   canViewHorseDiscovery,
   type HorseDiscoveryRequesterContext,
@@ -27,6 +27,7 @@ import type { z } from "zod";
 import type {
   createHorseSchema,
   updateHorseDiscoverySchema,
+  updateHorseProfileSchema,
 } from "@/lib/validations/horse.ts";
 
 export type CreateHorseInput = z.infer<typeof createHorseSchema>;
@@ -330,6 +331,47 @@ export async function updateHorseDiscovery(
   }
 
   await horse.save();
+  return horse.toObject();
+}
+
+export async function updateHorseProfile(
+  actorUserId: string,
+  horseId: string,
+  input: z.infer<typeof updateHorseProfileSchema>,
+) {
+  ensureObjectId(actorUserId, "user id");
+  ensureObjectId(horseId, "horse id");
+
+  const horse = await Horse.findById(horseId).select("mainOwnerUserId coOwners");
+  if (!horse) {
+    throw new ApiError(404, "Horse not found");
+  }
+
+  if (!userOwnsEntity(actorUserId, horse.toObject())) {
+    throw new ApiError(403, "Only the owner or co-owner can edit this horse");
+  }
+
+  const updates: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (value !== undefined) {
+      if (key === "pedigree") {
+        // Set each pedigree subfield individually
+        if (typeof value === "object" && value !== null) {
+          for (const [pedKey, pedValue] of Object.entries(value)) {
+            if (pedValue !== undefined) {
+              updates[`pedigree.${pedKey}`] = pedValue;
+            }
+          }
+        }
+      } else {
+        updates[key] = value;
+      }
+    }
+  }
+
+  const updated = await Horse.findByIdAndUpdate(horseId, { $set: updates }, { new: true }).lean();
+
+  return updated;
   return horse.toObject();
 }
 
