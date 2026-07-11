@@ -60,6 +60,8 @@ export type PublicUser = {
   id: string;
   personalDetails: Record<string, unknown>;
   preferences: PublicUserPreferences;
+  userType: string;
+  businessDetails?: Record<string, unknown> | null;
   emailVerified: boolean;
   authProvider: AuthProvider;
   profileComplete: boolean;
@@ -143,10 +145,15 @@ export function toPublicUser(
 
   const hasPassword = options?.hasPassword ?? userHasPassword(doc);
 
+  const userType = (doc.userType as string) ?? "individual";
+  const businessDetails = doc.businessDetails as Record<string, unknown> | undefined;
+
   return {
     id: String(doc._id),
     personalDetails,
     preferences: toPublicUserPreferences(doc),
+    userType,
+    businessDetails: businessDetails ?? null,
     emailVerified: doc.emailVerified === true,
     authProvider: (doc.authProvider as AuthProvider) ?? "credentials",
     profileComplete: isProfileComplete(personalDetails),
@@ -192,6 +199,8 @@ export async function createCredentialsUser(input: {
   lastName?: string;
   referralReference?: string;
   preferredLanguage?: string;
+  userType?: string;
+  businessDetails?: Record<string, string>;
 }) {
   const normalizedEmail = input.email.toLowerCase().trim();
   const hashedPassword = await bcrypt.hash(input.password, 10);
@@ -214,11 +223,20 @@ export async function createCredentialsUser(input: {
   if (lastName) personalDetails.lastName = lastName.slice(0, 50);
   personalDetails.preferredLanguage = normalizeLocale(input.preferredLanguage);
 
-  const user = await User.create({
+  const createFields: Record<string, unknown> = {
     authProvider: "credentials",
     personalDetails,
     preferences: DEFAULT_PUBLIC_USER_PREFERENCES,
-  });
+  };
+
+  if (input.userType) {
+    createFields.userType = input.userType;
+  }
+  if (input.businessDetails) {
+    createFields.businessDetails = input.businessDetails;
+  }
+
+  const user = await User.create(createFields);
 
   await linkInvitesByEmail(normalizedEmail, String(user._id));
 

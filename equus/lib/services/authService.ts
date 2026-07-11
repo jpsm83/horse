@@ -97,6 +97,8 @@ export async function register(input: {
   lastName?: string;
   referralReference?: string;
   preferredLanguage?: string;
+  userType?: string;
+  businessDetails?: Record<string, unknown>;
 }) {
   const normalizedEmail = input.email.toLowerCase().trim();
   const existing = await userService.findByEmail(normalizedEmail);
@@ -118,6 +120,8 @@ export async function register(input: {
 
   const createdUser = await userService.createCredentialsUser({
     ...input,
+    userType: input.userType,
+    businessDetails: input.businessDetails as Record<string, string> | undefined,
     preferredLanguage: normalizeLocale(input.preferredLanguage),
   });
   const tokens = await establishSession(String(createdUser._id));

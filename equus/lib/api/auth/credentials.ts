@@ -31,6 +31,13 @@ export async function registerWithCredentials(input: {
   username?: string;
   referralReference?: string;
   preferredLanguage?: string;
+  userType?: string;
+  businessDetails?: {
+    businessName?: string;
+    registrationNumber?: string;
+    taxId?: string;
+    countryOfRegistration?: string;
+  };
 }): Promise<AuthSessionResult> {
   const response = await fetchWithAuth(
     "/api/v1/auth/register",

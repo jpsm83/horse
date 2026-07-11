@@ -1,7 +1,7 @@
 ﻿import { z } from "zod";
 import { emailSchema } from "./common.ts";
 import { isValidPassword } from "../utils/passwordPolicy.ts";
-import { appLocaleEnums } from "../../utils/enums.ts";
+import { appLocaleEnums, userTypeEnums } from "../../utils/enums.ts";
 
 const passwordSchema = z
   .string()
@@ -15,6 +15,13 @@ export const registerSchema = z.object({
   lastName: z.string().trim().min(1).max(50).optional(),
   referralReference: z.string().trim().min(1).max(100).optional(),
   preferredLanguage: z.enum(appLocaleEnums).optional(),
+  userType: z.enum(userTypeEnums).optional(),
+  businessDetails: z.object({
+    businessName: z.string().trim().min(1).max(200).optional(),
+    registrationNumber: z.string().trim().min(1).max(100).optional(),
+    taxId: z.string().trim().min(1).max(100).optional(),
+    countryOfRegistration: z.string().trim().length(2).optional(),
+  }).optional(),
 });
 
 export const loginSchema = z.object({
