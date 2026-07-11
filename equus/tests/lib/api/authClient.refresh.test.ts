@@ -18,6 +18,25 @@ describe("apiFetch 401 refresh retry", () => {
     globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
 
+      if (url.includes("/api/v1/auth/me")) {
+        meCalls += 1;
+        if (meCalls === 1) {
+          return new Response(
+            JSON.stringify({
+              data: { user: null, canRefresh: true },
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          );
+        }
+
+        return new Response(
+          JSON.stringify({
+            data: { user: { id: "1", email: "user@example.com", type: "user" }, canRefresh: false },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
       if (url.includes("/api/v1/auth/refresh")) {
         return new Response(
           JSON.stringify({
@@ -26,25 +45,6 @@ describe("apiFetch 401 refresh retry", () => {
               refreshToken: "new-refresh",
               user: { id: "1", email: "user@example.com", type: "user" },
             },
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }
-
-      if (url.includes("/api/v1/auth/me")) {
-        meCalls += 1;
-        if (meCalls === 1) {
-          return new Response(
-            JSON.stringify({
-              error: { message: "Invalid or expired access token", code: "UNAUTHORIZED" },
-            }),
-            { status: 401, headers: { "Content-Type": "application/json" } },
-          );
-        }
-
-        return new Response(
-          JSON.stringify({
-            data: { user: { id: "1", email: "user@example.com", type: "user" } },
           }),
           { status: 200, headers: { "Content-Type": "application/json" } },
         );

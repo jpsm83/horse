@@ -19,11 +19,14 @@ export async function GET(request: Request) {
     if (token) {
       try {
         user = await verifyAccessToken(token);
-        await assertUserAccountActive(user.id);
-        touchUserLastActiveAt(user.id);
       } catch {
-        // Token expired, invalid, or account inactive — user stays null
+        // Token expired or invalid — user stays null
       }
+    }
+
+    if (user) {
+      await assertUserAccountActive(user.id);
+      touchUserLastActiveAt(user.id);
     }
 
     const canRefresh = !user && Boolean(getRefreshTokenFromRequest(request));

@@ -15,7 +15,7 @@ vi.mock("next-auth/react", () => ({
   signOut: signOutMock,
 }));
 
-vi.mock("@/lib/api/authClient.ts", () => ({
+vi.mock("@/lib/api/auth/session", () => ({
   logoutFromApi: logoutFromApiMock,
   resetOptionalUserCache: resetOptionalUserCacheMock,
   runWithSilentAuthFailure: runWithSilentAuthFailureMock,
