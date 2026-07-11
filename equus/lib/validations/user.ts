@@ -11,6 +11,7 @@ import {
   appLocaleEnums,
   userDirectMessageAudienceEnums,
   userProfileVisibilityEnums,
+  userTypeEnums,
 } from "../../utils/enums.ts";
 import { isKnownCountryCode } from "../data/countries.ts";
 import { objectIdSchema } from "./common.ts";
@@ -72,5 +73,17 @@ export const updatePersonalDetailsSchema = z.object({
       profileVisibility: patchEnum(userProfileVisibilityEnums).optional(),
       allowDirectMessagesFrom: patchEnum(userDirectMessageAudienceEnums).optional(),
     })
+    .optional(),
+  userType: patchEnum(userTypeEnums).optional(),
+  businessDetails: z
+    .union([
+      z.object({
+        businessName: patchString(200).optional(),
+        registrationNumber: patchString(100).optional(),
+        taxId: patchString(100).optional(),
+        countryOfRegistration: z.union([z.string().trim().length(2), z.literal("")]).optional(),
+      }),
+      z.literal(""),
+    ])
     .optional(),
 });

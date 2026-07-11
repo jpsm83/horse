@@ -375,6 +375,33 @@ export async function updatePersonalDetails(userId: string, data: UpdatePersonal
       continue;
     }
 
+    if (key === "userType") {
+      if (shouldUnset(value)) {
+        unset.userType = "";
+      } else {
+        set.userType = value;
+      }
+      continue;
+    }
+
+    if (key === "businessDetails") {
+      if (value === "" || value === null) {
+        unset.businessDetails = "";
+        continue;
+      }
+
+      if (typeof value === "object") {
+        for (const [subKey, subValue] of Object.entries(value)) {
+          if (shouldUnset(subValue)) {
+            unset[`businessDetails.${subKey}`] = "";
+          } else if (subValue !== undefined) {
+            set[`businessDetails.${subKey}`] = subValue;
+          }
+        }
+      }
+      continue;
+    }
+
     if (shouldUnset(value)) {
       unset[`personalDetails.${key}`] = "";
       continue;
