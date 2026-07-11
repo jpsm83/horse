@@ -17,6 +17,7 @@ import { deactivationAuditFields } from "./sharedSchemas/deactivationAudit.ts";
 import {
   userDirectMessageAudienceEnums,
   userProfileVisibilityEnums,
+  userTypeEnums,
 } from "../utils/enums.ts";
 import { tierEnums } from "@/lib/billing/plans.ts";
 
@@ -99,7 +100,22 @@ const userSchema = new Schema(
       index: true,
     },
 
-  /** Deferred: notifications embed — use Notification collection until product needs inbox on User */
+    userType: {
+      type: String,
+      enum: userTypeEnums,
+      default: "individual",
+    },
+    businessDetails: {
+      type: new Schema({
+        businessName: { type: String, maxlength: 200 },
+        registrationNumber: { type: String, maxlength: 100 },
+        taxId: { type: String, maxlength: 100 },
+        countryOfRegistration: { type: String, maxlength: 2 },
+      }, { _id: false }),
+      default: undefined,
+    },
+
+    /** Deferred: notifications embed — use Notification collection until product needs inbox on User */
     notifications: { type: [notificationEntrySchema], default: undefined },
 
     /** User-level privacy/discovery preferences for profile exposure. */

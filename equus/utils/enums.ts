@@ -72,6 +72,8 @@ export const userDirectMessageAudienceEnums = [
   "nobody",
 ] as const;
 
+export const userTypeEnums = ["individual", "business"] as const;
+
 /** Business role profiles that support staff memberships (subset of accountTypeEnums). */
 export const businessRoleTypeEnums = [
   "stable",
