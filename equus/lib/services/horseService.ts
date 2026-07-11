@@ -56,6 +56,7 @@ export type HorseListResult = {
 
 export type HorseListFilters = {
   mine?: boolean;
+  forSale?: boolean;
   breed?: string;
   sex?: string;
   countryOfBirth?: string;
@@ -94,6 +95,32 @@ export type OwnerHorseHubSummary = {
   name?: string;
   breed?: string;
   sex?: string;
+  registeredName?: string;
+  registryId?: string;
+  microchipId?: string;
+  passportNumber?: string;
+  dateOfBirth?: string;
+  ageYears?: number;
+  color?: string;
+  marksDescription?: string;
+  heightHands?: number;
+  primaryDiscipline?: string;
+  disciplines?: string[];
+  countryOfBirth?: string;
+  importExportStatus?: string;
+  estimatedValue?: number;
+  valueCurrency?: string;
+  saleStatus?: string;
+  askingPrice?: number;
+  acquisitionDate?: string;
+  acquisitionSource?: string;
+  showValuePublicly?: boolean;
+  pedigree?: Record<string, unknown>;
+  profileImageUrl?: string;
+  description?: string;
+  notes?: string;
+  profileVisibility?: string;
+  contactDisplay?: Record<string, unknown>;
   isMainOwner: boolean;
   coOwners: OwnerHorseCoOwner[];
 };
@@ -261,6 +288,10 @@ export async function listHorses(
   } else {
     query.profileVisibility = "public";
     query.isActive = { $ne: false };
+  }
+
+  if (filters.forSale) {
+    query.saleStatus = "for_sale";
   }
 
   // Apply optional filters
@@ -431,6 +462,32 @@ export async function getOwnerHorseHubSummary(
     name: horse.name as string | undefined,
     breed: horse.breed as string | undefined,
     sex: horse.sex as string | undefined,
+    registeredName: horse.registeredName as string | undefined,
+    registryId: horse.registryId as string | undefined,
+    microchipId: horse.microchipId as string | undefined,
+    passportNumber: horse.passportNumber as string | undefined,
+    dateOfBirth: horse.dateOfBirth instanceof Date ? horse.dateOfBirth.toISOString() : undefined,
+    ageYears: horse.ageYears as number | undefined,
+    color: horse.color as string | undefined,
+    marksDescription: horse.marksDescription as string | undefined,
+    heightHands: horse.heightHands as number | undefined,
+    primaryDiscipline: horse.primaryDiscipline as string | undefined,
+    disciplines: horse.disciplines as string[] | undefined,
+    countryOfBirth: horse.countryOfBirth as string | undefined,
+    importExportStatus: horse.importExportStatus as string | undefined,
+    estimatedValue: horse.estimatedValue as number | undefined,
+    valueCurrency: horse.valueCurrency as string | undefined,
+    saleStatus: horse.saleStatus as string | undefined,
+    askingPrice: horse.askingPrice as number | undefined,
+    acquisitionDate: horse.acquisitionDate instanceof Date ? horse.acquisitionDate.toISOString() : undefined,
+    acquisitionSource: horse.acquisitionSource as string | undefined,
+    showValuePublicly: horse.showValuePublicly as boolean | undefined,
+    pedigree: horse.pedigree as Record<string, unknown> | undefined,
+    profileImageUrl: horse.profileImageUrl as string | undefined,
+    description: horse.description as string | undefined,
+    notes: horse.notes as string | undefined,
+    profileVisibility: horse.profileVisibility as string | undefined,
+    contactDisplay: horse.contactDisplay as Record<string, unknown> | undefined,
     isMainOwner,
     coOwners,
   };
