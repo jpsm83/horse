@@ -19,7 +19,6 @@ export const coOwnerSchema = new Schema(
       max: 100,
       required: [true, "Ownership percentage is required!"],
     },
-    isBillingResponsible: { type: Boolean, default: false },
     joinedAt: { type: Date, default: Date.now },
   },
   { _id: true },
