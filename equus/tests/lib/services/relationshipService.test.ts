@@ -5,9 +5,17 @@ import Relationship from "@/models/Relationship.ts";
 import * as userService from "@/lib/services/userService.ts";
 import * as relationshipService from "@/lib/services/relationshipService.ts";
 import { ApiError } from "@/lib/api/errors.ts";
+import { createRelationshipSchema } from "@/lib/validations/relationship.ts";
 import {
+  createTestBreeder,
+  createTestCoach,
+  createTestFarrier,
   createTestGroom,
+  createTestRider,
+  createTestRidingClub,
   createTestStable,
+  createTestTrainer,
+  createTestTransport,
   createTestVeterinary,
 } from "../../helpers/businessRoleFixtures.ts";
 
@@ -367,5 +375,266 @@ describe("relationshipService", () => {
     await expect(
       relationshipService.listPendingSentForHorse(String(stranger._id), String(horse._id)),
     ).rejects.toMatchObject({ statusCode: 403 });
+  });
+
+  it("creates invite by profile id for user-linked types (trainer, farrier, rider, coach)", async () => {
+    const owner = await createUser("rel-profile-user-owner@example.com", "Alice");
+    const horse = await createHorse(String(owner._id), "Blaze");
+
+    const userLinkedTypes = [
+      { type: "trainer" as const, createFixture: createTestTrainer },
+      { type: "farrier" as const, createFixture: createTestFarrier },
+      { type: "rider" as const, createFixture: createTestRider },
+      { type: "coach" as const, createFixture: createTestCoach },
+    ];
+
+    for (const { type, createFixture } of userLinkedTypes) {
+      const providerUser = await createUser(`rel-${type}-profile@example.com`);
+      const providerProfile = await createFixture(String(providerUser._id));
+
+      const created = await relationshipService.createRelationshipInvite(String(owner._id), {
+        horseId: String(horse._id),
+        relationshipType: type,
+        receiverAccountId: String(providerProfile._id),
+      });
+
+      expect(created.status).toBe("pending");
+      expect(created.relationshipType).toBe(type);
+      expect(created.horseName).toBe("Blaze");
+
+      const stored = await Relationship.findById(created.id).lean();
+      expect(stored?.status).toBe("pending");
+      expect(String(stored?.receiverAccountId)).toBe(String(providerProfile._id));
+      expect(String(stored?.receiverUserId)).toBe(String(providerUser._id));
+      expect(stored?.referralReference).toMatch(/^REF-/);
+    }
+  });
+
+  it("creates invite by email for all user-linked types", async () => {
+    const owner = await createUser("rel-email-user-owner@example.com");
+    const horse = await createHorse(String(owner._id), "Ember");
+
+    for (const type of ["trainer", "farrier", "rider", "coach"] as const) {
+      const created = await relationshipService.createRelationshipInvite(String(owner._id), {
+        horseId: String(horse._id),
+        relationshipType: type,
+        invitedEmail: `rel-email-${type}@example.com`,
+        invitedName: `Test ${type}`,
+      });
+
+      expect(created.status).toBe("pending");
+      expect(created.relationshipType).toBe(type);
+
+      const stored = await Relationship.findById(created.id).lean();
+      expect(stored?.receiverAccountId).toBeUndefined();
+      expect(stored?.invitedEmail).toBe(`rel-email-${type}@example.com`);
+    }
+  });
+
+  it("creates invite by profile id for entity-owned types (breeder, transport, ridingClub)", async () => {
+    const owner = await createUser("rel-entity-owner@example.com", "Alice");
+    const horse = await createHorse(String(owner._id), "Duke");
+
+    const entityOwnedTypes = [
+      { type: "breeder" as const, createFixture: createTestBreeder },
+      { type: "transport" as const, createFixture: createTestTransport },
+      { type: "ridingClub" as const, createFixture: createTestRidingClub },
+    ];
+
+    for (const { type, createFixture } of entityOwnedTypes) {
+      const providerOwner = await createUser(`rel-${type}-entity-owner@example.com`);
+      const providerProfile = await createFixture(String(providerOwner._id));
+
+      const created = await relationshipService.createRelationshipInvite(String(owner._id), {
+        horseId: String(horse._id),
+        relationshipType: type,
+        receiverAccountId: String(providerProfile._id),
+      });
+
+      expect(created.status).toBe("pending");
+      expect(created.relationshipType).toBe(type);
+
+      const stored = await Relationship.findById(created.id).lean();
+      expect(stored?.status).toBe("pending");
+      expect(String(stored?.receiverAccountId)).toBe(String(providerProfile._id));
+    }
+  });
+
+  it("rejects email-only invite for entity-owned types via route validation", async () => {
+    const owner = await createUser("rel-entity-email-owner@example.com");
+    const horse = await createHorse(String(owner._id), "Rex");
+
+    for (const type of ["breeder", "transport", "ridingClub"] as const) {
+      const parsed = createRelationshipSchema.safeParse({
+        horseId: String(horse._id),
+        relationshipType: type,
+        invitedEmail: `rel-${type}-no-id@example.com`,
+      });
+
+      expect(parsed.success).toBe(false);
+      if (!parsed.success) {
+        expect(parsed.error.issues.some((i) => i.path.includes("receiverAccountId"))).toBe(true);
+      }
+    }
+  });
+
+  // --- H-REL-04: End relationship ---
+
+  it("ends an accepted relationship as owner", async () => {
+    const owner = await createUser("rel-end-owner@example.com");
+    const vetUser = await createUser("rel-end-vet@example.com");
+    const horse = await createHorse(String(owner._id), "End Test");
+    const veterinary = await createTestVeterinary(String(vetUser._id));
+
+    const created = await relationshipService.createRelationshipInvite(String(owner._id), {
+      horseId: String(horse._id),
+      relationshipType: "veterinary",
+      receiverAccountId: String(veterinary._id),
+    });
+
+    await Relationship.findByIdAndUpdate(created.id, {
+      $set: { status: "accepted", receiverUserId: vetUser._id, respondedAt: new Date() },
+    });
+
+    const ended = await relationshipService.endRelationship(String(owner._id), created.id);
+    expect(ended.status).toBe("ended");
+    expect(ended.endedAt).toBeDefined();
+
+    const stored = await Relationship.findById(created.id).lean();
+    expect(stored?.status).toBe("ended");
+  });
+
+  it("ends an accepted relationship as provider", async () => {
+    const owner = await createUser("rel-end-provider-owner@example.com");
+    const vetUser = await createUser("rel-end-provider-vet@example.com");
+    const horse = await createHorse(String(owner._id), "End Provider");
+    const veterinary = await createTestVeterinary(String(vetUser._id));
+
+    const created = await relationshipService.createRelationshipInvite(String(owner._id), {
+      horseId: String(horse._id),
+      relationshipType: "veterinary",
+      receiverAccountId: String(veterinary._id),
+    });
+
+    await Relationship.findByIdAndUpdate(created.id, {
+      $set: { status: "accepted", receiverUserId: vetUser._id, respondedAt: new Date() },
+    });
+
+    const ended = await relationshipService.endRelationship(String(vetUser._id), created.id);
+    expect(ended.status).toBe("ended");
+  });
+
+  it("rejects end from stranger", async () => {
+    const owner = await createUser("rel-end-stranger-owner@example.com");
+    const vetUser = await createUser("rel-end-stranger-vet@example.com");
+    const stranger = await createUser("rel-end-stranger@example.com");
+    const horse = await createHorse(String(owner._id), "End Stranger");
+    const veterinary = await createTestVeterinary(String(vetUser._id));
+
+    const created = await relationshipService.createRelationshipInvite(String(owner._id), {
+      horseId: String(horse._id),
+      relationshipType: "veterinary",
+      receiverAccountId: String(veterinary._id),
+    });
+
+    await Relationship.findByIdAndUpdate(created.id, {
+      $set: { status: "accepted", receiverUserId: vetUser._id, respondedAt: new Date() },
+    });
+
+    await expect(
+      relationshipService.endRelationship(String(stranger._id), created.id),
+    ).rejects.toBeInstanceOf(ApiError);
+  });
+
+  it("rejects end of non-accepted relationship", async () => {
+    const owner = await createUser("rel-end-pending-owner@example.com");
+    const horse = await createHorse(String(owner._id), "End Pending");
+
+    const created = await relationshipService.createRelationshipInvite(String(owner._id), {
+      horseId: String(horse._id),
+      relationshipType: "groom",
+      invitedEmail: "end-pending-groom@example.com",
+    });
+
+    await expect(
+      relationshipService.endRelationship(String(owner._id), created.id),
+    ).rejects.toBeInstanceOf(ApiError);
+  });
+
+  // --- H-REL-05/06: List providers ---
+
+  it("lists accepted providers for horse", async () => {
+    const owner = await createUser("rel-list-owner@example.com");
+    const vetUser = await createUser("rel-list-vet@example.com");
+    const groomUser = await createUser("rel-list-groom@example.com");
+    const horse = await createHorse(String(owner._id), "List Test");
+    const veterinary = await createTestVeterinary(String(vetUser._id));
+    const groom = await createTestGroom(String(groomUser._id));
+
+    const vetRel = await relationshipService.createRelationshipInvite(String(owner._id), {
+      horseId: String(horse._id),
+      relationshipType: "veterinary",
+      receiverAccountId: String(veterinary._id),
+    });
+    await Relationship.findByIdAndUpdate(vetRel.id, {
+      $set: { status: "accepted", receiverUserId: vetUser._id, respondedAt: new Date() },
+    });
+
+    const groomRel = await relationshipService.createRelationshipInvite(String(owner._id), {
+      horseId: String(horse._id),
+      relationshipType: "groom",
+      receiverAccountId: String(groom._id),
+    });
+    await Relationship.findByIdAndUpdate(groomRel.id, {
+      $set: { status: "accepted", receiverUserId: groomUser._id, respondedAt: new Date() },
+    });
+
+    const providers = await relationshipService.listProvidersForHorse(
+      String(owner._id),
+      String(horse._id),
+      "accepted",
+    );
+
+    expect(providers).toHaveLength(2);
+    expect(providers.every((p) => p.status === "accepted")).toBe(true);
+  });
+
+  it("lists ended providers for horse", async () => {
+    const owner = await createUser("rel-list-ended-owner@example.com");
+    const vetUser = await createUser("rel-list-ended-vet@example.com");
+    const horse = await createHorse(String(owner._id), "List Ended");
+    const veterinary = await createTestVeterinary(String(vetUser._id));
+
+    const created = await relationshipService.createRelationshipInvite(String(owner._id), {
+      horseId: String(horse._id),
+      relationshipType: "veterinary",
+      receiverAccountId: String(veterinary._id),
+    });
+    await Relationship.findByIdAndUpdate(created.id, {
+      $set: { status: "accepted", receiverUserId: vetUser._id, respondedAt: new Date() },
+    });
+    await Relationship.findByIdAndUpdate(created.id, {
+      $set: { status: "ended", endedAt: new Date() },
+    });
+
+    const providers = await relationshipService.listProvidersForHorse(
+      String(owner._id),
+      String(horse._id),
+      "ended",
+    );
+
+    expect(providers).toHaveLength(1);
+    expect(providers[0]?.status).toBe("ended");
+    expect(providers[0]?.endedAt).toBeDefined();
+  });
+
+  it("rejects list providers from non-owner", async () => {
+    const owner = await createUser("rel-list-forbid-owner@example.com");
+    const stranger = await createUser("rel-list-forbid@example.com");
+    const horse = await createHorse(String(owner._id), "List Forbid");
+
+    await expect(
+      relationshipService.listProvidersForHorse(String(stranger._id), String(horse._id)),
+    ).rejects.toBeInstanceOf(ApiError);
   });
 });

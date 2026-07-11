@@ -61,6 +61,16 @@ export function useDeclineRelationship() {
   });
 }
 
+async function endRelationship(relationshipId: string): Promise<PublicRelationship> {
+  const response = await fetchWithAuth(`/api/v1/relationships/${relationshipId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: "ended" }),
+  });
+  const data = await parseApiResponse<{ relationship: PublicRelationship }>(response);
+  return data.relationship;
+}
+
 export function useCreateRelationshipInvite() {
   const queryClient = useQueryClient();
 
@@ -69,6 +79,18 @@ export function useCreateRelationshipInvite() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.horses.relationships(data.horseId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.relationships.pending() });
+    },
+  });
+}
+
+export function useEndRelationship() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: endRelationship,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.relationships.pending() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.providers(data.horseId) });
     },
   });
 }

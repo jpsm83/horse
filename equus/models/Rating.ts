@@ -1,13 +1,13 @@
 /**
  * Horse-scoped rating / review model.
  *
- * Tied to `Relationship` + `horseId`. Product policy: reviews are **bidirectional** —
+ * Tied to `Relationship` + `horseId`. Reviews are **bidirectional** —
  * either party in an accepted (or ended) horse relationship may review the other in
  * that same horse context. Horses act via owner/co-owner operator; entities via profile operator.
  *
- * Current schema stores `reviewerUserId` → `providerAccountType` / `providerAccountId`
- * (owner-reviews-provider shape). Generalize to symmetric reviewer/reviewee account fields
- * when the rating API ships.
+ * Symmetric `revieweeUserId` + `revieweeAccountType` / `revieweeAccountId` support
+ * both directions: owner reviews provider (reviewee = provider) and provider reviews owner
+ * (reviewee = owner/user).
  */
 
 import mongoose, { Schema, model } from "mongoose";
@@ -39,6 +39,7 @@ const ratingSchema = new Schema(
       index: true,
     },
 
+    /** User who wrote the review */
     reviewerUserId: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -46,18 +47,23 @@ const ratingSchema = new Schema(
       index: true,
     },
 
-    providerAccountType: {
+    /** User being reviewed (symmetric — works for both directions) */
+    revieweeUserId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "Reviewee user id is required!"],
+      index: true,
+    },
+    revieweeAccountType: {
       type: String,
       enum: accountTypeEnums,
-      required: [true, "Provider account type is required!"],
     },
-    providerAccountId: {
+    revieweeAccountId: {
       type: Schema.Types.ObjectId,
-      required: [true, "Provider account id is required!"],
       index: true,
     },
 
-    /** Horse-scoped review: one review per horse-provider-reviewer relationship context */
+    /** Horse-scoped review: one review per horse-relationship-reviewer */
     overallScore: {
       type: Number,
       required: [true, "Overall score is required!"],
@@ -66,8 +72,8 @@ const ratingSchema = new Schema(
     },
     categoryScores: { type: [categoryScoreSchema], default: undefined },
     comment: { type: String, maxlength: 2000 },
-    providerResponse: { type: String, maxlength: 2000 },
-    providerRespondedAt: { type: Date },
+    response: { type: String, maxlength: 2000 },
+    respondedAt: { type: Date },
 
     isVerifiedInteraction: { type: Boolean, default: true },
     isPublic: { type: Boolean, default: true },
@@ -81,10 +87,10 @@ const ratingSchema = new Schema(
 );
 
 ratingSchema.index(
-  { horseId: 1, reviewerUserId: 1, providerAccountType: 1, providerAccountId: 1 },
+  { horseId: 1, reviewerUserId: 1, revieweeAccountType: 1, revieweeAccountId: 1 },
   { unique: true }
 );
-ratingSchema.index({ providerAccountType: 1, providerAccountId: 1, createdAt: -1 });
+ratingSchema.index({ revieweeAccountType: 1, revieweeAccountId: 1, createdAt: -1 });
 
 const Rating = mongoose.models.Rating || model("Rating", ratingSchema);
 export default Rating;

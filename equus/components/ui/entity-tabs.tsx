@@ -29,10 +29,13 @@ export function EntityTabs({ tabs, isOwner, isPending, variant = "default" }: En
       <nav className="sticky top-0 z-20 flex w-full items-center justify-center border-b bg-background px-4 py-2">
         <div className="inline-flex items-center gap-1 rounded-lg bg-muted p-[3px]">
           {visibleTabs.map((tab) => {
+            const isParentOfOtherTab = visibleTabs.some(
+              (t) => t.href !== tab.href && t.href.startsWith(tab.href + "/")
+            );
             const isActive =
               tab.href === "/"
                 ? pathname === "/"
-                : pathname === tab.href || pathname.startsWith(tab.href + "/");
+                : pathname === tab.href || (!isParentOfOtherTab && pathname.startsWith(tab.href + "/"));
 
             return (
               <Link
@@ -57,10 +60,13 @@ export function EntityTabs({ tabs, isOwner, isPending, variant = "default" }: En
   return (
     <nav className="mb-6 flex items-center gap-1 rounded-lg bg-muted p-[3px] w-fit">
       {visibleTabs.map((tab) => {
+        const isParentOfOtherTab = visibleTabs.some(
+          (t) => t.href !== tab.href && t.href.startsWith(tab.href + "/")
+        );
         const isActive =
           tab.href === "/"
             ? pathname === "/"
-            : pathname === tab.href || pathname.startsWith(tab.href + "/");
+            : pathname === tab.href || (!isParentOfOtherTab && pathname.startsWith(tab.href + "/"));
 
         return (
           <Link

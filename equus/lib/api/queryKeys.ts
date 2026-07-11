@@ -19,8 +19,10 @@ export const queryKeys = {
     detail: (horseId: string) => [...queryKeys.horses.all, horseId] as const,
     owner: (horseId: string) => [...queryKeys.horses.all, horseId, "owner"] as const,
     relationships: (horseId: string) => [...queryKeys.horses.all, horseId, "relationships"] as const,
+    providers: (horseId: string) => [...queryKeys.horses.all, horseId, "providers"] as const,
     ownershipTransfers: (horseId: string) => [...queryKeys.horses.all, horseId, "ownership-transfers"] as const,
     ownershipHistory: (horseId: string) => [...queryKeys.horses.all, horseId, "ownership-history"] as const,
+    reviews: (horseId: string) => [...queryKeys.horses.all, horseId, "reviews"] as const,
   },
   stables: {
     all: ["stables"] as const,

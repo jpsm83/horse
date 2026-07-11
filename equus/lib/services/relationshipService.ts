@@ -29,9 +29,12 @@ export type PublicRelationship = {
   relationshipType: string;
   status: string;
   requesterLabel?: string;
+  receiverLabel?: string;
   invitedEmail?: string;
   referralReference?: string;
   requestedAt?: Date;
+  respondedAt?: Date;
+  endedAt?: Date;
 };
 
 export type RelationshipInvitePreview = {
@@ -113,7 +116,7 @@ async function backfillReceiverAccountId(
 
 function toPublicRelationship(doc: Record<string, unknown>): PublicRelationship {
   const historical = doc.historicalReference as
-    | { requesterLabel?: string; horseNameSnapshot?: string }
+    | { requesterLabel?: string; receiverLabel?: string; horseNameSnapshot?: string }
     | undefined;
 
   return {
@@ -123,9 +126,12 @@ function toPublicRelationship(doc: Record<string, unknown>): PublicRelationship 
     relationshipType: String(doc.relationshipType),
     status: String(doc.status),
     requesterLabel: historical?.requesterLabel,
+    receiverLabel: historical?.receiverLabel,
     invitedEmail: doc.invitedEmail as string | undefined,
     referralReference: doc.referralReference as string | undefined,
     requestedAt: doc.requestedAt as Date | undefined,
+    respondedAt: doc.respondedAt as Date | undefined,
+    endedAt: doc.endedAt as Date | undefined,
   };
 }
 
@@ -411,6 +417,76 @@ export async function declineRelationship(
   const pub = toPublicRelationship(relationship.toObject() as Record<string, unknown>);
   pub.horseName = await resolveHorseName(relationship.horseId);
   return pub;
+}
+
+export async function endRelationship(
+  actorUserId: string,
+  relationshipId: string,
+): Promise<PublicRelationship> {
+  const relationship = await Relationship.findById(relationshipId);
+  if (!relationship) {
+    throw new ApiError(404, "Relationship not found", "NOT_FOUND");
+  }
+
+  if (relationship.status !== "accepted") {
+    throw new ApiError(400, "Only accepted relationships can be ended", "VALIDATION_ERROR");
+  }
+
+  if (
+    String(relationship.requesterUserId) !== actorUserId &&
+    String(relationship.receiverUserId) !== actorUserId
+  ) {
+    throw new ApiError(403, "Only the horse owner or provider can end this relationship", "FORBIDDEN");
+  }
+
+  relationship.status = "ended";
+  relationship.endedAt = new Date();
+  await relationship.save();
+
+  const pub = toPublicRelationship(relationship.toObject() as Record<string, unknown>);
+  pub.horseName = await resolveHorseName(relationship.horseId);
+  return pub;
+}
+
+export async function listProvidersForHorse(
+  actorUserId: string,
+  horseId: string,
+  statusFilter?: "accepted" | "ended",
+): Promise<PublicRelationship[]> {
+  if (!mongoose.Types.ObjectId.isValid(horseId)) {
+    throw new ApiError(400, "Invalid horse id", "VALIDATION_ERROR");
+  }
+
+  const horse = await Horse.findById(horseId).lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  if (!userOwnsEntity(actorUserId, horse as Record<string, unknown>)) {
+    throw new ApiError(403, "You do not own this horse", "FORBIDDEN");
+  }
+
+  const filter: Record<string, unknown> = { horseId };
+  if (statusFilter) {
+    filter.status = statusFilter;
+  } else {
+    filter.status = { $in: ["accepted", "ended"] };
+  }
+
+  const relationships = await Relationship.find(filter)
+    .sort({ updatedAt: -1 })
+    .lean();
+
+  const results: PublicRelationship[] = [];
+  const horseName = await resolveHorseName(horseId);
+
+  for (const doc of relationships) {
+    const pub = toPublicRelationship(doc as Record<string, unknown>);
+    if (horseName) pub.horseName = horseName;
+    results.push(pub);
+  }
+
+  return results;
 }
 
 export async function linkRelationshipByReferral(

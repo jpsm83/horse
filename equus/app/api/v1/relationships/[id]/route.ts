@@ -19,10 +19,15 @@ export async function PATCH(request: Request, context: RouteContext) {
     const { id } = await context.params;
     const { status } = updateRelationshipStatusSchema.parse(await request.json());
 
-    const relationship =
-      status === "accepted"
-        ? await relationshipService.acceptRelationship(session.id, id)
-        : await relationshipService.declineRelationship(session.id, id);
+    let relationship: import("@/lib/services/relationshipService").PublicRelationship;
+
+    if (status === "accepted") {
+      relationship = await relationshipService.acceptRelationship(session.id, id);
+    } else if (status === "ended") {
+      relationship = await relationshipService.endRelationship(session.id, id);
+    } else {
+      relationship = await relationshipService.declineRelationship(session.id, id);
+    }
 
     return ok({ relationship });
   });

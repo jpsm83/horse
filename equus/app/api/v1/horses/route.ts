@@ -15,6 +15,7 @@ function parseListParams(url: string): horseService.HorseListFilters {
   const parsed = new URL(url);
   return {
     mine: parsed.searchParams.get("mine") === "true" ? true : undefined,
+    forSale: parsed.searchParams.get("forSale") === "true" ? true : undefined,
     breed: parsed.searchParams.get("breed") ?? undefined,
     sex: parsed.searchParams.get("sex") ?? undefined,
     countryOfBirth: parsed.searchParams.get("countryOfBirth") ?? undefined,

@@ -28,6 +28,7 @@ export function HorseListPage() {
 
   const filters: HorseListFilters = useMemo(() => ({
     mine: searchParams.get("mine") === "true" ? true : isAuthenticated ? true : undefined,
+    forSale: searchParams.get("forSale") === "true" ? true : undefined,
     breed: searchParams.get("breed") ?? undefined,
     sex: searchParams.get("sex") ?? undefined,
     countryOfBirth: searchParams.get("location") ?? undefined,
@@ -75,6 +76,7 @@ export function HorseListPage() {
     }
 
     fields.push(
+      { key: "forSale", label: t("onSale"), type: "toggle" },
       { key: "breed", label: t("breed"), type: "select", options: breedOptions, placeholder: t("anyBreed") },
       { key: "sex", label: t("sex"), type: "select", options: sexOptions, placeholder: t("anySex") },
       { key: "location", label: t("location"), type: "flag-select", options: countryOptions, placeholder: t("anyCountry") },

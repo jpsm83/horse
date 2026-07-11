@@ -24,6 +24,33 @@ export type RelationshipInviteTemplateInput = {
   isExistingUser?: boolean;
 };
 
+const relationshipTypeLabels: Record<EmailLocale, Record<string, string>> = {
+  en: {
+    stable: "stable",
+    trainer: "trainer",
+    veterinary: "veterinary",
+    groom: "groom",
+    farrier: "farrier",
+    rider: "rider",
+    coach: "coach",
+    transport: "transport",
+    breeder: "breeder",
+    ridingClub: "riding club",
+  },
+  es: {
+    stable: "cuadra",
+    trainer: "entrenador",
+    veterinary: "veterinario",
+    groom: "groom",
+    farrier: "herrador",
+    rider: "jinete",
+    coach: "coach",
+    transport: "transporte",
+    breeder: "criador",
+    ridingClub: "club ecuestre",
+  },
+};
+
 const emailTranslations = {
   en: {
     subjectVetAddedHorse: "{requesterLabel} added {horseName} on Equus",
@@ -84,11 +111,14 @@ export function relationshipInviteTemplate(
   const t = emailTranslations[resolvedLocale];
   const displayName = fallbackDisplayName(input.invitedName ?? input.invitedEmail.split("@")[0]);
 
+  const typeLabel =
+    relationshipTypeLabels[resolvedLocale]?.[input.relationshipType] ?? input.relationshipType;
+
   const values = {
     horseName: input.horseName,
     requesterLabel: input.requesterLabel,
     referralReference: input.referralReference,
-    relationshipType: input.relationshipType,
+    relationshipType: typeLabel,
   };
 
   let subject: string;

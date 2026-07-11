@@ -28,7 +28,9 @@
     "businessName": "Business name",
     "registrationNumber": "Registration number",
     "countryOfRegistration": "Country of registration",
-    "countryCodeHint": "2-letter country code (e.g. US, GB, PT)"
+    "countryCodeHint": "2-letter country code (e.g. US, GB, PT)",
+    "save": "Save",
+    "cancel": "Cancel"
   },
   "toast": {
     "actionFailed": "Something went wrong. Please try again."
@@ -805,7 +807,30 @@
   },
   "horseRelations": {
     "title": "Relationships",
-    "comingSoon": "Horse relationship management coming soon."
+    "currentProviders": "Current providers",
+    "noCurrentProviders": "No providers connected yet.",
+    "pastProviders": "Past providers",
+    "noPastProviders": "No provider history.",
+    "endButton": "End connection",
+    "endedLabel": "Ended {date}",
+    "sinceLabel": "Since {date}",
+    "endedSuccess": "Provider connection ended.",
+    "endError": "Failed to end connection.",
+    "reviewsTitle": "Reviews",
+    "noReviews": "No reviews yet.",
+    "writeReview": "Write a review",
+    "reviewSubmit": "Submit review",
+    "reviewCreated": "Review submitted.",
+    "reviewError": "Failed to submit review.",
+    "scoreLabel": "Rating",
+    "reviewPlaceholder": "Share your experience with this provider...",
+    "respondButton": "Respond",
+    "respondSubmit": "Submit response",
+    "respondPlaceholder": "Write your response...",
+    "respondedSuccess": "Response submitted.",
+    "respondError": "Failed to submit response.",
+    "responseLabel": "Response",
+    "cancel": "Cancel"
   },
   "subscription": {
     "title": "Subscription",

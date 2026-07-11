@@ -28,7 +28,9 @@
     "businessName": "Nombre de la empresa",
     "registrationNumber": "Número de registro",
     "countryOfRegistration": "País de registro",
-    "countryCodeHint": "Código de país de 2 letras (ej. US, ES, PT)"
+    "countryCodeHint": "Código de país de 2 letras (ej. US, ES, PT)",
+    "save": "Guardar",
+    "cancel": "Cancelar"
   },
   "toast": {
     "actionFailed": "Algo salió mal. Inténtelo de nuevo."
@@ -805,7 +807,30 @@
   },
   "horseRelations": {
     "title": "Relaciones",
-    "comingSoon": "Gestión de relaciones próximamente."
+    "currentProviders": "Proveedores actuales",
+    "noCurrentProviders": "Aún no hay proveedores conectados.",
+    "pastProviders": "Proveedores anteriores",
+    "noPastProviders": "Sin historial de proveedores.",
+    "endButton": "Finalizar conexión",
+    "endedLabel": "Finalizada el {date}",
+    "sinceLabel": "Desde {date}",
+    "endedSuccess": "Conexión finalizada.",
+    "endError": "Error al finalizar la conexión.",
+    "reviewsTitle": "Reseñas",
+    "noReviews": "Aún no hay reseñas.",
+    "writeReview": "Escribir reseña",
+    "reviewSubmit": "Enviar reseña",
+    "reviewCreated": "Reseña enviada.",
+    "reviewError": "Error al enviar la reseña.",
+    "scoreLabel": "Puntuación",
+    "reviewPlaceholder": "Comparte tu experiencia con este proveedor...",
+    "respondButton": "Responder",
+    "respondSubmit": "Enviar respuesta",
+    "respondPlaceholder": "Escribe tu respuesta...",
+    "respondedSuccess": "Respuesta enviada.",
+    "respondError": "Error al enviar la respuesta.",
+    "responseLabel": "Respuesta",
+    "cancel": "Cancelar"
   },
   "subscription": {
     "title": "Suscripción",

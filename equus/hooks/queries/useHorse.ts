@@ -108,6 +108,21 @@ export function useHorseOwnershipHistory(horseId: string | undefined) {
   });
 }
 
+async function fetchProviders(horseId: string, status?: string): Promise<PublicRelationship[]> {
+  const params = status ? `?status=${encodeURIComponent(status)}` : "";
+  const response = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(horseId)}/providers${params}`);
+  const data = await parseApiResponse<{ relationships: PublicRelationship[] }>(response);
+  return data.relationships;
+}
+
+export function useHorseProviders(horseId: string | undefined, status?: "accepted" | "ended") {
+  return useQuery({
+    queryKey: [...queryKeys.horses.providers(horseId!), status ?? "all"] as const,
+    queryFn: () => fetchProviders(horseId!, status),
+    enabled: !!horseId,
+  });
+}
+
 export function useCreateHorse() {
   const queryClient = useQueryClient();
 
