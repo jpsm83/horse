@@ -783,7 +783,21 @@
   },
   "horseDiscovery": {
     "title": "Discovery Settings",
-    "comingSoon": "Discovery visibility settings coming soon."
+    "visibilityTitle": "Profile visibility",
+    "contactTitle": "Contact display",
+    "profileVisibility": "Profile visibility",
+    "useOwnerContact": "Use owner contact",
+    "customContact": "Custom contact details",
+    "yes": "Yes",
+    "no": "No",
+    "noChanges": "No changes to save",
+    "saved": "Discovery settings saved",
+    "saveFailed": "Failed to save discovery settings",
+    "visibilityOptions": {
+      "public": "Public",
+      "relationship": "Relationships only",
+      "owner_only": "Owner only"
+    }
   },
   "horseHistory": {
     "title": "History",

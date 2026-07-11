@@ -783,7 +783,21 @@
   },
   "horseDiscovery": {
     "title": "Configuración de Descubrimiento",
-    "comingSoon": "Configuración de visibilidad próximamente."
+    "visibilityTitle": "Visibilidad del perfil",
+    "contactTitle": "Contacto",
+    "profileVisibility": "Visibilidad del perfil",
+    "useOwnerContact": "Usar contacto del propietario",
+    "customContact": "Datos de contacto personalizados",
+    "yes": "Sí",
+    "no": "No",
+    "noChanges": "Sin cambios para guardar",
+    "saved": "Configuración de descubrimiento guardada",
+    "saveFailed": "Error al guardar la configuración de descubrimiento",
+    "visibilityOptions": {
+      "public": "Público",
+      "relationship": "Solo relaciones",
+      "owner_only": "Solo propietario"
+    }
   },
   "horseHistory": {
     "title": "Historial",
