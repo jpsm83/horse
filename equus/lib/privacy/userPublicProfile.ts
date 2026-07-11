@@ -41,6 +41,7 @@ export type PublicUserProfileCard = {
   username?: string;
   imageUrl?: string;
   bio?: string;
+  businessName?: string;
 };
 
 function ensureObjectId(id: string, fieldName: string): void {
@@ -185,6 +186,10 @@ function mapPublicUserProfileCard(
     card.bio = personalDetails.bio;
   }
 
+  if (identity.businessName) {
+    card.businessName = identity.businessName;
+  }
+
   return card;
 }
 
@@ -200,7 +205,7 @@ export async function getPublicUserForRequester(
 
   const user = await User.findById(targetUserId)
     .select(
-      "isActive personalDetails.username personalDetails.firstName personalDetails.lastName personalDetails.email personalDetails.phoneNumber personalDetails.imageUrl personalDetails.bio preferences",
+      "isActive personalDetails.username personalDetails.firstName personalDetails.lastName personalDetails.email personalDetails.phoneNumber personalDetails.imageUrl personalDetails.bio preferences userType businessDetails.businessName",
     )
     .lean();
 

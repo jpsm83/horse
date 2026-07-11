@@ -20,6 +20,7 @@ export type PublicUserIdentity = {
   firstName?: string;
   lastName?: string;
   phone?: string;
+  businessName?: string;
 };
 
 export type RequesterVisibilityContext = {
@@ -112,6 +113,7 @@ export function toPublicUserIdentity(
   const personalDetails = (doc.personalDetails ?? {}) as Record<string, unknown>;
   const preferences = (doc.preferences ?? {}) as Partial<PublicUserPreferences>;
   const canExpose = canExposeUserIdentity(preferences, audience);
+  const businessDetails = (doc.businessDetails ?? {}) as Record<string, unknown>;
 
   return {
     id: String(doc._id),
@@ -119,6 +121,7 @@ export function toPublicUserIdentity(
     firstName: canExpose ? (personalDetails.firstName as string | undefined) : undefined,
     lastName: canExpose ? (personalDetails.lastName as string | undefined) : undefined,
     phone: canExpose ? (personalDetails.phoneNumber as string | undefined) : undefined,
+    businessName: canExpose ? (businessDetails.businessName as string | undefined) : undefined,
   };
 }
 
