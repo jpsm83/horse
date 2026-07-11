@@ -84,9 +84,9 @@ const tabs: EntityTab[] = [
 | H-OWN-01 | Main owner (`mainOwnerUserId`) on create; `createdByUserId` audit | Beyond | done |
 | H-OWN-02 | Co-owners array with ownership percentage (`coOwners[]` embed) | Parity | done |
 | H-OWN-03 | ~~Co-owner billing responsibility flag (who pays when syndicate)~~ — Moot under user-tier billing model. Businesses register as business users instead. | Beyond | cancelled |
-| H-OWN-04 | Ownership history via `OwnershipTransfer` audit trail | Parity | planned |
+| H-OWN-04 | Ownership history via `OwnershipTransfer` audit trail | Parity | done |
 | H-OWN-05 | Owner/co-owner authorization for discovery PATCH and sensitive fields | Beyond | done |
-| H-OWN-06 | Transfer / co-owner lifecycle via `OwnershipTransfer` ([`ownershipTransfer.md`](ownershipTransfer.md)) | Beyond | planned |
+| H-OWN-06 | Transfer / co-owner lifecycle via `OwnershipTransfer` ([`ownershipTransfer.md`](ownershipTransfer.md)) | Beyond | done |
 
 ---
 
@@ -101,7 +101,7 @@ Two-layer model: horse visibility (`profileVisibility`: `public` / `relationship
 | H-DISC-03 | Public horse card with resolved contact (`GET /api/v1/horses/:id`) | Beyond | done |
 | H-DISC-04 | Owner/co-owner discovery PATCH (`PATCH /api/v1/horses/:id/discovery`) | Beyond | done |
 | H-DISC-05 | `showValuePublicly` and sale listing visibility | Beyond | done |
-| H-DISC-06 | Discover directory / search (location, discipline, for sale) | Beyond | planned |
+| H-DISC-06 | Discover directory / search (location, for sale) | Beyond | done |
 | H-DISC-07 | Anonymous vs relationship-scoped visibility enforcement | Beyond | done |
 
 ---
@@ -112,15 +112,14 @@ Provider links use `Relationship` documents (`relationshipType`: stable, trainer
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
-| H-REL-01 | Owner sends horse Ã¢â€ â€ provider invitation (any provider type) | Beyond | in progress |
+| H-REL-01 | Owner sends horse → provider invitation (any provider type) | Beyond | done |
 | H-REL-02 | Email invitation for unregistered party | Beyond | done |
 | H-REL-03 | Accept / decline; resend after mistaken decline | Beyond | done |
-| H-REL-04 | Established relationship permanent; `ended` retains history | Beyond | planned |
-| H-REL-05 | List current providers per horse (query accepted relationships) | Beyond | planned |
-| H-REL-06 | List historical providers per horse | Parity | planned |
-| H-REL-07 | Referral reference on invitations (commission attribution) | Beyond | planned |
-| H-REL-08 | Horse-scoped review after verified relationship (bidirectional) | Beyond | planned |
-| H-REL-09 | Reviewee response to horse-scoped reviews | Beyond | planned |
+| H-REL-04 | Established relationship permanent; `ended` retains history | Beyond | done |
+| H-REL-05 | List current providers per horse (query accepted relationships) | Beyond | done |
+| H-REL-06 | List historical providers per horse | Parity | done |
+| H-REL-07 | Horse-scoped review after verified relationship (bidirectional) | Beyond | done |
+| H-REL-08 | Reviewee response to horse-scoped reviews | Beyond | done |
 
 ---
 
