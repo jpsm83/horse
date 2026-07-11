@@ -163,7 +163,7 @@ Horse discovery (`Horse.profileVisibility`, `Horse.contactDisplay`) is documente
 | **Entity-owned** | `mainOwnerUserId` on entity (+ optional `coOwners[]`) | Horse, Stable, RidingClub, Transport, Breeder | Yes (except Horse: many horses, many stables, etc.) |
 | **User-linked** | `User.*ProfileId` + `userId` on role doc | Trainer, Veterinary, Coach, Groom, Farrier, Rider | One profile per role type per User (409 on second create) |
 
-**Co-owners** (`coOwners[]`: `userId`, `ownershipPercentage`, `isBillingResponsible`) on Horse, Stable, RidingClub, Transport, Breeder grant profile-owner capabilities (navigation, workplaces, collaboration invites). This is **ownership**, not operational staff — staff use `WorkplaceRelationship`.
+**Co-owners** (`coOwners[]`: `userId`, `ownershipPercentage`) on Horse, Stable, RidingClub, Transport, Breeder grant profile-owner capabilities (navigation, workplaces, collaboration invites). This is **ownership**, not operational staff — staff use `WorkplaceRelationship`.
 
 **Ownership changes** (who is main owner, who is in `coOwners[]`) use the **`OwnershipTransfer`** collection — consent required before any change applies. Applies only to **entity-owned** types above; **not** user-linked services (trainer, vet, groom, etc.). See [`ownershipTransfer.md`](ownershipTransfer.md).
 
@@ -360,6 +360,24 @@ Cross-module production gate (all must be ready together): see [`mvpScope.md`](m
 - [ ] Horse ↔ provider relationship invite/accept completes in minutes
 - [ ] All role baseline create + discovery APIs shipped for in-scope role types
 - [ ] Create web flows for primary role types (at minimum horse + stable + trainer + vet)
+
+---
+
+## 11. User types
+
+Identifies whether an account belongs to a natural person or a legal entity. Has no effect on app behavior — all accounts enjoy identical features regardless of type.
+
+| Field | Values | Default |
+|-------|--------|---------|
+| `userType` | `individual` \| `business` | `individual` |
+| `businessDetails.businessName` | string (max 200) | undefined |
+| `businessDetails.registrationNumber` | string (max 100) | undefined |
+| `businessDetails.taxId` | string (max 100) | undefined |
+| `businessDetails.countryOfRegistration` | 2-letter country code | undefined |
+
+Set at signup via account type toggle. Editable via `PATCH /api/v1/users/me`.
+
+Business accounts display `businessName` as display name on public profile cards instead of `firstName lastName`.
 
 ---
 

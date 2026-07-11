@@ -83,7 +83,7 @@ const tabs: EntityTab[] = [
 |----|---------|--------|--------|
 | H-OWN-01 | Main owner (`mainOwnerUserId`) on create; `createdByUserId` audit | Beyond | done |
 | H-OWN-02 | Co-owners array with ownership percentage (`coOwners[]` embed) | Parity | done |
-| H-OWN-03 | Co-owner billing responsibility flag (who pays when syndicate) | Beyond | planned |
+| H-OWN-03 | ~~Co-owner billing responsibility flag (who pays when syndicate)~~ — Moot under user-tier billing model. Businesses register as business users instead. | Beyond | cancelled |
 | H-OWN-04 | Ownership history via `OwnershipTransfer` audit trail | Parity | planned |
 | H-OWN-05 | Owner/co-owner authorization for discovery PATCH and sensitive fields | Beyond | done |
 | H-OWN-06 | Transfer / co-owner lifecycle via `OwnershipTransfer` ([`ownershipTransfer.md`](ownershipTransfer.md)) | Beyond | planned |

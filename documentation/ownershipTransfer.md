@@ -28,7 +28,7 @@ Related:
 | Field | Meaning |
 |-------|---------|
 | `mainOwnerUserId` | Single operator with full owner capabilities |
-| `coOwners[]` | Accepted partners (`userId`, `ownershipPercentage`, `isBillingResponsible`) |
+| `coOwners[]` | Accepted partners (`userId`, `ownershipPercentage`) |
 | `createdByUserId` | Audit only — never changed by transfer |
 
 Helpers: [`equus/lib/ownership/entityOwnership.ts`](../equus/lib/ownership/entityOwnership.ts).
