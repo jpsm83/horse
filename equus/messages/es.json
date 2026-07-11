@@ -651,6 +651,25 @@
     "FORBIDDEN": "No tiene permiso para realizar esta acción.",
     "UNAUTHORIZED": "Credenciales inválidas"
   },
+  "horseEdit": {
+    "title": "Editar Caballo",
+    "name": "Nombre",
+    "breed": "Raza",
+    "description": "Descripción",
+    "notes": "Notas"
+  },
+  "horseDiscovery": {
+    "title": "Configuración de Descubrimiento",
+    "comingSoon": "Configuración de visibilidad próximamente."
+  },
+  "horseHistory": {
+    "title": "Historial",
+    "comingSoon": "Historial y línea de tiempo próximamente."
+  },
+  "horseRelations": {
+    "title": "Relaciones",
+    "comingSoon": "Gestión de relaciones próximamente."
+  },
   "subscription": {
     "title": "Suscripción",
     "current": "Actual",
@@ -690,6 +709,10 @@
     "notifications": { "title": "Notificaciones | Equus", "description": "Tus notificaciones de Equus.", "keywords": "" },
     "notFound": { "title": "Página No Encontrada | Equus", "description": "La página que buscas no existe o ha sido movida.", "keywords": "404, página no encontrada, equus" },
     "notAllowed": { "title": "Acceso Denegado | Equus", "description": "No tienes permiso para acceder a esta página.", "keywords": "" },
-    "subscription": { "title": "Suscripción | Equus", "description": "Gestiona tu plan de suscripción y facturación de Equus.", "keywords": "" }
+    "subscription": { "title": "Suscripción | Equus", "description": "Gestiona tu plan de suscripción y facturación de Equus.", "keywords": "" },
+    "horseEdit": { "title": "Editar Caballo | Equus", "description": "Edita los detalles del perfil de tu caballo.", "keywords": "" },
+    "horseDiscovery": { "title": "Configuración de Descubrimiento | Equus", "description": "Gestiona la visibilidad y contacto de tu caballo.", "keywords": "" },
+    "horseHistory": { "title": "Historial del Caballo | Equus", "description": "Ve el historial y la línea de tiempo de tu caballo.", "keywords": "" },
+    "horseRelations": { "title": "Relaciones del Caballo | Equus", "description": "Gestiona las relaciones de tu caballo.", "keywords": "" }
   }
 }

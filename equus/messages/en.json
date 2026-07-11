@@ -651,6 +651,25 @@
     "FORBIDDEN": "You do not have permission to perform this action.",
     "UNAUTHORIZED": "Invalid credentials"
   },
+  "horseEdit": {
+    "title": "Edit Horse",
+    "name": "Name",
+    "breed": "Breed",
+    "description": "Description",
+    "notes": "Notes"
+  },
+  "horseDiscovery": {
+    "title": "Discovery Settings",
+    "comingSoon": "Discovery visibility settings coming soon."
+  },
+  "horseHistory": {
+    "title": "History",
+    "comingSoon": "Horse history and timeline coming soon."
+  },
+  "horseRelations": {
+    "title": "Relationships",
+    "comingSoon": "Horse relationship management coming soon."
+  },
   "subscription": {
     "title": "Subscription",
     "current": "Current",
@@ -690,6 +709,10 @@
     "notifications": { "title": "Notifications | Equus", "description": "Your Equus notifications.", "keywords": "" },
     "notFound": { "title": "Page Not Found | Equus", "description": "The page you are looking for does not exist or has been moved.", "keywords": "404, page not found, equus" },
     "notAllowed": { "title": "Access Denied | Equus", "description": "You do not have permission to access this page.", "keywords": "" },
-    "subscription": { "title": "Subscription | Equus", "description": "Manage your Equus subscription plan and billing.", "keywords": "" }
+    "subscription": { "title": "Subscription | Equus", "description": "Manage your Equus subscription plan and billing.", "keywords": "" },
+    "horseEdit": { "title": "Edit Horse | Equus", "description": "Edit your horse's profile details.", "keywords": "" },
+    "horseDiscovery": { "title": "Discovery Settings | Equus", "description": "Manage your horse's visibility and contact settings.", "keywords": "" },
+    "horseHistory": { "title": "Horse History | Equus", "description": "View your horse's timeline and history.", "keywords": "" },
+    "horseRelations": { "title": "Horse Relationships | Equus", "description": "Manage your horse's relationships.", "keywords": "" }
   }
 }

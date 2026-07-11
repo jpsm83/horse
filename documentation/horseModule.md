@@ -56,8 +56,24 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | H-PROF-05 | Description, notes, profile image | Parity | done |
 | H-PROF-06 | Photo and video gallery (`FileUpload` + `POST /api/v1/media/upload`) | Parity | done |
 | H-PROF-07 | Pedigree / bloodline (manual) | Parity | done |
-| H-PROF-08 | Full owner/co-owner edit of profile fields (PATCH horse) | Parity | planned |
+| H-PROF-08 | Full owner/co-owner edit of profile fields (PATCH horse) | Parity | done |
 | H-PROF-09 | Commercial fields: estimated value, sale status, asking price, showValuePublicly | Beyond | done |
+| H-PROF-10 | Entity tab navigation (Hub, Edit, Discovery, History, Relations) | Beyond | done |
+
+### Entity tab navigation
+
+Horse detail pages now include a tab bar at the top (Hub, Edit, Discovery, History, Relations) rendered by the reusable `EntityTabs` component (`components/ui/entity-tabs.tsx`). Tabs with `requireOwnership: true` are hidden for non-owners.
+
+**Usage for other modules:**
+```tsx
+import { EntityTabs, type EntityTab } from "@/components/ui/entity-tabs.tsx";
+
+const tabs: EntityTab[] = [
+  { id: "hub", label: "Hub", href: `/entity/${id}` },
+  { id: "edit", label: "Edit", href: `/entity/${id}/edit`, requireOwnership: true },
+];
+<EntityTabs tabs={tabs} isOwner={isOwner} />
+```
 
 ---
 

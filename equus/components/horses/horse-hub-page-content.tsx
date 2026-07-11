@@ -8,6 +8,7 @@
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
+import { EntityTabs, type EntityTab } from "@/components/ui/entity-tabs.tsx";
 import { HorseProviderInvites } from "@/components/invites/horse-provider-invites.tsx";
 import { HorseOwnershipHub } from "@/components/horses/horse-ownership-hub.tsx";
 import { HorseHubPageSkeleton } from "@/components/horses/horse-hub-page-skeleton.tsx";
@@ -57,8 +58,20 @@ export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
     return <HorseHubPageSkeleton />;
   }
 
+  const horseTabs: EntityTab[] = [
+    { id: "hub", label: "Hub", href: `/horses/${horseId}` },
+    { id: "edit", label: "Edit", href: `/horses/${horseId}/edit`, requireOwnership: true },
+    { id: "discovery", label: "Discovery", href: `/horses/${horseId}/discovery`, requireOwnership: true },
+    { id: "history", label: "History", href: `/horses/${horseId}/history` },
+    { id: "relations", label: "Relations", href: `/horses/${horseId}/relations` },
+  ];
+
+  const isOwner = horse?.isMainOwner === true;
+
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-6 sm:py-12">
+      <EntityTabs tabs={horseTabs} isOwner={isOwner} />
+
       <div className="space-y-2">
         <Link
           href="/horses"
