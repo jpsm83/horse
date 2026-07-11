@@ -1,30 +1,31 @@
-# Horse Module — Feature Specification
+# Horse Module Ã¢â‚¬â€ Feature Specification
 
 Living document for planning, updating, and tracking **horse-facing** capabilities before and during build.
 
-**Audience:** product, engineering, and GTM — use this file to add, remove, or reprioritize horse features before implementation starts on each area.
+**Audience:** product, engineering, and GTM Ã¢â‚¬â€ use this file to add, remove, or reprioritize horse features before implementation starts on each area.
 
 **Related docs:**
-- [`equinem.md`](equinem.md) — competitor capability baseline (EquineM)
-- [`businessPlan.md`](businessPlan.md) — vision, monetization (Section 11), relationship rules, Section 10.3 Horse module
-- [`mvpScope.md`](mvpScope.md) — build phases vs production launch gate
-- [`userModule.md`](userModule.md) — identity, privacy, discovery layers
-- [`ownershipTransfer.md`](ownershipTransfer.md) — consent-based main/co-owner changes (`OwnershipTransfer`)
-- [`productFlows.md`](productFlows.md) — owner ↔ provider flows
-- [`stableModule.md`](stableModule.md) — barn operations on hosted horses (complementary, not duplicate)
-- [`dataLifecycle.md`](dataLifecycle.md) — no hard deletes; horse-attached records survive provider deactivation
+- [`equinem.md`](equinem.md) Ã¢â‚¬â€ competitor capability baseline (EquineM)
+- [`businessPlan.md`](businessPlan.md) Ã¢â‚¬â€ vision, monetization (Section 11), relationship rules, Section 10.3 Horse module
+- [`mvpScope.md`](mvpScope.md) Ã¢â‚¬â€ build phases vs production launch gate
+- [`userModule.md`](userModule.md) Ã¢â‚¬â€ identity, privacy, discovery layers
+- [`ownershipTransfer.md`](ownershipTransfer.md) Ã¢â‚¬â€ consent-based main/co-owner changes (`OwnershipTransfer`)
+- [`productFlows.md`](productFlows.md) Ã¢â‚¬â€ owner Ã¢â€ â€ provider flows
+- [`stableModule.md`](stableModule.md) Ã¢â‚¬â€ barn operations on hosted horses (complementary, not duplicate)
+- [`dataLifecycle.md`](dataLifecycle.md) Ã¢â‚¬â€ no hard deletes; horse-attached records survive provider deactivation
 
 ---
 
 ## Product principles (horse)
 
-1. **Horse is the canonical record** — one profile shared across owners, stables, vets, trainers, and other linked providers; the horse document is the hub, not the stable or owner account.
-2. **Entity-owned** — horses link via `Horse.mainOwnerUserId` (+ optional `coOwners[]` on the horse). No `User.horseProfileIds` array; ownership helpers live in `lib/ownership/entityOwnership.ts`.
-3. **Owner pays per horse** — subscription is on the horse (`Horse.subscription`); main owner is payer of record; co-owners do not duplicate billing (see `businessPlan.md` Section 11).
-4. **Two-layer discovery** — `Horse.profileVisibility` and `Horse.contactDisplay` gate the public card; when `useOwnerContact: true`, owner identity/contact is filtered through `User.preferences` via `lib/privacy/userVisibility.ts`.
-5. **Relationship-first access** — providers act on a horse only through accepted `Relationship` documents (or barn operational path for hosted horses). Provider links are **not** stored as bare refs on `Horse`.
-6. **Permanent history** — established relationships and timeline entries remain after a horse leaves a stable or a provider link ends; owners retain read access to their horse data per policy (see [`dataLifecycle.md`](dataLifecycle.md) § horse-attached records).
-7. **Portable record** — horse data follows the horse across stables and providers; EquineM parity on core profile, health, documents, and location history, plus ecosystem discovery and horse-scoped reviews.
+1. **Horse is the canonical record** Ã¢â‚¬â€ one profile shared across owners, stables, vets, trainers, and other linked providers; the horse document is the hub, not the stable or owner account.
+2. **Entity-owned** Ã¢â‚¬â€ horses link via `Horse.mainOwnerUserId` (+ optional `coOwners[]` on the horse). No `User.horseProfileIds` array; ownership helpers live in `lib/ownership/entityOwnership.ts`.
+3. **Owner pays per tier** - subscription is on the user (`User.subscription.tier`); each tier limits how many horses the user can own (Free: 1, Bronze: 3, Silver: 5, Gold: 8, Diamond: unlimited). Co-owners do not count toward the limit (see `businessPlan.md` Section 11 and `documentation/billing.md`).
+
+4. **Two-layer discovery** - `Horse.profileVisibility` and `Horse.contactDisplay` gate the public card; when `useOwnerContact: true`, owner identity/contact is filtered through `User.preferences` via `lib/privacy/userVisibility.ts`.
+5. **Relationship-first access** Ã¢â‚¬â€ providers act on a horse only through accepted `Relationship` documents (or barn operational path for hosted horses). Provider links are **not** stored as bare refs on `Horse`.
+6. **Permanent history** Ã¢â‚¬â€ established relationships and timeline entries remain after a horse leaves a stable or a provider link ends; owners retain read access to their horse data per policy (see [`dataLifecycle.md`](dataLifecycle.md) Ã‚Â§ horse-attached records).
+7. **Portable record** Ã¢â‚¬â€ horse data follows the horse across stables and providers; EquineM parity on core profile, health, documents, and location history, plus ecosystem discovery and horse-scoped reviews.
 
 ---
 
@@ -44,7 +45,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 
 ## 1. Horse profile and identity
 
-**Baseline API (shipped):** create with all profile fields + discovery PATCH + public read — `POST /api/v1/horses`, `PATCH /api/v1/horses/:id/discovery`, `GET /api/v1/horses/:id`. Media upload via `POST /api/v1/media/upload`. See [`equus/documentation/horses.md`](../equus/documentation/horses.md). Full profile CRUD, directory search remain below.
+**Baseline API (shipped):** create with all profile fields + discovery PATCH + public read Ã¢â‚¬â€ `POST /api/v1/horses`, `PATCH /api/v1/horses/:id/discovery`, `GET /api/v1/horses/:id`. Media upload via `POST /api/v1/media/upload`. See [`equus/documentation/horses.md`](../equus/documentation/horses.md). Full profile CRUD, directory search remain below.
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
@@ -95,7 +96,7 @@ Provider links use `Relationship` documents (`relationshipType`: stable, trainer
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
-| H-REL-01 | Owner sends horse ↔ provider invitation (any provider type) | Beyond | in progress |
+| H-REL-01 | Owner sends horse Ã¢â€ â€ provider invitation (any provider type) | Beyond | in progress |
 | H-REL-02 | Email invitation for unregistered party | Beyond | done |
 | H-REL-03 | Accept / decline; resend after mistaken decline | Beyond | done |
 | H-REL-04 | Established relationship permanent; `ended` retains history | Beyond | planned |
@@ -152,7 +153,7 @@ Provider links use `Relationship` documents (`relationshipType`: stable, trainer
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
 | H-COMP-01 | Competition results on horse profile (`competitionResults[]`) | Parity | planned |
-| H-COMP-02 | Trainer/club adds event → results on horse timeline | Parity | planned |
+| H-COMP-02 | Trainer/club adds event Ã¢â€ â€™ results on horse timeline | Parity | planned |
 | H-COMP-03 | Performance history and basic analytics | Beyond | planned |
 | H-COMP-04 | Riding club / event registration links | Beyond | planned |
 
@@ -173,7 +174,7 @@ Provider links use `Relationship` documents (`relationshipType`: stable, trainer
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
-| H-BILL-01 | Per-horse subscription model (`trial` → paid; default $99/month placeholder) | Beyond | planned |
+| H-BILL-01 | Per-horse subscription model (`trial` Ã¢â€ â€™ paid; default $99/month placeholder) | Beyond | planned |
 | H-BILL-02 | 30-day trial per horse on create | Beyond | planned |
 | H-BILL-03 | Main owner as payer; co-owners linked without duplicate billing | Beyond | planned |
 | H-BILL-04 | Referral attribution on horse subscription (`referralReference`, commission window) | Beyond | planned |
@@ -212,9 +213,9 @@ Capabilities EquineM does **not** center on horse-as-portable-hub:
 
 ## 13. Production readiness (horse slice)
 
-The horse module is **production-ready** when every feature required for launch in Sections 1–11 above is `done` and acceptance criteria pass.
+The horse module is **production-ready** when every feature required for launch in Sections 1Ã¢â‚¬â€œ11 above is `done` and acceptance criteria pass.
 
-Cross-module production gate (all must be ready together): see [`mvpScope.md`](mvpScope.md) — **Production launch requirements** (User, Horse, Veterinary, Stable modules).
+Cross-module production gate (all must be ready together): see [`mvpScope.md`](mvpScope.md) Ã¢â‚¬â€ **Production launch requirements** (User, Horse, Veterinary, Stable modules).
 
 ### Horse launch acceptance (summary)
 
@@ -237,4 +238,4 @@ Cross-module production gate (all must be ready together): see [`mvpScope.md`](m
 | Date | Change |
 |------|--------|
 | 2026-06-30 | Create-horse web UI at `/horses/new` (baseline identity + discovery fields); H-PROF-01 partial |
-| 2026-06-30 | Initial specification from `businessPlan.md` §4.1 / §10.3, `mvpScope.md`, `equinem.md`, and shipped horse discovery API |
+| 2026-06-30 | Initial specification from `businessPlan.md` Ã‚Â§4.1 / Ã‚Â§10.3, `mvpScope.md`, `equinem.md`, and shipped horse discovery API |
