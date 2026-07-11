@@ -87,6 +87,8 @@ type ProfileFormProps = {
   authProvider: string;
   hasPassword: boolean;
   imageUrl?: string;
+  userType: string;
+  businessDetails?: Record<string, unknown> | null;
   onSaved?: (user: PublicUser) => void;
   onSavingChange?: (isSaving: boolean) => void;
 };
@@ -99,6 +101,8 @@ export function ProfileForm({
   authProvider,
   hasPassword,
   imageUrl,
+  userType: initialUserType,
+  businessDetails: initialBusinessDetails,
   onSaved,
   onSavingChange,
 }: ProfileFormProps) {
@@ -136,7 +140,7 @@ export function ProfileForm({
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues: mapUserToProfileFormValues(personalDetails, preferences),
+    defaultValues: mapUserToProfileFormValues(personalDetails, preferences, initialUserType, initialBusinessDetails ?? undefined),
   });
 
   const { dirtyFields } = form.formState;
@@ -221,6 +225,8 @@ export function ProfileForm({
       const savedValues = mapUserToProfileFormValues(
         savedDetails,
         savedUser.preferences as Record<string, unknown> | undefined,
+        savedUser.userType,
+        savedUser.businessDetails as Record<string, unknown> | undefined,
       );
 
       form.reset(savedValues);
@@ -519,6 +525,78 @@ export function ProfileForm({
             />
           </div>
         </FieldGroup>
+      </FieldSet>
+
+      <hr className="my-4" />
+
+      <FieldSet>
+        <FieldLegend className="pb-3 font-semibold">
+          {t("accountType")}
+        </FieldLegend>
+        <FieldGroup>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Controller
+              name="userType"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <SelectField
+                  id="profile-userType"
+                  label={tCommon("accountType")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  invalid={fieldState.invalid}
+                  error={fieldState.error}
+                  options={[
+                    { value: "individual", label: tCommon("individual") },
+                    { value: "business", label: tCommon("business") },
+                  ]}
+                />
+              )}
+            />
+          </div>
+        </FieldGroup>
+
+        {form.watch("userType") === "business" && (
+          <FieldGroup className="mt-4 space-y-4 rounded-lg border p-4">
+            <p className="text-sm font-medium">{tCommon("businessDetails")}</p>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <TextField
+                control={form.control}
+                name="businessDetails.businessName"
+                id="profile-businessName"
+                label={tCommon("businessName")}
+              />
+              <TextField
+                control={form.control}
+                name="businessDetails.registrationNumber"
+                id="profile-registrationNumber"
+                label={tCommon("registrationNumber")}
+              />
+              <TextField
+                control={form.control}
+                name="businessDetails.taxId"
+                id="profile-taxId"
+                label={tCommon("taxId")}
+              />
+              <Controller
+                name="businessDetails.countryOfRegistration"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <FlagSelectField
+                    id="profile-countryOfRegistration"
+                    label={tCommon("countryOfRegistration")}
+                    placeholder={t("selectPlaceholder")}
+                    value={field.value ?? ""}
+                    onChange={field.onChange}
+                    invalid={fieldState.invalid}
+                    error={fieldState.error}
+                    options={countryOptions}
+                  />
+                )}
+              />
+            </div>
+          </FieldGroup>
+        )}
       </FieldSet>
 
       <hr className="my-4" />

@@ -10,6 +10,7 @@ import {
   idTypeEnums,
   userDirectMessageAudienceEnums,
   userProfileVisibilityEnums,
+  userTypeEnums,
 } from "../../utils/enums.ts";
 import { isKnownCountryCode } from "../data/countries.ts";
 
@@ -61,6 +62,13 @@ export function createProfileFormSchemas(messages: ProfileFormMessages) {
     additionalDetails: optionalTrimmedString(),
   });
 
+  const businessDetailsFormSchema = z.object({
+    businessName: optionalTrimmedString(200),
+    registrationNumber: optionalTrimmedString(100),
+    taxId: optionalTrimmedString(100),
+    countryOfRegistration: optionalCountryCode(messages),
+  });
+
   const profileFormSchema = z.object({
     username: optionalTrimmedString(50),
     preferredLanguage: z.enum(appLocaleEnums, { message: messages.invalidEnum }),
@@ -89,6 +97,8 @@ export function createProfileFormSchemas(messages: ProfileFormMessages) {
       message: messages.invalidEnum,
     }),
     address: addressFormSchema,
+    userType: z.enum(userTypeEnums),
+    businessDetails: businessDetailsFormSchema.optional(),
   });
 
   return { profileFormSchema };
@@ -126,6 +136,7 @@ export const emptyProfileFormValues: ProfileFormValues = {
   idNumber: "",
   profileVisibility: "public",
   allowDirectMessagesFrom: "everyone",
+  userType: "individual",
   address: {
     country: "",
     state: "",

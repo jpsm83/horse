@@ -72,6 +72,8 @@ export function ProfilePageContent() {
           authProvider={user.authProvider ?? "credentials"}
           hasPassword={hasPassword}
           imageUrl={imageUrl}
+          userType={profile?.userType ?? "individual"}
+          businessDetails={profile?.businessDetails as Record<string, unknown> | undefined ?? null}
           onSavingChange={setIsSaving}
           onSaved={() => {
             queryClient.invalidateQueries({ queryKey: queryKeys.users.me });

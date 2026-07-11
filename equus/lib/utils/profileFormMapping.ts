@@ -99,6 +99,8 @@ export function readAddressCoordinates(
 export function mapUserToProfileFormValues(
   personalDetails: Record<string, unknown> | undefined,
   preferences?: Record<string, unknown>,
+  userType?: string,
+  businessDetails?: Record<string, unknown>,
 ): ProfileFormValues {
   if (!personalDetails) {
     return {
@@ -148,6 +150,15 @@ export function mapUserToProfileFormValues(
       (readString(preferences?.profileVisibility) || "public") as ProfileFormValues["profileVisibility"],
     allowDirectMessagesFrom:
       (readString(preferences?.allowDirectMessagesFrom) || "everyone") as ProfileFormValues["allowDirectMessagesFrom"],
+    userType: (userType ?? "individual") as ProfileFormValues["userType"],
+    businessDetails: businessDetails
+      ? {
+          businessName: readString(businessDetails.businessName),
+          registrationNumber: readString(businessDetails.registrationNumber),
+          taxId: readString(businessDetails.taxId),
+          countryOfRegistration: readCountryCode(businessDetails.countryOfRegistration),
+        }
+      : undefined,
     address: {
       country: readCountryCode(address?.country),
       state: readString(address?.state),
@@ -200,6 +211,30 @@ export function mapProfileFormValuesToPatch(
     }
     if (dirtyFields.allowDirectMessagesFrom) {
       patch.preferences.allowDirectMessagesFrom = values.allowDirectMessagesFrom;
+    }
+  }
+
+  if (dirtyFields.userType) {
+    patch.userType = values.userType;
+  }
+
+  if (dirtyFields.businessDetails) {
+    const bd = values.businessDetails;
+    const businessName = bd?.businessName?.trim() ?? "";
+    const registrationNumber = bd?.registrationNumber?.trim() ?? "";
+    const taxId = bd?.taxId?.trim() ?? "";
+    const countryOfRegistration = bd?.countryOfRegistration?.trim() ?? "";
+
+    const allEmpty = !businessName && !registrationNumber && !taxId && !countryOfRegistration;
+
+    if (allEmpty) {
+      patch.businessDetails = "" as unknown as undefined;
+    } else {
+      patch.businessDetails = {};
+      if (businessName) patch.businessDetails.businessName = businessName;
+      if (registrationNumber) patch.businessDetails.registrationNumber = registrationNumber;
+      if (taxId) patch.businessDetails.taxId = taxId;
+      if (countryOfRegistration) patch.businessDetails.countryOfRegistration = countryOfRegistration;
     }
   }
 
