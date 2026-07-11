@@ -563,6 +563,37 @@ export async function listPendingSentForHorse(
   );
 }
 
+/** Accepted ownership transfers for a horse (all time, for history view). */
+export async function listOwnershipHistoryForHorse(
+  actorUserId: string,
+  horseId: string,
+): Promise<PublicOwnershipTransfer[]> {
+  ensureObjectId(horseId, "horse id");
+
+  const horse = await Horse.findById(horseId).lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  if (String((horse as Record<string, unknown>).mainOwnerUserId) !== actorUserId) {
+    throw new ApiError(403, "Only the main owner can view ownership history", "FORBIDDEN");
+  }
+
+  const transfers = await OwnershipTransfer.find({
+    entityType: "horse",
+    entityId: horseId,
+    status: "accepted",
+  })
+    .sort({ respondedAt: -1 })
+    .lean();
+
+  const entityName = readEntityName("horse", horse as Record<string, unknown>);
+
+  return transfers.map((doc) =>
+    toPublicOwnershipTransfer(doc as Record<string, unknown>, entityName),
+  );
+}
+
 export async function acceptOwnershipTransfer(
   actorUserId: string,
   transferId: string,

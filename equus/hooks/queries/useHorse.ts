@@ -49,6 +49,10 @@ async function fetchOwnershipTransfers(horseId: string): Promise<PublicOwnership
 async function fetchHorseList(filters: HorseListFilters): Promise<HorseListResult> {
   const params = new URLSearchParams();
   if (filters.mine) params.set("mine", "true");
+  if (filters.forSale) params.set("forSale", "true");
+  if (filters.breed) params.set("breed", filters.breed);
+  if (filters.sex) params.set("sex", filters.sex);
+  if (filters.countryOfBirth) params.set("countryOfBirth", filters.countryOfBirth);
   if (filters.page) params.set("page", String(filters.page));
   if (filters.limit) params.set("limit", String(filters.limit));
   const qs = params.toString();
@@ -86,6 +90,20 @@ export function useHorseOwnershipTransfers(horseId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.horses.ownershipTransfers(horseId!),
     queryFn: () => fetchOwnershipTransfers(horseId!),
+    enabled: !!horseId,
+  });
+}
+
+async function fetchOwnershipHistory(horseId: string): Promise<PublicOwnershipTransfer[]> {
+  const response = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(horseId)}/ownership-history`);
+  const data = await parseApiResponse<{ transfers: PublicOwnershipTransfer[] }>(response);
+  return data.transfers;
+}
+
+export function useHorseOwnershipHistory(horseId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.horses.ownershipHistory(horseId!),
+    queryFn: () => fetchOwnershipHistory(horseId!),
     enabled: !!horseId,
   });
 }
