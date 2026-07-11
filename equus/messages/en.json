@@ -19,7 +19,16 @@
     "maxFilesInfo": "Up to {count} files — images, videos, PDFs",
     "uploadFiles": "Upload files",
     "remove": "Remove",
-    "uploadFailed": "Upload failed"
+    "uploadFailed": "Upload failed",
+    "accountType": "Account type",
+    "individual": "Individual",
+    "business": "Business",
+    "selectAccountType": "Select account type",
+    "businessDetails": "Business details",
+    "businessName": "Business name",
+    "registrationNumber": "Registration number",
+    "countryOfRegistration": "Country of registration",
+    "countryCodeHint": "2-letter country code (e.g. US, GB, PT)"
   },
   "toast": {
     "actionFailed": "Something went wrong. Please try again."

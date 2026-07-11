@@ -12,6 +12,7 @@ import { TextField } from "@/components/forms/text-field.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated.ts";
 import { Link, useRouter } from "@/i18n/navigation.ts";
 import { registerWithCredentials } from "@/lib/api/auth/credentials";
@@ -78,10 +79,12 @@ export function SignUpContent() {
       lastName: "",
       email: "",
       password: "",
+      userType: "individual",
     },
   });
 
   const isSubmitting = form.formState.isSubmitting;
+  const selectedUserType = form.watch("userType");
 
   async function onSubmit(data: SignUpFormValues) {
     setApiError(null);
@@ -93,6 +96,8 @@ export function SignUpContent() {
         firstName: data.firstName?.trim() || undefined,
         lastName: data.lastName?.trim() || undefined,
         referralReference: ref && !isStaffRef ? ref : undefined,
+        userType: data.userType || undefined,
+        businessDetails: data.userType === "business" ? data.businessDetails : undefined,
       });
 
       if (isStaffRef && ref) {
@@ -168,6 +173,55 @@ export function SignUpContent() {
             autoComplete="new-password"
             description={tAuth("passwordPolicy")}
           />
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              {tCommon("accountType")}
+            </label>
+            <Select
+              value={selectedUserType || "individual"}
+              onValueChange={(value) => form.setValue("userType", value as "individual" | "business")}
+            >
+              <SelectTrigger id="signup-userType">
+                <SelectValue placeholder={tCommon("selectAccountType")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="individual">{tCommon("individual")}</SelectItem>
+                <SelectItem value="business">{tCommon("business")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {selectedUserType === "business" && (
+            <div className="space-y-4 rounded-lg border p-4">
+              <p className="text-sm font-medium">{tCommon("businessDetails")}</p>
+              <TextField
+                control={form.control}
+                name="businessDetails.businessName"
+                id="signup-businessName"
+                label={tCommon("businessName")}
+              />
+              <TextField
+                control={form.control}
+                name="businessDetails.registrationNumber"
+                id="signup-registrationNumber"
+                label={tCommon("registrationNumber")}
+              />
+              <TextField
+                control={form.control}
+                name="businessDetails.taxId"
+                id="signup-taxId"
+                label={tCommon("taxId")}
+              />
+              <TextField
+                control={form.control}
+                name="businessDetails.countryOfRegistration"
+                id="signup-countryOfRegistration"
+                label={tCommon("countryOfRegistration")}
+                description={tCommon("countryCodeHint")}
+              />
+            </div>
+          )}
         </FieldGroup>
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>

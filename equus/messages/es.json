@@ -19,7 +19,16 @@
     "maxFilesInfo": "Hasta {count} archivos — imágenes, videos, PDFs",
     "uploadFiles": "Subir archivos",
     "remove": "Eliminar",
-    "uploadFailed": "Error al subir"
+    "uploadFailed": "Error al subir",
+    "accountType": "Tipo de cuenta",
+    "individual": "Individual",
+    "business": "Empresa",
+    "selectAccountType": "Seleccionar tipo de cuenta",
+    "businessDetails": "Datos de la empresa",
+    "businessName": "Nombre de la empresa",
+    "registrationNumber": "Número de registro",
+    "countryOfRegistration": "País de registro",
+    "countryCodeHint": "Código de país de 2 letras (ej. US, ES, PT)"
   },
   "toast": {
     "actionFailed": "Algo salió mal. Inténtelo de nuevo."

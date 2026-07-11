@@ -46,6 +46,13 @@ export function createAuthFormSchemas(messages: AuthFormMessages) {
     lastName: z.string().trim().max(50).optional(),
     email: formEmailSchema,
     password: signUpPasswordSchema,
+    userType: z.enum(["individual", "business"]).optional(),
+    businessDetails: z.object({
+      businessName: z.string().trim().min(1).max(200).optional(),
+      registrationNumber: z.string().trim().min(1).max(100).optional(),
+      taxId: z.string().trim().min(1).max(100).optional(),
+      countryOfRegistration: z.string().trim().length(2).optional(),
+    }).optional(),
   });
 
   const forgotPasswordFormSchema = z.object({
