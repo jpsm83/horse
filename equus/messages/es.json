@@ -812,6 +812,37 @@
       "owner_only": "Solo propietario"
     }
   },
+  "horseConnect": {
+    "title": "Conectar",
+    "description": "Invita a proveedores a conectarse con este caballo.",
+    "inviteSection": "Invitar a un proveedor",
+    "connectionsSection": "Conexiones",
+    "searchPlaceholder": "Buscar por nombre, email o usuario...",
+    "searching": "Buscando...",
+    "noResults": "No se encontraron proveedores.",
+    "invite": "Invitar",
+    "invited": "Invitado",
+    "emailFallbackToggle": "¿No está en Equus? Invitar por email",
+    "emailFallbackHint": "Recibirán una invitación para registrarse y conectarse.",
+    "emailLabel": "Email",
+    "nameLabel": "Nombre (opcional)",
+    "sendEmailInvite": "Enviar invitación por email",
+    "invitationSent": "Invitación enviada.",
+    "tableType": "Tipo",
+    "tableStatus": "Estado",
+    "tableName": "Nombre",
+    "tableEmail": "Email",
+    "tableSince": "Conectado desde",
+    "tableActions": "Acciones",
+    "statusActive": "Activo",
+    "statusPending": "Pendiente",
+    "statusRefused": "Rechazado",
+    "statusEnded": "Finalizado",
+    "endConnection": "Finalizar conexión",
+    "cancelInvitation": "Cancelar invitación",
+    "connectionEnded": "Conexión finalizada.",
+    "invitationCancelled": "Invitación cancelada."
+  },
   "horseHistory": {
     "title": "Historial",
     "comingSoon": "Historial y línea de tiempo próximamente."
@@ -883,11 +914,13 @@
     "notFound": { "title": "Página No Encontrada | Equus", "description": "La página que buscas no existe o ha sido movida.", "keywords": "404, página no encontrada, equus" },
     "notAllowed": { "title": "Acceso Denegado | Equus", "description": "No tienes permiso para acceder a esta página.", "keywords": "" },
     "subscription": { "title": "Suscripción | Equus", "description": "Gestiona tu plan de suscripción y facturación de Equus.", "keywords": "" },
+    "horseConnect": { "title": "Conectar | Equus", "description": "Invita y gestiona conexiones de proveedores para tu caballo.", "keywords": "" },
     "horseEdit": { "title": "Editar Caballo | Equus", "description": "Edita los detalles del perfil de tu caballo.", "keywords": "" },
     "horseDiscovery": { "title": "Configuración de Descubrimiento | Equus", "description": "Gestiona la visibilidad y contacto de tu caballo.", "keywords": "" },
     "horseHistory": { "title": "Historial del Caballo | Equus", "description": "Ve el historial y la línea de tiempo de tu caballo.", "keywords": "" },
     "horseRelations": { "title": "Relaciones del Caballo | Equus", "description": "Gestiona las relaciones de tu caballo.", "keywords": "" },
-    "horseSale": { "title": "Venta | Equus", "description": "Gestiona la configuración de venta y precios de tu caballo.", "keywords": "" }
+    "horseSale": { "title": "Venta | Equus", "description": "Gestiona la configuración de venta y precios de tu caballo.", "keywords": "" },
+    "horseAdmin": { "title": "Admin | Equus", "description": "Gestiona configuración de venta, propiedad y hub de tu caballo.", "keywords": "" }
   },
   "horseSale": {
     "pageTitle": "Configuración de venta",

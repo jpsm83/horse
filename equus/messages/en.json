@@ -812,6 +812,37 @@
       "owner_only": "Owner only"
     }
   },
+  "horseConnect": {
+    "title": "Connect",
+    "description": "Invite providers to connect with this horse.",
+    "inviteSection": "Invite a provider",
+    "connectionsSection": "Connections",
+    "searchPlaceholder": "Search by name, email, or username...",
+    "searching": "Searching...",
+    "noResults": "No matching providers found.",
+    "invite": "Invite",
+    "invited": "Invited",
+    "emailFallbackToggle": "Not on Equus? Invite by email",
+    "emailFallbackHint": "They will receive an invitation to sign up and connect.",
+    "emailLabel": "Email",
+    "nameLabel": "Name (optional)",
+    "sendEmailInvite": "Send email invitation",
+    "invitationSent": "Invitation sent.",
+    "tableType": "Type",
+    "tableStatus": "Status",
+    "tableName": "Name",
+    "tableEmail": "Email",
+    "tableSince": "Connected since",
+    "tableActions": "Actions",
+    "statusActive": "Active",
+    "statusPending": "Pending",
+    "statusRefused": "Refused",
+    "statusEnded": "Ended",
+    "endConnection": "End connection",
+    "cancelInvitation": "Cancel invitation",
+    "connectionEnded": "Connection ended.",
+    "invitationCancelled": "Invitation cancelled."
+  },
   "horseHistory": {
     "title": "History",
     "comingSoon": "Horse history and timeline coming soon."
@@ -883,11 +914,13 @@
     "notFound": { "title": "Page Not Found | Equus", "description": "The page you are looking for does not exist or has been moved.", "keywords": "404, page not found, equus" },
     "notAllowed": { "title": "Access Denied | Equus", "description": "You do not have permission to access this page.", "keywords": "" },
     "subscription": { "title": "Subscription | Equus", "description": "Manage your Equus subscription plan and billing.", "keywords": "" },
+    "horseConnect": { "title": "Connect | Equus", "description": "Invite and manage provider connections for your horse.", "keywords": "" },
     "horseEdit": { "title": "Edit Horse | Equus", "description": "Edit your horse's profile details.", "keywords": "" },
     "horseDiscovery": { "title": "Discovery Settings | Equus", "description": "Manage your horse's visibility and contact settings.", "keywords": "" },
     "horseHistory": { "title": "Horse History | Equus", "description": "View your horse's timeline and history.", "keywords": "" },
     "horseRelations": { "title": "Horse Relationships | Equus", "description": "Manage your horse's relationships.", "keywords": "" },
-    "horseSale": { "title": "Sale | Equus", "description": "Manage sale settings and pricing for your horse.", "keywords": "" }
+    "horseSale": { "title": "Sale | Equus", "description": "Manage sale settings and pricing for your horse.", "keywords": "" },
+    "horseAdmin": { "title": "Admin | Equus", "description": "Manage sale settings, ownership, and hub configuration for your horse.", "keywords": "" }
   },
   "horseSale": {
     "pageTitle": "Sale settings",
