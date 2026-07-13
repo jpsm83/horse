@@ -51,6 +51,12 @@ tests/         → Vitest tests mirroring lib/
 * **Env vars** — auth secrets and URLs are read in `lib/auth/config.ts` (`AUTH_SECRET`, `REFRESH_SECRET`, `AUTH_URL`, Google OAuth). Other server-only vars are read in route handlers or `lib/`. Never expose secrets to client components.
 * **Docs** — when unsure about a Next.js API for this version, check `node_modules/next/dist/docs/` before guessing.
 
+### Critical Business Rules
+
+- **Entity must be Equus user:** No external entity (vet, stable, groomer, trainer, etc.) can interact with a horse through the app unless they are a registered Equus user with an account and claimed entity profile. Email invitations to non-users create pending relationships that only activate upon signup + entity profile creation.
+- **Horses can work with anyone:** A horse can have relationships with entities outside the app (in real life). For those horses, the app only provides the Hub (public social feed). All other features (Medical, Feed, Events, Documents, etc.) require in-app entity connections.
+- **Documentation reflects this:** All docs, code comments, and API specifications clearly encode this asymmetry — entities must join the platform to participate, horses have no such restriction.
+
 #### Data fetching — TanStack Query
 
 All client-side data fetching uses **TanStack Query** (React Query v5). Domain hooks live in `hooks/queries/`.
