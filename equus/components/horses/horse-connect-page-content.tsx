@@ -67,7 +67,7 @@ export function HorseConnectPageContent({ horseId }: Props) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        targetEntityId: result.id,
+        receiverAccountId: result.id,
         relationshipType: result.entityType,
       }),
     }).then((res) => {
@@ -76,13 +76,14 @@ export function HorseConnectPageContent({ horseId }: Props) {
     });
   }
 
-  function handleEmailInvite(email: string, name?: string) {
+  function handleEmailInvite(email: string, name: string | undefined, entityType: string) {
     fetch(`/api/v1/horses/${horseId}/relationships`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         invitedEmail: email,
         invitedName: name,
+        relationshipType: entityType,
       }),
     }).then((res) => {
       if (res.ok) toast.success(t("invitationSent"));
