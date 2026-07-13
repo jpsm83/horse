@@ -12,6 +12,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { EntitySearch } from "@/components/ui/entity-search.tsx";
@@ -20,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { useHorseProviders, useHorsePendingRelationships } from "@/hooks/queries/useHorse.ts";
 import { useEndRelationship } from "@/hooks/queries/useRelationship.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
+import { queryKeys } from "@/lib/api/queryKeys";
 
 type Props = { horseId: string };
 
@@ -36,6 +38,7 @@ export function HorseConnectPageContent({ horseId }: Props) {
   const t = useTranslations("horseConnect");
   const tTypes = useTranslations("invites.horseProviders.types");
   const toast = useAppToast();
+  const queryClient = useQueryClient();
   const { data: currentProviders = [] } = useHorseProviders(horseId, "accepted");
   const { data: pendingRelationships = [] } = useHorsePendingRelationships(horseId);
   const endMutation = useEndRelationship();
@@ -44,7 +47,7 @@ export function HorseConnectPageContent({ horseId }: Props) {
 
   const rows: ConnectionRow[] = allRelationships.map((rel) => ({
     id: rel.id,
-    type: tTypes(rel.relationshipType),
+    type: rel.relationshipType ? tTypes(rel.relationshipType) : t("typeUnknown"),
     status: rel.status as ConnectionRow["status"],
     name: rel.receiverLabel ?? rel.invitedEmail ?? "-",
     email: rel.invitedEmail ?? "-",
@@ -71,8 +74,13 @@ export function HorseConnectPageContent({ horseId }: Props) {
         relationshipType: result.entityType,
       }),
     }).then((res) => {
-      if (res.ok) toast.success(t("invitationSent"));
-      else toast.error(t("invitationCancelled"));
+      if (res.ok) {
+        toast.success(t("invitationSent"));
+        queryClient.invalidateQueries({ queryKey: queryKeys.horses.relationships(horseId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.horses.providers(horseId) });
+      } else {
+        toast.error(t("invitationCancelled"));
+      }
     });
   }
 
@@ -85,8 +93,13 @@ export function HorseConnectPageContent({ horseId }: Props) {
         invitedName: name,
       }),
     }).then((res) => {
-      if (res.ok) toast.success(t("invitationSent"));
-      else toast.error(t("invitationCancelled"));
+      if (res.ok) {
+        toast.success(t("invitationSent"));
+        queryClient.invalidateQueries({ queryKey: queryKeys.horses.relationships(horseId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.horses.providers(horseId) });
+      } else {
+        toast.error(t("invitationCancelled"));
+      }
     });
   }
 

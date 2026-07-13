@@ -845,7 +845,8 @@
     "endConnection": "Finalizar conexión",
     "cancelInvitation": "Cancelar invitación",
     "connectionEnded": "Conexión finalizada.",
-    "invitationCancelled": "Invitación cancelada."
+    "invitationCancelled": "Invitación cancelada.",
+    "typeUnknown": "Desconocido"
   },
   "horseHistory": {
     "title": "Historial",
