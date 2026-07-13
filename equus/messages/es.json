@@ -782,7 +782,12 @@
       "disciplines": "Disciplinas",
       "description": "Descripción",
       "pedigree": "Pedigrí"
-    }
+    },
+    "contactTitle": "Contacto",
+    "useOwnerContact": "Usar contacto del propietario",
+    "customContact": "Datos de contacto personalizados",
+    "contactSaved": "Contacto guardado",
+    "contactSaveFailed": "Error al guardar el contacto"
   },
   "horseConnect": {
     "title": "Conectar",

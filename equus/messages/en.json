@@ -782,7 +782,12 @@
       "disciplines": "Disciplines",
       "description": "Description",
       "pedigree": "Pedigree"
-    }
+    },
+    "contactTitle": "Contact display",
+    "useOwnerContact": "Use owner contact",
+    "customContact": "Custom contact details",
+    "contactSaved": "Contact display saved",
+    "contactSaveFailed": "Failed to save contact display"
   },
   "horseConnect": {
     "title": "Connect",
