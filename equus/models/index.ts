@@ -28,3 +28,5 @@ export { default as Booking } from "./Booking.ts";
 export { default as Invoice } from "./Invoice.ts";
 export { default as Document } from "./Document.ts";
 export { default as Notification } from "./Notification.ts";
+export { default as HorseHealthRecord } from "./HorseHealthRecord.ts";
+export { default as HorseFeedPlan } from "./HorseFeedPlan.ts";
