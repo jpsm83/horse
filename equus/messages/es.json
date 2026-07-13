@@ -885,6 +885,33 @@
       "night": "Madrugada"
     }
   },
+  "horseEvents": {
+    "title": "Eventos",
+    "description": "Programa citas, competiciones, entrenamiento y actividades diarias.",
+    "addEvent": "Añadir evento",
+    "cancel": "Cancelar",
+    "date": "Fecha",
+    "type": "Tipo",
+    "title": "Título",
+    "location": "Ubicación",
+    "startDate": "Fecha inicio",
+    "endDate": "Fecha fin",
+    "filterPlaceholder": "Filtrar eventos...",
+    "noEvents": "Aún no hay eventos.",
+    "eventCreated": "Evento creado.",
+    "eventError": "Error al crear el evento.",
+    "saving": "Guardando...",
+    "saveEvent": "Guardar evento",
+    "calendarView": "Calendario",
+    "tableView": "Tabla",
+    "types": {
+      "appointment": "Cita",
+      "competition": "Competición",
+      "training": "Entrenamiento",
+      "feeding": "Alimentación",
+      "other": "Otro"
+    }
+  },
   "metadata": {
     "home": { "title": "Equus — Red Ecuestre y de Caballos", "description": "Conecta con dueños de caballos, establos, criadores y profesionales ecuestres. Encuentra caballos, servicios y construye tu red ecuestre.", "keywords": "caballos, ecuestre, establos, criadores, red equina, equus" },
     "homeDashboard": { "title": "Inicio | Equus", "description": "Tu panel de Equus — gestiona caballos, establos y conexiones.", "keywords": "" },
@@ -917,6 +944,7 @@
     "horseConnect": { "title": "Conectar | Equus", "description": "Invita y gestiona conexiones de proveedores para tu caballo.", "keywords": "" },
     "horseHealth": { "title": "Médico | Equus", "description": "Gestiona los registros de salud de tu caballo.", "keywords": "" },
     "horseFeed": { "title": "Alimentación | Equus", "description": "Gestiona los planes de alimentación de tu caballo.", "keywords": "" },
+    "horseEvents": { "title": "Eventos | Equus", "description": "Gestiona eventos y horarios de tu caballo.", "keywords": "" },
     "horseEdit": { "title": "Editar Caballo | Equus", "description": "Edita los detalles del perfil de tu caballo.", "keywords": "" },
     "horseHistory": { "title": "Historial del Caballo | Equus", "description": "Ve el historial y la línea de tiempo de tu caballo.", "keywords": "" },
     "horseSale": { "title": "Venta | Equus", "description": "Gestiona la configuración de venta y precios de tu caballo.", "keywords": "" },

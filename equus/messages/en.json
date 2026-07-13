@@ -885,6 +885,33 @@
       "night": "Night"
     }
   },
+  "horseEvents": {
+    "title": "Events",
+    "description": "Schedule appointments, competitions, training, and daily activities.",
+    "addEvent": "Add event",
+    "cancel": "Cancel",
+    "date": "Date",
+    "type": "Type",
+    "title": "Title",
+    "location": "Location",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "filterPlaceholder": "Filter events...",
+    "noEvents": "No events yet.",
+    "eventCreated": "Event created.",
+    "eventError": "Failed to create event.",
+    "saving": "Saving...",
+    "saveEvent": "Save event",
+    "calendarView": "Calendar",
+    "tableView": "Table",
+    "types": {
+      "appointment": "Appointment",
+      "competition": "Competition",
+      "training": "Training",
+      "feeding": "Feeding",
+      "other": "Other"
+    }
+  },
   "metadata": {
     "home": { "title": "Equus — Horse & Equestrian Network", "description": "Connect with horse owners, stables, breeders, and equestrian professionals. Find horses, services, and build your equestrian network.", "keywords": "horses, equestrian, stables, breeders, horse network, equus" },
     "homeDashboard": { "title": "Home | Equus", "description": "Your Equus dashboard — manage horses, stables, and connections.", "keywords": "" },
@@ -917,6 +944,7 @@
     "horseConnect": { "title": "Connect | Equus", "description": "Invite and manage provider connections for your horse.", "keywords": "" },
     "horseHealth": { "title": "Medical | Equus", "description": "Manage health records for your horse.", "keywords": "" },
     "horseFeed": { "title": "Feed | Equus", "description": "Manage feed plans for your horse.", "keywords": "" },
+    "horseEvents": { "title": "Events | Equus", "description": "Manage events and schedule for your horse.", "keywords": "" },
     "horseEdit": { "title": "Edit Horse | Equus", "description": "Edit your horse's profile details.", "keywords": "" },
     "horseHistory": { "title": "Horse History | Equus", "description": "View your horse's timeline and history.", "keywords": "" },
     "horseSale": { "title": "Sale | Equus", "description": "Manage sale settings and pricing for your horse.", "keywords": "" },
