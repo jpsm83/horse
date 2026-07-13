@@ -50,7 +50,7 @@ const relationshipSchema = new Schema(
     receiverAccountType: {
       type: String,
       enum: accountTypeEnums,
-      required: [true, "Receiver account type is required!"],
+      required: false,
     },
     receiverAccountId: { type: Schema.Types.ObjectId, index: true },
 
