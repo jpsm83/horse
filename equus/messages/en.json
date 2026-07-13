@@ -631,6 +631,17 @@
     "age": "Age (years)",
     "value": "Est. value ($)"
   },
+  "visibility": {
+    "title": "Section visibility",
+    "description": "Control who can see this section.",
+    "modes": {
+      "owner": "Only the owner",
+      "entities": "Owner + selected entities",
+      "public": "Everyone"
+    },
+    "cancel": "Cancel",
+    "save": "Save"
+  },
   "horseHub": {
     "backToHorses": "Back to my horses",
     "subtitle": "Manage this horse",

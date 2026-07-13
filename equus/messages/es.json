@@ -631,6 +631,17 @@
     "age": "Edad (años)",
     "value": "Valor est. ($)"
   },
+  "visibility": {
+    "title": "Visibilidad de la sección",
+    "description": "Controla quién puede ver esta sección.",
+    "modes": {
+      "owner": "Solo el propietario",
+      "entities": "Propietario + entidades seleccionadas",
+      "public": "Todos"
+    },
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  },
   "horseHub": {
     "backToHorses": "Volver a mis caballos",
     "subtitle": "Gestionar este caballo",
