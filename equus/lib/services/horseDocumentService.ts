@@ -1,4 +1,5 @@
 import Document from "@/models/Document.ts";
+import { recordAudit } from "@/lib/services/horseAuditService.ts";
 
 export type PublicHorseDocument = {
   id: string;
@@ -43,5 +44,11 @@ export async function createHorseDocument(
     horseId,
     uploadedByUserId: userId,
   });
+  recordAudit({
+    horseId,
+    actorId: userId,
+    actionType: "document.created",
+    description: `Document "${input.title}" added`,
+  }).catch(() => {});
   return toPublic(doc.toObject());
 }

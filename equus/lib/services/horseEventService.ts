@@ -1,4 +1,5 @@
 import HorseEvent from "@/models/HorseEvent.ts";
+import { recordAudit } from "@/lib/services/horseAuditService.ts";
 
 export type PublicEvent = {
   id: string;
@@ -59,5 +60,11 @@ export async function createEvent(
     startDate: new Date(input.startDate as string),
     endDate: input.endDate ? new Date(input.endDate as string) : undefined,
   });
+  recordAudit({
+    horseId,
+    actorId: userId,
+    actionType: "event.created",
+    description: `Event "${input.title}" scheduled`,
+  }).catch(() => {});
   return toPublic(event.toObject());
 }

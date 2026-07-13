@@ -1,4 +1,5 @@
 import HorseMedia from "@/models/HorseMedia.ts";
+import { recordAudit } from "@/lib/services/horseAuditService.ts";
 
 export type PublicMedia = {
   id: string;
@@ -41,5 +42,11 @@ export async function createMedia(
     horseId,
     uploadedByUserId: userId,
   });
+  recordAudit({
+    horseId,
+    actorId: userId,
+    actionType: "media.created",
+    description: `Media "${input.title ?? "untitled"}" added`,
+  }).catch(() => {});
   return toPublic(item.toObject());
 }

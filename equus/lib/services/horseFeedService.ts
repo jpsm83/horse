@@ -1,4 +1,5 @@
 import HorseFeedPlan from "@/models/HorseFeedPlan.ts";
+import { recordAudit } from "@/lib/services/horseAuditService.ts";
 
 export type PublicFeedPlan = {
   id: string;
@@ -53,6 +54,12 @@ export async function createFeedPlan(
     horseId,
     createdByUserId: userId,
   });
+  recordAudit({
+    horseId,
+    actorId: userId,
+    actionType: "feed.created",
+    description: `Feed plan "${input.feedType}" added`,
+  }).catch(() => {});
   return toPublic(plan.toObject());
 }
 

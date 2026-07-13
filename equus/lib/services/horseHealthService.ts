@@ -1,4 +1,5 @@
 import HorseHealthRecord from "@/models/HorseHealthRecord.ts";
+import { recordAudit } from "@/lib/services/horseAuditService.ts";
 
 export type PublicHealthRecord = {
   id: string;
@@ -52,6 +53,12 @@ export async function createHealthRecord(
     createdByUserId: userId,
     date: new Date(input.date as string),
   });
+  recordAudit({
+    horseId,
+    actorId: userId,
+    actionType: "health.created",
+    description: `Health record "${input.title}" added`,
+  }).catch(() => {});
   return toPublic(record.toObject());
 }
 

@@ -30,6 +30,7 @@
     "countryOfRegistration": "Country of registration",
     "countryCodeHint": "2-letter country code (e.g. US, GB, PT)",
     "save": "Save",
+    "saving": "Saving...",
     "cancel": "Cancel"
   },
   "toast": {

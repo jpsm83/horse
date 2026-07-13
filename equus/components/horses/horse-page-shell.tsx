@@ -32,7 +32,6 @@ export function HorsePageShell({
   backHref,
   backLabel,
   requireOwnership,
-  showBreedSubtitle,
   children,
 }: HorsePageShellProps) {
   const router = useRouter();
