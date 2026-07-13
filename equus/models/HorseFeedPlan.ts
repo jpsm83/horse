@@ -37,7 +37,6 @@ const horseFeedPlanSchema = new Schema(
       unit: { type: String },
     }],
     notes: { type: String },
-    isActive: { type: Boolean, default: true },
     scheduleDays: [{ type: String, enum: ["mon","tue","wed","thu","fri","sat","sun"] }],
 
     visibilityMode: {
