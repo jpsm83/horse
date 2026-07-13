@@ -784,24 +784,6 @@
       "pedigree": "Pedigree"
     }
   },
-  "horseDiscovery": {
-    "title": "Discovery Settings",
-    "visibilityTitle": "Profile visibility",
-    "contactTitle": "Contact display",
-    "profileVisibility": "Profile visibility",
-    "useOwnerContact": "Use owner contact",
-    "customContact": "Custom contact details",
-    "yes": "Yes",
-    "no": "No",
-    "noChanges": "No changes to save",
-    "saved": "Discovery settings saved",
-    "saveFailed": "Failed to save discovery settings",
-    "visibilityOptions": {
-      "public": "Public",
-      "relationship": "Relationships only",
-      "owner_only": "Owner only"
-    }
-  },
   "horseConnect": {
     "title": "Connect",
     "description": "Invite providers to connect with this horse.",
@@ -836,33 +818,6 @@
   "horseHistory": {
     "title": "History",
     "comingSoon": "Horse history and timeline coming soon."
-  },
-  "horseRelations": {
-    "title": "Relationships",
-    "currentProviders": "Current providers",
-    "noCurrentProviders": "No providers connected yet.",
-    "pastProviders": "Past providers",
-    "noPastProviders": "No provider history.",
-    "endButton": "End connection",
-    "endedLabel": "Ended {date}",
-    "sinceLabel": "Since {date}",
-    "endedSuccess": "Provider connection ended.",
-    "endError": "Failed to end connection.",
-    "reviewsTitle": "Reviews",
-    "noReviews": "No reviews yet.",
-    "writeReview": "Write a review",
-    "reviewSubmit": "Submit review",
-    "reviewCreated": "Review submitted.",
-    "reviewError": "Failed to submit review.",
-    "scoreLabel": "Rating",
-    "reviewPlaceholder": "Share your experience with this provider...",
-    "respondButton": "Respond",
-    "respondSubmit": "Submit response",
-    "respondPlaceholder": "Write your response...",
-    "respondedSuccess": "Response submitted.",
-    "respondError": "Failed to submit response.",
-    "responseLabel": "Response",
-    "cancel": "Cancel"
   },
   "subscription": {
     "title": "Subscription",
@@ -906,9 +861,7 @@
     "subscription": { "title": "Subscription | Equus", "description": "Manage your Equus subscription plan and billing.", "keywords": "" },
     "horseConnect": { "title": "Connect | Equus", "description": "Invite and manage provider connections for your horse.", "keywords": "" },
     "horseEdit": { "title": "Edit Horse | Equus", "description": "Edit your horse's profile details.", "keywords": "" },
-    "horseDiscovery": { "title": "Discovery Settings | Equus", "description": "Manage your horse's visibility and contact settings.", "keywords": "" },
     "horseHistory": { "title": "Horse History | Equus", "description": "View your horse's timeline and history.", "keywords": "" },
-    "horseRelations": { "title": "Horse Relationships | Equus", "description": "Manage your horse's relationships.", "keywords": "" },
     "horseSale": { "title": "Sale | Equus", "description": "Manage sale settings and pricing for your horse.", "keywords": "" },
     "horseAdmin": { "title": "Admin | Equus", "description": "Manage sale settings, ownership, and hub configuration for your horse.", "keywords": "" }
   },

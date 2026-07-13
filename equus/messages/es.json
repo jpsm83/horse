@@ -784,24 +784,6 @@
       "pedigree": "Pedigrí"
     }
   },
-  "horseDiscovery": {
-    "title": "Configuración de Descubrimiento",
-    "visibilityTitle": "Visibilidad del perfil",
-    "contactTitle": "Contacto",
-    "profileVisibility": "Visibilidad del perfil",
-    "useOwnerContact": "Usar contacto del propietario",
-    "customContact": "Datos de contacto personalizados",
-    "yes": "Sí",
-    "no": "No",
-    "noChanges": "Sin cambios para guardar",
-    "saved": "Configuración de descubrimiento guardada",
-    "saveFailed": "Error al guardar la configuración de descubrimiento",
-    "visibilityOptions": {
-      "public": "Público",
-      "relationship": "Solo relaciones",
-      "owner_only": "Solo propietario"
-    }
-  },
   "horseConnect": {
     "title": "Conectar",
     "description": "Invita a proveedores a conectarse con este caballo.",
@@ -836,33 +818,6 @@
   "horseHistory": {
     "title": "Historial",
     "comingSoon": "Historial y línea de tiempo próximamente."
-  },
-  "horseRelations": {
-    "title": "Relaciones",
-    "currentProviders": "Proveedores actuales",
-    "noCurrentProviders": "Aún no hay proveedores conectados.",
-    "pastProviders": "Proveedores anteriores",
-    "noPastProviders": "Sin historial de proveedores.",
-    "endButton": "Finalizar conexión",
-    "endedLabel": "Finalizada el {date}",
-    "sinceLabel": "Desde {date}",
-    "endedSuccess": "Conexión finalizada.",
-    "endError": "Error al finalizar la conexión.",
-    "reviewsTitle": "Reseñas",
-    "noReviews": "Aún no hay reseñas.",
-    "writeReview": "Escribir reseña",
-    "reviewSubmit": "Enviar reseña",
-    "reviewCreated": "Reseña enviada.",
-    "reviewError": "Error al enviar la reseña.",
-    "scoreLabel": "Puntuación",
-    "reviewPlaceholder": "Comparte tu experiencia con este proveedor...",
-    "respondButton": "Responder",
-    "respondSubmit": "Enviar respuesta",
-    "respondPlaceholder": "Escribe tu respuesta...",
-    "respondedSuccess": "Respuesta enviada.",
-    "respondError": "Error al enviar la respuesta.",
-    "responseLabel": "Respuesta",
-    "cancel": "Cancelar"
   },
   "subscription": {
     "title": "Suscripción",
@@ -906,9 +861,7 @@
     "subscription": { "title": "Suscripción | Equus", "description": "Gestiona tu plan de suscripción y facturación de Equus.", "keywords": "" },
     "horseConnect": { "title": "Conectar | Equus", "description": "Invita y gestiona conexiones de proveedores para tu caballo.", "keywords": "" },
     "horseEdit": { "title": "Editar Caballo | Equus", "description": "Edita los detalles del perfil de tu caballo.", "keywords": "" },
-    "horseDiscovery": { "title": "Configuración de Descubrimiento | Equus", "description": "Gestiona la visibilidad y contacto de tu caballo.", "keywords": "" },
     "horseHistory": { "title": "Historial del Caballo | Equus", "description": "Ve el historial y la línea de tiempo de tu caballo.", "keywords": "" },
-    "horseRelations": { "title": "Relaciones del Caballo | Equus", "description": "Gestiona las relaciones de tu caballo.", "keywords": "" },
     "horseSale": { "title": "Venta | Equus", "description": "Gestiona la configuración de venta y precios de tu caballo.", "keywords": "" },
     "horseAdmin": { "title": "Admin | Equus", "description": "Gestiona configuración de venta, propiedad y hub de tu caballo.", "keywords": "" }
   },
