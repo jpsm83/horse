@@ -47,7 +47,7 @@ export function HorseConnectPageContent({ horseId }: Props) {
 
   const rows: ConnectionRow[] = allRelationships.map((rel) => ({
     id: rel.id,
-    type: rel.relationshipType ? tTypes(rel.relationshipType) : t("typeUnknown"),
+    type: rel.relationshipType && rel.relationshipType !== "undefined" ? tTypes(rel.relationshipType) : t("typeUnknown"),
     status: rel.status as ConnectionRow["status"],
     name: rel.receiverLabel ?? rel.invitedEmail ?? "-",
     email: rel.invitedEmail ?? "-",
