@@ -157,7 +157,7 @@ export async function createRelationshipInvite(
 
   const horseName = String(horseRecord.name ?? "");
   const requesterLabel = await getRequesterLabel(actorUserId);
-  const relationshipType = input.relationshipType;
+  const relationshipType = input.relationshipType as string | undefined;
 
   let receiverAccountId: string | undefined;
   let receiverUserId: string | undefined;
@@ -166,7 +166,7 @@ export async function createRelationshipInvite(
   const referralReference = generateRelationshipReferralReference();
 
   if (input.receiverAccountId) {
-    const provider = await resolveProviderProfile(relationshipType, input.receiverAccountId);
+    const provider = await resolveProviderProfile(relationshipType!, input.receiverAccountId);
     if (!provider) {
       throw new ApiError(404, "Provider profile not found", "NOT_FOUND");
     }
@@ -200,19 +200,13 @@ export async function createRelationshipInvite(
     }
   }
 
-  const duplicateQuery = receiverAccountId
-    ? {
-        horseId: input.horseId,
-        relationshipType,
-        status: "pending",
-        receiverAccountId,
-      }
-    : {
-        horseId: input.horseId,
-        relationshipType,
-        status: "pending",
-        invitedEmail,
-      };
+  const duplicateQuery: Record<string, unknown> = { horseId: input.horseId, status: "pending" };
+  if (receiverAccountId) {
+    duplicateQuery.relationshipType = relationshipType;
+    duplicateQuery.receiverAccountId = receiverAccountId;
+  } else {
+    duplicateQuery.invitedEmail = invitedEmail;
+  }
 
   const existingPending = await Relationship.findOne(duplicateQuery).lean();
   if (existingPending) {
@@ -242,10 +236,9 @@ export async function createRelationshipInvite(
 
   const relationship = await Relationship.create({
     horseId: input.horseId,
-    relationshipType,
     status: "pending",
     requesterUserId: actorUserId,
-    receiverAccountType: relationshipType,
+    ...(relationshipType ? { relationshipType, receiverAccountType: relationshipType } : {}),
     ...(receiverAccountId ? { receiverAccountId } : {}),
     ...(receiverUserId ? { receiverUserId } : {}),
     ...(invitedEmail ? { invitedEmail } : {}),
@@ -276,7 +269,7 @@ export async function createRelationshipInvite(
         invitedEmail,
         invitedName: input.invitedName?.trim(),
         horseName,
-        relationshipType,
+        relationshipType: relationshipType ?? "provider",
         requesterLabel,
         referralReference,
         locale: inviteeLocale,

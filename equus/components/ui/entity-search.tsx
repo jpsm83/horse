@@ -12,7 +12,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Loader2, Search, UserPlus, Mail } from "lucide-react";
+import { Loader2, Search, UserPlus, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ type EntitySearchResult = {
 type EntitySearchProps = {
   horseId: string;
   onInvite: (result: EntitySearchResult) => void;
-  onEmailInvite: (email: string, name: string | undefined, entityType: string) => void;
+  onEmailInvite: (email: string, name?: string) => void;
 };
 
 export function EntitySearch({ horseId, onInvite, onEmailInvite }: EntitySearchProps) {
@@ -39,7 +39,6 @@ export function EntitySearch({ horseId, onInvite, onEmailInvite }: EntitySearchP
   const [showEmailFallback, setShowEmailFallback] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const [emailType, setEmailType] = useState("stable");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const search = useCallback(async (q: string) => {
@@ -78,7 +77,7 @@ export function EntitySearch({ horseId, onInvite, onEmailInvite }: EntitySearchP
 
   function handleEmailInvite() {
     if (!email.trim()) return;
-    onEmailInvite(email.trim(), name.trim() || undefined, emailType);
+    onEmailInvite(email.trim(), name.trim() || undefined);
     setEmail("");
     setName("");
     setShowEmailFallback(false);
@@ -151,15 +150,6 @@ export function EntitySearch({ horseId, onInvite, onEmailInvite }: EntitySearchP
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-            <select
-              value={emailType}
-              onChange={(e) => setEmailType(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            >
-              {["stable", "veterinary", "trainer", "groom", "farrier", "rider", "breeder", "ridingClub", "transport", "coach"].map((type) => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
           </div>
           <Button size="sm" onClick={handleEmailInvite} disabled={!email.trim()}>
             {t("sendEmailInvite")}

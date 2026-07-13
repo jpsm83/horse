@@ -16,7 +16,7 @@ export const listRelationshipsQuerySchema = z.object({
 export const createRelationshipSchema = z
   .object({
     horseId: z.string().trim().min(1),
-    relationshipType: z.enum(relationshipTypeEnums),
+    relationshipType: z.enum(relationshipTypeEnums).optional(),
     receiverAccountId: z.string().trim().min(1).optional(),
     invitedEmail: z.string().trim().email().optional(),
     invitedName: z.string().trim().min(1).max(200).optional(),
@@ -35,7 +35,18 @@ export const createRelationshipSchema = z
       return;
     }
 
+    if (hasProfile && !data.relationshipType) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "relationshipType is required when inviting by profile",
+        path: ["relationshipType"],
+      });
+      return;
+    }
+
     if (
+      hasProfile &&
+      data.relationshipType &&
       (entityOwnedRelationshipTypes as readonly string[]).includes(data.relationshipType) &&
       !hasProfile
     ) {

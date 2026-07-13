@@ -25,7 +25,7 @@ const relationshipSchema = new Schema(
     relationshipType: {
       type: String,
       enum: relationshipTypeEnums,
-      required: [true, "Relationship type is required!"],
+      required: false,
     },
 
     status: {
