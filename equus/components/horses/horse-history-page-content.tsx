@@ -29,7 +29,7 @@ export function HorseHistoryPageContent({ horseId }: Props) {
   const rows: LogRow[] = logs.map((log) => ({
     id: log.id,
     date: new Date(log.createdAt).toLocaleString(),
-    action: t(`actions.${log.actionType}` as any),
+    action: t(`actions.${log.actionType.replace(/\./g, "_")}`),
     description: log.description,
     actor: log.actorLabel,
   }));
