@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { HorseSalePageContent } from "@/components/horses/horse-sale-page-content.tsx";
+import { HorseAdminPageContent } from "@/components/horses/horse-admin-page-content.tsx";
 import { HorseHubPageSkeleton } from "@/components/horses/horse-hub-page-skeleton.tsx";
 import type { Metadata } from "next";
 import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
@@ -10,14 +10,14 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  return generatePrivateMetadata(locale, "/horses/[horseId]/sale", "metadata.horseSale");
+  return generatePrivateMetadata(locale, "/horses/[horseId]/sale", "metadata.horseAdmin");
 }
 
-export default async function HorseSalePage({ params }: PageProps) {
+export default async function HorseAdminPage({ params }: PageProps) {
   const { horseId } = await params;
   return (
     <Suspense fallback={<HorseHubPageSkeleton />}>
-      <HorseSalePageContent horseId={horseId} />
+      <HorseAdminPageContent horseId={horseId} />
     </Suspense>
   );
 }

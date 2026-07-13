@@ -865,6 +865,12 @@
     "horseSale": { "title": "Venta | Equus", "description": "Gestiona la configuración de venta y precios de tu caballo.", "keywords": "" },
     "horseAdmin": { "title": "Admin | Equus", "description": "Gestiona configuración de venta, propiedad y hub de tu caballo.", "keywords": "" }
   },
+  "horseAdmin": {
+    "pageTitle": "Admin",
+    "hubToggleTitle": "Página Hub",
+    "hubToggleDescription": "Activar o desactivar la página pública Hub para este caballo.",
+    "hubToggleComingSoon": "Configuración del Hub disponible en una futura actualización."
+  },
   "horseSale": {
     "pageTitle": "Configuración de venta",
     "title": "Venta y precio",
