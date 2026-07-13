@@ -25,6 +25,7 @@ export const queryKeys = {
     reviews: (horseId: string) => [...queryKeys.horses.all, horseId, "reviews"] as const,
     health: (horseId: string) => [...queryKeys.horses.all, horseId, "health"] as const,
     feed: (horseId: string) => [...queryKeys.horses.all, horseId, "feed"] as const,
+    events: (horseId: string) => [...queryKeys.horses.all, horseId, "events"] as const,
   },
   stables: {
     all: ["stables"] as const,
