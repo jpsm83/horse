@@ -19,9 +19,10 @@ import { EntitySearch } from "@/components/ui/entity-search.tsx";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table.tsx";
 import { Button } from "@/components/ui/button";
 import { useHorseProviders, useHorsePendingRelationships } from "@/hooks/queries/useHorse.ts";
-import { useEndRelationship } from "@/hooks/queries/useRelationship.ts";
+import { useEndRelationship, useDeclineRelationship } from "@/hooks/queries/useRelationship.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { queryKeys } from "@/lib/api/queryKeys";
+import { relationshipTypeEnums } from "@/utils/enums.ts";
 
 type Props = { horseId: string };
 
@@ -42,12 +43,13 @@ export function HorseConnectPageContent({ horseId }: Props) {
   const { data: currentProviders = [] } = useHorseProviders(horseId, "accepted");
   const { data: pendingRelationships = [] } = useHorsePendingRelationships(horseId);
   const endMutation = useEndRelationship();
+  const declineMutation = useDeclineRelationship();
 
   const allRelationships = [...currentProviders, ...pendingRelationships];
 
   const rows: ConnectionRow[] = allRelationships.map((rel) => ({
     id: rel.id,
-    type: rel.relationshipType && rel.relationshipType !== "undefined" ? tTypes(rel.relationshipType) : t("typeUnknown"),
+    type: rel.relationshipType && relationshipTypeEnums.includes(rel.relationshipType as never) ? tTypes(rel.relationshipType) : t("typeUnknown"),
     status: rel.status as ConnectionRow["status"],
     name: rel.receiverLabel ?? rel.invitedEmail ?? "-",
     email: rel.invitedEmail ?? "-",
@@ -58,9 +60,10 @@ export function HorseConnectPageContent({ horseId }: Props) {
         : "-",
   }));
 
-  function handleEnd(relationshipId: string) {
-    endMutation.mutate(relationshipId, {
-      onSuccess: () => toast.success(t("connectionEnded")),
+  function handleEnd(relationshipId: string, status: "accepted" | "pending") {
+    const mutation = status === "accepted" ? endMutation : declineMutation;
+    mutation.mutate(relationshipId, {
+      onSuccess: () => toast.success(status === "accepted" ? t("connectionEnded") : t("invitationCancelled")),
       onError: () => toast.error(t("invitationCancelled")),
     });
   }
@@ -161,11 +164,11 @@ export function HorseConnectPageContent({ horseId }: Props) {
           emptyMessage={t("noResults")}
           onRowAction={(row) =>
             row.status === "accepted" ? (
-              <Button variant="outline" size="sm" onClick={() => handleEnd(row.id)}>
+              <Button variant="outline" size="sm" onClick={() => handleEnd(row.id, "accepted")}>
                 {t("endConnection")}
               </Button>
             ) : row.status === "pending" ? (
-              <Button variant="outline" size="sm" onClick={() => handleEnd(row.id)}>
+              <Button variant="outline" size="sm" onClick={() => handleEnd(row.id, "pending")}>
                 {t("cancelInvitation")}
               </Button>
             ) : null
