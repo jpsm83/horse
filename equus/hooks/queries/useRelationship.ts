@@ -83,6 +83,28 @@ export function useCreateRelationshipInvite() {
   });
 }
 
+async function cancelSentInvite(relationshipId: string): Promise<PublicRelationship> {
+  const response = await fetchWithAuth(`/api/v1/relationships/${relationshipId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: "cancelled" }),
+  });
+  const data = await parseApiResponse<{ relationship: PublicRelationship }>(response);
+  return data.relationship;
+}
+
+export function useCancelSentInvite() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: cancelSentInvite,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.relationships.pending() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.providers(data.horseId) });
+    },
+  });
+}
+
 export function useEndRelationship() {
   const queryClient = useQueryClient();
 

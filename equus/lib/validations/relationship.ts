@@ -4,7 +4,7 @@ import { businessRoleTypeEnums, relationshipTypeEnums, relationshipStatusEnums }
 const entityOwnedRelationshipTypes = businessRoleTypeEnums;
 
 export const updateRelationshipStatusSchema = z.object({
-  status: z.enum(["accepted", "declined", "ended"] as const),
+  status: z.enum(["accepted", "declined", "ended", "cancelled"] as const),
 });
 
 export type UpdateRelationshipStatusInput = z.infer<typeof updateRelationshipStatusSchema>;

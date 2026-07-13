@@ -441,6 +441,32 @@ export async function endRelationship(
   return pub;
 }
 
+export async function cancelSentInvite(
+  actorUserId: string,
+  relationshipId: string,
+): Promise<PublicRelationship> {
+  const relationship = await Relationship.findById(relationshipId);
+  if (!relationship) {
+    throw new ApiError(404, "Relationship not found", "NOT_FOUND");
+  }
+
+  if (relationship.status !== "pending") {
+    throw new ApiError(400, "Only pending invitations can be cancelled", "VALIDATION_ERROR");
+  }
+
+  if (String(relationship.requesterUserId) !== actorUserId) {
+    throw new ApiError(403, "Only the sender can cancel this invitation", "FORBIDDEN");
+  }
+
+  relationship.status = "declined";
+  relationship.respondedAt = new Date();
+  await relationship.save();
+
+  const pub = toPublicRelationship(relationship.toObject() as Record<string, unknown>);
+  pub.horseName = await resolveHorseName(relationship.horseId);
+  return pub;
+}
+
 export async function listProvidersForHorse(
   actorUserId: string,
   horseId: string,

@@ -19,7 +19,7 @@ import { EntitySearch } from "@/components/ui/entity-search.tsx";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table.tsx";
 import { Button } from "@/components/ui/button";
 import { useHorseProviders, useHorsePendingRelationships } from "@/hooks/queries/useHorse.ts";
-import { useEndRelationship, useDeclineRelationship } from "@/hooks/queries/useRelationship.ts";
+import { useEndRelationship, useCancelSentInvite } from "@/hooks/queries/useRelationship.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { queryKeys } from "@/lib/api/queryKeys";
 import { relationshipTypeEnums } from "@/utils/enums.ts";
@@ -43,7 +43,7 @@ export function HorseConnectPageContent({ horseId }: Props) {
   const { data: currentProviders = [] } = useHorseProviders(horseId, "accepted");
   const { data: pendingRelationships = [] } = useHorsePendingRelationships(horseId);
   const endMutation = useEndRelationship();
-  const declineMutation = useDeclineRelationship();
+  const cancelMutation = useCancelSentInvite();
 
   const allRelationships = [...currentProviders, ...pendingRelationships];
 
@@ -61,7 +61,7 @@ export function HorseConnectPageContent({ horseId }: Props) {
   }));
 
   function handleEnd(relationshipId: string, status: "accepted" | "pending") {
-    const mutation = status === "accepted" ? endMutation : declineMutation;
+    const mutation = status === "accepted" ? endMutation : cancelMutation;
     mutation.mutate(relationshipId, {
       onSuccess: () => toast.success(status === "accepted" ? t("connectionEnded") : t("invitationCancelled")),
       onError: () => toast.error(t("invitationCancelled")),

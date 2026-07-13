@@ -25,6 +25,8 @@ export async function PATCH(request: Request, context: RouteContext) {
       relationship = await relationshipService.acceptRelationship(session.id, id);
     } else if (status === "ended") {
       relationship = await relationshipService.endRelationship(session.id, id);
+    } else if (status === "cancelled") {
+      relationship = await relationshipService.cancelSentInvite(session.id, id);
     } else {
       relationship = await relationshipService.declineRelationship(session.id, id);
     }
