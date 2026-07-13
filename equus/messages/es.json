@@ -912,6 +912,25 @@
       "other": "Otro"
     }
   },
+  "horseMedia": {
+    "title": "Multimedia y Galería",
+    "description": "Fotos y videos de este caballo.",
+    "noMedia": "Aún no hay contenido multimedia.",
+    "uploadMedia": "Subir",
+    "addMedia": "Añadir multimedia"
+  },
+  "horseDocuments": {
+    "title": "Documentos",
+    "description": "Papeles de registro, pasaportes, seguros y contratos.",
+    "type": "Tipo",
+    "title": "Título",
+    "date": "Fecha",
+    "filterPlaceholder": "Buscar documentos...",
+    "noDocuments": "Aún no hay documentos.",
+    "types": {
+      "other": "Documento"
+    }
+  },
   "metadata": {
     "home": { "title": "Equus — Red Ecuestre y de Caballos", "description": "Conecta con dueños de caballos, establos, criadores y profesionales ecuestres. Encuentra caballos, servicios y construye tu red ecuestre.", "keywords": "caballos, ecuestre, establos, criadores, red equina, equus" },
     "homeDashboard": { "title": "Inicio | Equus", "description": "Tu panel de Equus — gestiona caballos, establos y conexiones.", "keywords": "" },
@@ -945,6 +964,8 @@
     "horseHealth": { "title": "Médico | Equus", "description": "Gestiona los registros de salud de tu caballo.", "keywords": "" },
     "horseFeed": { "title": "Alimentación | Equus", "description": "Gestiona los planes de alimentación de tu caballo.", "keywords": "" },
     "horseEvents": { "title": "Eventos | Equus", "description": "Gestiona eventos y horarios de tu caballo.", "keywords": "" },
+    "horseMedia": { "title": "Multimedia | Equus", "description": "Ve fotos y videos de tu caballo.", "keywords": "" },
+    "horseDocuments": { "title": "Documentos | Equus", "description": "Gestiona los documentos de tu caballo.", "keywords": "" },
     "horseEdit": { "title": "Editar Caballo | Equus", "description": "Edita los detalles del perfil de tu caballo.", "keywords": "" },
     "horseHistory": { "title": "Historial del Caballo | Equus", "description": "Ve el historial y la línea de tiempo de tu caballo.", "keywords": "" },
     "horseSale": { "title": "Venta | Equus", "description": "Gestiona la configuración de venta y precios de tu caballo.", "keywords": "" },

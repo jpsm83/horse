@@ -912,6 +912,25 @@
       "other": "Other"
     }
   },
+  "horseMedia": {
+    "title": "Media & Gallery",
+    "description": "Photos and videos of this horse.",
+    "noMedia": "No media yet.",
+    "uploadMedia": "Upload",
+    "addMedia": "Add media"
+  },
+  "horseDocuments": {
+    "title": "Documents",
+    "description": "Registration papers, passports, insurance, and contracts.",
+    "type": "Type",
+    "title": "Title",
+    "date": "Date",
+    "filterPlaceholder": "Search documents...",
+    "noDocuments": "No documents yet.",
+    "types": {
+      "other": "Document"
+    }
+  },
   "metadata": {
     "home": { "title": "Equus — Horse & Equestrian Network", "description": "Connect with horse owners, stables, breeders, and equestrian professionals. Find horses, services, and build your equestrian network.", "keywords": "horses, equestrian, stables, breeders, horse network, equus" },
     "homeDashboard": { "title": "Home | Equus", "description": "Your Equus dashboard — manage horses, stables, and connections.", "keywords": "" },
@@ -945,6 +964,8 @@
     "horseHealth": { "title": "Medical | Equus", "description": "Manage health records for your horse.", "keywords": "" },
     "horseFeed": { "title": "Feed | Equus", "description": "Manage feed plans for your horse.", "keywords": "" },
     "horseEvents": { "title": "Events | Equus", "description": "Manage events and schedule for your horse.", "keywords": "" },
+    "horseMedia": { "title": "Media | Equus", "description": "View photos and videos of your horse.", "keywords": "" },
+    "horseDocuments": { "title": "Documents | Equus", "description": "Manage documents for your horse.", "keywords": "" },
     "horseEdit": { "title": "Edit Horse | Equus", "description": "Edit your horse's profile details.", "keywords": "" },
     "horseHistory": { "title": "Horse History | Equus", "description": "View your horse's timeline and history.", "keywords": "" },
     "horseSale": { "title": "Sale | Equus", "description": "Manage sale settings and pricing for your horse.", "keywords": "" },
