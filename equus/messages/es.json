@@ -658,9 +658,33 @@
     "dam": "Madre",
     "ownership": {
       "title": "Propiedad",
+      "description": "Transfiere este caballo o gestiona copropietarios.",
       "soleOwner": "Eres el único propietario de este caballo.",
-      "withCoOwners": "Tienes {count} copropietario(s)."
+      "withCoOwners": "Tienes {count} copropietario(s).",
+      "transferTitle": "Transferir propiedad",
+      "transferDescription": "Envía la propiedad a otra persona por email.",
+      "coOwnersTitle": "Gestionar copropietarios",
+      "coOwnersDescription": "Elimina o promueve copropietarios.",
+      "coOwnersBlockTransfer": "Elimina todos los copropietarios antes de transferir la propiedad principal.",
+      "emailLabel": "Email del nuevo propietario",
+      "nameLabel": "Nombre (opcional)",
+      "sendTransfer": "Enviar solicitud de transferencia",
+      "removeCoOwner": "Eliminar",
+      "promoteCoOwner": "Promover a propietario principal",
+      "pending": "Pendiente",
+      "cancelPending": "Cancelar solicitud",
+      "transferSent": "Solicitud de transferencia enviada.",
+      "removeSent": "Solicitud de eliminación enviada.",
+      "promoteSent": "Solicitud de promoción enviada.",
+      "cancelled": "Solicitud cancelada.",
+      "ownershipPercentage": "{percentage}% de propiedad"
     }
+  },
+  "horseAdmin": {
+    "pageTitle": "Admin",
+    "hubToggleTitle": "Página Hub",
+    "hubToggleDescription": "Activar o desactivar la página pública Hub para este caballo.",
+    "hubToggleComingSoon": "Configuración del Hub disponible en una futura actualización."
   },
   "errors": {
     "EMAIL_NOT_VERIFIED": "Verifique su email antes de iniciar sesión.",

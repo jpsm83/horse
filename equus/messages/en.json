@@ -658,9 +658,33 @@
     "dam": "Dam",
     "ownership": {
       "title": "Ownership",
+      "description": "Transfer this horse or manage co-owners.",
       "soleOwner": "You are the sole owner of this horse.",
-      "withCoOwners": "You have {count} co-owner(s)."
+      "withCoOwners": "You have {count} co-owner(s).",
+      "transferTitle": "Transfer ownership",
+      "transferDescription": "Send ownership to another person by email.",
+      "coOwnersTitle": "Manage co-owners",
+      "coOwnersDescription": "Remove or promote co-owners.",
+      "coOwnersBlockTransfer": "Remove all co-owners before you can transfer main ownership.",
+      "emailLabel": "New owner email",
+      "nameLabel": "Name (optional)",
+      "sendTransfer": "Send transfer request",
+      "removeCoOwner": "Remove",
+      "promoteCoOwner": "Promote to main owner",
+      "pending": "Pending",
+      "cancelPending": "Cancel request",
+      "transferSent": "Ownership transfer request sent.",
+      "removeSent": "Co-owner removal request sent.",
+      "promoteSent": "Promotion request sent.",
+      "cancelled": "Request cancelled.",
+      "ownershipPercentage": "{percentage}% ownership"
     }
+  },
+  "horseAdmin": {
+    "pageTitle": "Admin",
+    "hubToggleTitle": "Hub page",
+    "hubToggleDescription": "Enable or disable the public Hub page for this horse.",
+    "hubToggleComingSoon": "Hub configuration coming in a future update."
   },
   "errors": {
     "EMAIL_NOT_VERIFIED": "Please verify your email before signing in.",
