@@ -23,6 +23,8 @@ export const queryKeys = {
     ownershipTransfers: (horseId: string) => [...queryKeys.horses.all, horseId, "ownership-transfers"] as const,
     ownershipHistory: (horseId: string) => [...queryKeys.horses.all, horseId, "ownership-history"] as const,
     reviews: (horseId: string) => [...queryKeys.horses.all, horseId, "reviews"] as const,
+    health: (horseId: string) => [...queryKeys.horses.all, horseId, "health"] as const,
+    feed: (horseId: string) => [...queryKeys.horses.all, horseId, "feed"] as const,
   },
   stables: {
     all: ["stables"] as const,
