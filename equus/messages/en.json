@@ -822,7 +822,29 @@
   },
   "horseHistory": {
     "title": "History",
-    "comingSoon": "Horse history and timeline coming soon."
+    "date": "Date",
+    "action": "Action",
+    "description": "Description",
+    "actor": "Actor",
+    "filterPlaceholder": "Search history...",
+    "empty": "No activity recorded yet.",
+    "actions": {
+      "horse.created": "Horse created",
+      "horse.updated": "Horse updated",
+      "relationship.created": "Connection established",
+      "relationship.ended": "Connection ended",
+      "ownership.transferred": "Ownership transferred",
+      "ownership.co_owner_added": "Co-owner added",
+      "ownership.co_owner_removed": "Co-owner removed",
+      "ownership.co_owner_promoted": "Co-owner promoted",
+      "health.created": "Health record added",
+      "health.updated": "Health record updated",
+      "feed.created": "Feed plan added",
+      "event.created": "Event scheduled",
+      "event.updated": "Event updated",
+      "media.created": "Media added",
+      "document.created": "Document added"
+    }
   },
   "subscription": {
     "title": "Subscription",

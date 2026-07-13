@@ -822,7 +822,29 @@
   },
   "horseHistory": {
     "title": "Historial",
-    "comingSoon": "Historial y línea de tiempo próximamente."
+    "date": "Fecha",
+    "action": "Acción",
+    "description": "Descripción",
+    "actor": "Actor",
+    "filterPlaceholder": "Buscar en el historial...",
+    "empty": "No hay actividad registrada aún.",
+    "actions": {
+      "horse.created": "Caballo creado",
+      "horse.updated": "Caballo actualizado",
+      "relationship.created": "Conexión establecida",
+      "relationship.ended": "Conexión finalizada",
+      "ownership.transferred": "Propiedad transferida",
+      "ownership.co_owner_added": "Copropietario añadido",
+      "ownership.co_owner_removed": "Copropietario eliminado",
+      "ownership.co_owner_promoted": "Copropietario promovido",
+      "health.created": "Registro de salud añadido",
+      "health.updated": "Registro de salud actualizado",
+      "feed.created": "Plan de alimentación añadido",
+      "event.created": "Evento programado",
+      "event.updated": "Evento actualizado",
+      "media.created": "Multimedia añadida",
+      "document.created": "Documento añadido"
+    }
   },
   "subscription": {
     "title": "Suscripción",
