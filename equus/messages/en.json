@@ -8,6 +8,8 @@
     "signOut": "Sign out",
     "signingOut": "Signing out...",
     "email": "Email",
+    "name": "Name",
+    "phone": "Phone",
     "password": "Password",
     "firstName": "First name",
     "lastName": "Last name",
