@@ -33,7 +33,7 @@ export function NotificationsPlaceholderPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-12">
+    <div className="mx-auto flex w-full  flex-1 flex-col gap-4 px-4 py-12">
       <h1 className="text-3xl font-semibold tracking-tight">{t("notifications")}</h1>
       <p className="text-sm text-muted-foreground">{t("comingSoon")}</p>
     </div>

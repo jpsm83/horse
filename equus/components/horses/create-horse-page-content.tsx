@@ -38,7 +38,7 @@ export function CreateHorsePageContent() {
       className="relative isolate z-0 flex min-h-0 flex-1 flex-col"
       aria-busy={isSubmitting}
     >
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-6 sm:gap-6 sm:py-12">
+      <div className="mx-auto flex w-full  flex-1 flex-col gap-4 px-4 py-6 sm:gap-6 sm:py-12">
         <div className="space-y-2 pb-4">
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
             {t("title")}

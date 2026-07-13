@@ -128,7 +128,7 @@ export function CreateHorsePageSkeleton() {
       className="relative isolate z-0 flex min-h-0 flex-1 flex-col"
       aria-busy="true"
     >
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-6 sm:gap-6 sm:py-12">
+      <div className="mx-auto flex w-full  flex-1 flex-col gap-4 px-4 py-6 sm:gap-6 sm:py-12">
         <div className="space-y-2 pb-4" aria-hidden>
           <Skeleton className="h-8 w-48 sm:h-9" />
           <Skeleton className="h-4 w-full max-w-md" />

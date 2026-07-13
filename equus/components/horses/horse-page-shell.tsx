@@ -62,7 +62,7 @@ export function HorsePageShell({
 
   if (requireOwnership && !isOwner) {
     return (
-      <div className="mx-auto max-w-3xl p-6">
+      <div className="mx-auto p-6">
         <p className="text-muted-foreground">You don&apos;t have permission to view this page.</p>
         <Link href={`/horses/${horseId}`} className="text-sm font-medium text-primary underline underline-offset-4 hover:text-foreground">
           Back to hub
@@ -77,7 +77,7 @@ export function HorsePageShell({
   return (
     <>
       <EntityTabs tabs={getHorseTabs(horseId)} isOwner={isOwner} variant="header" />
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-4 sm:py-6">
+      <div className="mx-auto flex w-full flex-1 flex-col gap-8 px-4 py-4 sm:py-6">
         <div className="space-y-1">
           <Link
             href={href}

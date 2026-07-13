@@ -37,7 +37,7 @@ export function HorseListPageSkeleton() {
       </div>
 
       <div
-        className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-6 sm:py-8"
+        className="mx-auto flex w-full  flex-1 flex-col gap-6 px-4 py-6 sm:py-8"
         aria-busy="true"
       >
         <div className="grid gap-3 sm:grid-cols-2">

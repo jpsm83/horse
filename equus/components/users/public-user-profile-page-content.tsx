@@ -32,7 +32,7 @@ export function PublicUserProfilePageContent({ userId }: PublicUserProfilePageCo
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-6 sm:gap-8 sm:py-12">
+    <div className="mx-auto flex w-full  flex-1 flex-col gap-6 px-4 py-6 sm:gap-8 sm:py-12">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("title")}</h1>
         <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">{t("description")}</p>

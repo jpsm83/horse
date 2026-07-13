@@ -34,7 +34,7 @@ export function AppShell({ children }: AppShellProps) {
           <span className="text-lg font-semibold">Equus</span>
         </div>
         <IncompleteProfileBanner />
-        <div className="flex flex-1 flex-col">{children}</div>
+        <div className="flex flex-1 flex-col px-10">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

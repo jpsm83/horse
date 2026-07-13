@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton.tsx";
 export function PublicUserProfilePageSkeleton() {
   return (
     <div
-      className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-6 sm:gap-8 sm:py-12"
+      className="mx-auto flex w-full  flex-1 flex-col gap-6 px-4 py-6 sm:gap-8 sm:py-12"
       aria-busy="true"
       aria-hidden
     >

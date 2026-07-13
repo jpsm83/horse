@@ -113,7 +113,7 @@ export function HorseListPage() {
         />
       </div>
 
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-6 sm:py-8">
+      <div className="mx-auto flex w-full  flex-1 flex-col gap-6 px-4 py-6 sm:py-8">
         {horses.length === 0 ? (
           <div className="flex flex-col items-center gap-4 py-12 text-center">
             <p className="text-muted-foreground">{t("noResults")}</p>
