@@ -1,5 +1,5 @@
 import { HorsePageSkeleton } from "@/components/horses/horse-page-skeleton.tsx";
 
-export default function HorseHubLoading() {
+export default function ConnectLoading() {
   return <HorsePageSkeleton />;
 }
