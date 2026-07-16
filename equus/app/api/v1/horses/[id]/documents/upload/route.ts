@@ -59,6 +59,7 @@ export async function POST(request: Request, context: RouteContext) {
       fileName: file.name,
       mimeType: file.type,
       fileSizeBytes: file.size,
+      storagePublicId: result.public_id,
     });
 
     return ok({ document: doc }, 201);

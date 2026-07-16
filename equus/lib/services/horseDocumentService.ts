@@ -1,5 +1,7 @@
 import Document from "@/models/Document.ts";
 import { recordAudit } from "@/lib/services/horseAuditService.ts";
+import configureCloudinary from "@/lib/cloudinary/cloudinaryConfig.ts";
+import { v2 as cloudinary } from "cloudinary";
 
 export type PublicHorseDocument = {
   id: string;
@@ -11,6 +13,7 @@ export type PublicHorseDocument = {
   fileName: string;
   mimeType?: string;
   fileSizeBytes?: number;
+  storagePublicId?: string;
   visibility: string;
   uploadedByName: string;
   createdAt: string;
@@ -32,6 +35,7 @@ function toPublic(record: Record<string, unknown>): PublicHorseDocument {
     fileName: record.fileName as string,
     mimeType: record.mimeType as string | undefined,
     fileSizeBytes: record.fileSizeBytes as number | undefined,
+    storagePublicId: record.storagePublicId as string | undefined,
     visibility: record.visibility as string,
     uploadedByName,
     createdAt: (record.createdAt as Date).toISOString(),
@@ -65,6 +69,10 @@ export async function createHorseDocument(
   return toPublic(doc.toObject());
 }
 
-export async function deleteHorseDocument(docId: string): Promise<void> {
+export async function deleteHorseDocument(docId: string, storagePublicId?: string): Promise<void> {
+  if (storagePublicId) {
+    configureCloudinary();
+    await cloudinary.uploader.destroy(storagePublicId).catch(() => {});
+  }
   await Document.findByIdAndUpdate(docId, { isActive: false });
 }

@@ -42,9 +42,11 @@ export function useDeleteHorseDocument(horseId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (docId: string) => {
+    mutationFn: async ({ docId, storagePublicId }: { docId: string; storagePublicId?: string }) => {
       const res = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(horseId)}/documents/${encodeURIComponent(docId)}`, {
         method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ storagePublicId }),
       });
       return parseApiResponse<{ deleted: boolean }>(res);
     },

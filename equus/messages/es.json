@@ -989,6 +989,7 @@
         "delete": "Eliminar",
         "deleteSuccess": "Documento eliminado.",
         "deleteError": "Error al eliminar el documento.",
+        "downloadError": "Error al descargar el documento.",
         "noDocuments": "No hay documentos aún.",
         "types": {
             "passport": "Pasaporte",

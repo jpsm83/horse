@@ -33,8 +33,25 @@ export function DocumentsTableSection({ horseId }: Props) {
   const { data: docs = [], isPending } = useHorseDocuments(horseId);
   const deleteMutation = useDeleteHorseDocument(horseId);
 
-  const handleDelete = useCallback((docId: string) => {
-    deleteMutation.mutate(docId, {
+  const handleDownload = useCallback(async (doc: PublicHorseDocument) => {
+    try {
+      const response = await fetch(doc.fileUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error(t("downloadError"));
+    }
+  }, [toast, t]);
+
+  const handleDelete = useCallback((doc: PublicHorseDocument) => {
+    deleteMutation.mutate({ docId: doc.id, storagePublicId: doc.storagePublicId }, {
       onSuccess: () => toast.success(t("deleteSuccess")),
       onError: () => toast.error(t("deleteError")),
     });
@@ -117,7 +134,7 @@ export function DocumentsTableSection({ horseId }: Props) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => window.open(doc.fileUrl, "_blank")}
+              onClick={() => handleDownload(doc)}
               title={t("download")}
             >
               <Download className="h-4 w-4" />
@@ -125,7 +142,7 @@ export function DocumentsTableSection({ horseId }: Props) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => handleDelete(doc.id)}
+              onClick={() => handleDelete(doc)}
               title={t("delete")}
             >
               <Trash2 className="h-4 w-4 text-destructive" />
@@ -134,7 +151,7 @@ export function DocumentsTableSection({ horseId }: Props) {
         );
       },
     },
-  ], [t, tTypes, handleDelete]);
+  ], [t, tTypes, handleDownload, handleDelete]);
 
   if (isPending) {
     return <Skeleton className="h-full w-full rounded-lg" />;

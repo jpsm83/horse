@@ -10,7 +10,8 @@ export async function DELETE(request: Request, context: RouteContext) {
     await connectDb();
     await requireAuthFromRequest(request);
     const { docId } = await context.params;
-    await docService.deleteHorseDocument(docId);
+    const { storagePublicId } = await request.json().catch(() => ({}));
+    await docService.deleteHorseDocument(docId, storagePublicId);
     return ok({ deleted: true });
   });
 }

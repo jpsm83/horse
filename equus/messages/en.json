@@ -989,6 +989,7 @@
         "delete": "Delete",
         "deleteSuccess": "Document deleted.",
         "deleteError": "Failed to delete document.",
+        "downloadError": "Failed to download document.",
         "noDocuments": "No documents yet.",
         "types": {
             "passport": "Passport",
