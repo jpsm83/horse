@@ -35,7 +35,8 @@ export function DocumentsTableSection({ horseId }: Props) {
 
   const handleDownload = useCallback(async (doc: PublicHorseDocument) => {
     try {
-      const response = await fetch(doc.fileUrl);
+      const response = await fetch(`/api/v1/horses/${encodeURIComponent(horseId)}/documents/${encodeURIComponent(doc.id)}/download`);
+      if (!response.ok) throw new Error("Download failed");
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -48,7 +49,7 @@ export function DocumentsTableSection({ horseId }: Props) {
     } catch {
       toast.error(t("downloadError"));
     }
-  }, [toast, t]);
+  }, [horseId, toast, t]);
 
   const handleDelete = useCallback((doc: PublicHorseDocument) => {
     deleteMutation.mutate({ docId: doc.id, storagePublicId: doc.storagePublicId }, {
