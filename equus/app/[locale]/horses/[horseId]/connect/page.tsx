@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
-import { ConnectContent } from "@/components/horses/connect/connect-content.tsx";
+import { ConnectContent } from "./client";
 
 type PageProps = { params: Promise<{ horseId: string; locale: string }> };
 

@@ -162,7 +162,7 @@ export function ProfileAddressMap({
         <p className="text-xs text-muted-foreground">{t("hintShortQuery")}</p>
       ) : null}
       {geoHint ? (
-        <p className="text-xs text-amber-800 dark:text-amber-200" role="status">
+        <p className="text-xs text-orange-800 dark:text-orange-200" role="status">
           {geoHint}
         </p>
       ) : null}

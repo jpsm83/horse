@@ -38,7 +38,7 @@ export default function CustomerProfilePage() {
 
       {needsVerification ? (
         <div
-          className="mt-4 max-w-lg rounded-md border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-neutral-800"
+          className="mt-4 max-w-lg rounded-md border border-orange-200 bg-orange-50 px-3 py-3 text-sm text-neutral-800"
           role="status"
         >
           <p className="font-medium text-neutral-900">

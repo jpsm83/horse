@@ -164,7 +164,7 @@ function AddressPreviewMapBody({
         </p>
       ) : null}
       {geoHint ? (
-        <p className="text-xs text-amber-800" role="status">
+        <p className="text-xs text-orange-800" role="status">
           {geoHint}
         </p>
       ) : null}

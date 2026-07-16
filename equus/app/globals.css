@@ -56,14 +56,14 @@
  */
 
 :root {
-  --background: #f7f2ec;
+  --background: #ffffff;
   --foreground: #0f0c0a;
   --card: #f0e8df;
   --card-foreground: #3d1e10;
   --popover: #ffffff;
   --popover-foreground: #3d1e10;
   --primary: #914d21;
-  --primary-foreground: #f7f2ec;
+  --primary-foreground: #ffffff;
   --secondary: #e8dfd6;
   --secondary-foreground: #3d1e10;
   --muted: #ede7e1;
@@ -82,7 +82,7 @@
   --chart-5: #4d4a44;
   --radius: 0.625rem;
   --sidebar: #3d1e10;
-  --sidebar-foreground: #f7f2ec;
+  --sidebar-foreground: #ffffff;
   --sidebar-primary: #be8450;
   --sidebar-primary-foreground: #0f0c0a;
   --sidebar-accent: #1c0a02;

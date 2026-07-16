@@ -118,7 +118,7 @@ export function ProviderInvitePicker({
 
   if (isPending) {
     return (
-      <p className="text-sm font-medium text-amber-700 dark:text-amber-400">{t("pending")}</p>
+      <p className="text-sm font-medium text-orange-700 dark:text-orange-400">{t("pending")}</p>
     );
   }
 

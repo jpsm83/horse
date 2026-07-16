@@ -7,19 +7,19 @@ Canonical pattern for all entity sub-pages in Equus. Every page follows this str
 ```
 app/[locale]/horses/[horseId]/<tab>/
   page.tsx              ← Server Component: generateMetadata + one client render
+  client.tsx            ← "use client": content assembly (HorsePageShell + <Section> components)
   loading.tsx           ← SSR skeleton (mandatory)
 ```
 
-For complex tabs with many sections, add a `components/horses/<tab>/` mirror:
+Route-specific section components (only used by one tab) live next to the route:
 
 ```
 components/horses/<tab>/
-  <tab>-content.tsx     ← Client: content assembly (HorsePageShell + sections)
-  <tab>-section-a.tsx   ← Self-contained data section
-  <tab>-section-b.tsx   ← Self-contained data section
+  <tab>-section-a.tsx   ← Self-contained data section (reusable)
+  <tab>-section-b.tsx   ← Self-contained data section (reusable)
 ```
 
-Simple tabs with one section can keep a single `<tab>-page-content.tsx` at `components/horses/`.
+Simple tabs with a single section can keep it at `components/horses/<tab>-page-content.tsx`.
 
 ## 2. Server Component (`page.tsx`) — Thin
 
@@ -61,9 +61,9 @@ Rules:
 - Uses a shared `*PageSkeleton` component, not bare `<Skeleton>`.
 - For non-horse entity pages, create an `EntityPageSkeleton` following the same pattern.
 
-## 4. Content Assembly (`<tab>-content.tsx`)
+## 4. Content Assembly (`client.tsx`)
 
-The single Client Component that composes the shell + sections using the `<Section>` component.
+The single Client Component that composes the shell + sections using the `<Section>` component. Co-located next to the route as `client.tsx`.
 
 ```tsx
 "use client";
@@ -273,7 +273,7 @@ Rules:
 ```
 [ ] Create `app/[locale]/horses/[horseId]/<tab>/page.tsx` — thin Server Component
 [ ] Create `app/[locale]/horses/[horseId]/<tab>/loading.tsx` — uses HorsePageSkeleton
-[ ] Create `components/horses/<tab>-content.tsx` — HorsePageShell + `<Section>` components
+[ ] Create `app/[locale]/horses/[horseId]/<tab>/client.tsx` — HorsePageShell + `<Section>` components (co-located with the route)
 [ ] For each data section in the tab:
     [ ] Extract into a dedicated `"use client"` section component
     [ ] Wrap it in `<Section title={...}>` (not raw `<section>`, not manual ErrorBoundary)

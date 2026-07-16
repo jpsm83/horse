@@ -36,13 +36,13 @@ export function Section({
             <p className="text-sm text-muted-foreground">{description}</p>
           )}
         </div>
-        {showToggle && (
-          <SectionVisibilityPopover
-            sectionKey={sectionKey}
-            current={visibility}
-            onChange={onVisibilityChange}
-          />
-        )}
+      {showToggle && (
+        <SectionVisibilityPopover
+          sectionKey={sectionKey}
+          current={visibility}
+          onChange={onVisibilityChange}
+        />
+      )}
       </div>
       {errorBoundary ? (
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
