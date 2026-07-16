@@ -1,12 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ErrorBoundary } from "react-error-boundary";
 
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
+import { Section } from "@/components/shared/section.tsx";
 import { InviteSection } from "@/components/horses/connect/invite-section.tsx";
 import { ConnectionsTableSection } from "@/components/horses/connections-table-section.tsx";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 
 type ConnectContentProps = {
   horseId: string;
@@ -17,22 +16,21 @@ export function ConnectContent({ horseId }: ConnectContentProps) {
 
   return (
     <HorsePageShell horseId={horseId} requireOwnership>
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-xl font-semibold">{t("inviteSection")}</h2>
-          <p className="text-sm text-muted-foreground">{t("description")}</p>
-        </div>
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <InviteSection horseId={horseId} />
-        </ErrorBoundary>
-      </section>
+      <Section
+        title={t("inviteSection")}
+        description={t("description")}
+      >
+        <InviteSection horseId={horseId} />
+      </Section>
 
-      <section className="flex min-h-0 flex-1 flex-col gap-4">
-        <h2 className="text-xl font-semibold shrink-0">{t("connectionsSection")}</h2>
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <ConnectionsTableSection horseId={horseId} />
-        </ErrorBoundary>
-      </section>
+      <Section
+        title={t("connectionsSection")}
+        sectionKey="connect-connections"
+        visibility={{ mode: "owner" }}
+        onVisibilityChange={() => {}}
+      >
+        <ConnectionsTableSection horseId={horseId} />
+      </Section>
     </HorsePageShell>
   );
 }

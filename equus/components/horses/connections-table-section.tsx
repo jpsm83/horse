@@ -87,7 +87,7 @@ export function ConnectionsTableSection({ horseId }: Props) {
   ], [t, handleEnd]);
 
   if (isPending) {
-    return <Skeleton className="h-[400px] w-full rounded-lg" />;
+    return <Skeleton className="h-full w-full rounded-lg" />;
   }
 
   const allRelationships = [...currentProviders, ...pendingRelationships];
