@@ -3,7 +3,7 @@
 **Files:**
 - Create: `components/horses/horse-page-skeleton.tsx`
 
-- [ ] **Step 1: Create `horse-page-skeleton.tsx`**
+- [x] **Step 1: Create `horse-page-skeleton.tsx`**
 
 ```tsx
 import { Skeleton } from "@/components/ui/skeleton.tsx";
