@@ -3,6 +3,7 @@
 import { ErrorBoundary } from "react-error-boundary";
 import type { ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
 import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { SectionVisibilityPopover, type SectionVisibility } from "@/components/shared/section-visibility-popover.tsx";
 
@@ -13,7 +14,7 @@ type SectionProps = {
   visibility?: SectionVisibility;
   onVisibilityChange?: (visibility: SectionVisibility) => void;
   errorBoundary?: boolean;
-  fill?: boolean;
+  className?: string;
   children: ReactNode;
 };
 
@@ -24,13 +25,13 @@ export function Section({
   visibility,
   onVisibilityChange,
   errorBoundary = true,
-  fill = false,
+  className,
   children,
 }: SectionProps) {
   const showToggle = !!(sectionKey && visibility && onVisibilityChange);
 
   return (
-    <section className={`flex min-h-0 flex-col gap-4 ${fill ? "flex-1" : "shrink-0"}`}>
+    <section className={cn("flex min-h-0 flex-col gap-4", className)}>
       <div className="flex items-start justify-between gap-4 shrink-0">
         <div className="min-w-0">
           <h2 className="text-xl font-semibold">{title}</h2>
