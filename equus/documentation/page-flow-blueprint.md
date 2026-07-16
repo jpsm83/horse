@@ -26,7 +26,7 @@ Simple tabs with a single section can keep it at `components/horses/<tab>-page-c
 ```tsx
 import type { Metadata } from "next";
 import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
-import { ConnectContent } from "@/components/horses/connect/connect-content.tsx";
+import { ConnectContent } from "./client";
 
 type PageProps = { params: Promise<{ horseId: string; locale: string }> };
 
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return generatePrivateMetadata(locale, "/horses/[horseId]/connect", "metadata.horseConnect");
 }
 
-export default async function ConnectPage({ params }: PageProps) {
+export default async function HorseConnectPage({ params }: PageProps) {
   const { horseId } = await params;
   return <ConnectContent horseId={horseId} />;
 }

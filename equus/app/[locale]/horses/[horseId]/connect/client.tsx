@@ -16,21 +16,21 @@ export function ConnectContent({ horseId }: ConnectContentProps) {
 
   return (
     <HorsePageShell horseId={horseId} requireOwnership>
-      <Section
-        title={t("inviteSection")}
-        description={t("description")}
-      >
+      <Section title={t("inviteSection")} description={t("description")}>
         <InviteSection horseId={horseId} />
       </Section>
 
+      <div className="min-w-full">
       <Section
         title={t("connectionsSection")}
         sectionKey="connect-connections"
         visibility={{ mode: "owner" }}
         onVisibilityChange={() => {}}
+        fill
       >
-        <ConnectionsTableSection horseId={horseId} />
-      </Section>
+          <ConnectionsTableSection horseId={horseId} />
+        </Section>
+      </div>
     </HorsePageShell>
   );
 }

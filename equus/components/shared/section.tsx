@@ -13,6 +13,7 @@ type SectionProps = {
   visibility?: SectionVisibility;
   onVisibilityChange?: (visibility: SectionVisibility) => void;
   errorBoundary?: boolean;
+  fill?: boolean;
   children: ReactNode;
 };
 
@@ -23,12 +24,13 @@ export function Section({
   visibility,
   onVisibilityChange,
   errorBoundary = true,
+  fill = false,
   children,
 }: SectionProps) {
   const showToggle = !!(sectionKey && visibility && onVisibilityChange);
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col gap-4">
+    <section className={`flex min-h-0 flex-col gap-4 ${fill ? "flex-1" : "shrink-0"}`}>
       <div className="flex items-start justify-between gap-4 shrink-0">
         <div className="min-w-0">
           <h2 className="text-xl font-semibold">{title}</h2>
