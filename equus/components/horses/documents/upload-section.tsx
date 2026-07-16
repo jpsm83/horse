@@ -1,0 +1,148 @@
+"use client";
+
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Upload, X } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useUploadHorseDocument } from "@/hooks/queries/useHorseDocuments.ts";
+import { useAppToast } from "@/hooks/use-app-toast.ts";
+
+type UploadSectionProps = {
+  horseId: string;
+};
+
+const DOCUMENT_TYPES = [
+  "passport",
+  "insurance",
+  "contract",
+  "certificate",
+  "medical",
+  "invoice",
+  "ownership",
+  "competition",
+  "other",
+] as const;
+
+export function UploadSection({ horseId }: UploadSectionProps) {
+  const t = useTranslations("horseDocuments");
+  const tCommon = useTranslations("common");
+  const toast = useAppToast();
+  const [showForm, setShowForm] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [documentType, setDocumentType] = useState<string>("other");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
+  const uploadMutation = useUploadHorseDocument(horseId);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!file || !title.trim()) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("documentType", documentType);
+    formData.append("title", title.trim());
+    if (description.trim()) formData.append("description", description.trim());
+
+    uploadMutation.mutate(formData, {
+      onSuccess: () => {
+        toast.success(t("uploadSuccess"));
+        setShowForm(false);
+        setFile(null);
+        setTitle("");
+        setDescription("");
+        setDocumentType("other");
+      },
+      onError: () => toast.error(t("uploadError")),
+    });
+  }
+
+  function handleCancel() {
+    setShowForm(false);
+    setFile(null);
+    setTitle("");
+    setDescription("");
+    setDocumentType("other");
+  }
+
+  return (
+    <div className="space-y-4">
+      {!showForm ? (
+        <Button onClick={() => setShowForm(true)}>
+          <Upload className="mr-1 h-4 w-4" />
+          {t("uploadButton")}
+        </Button>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border p-4" noValidate>
+          <div className="space-y-2">
+            <Label htmlFor="doc-file">{t("file")}</Label>
+            <Input
+              id="doc-file"
+              type="file"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              required
+              className="file:mr-2 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="doc-type">{t("type")}</Label>
+            <select
+              id="doc-type"
+              value={documentType}
+              onChange={(e) => setDocumentType(e.target.value)}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+            >
+              {DOCUMENT_TYPES.map((dt) => (
+                <option key={dt} value={dt}>{t(`types.${dt}`)}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="doc-title">{t("title")}</Label>
+            <Input
+              id="doc-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="doc-desc">{t("description")}</Label>
+            <textarea
+              id="doc-desc"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleCancel}
+            >
+              <X className="mr-1 h-3 w-3" />
+              {tCommon("cancel")}
+            </Button>
+            <Button
+              type="submit"
+              size="sm"
+              disabled={!file || !title.trim() || uploadMutation.isPending}
+            >
+              {uploadMutation.isPending ? t("uploading") : t("uploadButton")}
+            </Button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}

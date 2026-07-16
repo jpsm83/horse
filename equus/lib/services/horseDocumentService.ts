@@ -9,11 +9,19 @@ export type PublicHorseDocument = {
   description?: string;
   fileUrl: string;
   fileName: string;
+  mimeType?: string;
+  fileSizeBytes?: number;
   visibility: string;
+  uploadedByName: string;
   createdAt: string;
 };
 
 function toPublic(record: Record<string, unknown>): PublicHorseDocument {
+  const uploader = record.uploadedByUserId as Record<string, unknown> | undefined;
+  const firstName = (uploader?.firstName as string) ?? "";
+  const lastName = (uploader?.lastName as string) ?? "";
+  const uploadedByName = [firstName, lastName].filter(Boolean).join(" ") || "Unknown";
+
   return {
     id: String(record._id),
     horseId: String(record.horseId),
@@ -22,13 +30,17 @@ function toPublic(record: Record<string, unknown>): PublicHorseDocument {
     description: record.description as string | undefined,
     fileUrl: record.fileUrl as string,
     fileName: record.fileName as string,
+    mimeType: record.mimeType as string | undefined,
+    fileSizeBytes: record.fileSizeBytes as number | undefined,
     visibility: record.visibility as string,
+    uploadedByName,
     createdAt: (record.createdAt as Date).toISOString(),
   };
 }
 
 export async function listHorseDocuments(horseId: string): Promise<PublicHorseDocument[]> {
   const docs = await Document.find({ horseId, isActive: true })
+    .populate("uploadedByUserId", "firstName lastName")
     .sort({ createdAt: -1 })
     .lean();
   return docs.map(toPublic);
@@ -51,4 +63,8 @@ export async function createHorseDocument(
     description: `Document "${input.title}" added`,
   }).catch(() => {});
   return toPublic(doc.toObject());
+}
+
+export async function deleteHorseDocument(docId: string): Promise<void> {
+  await Document.findByIdAndUpdate(docId, { isActive: false });
 }
