@@ -72,7 +72,7 @@ export function HorsePageShell({
   return (
     <>
       <EntityTabs tabs={getHorseTabs(horseId)} isOwner={isOwner} variant="header" />
-        <div className="mx-auto flex w-full flex-1 flex-col gap-8 px-4 py-4 sm:py-6">
+        <div className="mx-auto flex w-full flex-1 flex-col gap-4 p-4 sm:p-6 sm:gap-6">
 
         {isLoading || !horse ? (
           <HorsePageSkeleton suppressHydrationWarning />

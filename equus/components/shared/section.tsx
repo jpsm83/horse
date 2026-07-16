@@ -27,7 +27,7 @@ export function Section({
   const showToggle = !!(sectionKey && visibility && onVisibilityChange);
 
   return (
-    <section className={cn("flex min-h-0 flex-col gap-4", className)}>
+    <section className={cn("flex min-h-0 flex-col gap-4 border border-orange-200 rounded-lg p-4 bg-orange-50/30", className)}>
       <div className="flex items-start justify-between gap-4 shrink-0">
         <div className="min-w-0">
           <h2 className="text-xl font-semibold">{title}</h2>

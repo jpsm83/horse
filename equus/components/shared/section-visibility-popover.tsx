@@ -65,7 +65,7 @@ export function SectionVisibilityPopover({
         <Icon className="h-3 w-3" />
         <span className="sr-only sm:not-sr-only">{modeLabel}</span>
       </PopoverTrigger>
-      <PopoverContent className="w-72 p-4">
+      <PopoverContent align="end" className="w-72 p-4">
         <div className="space-y-4">
           <div>
             <h4 className="text-sm font-medium">{t("title")}</h4>
