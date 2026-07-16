@@ -823,6 +823,7 @@
         "searchPlaceholder": "Search by name, email, or username...",
         "searching": "Searching...",
         "noResults": "No matching providers found.",
+        "searchError": "Search failed. Please try again.",
         "invite": "Invite",
         "invited": "Invited",
         "emailFallbackToggle": "Not on Equus? Invite by email",
