@@ -75,6 +75,7 @@ export function useOwnerHorse(horseId: string | undefined) {
     queryKey: queryKeys.horses.owner(horseId!),
     queryFn: () => fetchOwnerHorse(horseId!),
     enabled: !!horseId,
+    placeholderData: (previousData) => previousData,
   });
 }
 
