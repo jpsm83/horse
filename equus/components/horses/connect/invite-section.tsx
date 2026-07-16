@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2, Search, UserPlus, Mail } from "lucide-react";
+import { Loader2, Search, UserPlus, Mail, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ type InviteSectionProps = {
 
 export function InviteSection({ horseId }: InviteSectionProps) {
   const t = useTranslations("horseConnect");
+  const tCommon = useTranslations("common");
   const toast = useAppToast();
   const [query, setQuery] = useState("");
   const [showEmailFallback, setShowEmailFallback] = useState(false);
@@ -133,13 +134,27 @@ export function InviteSection({ horseId }: InviteSectionProps) {
               onChange={(e) => setName(e.target.value)}
             />
           </div>
-          <Button
-            size="sm"
-            onClick={handleEmailInvite}
-            disabled={!email.trim() || inviteMutation.isPending}
-          >
-            {t("sendEmailInvite")}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setShowEmailFallback(false);
+                setEmail("");
+                setName("");
+              }}
+            >
+              <X className="mr-1 h-3 w-3" />
+              {tCommon("cancel")}
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleEmailInvite}
+              disabled={!email.trim() || inviteMutation.isPending}
+            >
+              {t("sendEmailInvite")}
+            </Button>
+          </div>
         </div>
       )}
     </div>

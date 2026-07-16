@@ -1,9 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { ErrorBoundary } from "react-error-boundary";
 
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { Section } from "@/components/shared/section.tsx";
+import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { InviteSection } from "@/components/horses/connect/invite-section.tsx";
 import { ConnectionsTableSection } from "@/components/horses/connections-table-section.tsx";
 
@@ -21,7 +23,9 @@ export function ConnectContent({ horseId }: ConnectContentProps) {
         description={t("description")}
         className="shrink-0"
       >
-        <InviteSection horseId={horseId} />
+        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <InviteSection horseId={horseId} />
+        </ErrorBoundary>
       </Section>
 
       <Section
@@ -31,7 +35,9 @@ export function ConnectContent({ horseId }: ConnectContentProps) {
         onVisibilityChange={() => {}}
         className="flex-1"
       >
-        <ConnectionsTableSection horseId={horseId} />
+        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <ConnectionsTableSection horseId={horseId} />
+        </ErrorBoundary>
       </Section>
     </HorsePageShell>
   );

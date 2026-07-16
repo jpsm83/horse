@@ -1,10 +1,8 @@
 "use client";
 
-import { ErrorBoundary } from "react-error-boundary";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { SectionVisibilityPopover, type SectionVisibility } from "@/components/shared/section-visibility-popover.tsx";
 
 type SectionProps = {
@@ -13,7 +11,6 @@ type SectionProps = {
   sectionKey?: string;
   visibility?: SectionVisibility;
   onVisibilityChange?: (visibility: SectionVisibility) => void;
-  errorBoundary?: boolean;
   className?: string;
   children: ReactNode;
 };
@@ -24,7 +21,6 @@ export function Section({
   sectionKey,
   visibility,
   onVisibilityChange,
-  errorBoundary = true,
   className,
   children,
 }: SectionProps) {
@@ -47,13 +43,7 @@ export function Section({
         />
       )}
       </div>
-      {errorBoundary ? (
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          {children}
-        </ErrorBoundary>
-      ) : (
-        children
-      )}
+      {children}
     </section>
   );
 }
