@@ -67,7 +67,7 @@ export function HorsePageShell({
     return null;
   }
 
-  const isOwner = horse?.isMainOwner ?? true;
+  const isOwner = horse?.isMainOwner ?? false;
 
   return (
     <>

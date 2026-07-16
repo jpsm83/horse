@@ -6,6 +6,7 @@ import { Loader2, Search, UserPlus, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDebouncedValue } from "@/hooks/use-debounced-value.ts";
 import { useEntitySearch } from "@/hooks/queries/useEntitySearch.ts";
 import { useCreateRelationshipInvite } from "@/hooks/queries/useRelationship.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
@@ -22,7 +23,8 @@ export function InviteSection({ horseId }: InviteSectionProps) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
 
-  const { data: results = [], isPending: isSearching, error: searchError } = useEntitySearch(query);
+  const debouncedQuery = useDebouncedValue(query, 300);
+  const { data: results = [], isPending: isSearching, error: searchError } = useEntitySearch(debouncedQuery);
   const inviteMutation = useCreateRelationshipInvite();
 
   function handleInvite(receiverAccountId: string, relationshipType: string) {
