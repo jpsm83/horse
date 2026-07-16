@@ -979,6 +979,7 @@
         "uploadError": "Error al subir el documento.",
         "type": "Tipo",
         "date": "Fecha",
+        "format": "Formato",
         "title": "Título",
         "description": "Descripción",
         "file": "Archivo",

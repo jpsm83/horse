@@ -979,6 +979,7 @@
         "uploadError": "Failed to upload document.",
         "type": "Type",
         "date": "Date",
+        "format": "Format",
         "title": "Title",
         "description": "Description",
         "file": "File",

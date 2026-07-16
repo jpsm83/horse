@@ -61,6 +61,16 @@ export function DocumentsTableSection({ horseId }: Props) {
       filterType: "dropdown",
     },
     {
+      id: "format",
+      accessorFn: (r) => {
+        const ext = r.fileName?.split(".").pop();
+        return ext ? ext.toUpperCase() : "-";
+      },
+      header: t("format"),
+      enableSorting: true,
+      filterType: "input",
+    },
+    {
       id: "title",
       accessorKey: "title",
       header: t("title"),
