@@ -3,7 +3,8 @@
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
-import { EntityPlaceholderSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
+
 import { useAppAuth } from "@/hooks/use-app-auth.ts";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { useRouter } from "@/i18n/navigation.ts";
@@ -40,7 +41,7 @@ export function EntityPageContent({
   }, [isAuthenticated, isLoading, router, entity, showSignIn]);
 
   if (isLoading) {
-    return <EntityPlaceholderSkeleton />;
+    return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
   }
 
   return (

@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FlagIcon } from "@/components/ui/country-flag.tsx";
+import { FlagIcon } from "@/components/shared/country-flag.tsx";
 import { Input } from "@/components/ui/input";
 import {
   Select,

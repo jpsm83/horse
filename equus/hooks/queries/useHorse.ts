@@ -83,6 +83,7 @@ export function useHorsePendingRelationships(horseId: string | undefined) {
     queryKey: queryKeys.horses.relationships(horseId!),
     queryFn: () => fetchPendingRelationships(horseId!),
     enabled: !!horseId,
+    placeholderData: (previousData) => previousData,
   });
 }
 
@@ -120,6 +121,7 @@ export function useHorseProviders(horseId: string | undefined, status?: "accepte
     queryKey: [...queryKeys.horses.providers(horseId!), status ?? "all"] as const,
     queryFn: () => fetchProviders(horseId!, status),
     enabled: !!horseId,
+    placeholderData: (previousData) => previousData,
   });
 }
 

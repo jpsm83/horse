@@ -1,20 +1,8 @@
-import { Suspense } from "react";
-import type { Metadata } from "next";
-import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
-import { HorseEventsPageContent } from "@/components/horses/horse-events-page-content.tsx";
+import { redirect } from "next/navigation";
 
-type PageProps = { params: Promise<{ horseId: string; locale: string }> };
+type PageProps = { params: Promise<{ horseId: string }> };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale } = await params;
-  return generatePrivateMetadata(locale, "/horses/[horseId]/events", "metadata.horseEvents");
-}
-
-export default async function HorseEventsPage({ params }: PageProps) {
+export default async function HorseEventsRedirect({ params }: PageProps) {
   const { horseId } = await params;
-  return (
-    <Suspense fallback={<div className=" mx-auto p-6">Loading...</div>}>
-      <HorseEventsPageContent horseId={horseId} />
-    </Suspense>
-  );
+  redirect(`/horses/${horseId}/planning`);
 }

@@ -7,7 +7,7 @@
 
 import { useTranslations } from "next-intl";
 
-import { FlagIcon } from "@/components/ui/country-flag.tsx";
+import { FlagIcon } from "@/components/shared/country-flag.tsx";
 import {
   Field,
   FieldError,

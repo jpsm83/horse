@@ -1,2 +1,2 @@
 - organize what to see about horse on each of its tabs
-- make the tabmenu bar better ui
+- make the tab menu bar better ui

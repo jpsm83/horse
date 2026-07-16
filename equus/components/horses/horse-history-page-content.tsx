@@ -2,7 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table.tsx";
+import { DataTable } from "@/components/table";
+import type { DataTableColumnDef } from "@/components/table";
 import { useHorseAuditLogs } from "@/hooks/queries/useHorseAudit.ts";
 
 type Props = { horseId: string };
@@ -19,11 +20,11 @@ export function HorseHistoryPageContent({ horseId }: Props) {
     actor: string;
   };
 
-  const columns: ColumnDef<LogRow>[] = [
-    { id: "date", header: t("date"), accessorFn: (r) => r.date, sortable: true },
-    { id: "action", header: t("action"), accessorFn: (r) => r.action, sortable: true, filterable: true },
-    { id: "description", header: t("description"), accessorFn: (r) => r.description, filterable: true },
-    { id: "actor", header: t("actor"), accessorFn: (r) => r.actor, sortable: true, filterable: true },
+  const columns: DataTableColumnDef<LogRow>[] = [
+    { accessorKey: "date", header: t("date"), enableSorting: true },
+    { accessorKey: "action", header: t("action"), enableSorting: true, filterType: "input" },
+    { accessorKey: "description", header: t("description"), filterType: "input" },
+    { accessorKey: "actor", header: t("actor"), enableSorting: true, filterType: "input" },
   ];
 
   const rows: LogRow[] = logs.map((log) => ({
@@ -39,8 +40,9 @@ export function HorseHistoryPageContent({ horseId }: Props) {
       <DataTable
         columns={columns}
         data={rows}
-        filterPlaceholder={t("filterPlaceholder")}
-        emptyMessage={t("empty")}
+        enableSorting
+        enableFiltering
+        emptyStateMessage={t("empty")}
       />
     </HorsePageShell>
   );

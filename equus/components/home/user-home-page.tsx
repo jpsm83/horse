@@ -9,7 +9,7 @@ import { ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
-import { UserHomePageSkeleton } from "@/components/home/user-home-page-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   CREATE_MENU_HORSE_LINK,
   filterHomeSubsectionLinks,
@@ -172,7 +172,7 @@ export function UserHomePage() {
   }, [isAuthenticated, isAuthLoading, pathname, router]);
 
   if (isLoading || !isAuthenticated || !user) {
-    return <UserHomePageSkeleton />;
+    return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
   }
 
   const details = profile?.personalDetails ?? {};

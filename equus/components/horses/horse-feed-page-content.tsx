@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table.tsx";
-import { SectionVisibilityPopover } from "@/components/ui/section-visibility-popover.tsx";
+import { DataTable } from "@/components/table";
+import type { DataTableColumnDef } from "@/components/table";
+import { SectionVisibilityPopover } from "@/components/shared/section-visibility-popover.tsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -87,34 +88,11 @@ export function HorseFeedPageContent({ horseId }: Props) {
   const { data: plans = [] } = useHorseFeedPlans(horseId);
   const [showForm, setShowForm] = useState(false);
 
-  const columns: ColumnDef<PublicFeedPlan>[] = [
-    {
-      id: "mealTime",
-      header: t("mealTime"),
-      accessorFn: (r) => t(`mealTimes.${r.mealTime}`),
-      sortable: true,
-      filterable: true,
-    },
-    {
-      id: "feedType",
-      header: t("feedType"),
-      accessorFn: (r) => r.feedType,
-      sortable: true,
-      filterable: true,
-    },
-    {
-      id: "quantity",
-      header: t("quantity"),
-      accessorFn: (r) => (r.quantity ? `${r.quantity} ${r.unit ?? ""}` : "-"),
-    },
-    {
-      id: "supplements",
-      header: t("supplements"),
-      accessorFn: (r) =>
-        r.supplements && r.supplements.length > 0
-          ? r.supplements.map((s) => s.name).join(", ")
-          : "-",
-    },
+  const columns: DataTableColumnDef<PublicFeedPlan>[] = [
+    { id: "mealTime", accessorFn: (r) => t(`mealTimes.${r.mealTime}`), header: t("mealTime"), enableSorting: true, filterType: "input" },
+    { id: "feedType", accessorKey: "feedType", header: t("feedType"), enableSorting: true, filterType: "input" },
+    { id: "quantity", accessorFn: (r) => (r.quantity ? `${r.quantity} ${r.unit ?? ""}` : "-"), header: t("quantity") },
+    { id: "supplements", accessorFn: (r) => r.supplements && r.supplements.length > 0 ? r.supplements.map((s) => s.name).join(", ") : "-", header: t("supplements") },
   ];
 
   return (
@@ -147,8 +125,9 @@ export function HorseFeedPageContent({ horseId }: Props) {
       <DataTable
         columns={columns}
         data={plans}
-        filterPlaceholder={t("filterPlaceholder")}
-        emptyMessage={t("noPlans")}
+        enableSorting
+        enableFiltering
+        emptyStateMessage={t("noPlans")}
       />
     </HorsePageShell>
   );

@@ -1,5 +1,6 @@
-import { InviteHubPageSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
+
 
 export default function RelationshipsLoading() {
-  return <InviteHubPageSkeleton titleNamespace="invites.relationships" />;
+  return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
 }

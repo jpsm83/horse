@@ -105,7 +105,7 @@ On success the UI toasts and redirects to `/horses/{horseId}`. Discovery fields 
 Minimal owner hub after create (or direct URL):
 
 - Page: `app/[locale]/horses/[horseId]/page.tsx` — `Suspense` + skeleton
-- Components: `components/horses/horse-hub-page-content.tsx`, `horse-hub-page-skeleton.tsx`
+- Components: `components/horses/horse-hub-page-content.tsx`
 - Invites: `components/invites/horse-provider-invites.tsx` → `provider-invite-picker.tsx` (one picker per provider type, grouped Hosting / Care / Training)
 - Client APIs:
   - `fetchHorseForOwner` → `GET /api/v1/horses/:id/owner`

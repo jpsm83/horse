@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
 import { HorseConnectPageContent } from "@/components/horses/horse-connect-page-content.tsx";
@@ -12,9 +11,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function HorseConnectPage({ params }: PageProps) {
   const { horseId } = await params;
-  return (
-    <Suspense fallback={<div className=" mx-auto p-6">Loading...</div>}>
-      <HorseConnectPageContent horseId={horseId} />
-    </Suspense>
-  );
+  return <HorseConnectPageContent horseId={horseId} />;
 }

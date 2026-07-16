@@ -5,7 +5,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import type { CalendarEvent } from "@/hooks/queries/useHorseEvents";
+import type { CalendarEvent } from "@/hooks/queries/useHorsePlanning";
 
 type Props = {
   events: CalendarEvent[];
@@ -13,7 +13,7 @@ type Props = {
   onDateClick?: (date: string) => void;
 };
 
-export function HorseEventsCalendar({ events, onEventClick, onDateClick }: Props) {
+export function EventsCalendar({ events, onEventClick, onDateClick }: Props) {
   const calendarEvents = useMemo(
     () =>
       events.map((e) => ({
@@ -22,6 +22,7 @@ export function HorseEventsCalendar({ events, onEventClick, onDateClick }: Props
         start: e.start,
         end: e.end,
         allDay: e.allDay,
+        backgroundColor: (e as Record<string, unknown>).backgroundColor as string | undefined,
         extendedProps: { eventType: e.eventType, location: e.location },
       })),
     [events],

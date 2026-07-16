@@ -35,6 +35,8 @@ export type PublicRelationship = {
   requestedAt?: Date;
   respondedAt?: Date;
   endedAt?: Date;
+  receiverAccountType?: string;
+  receiverAccountId?: string;
 };
 
 export type RelationshipInvitePreview = {
@@ -132,6 +134,8 @@ function toPublicRelationship(doc: Record<string, unknown>): PublicRelationship 
     requestedAt: doc.requestedAt as Date | undefined,
     respondedAt: doc.respondedAt as Date | undefined,
     endedAt: doc.endedAt as Date | undefined,
+    receiverAccountType: doc.receiverAccountType as string | undefined,
+    receiverAccountId: doc.receiverAccountId ? String(doc.receiverAccountId) : undefined,
   };
 }
 

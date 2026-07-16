@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table.tsx";
-import { SectionVisibilityPopover } from "@/components/ui/section-visibility-popover.tsx";
+import { DataTable } from "@/components/table";
+import type { DataTableColumnDef } from "@/components/table";
+import { SectionVisibilityPopover } from "@/components/shared/section-visibility-popover.tsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -93,32 +94,11 @@ export function HorseHealthPageContent({ horseId }: Props) {
   const { data: records = [] } = useHorseHealthRecords(horseId);
   const [showForm, setShowForm] = useState(false);
 
-  const columns: ColumnDef<PublicHealthRecord>[] = [
-    {
-      id: "date",
-      header: t("date"),
-      accessorFn: (r) => new Date(r.date).toLocaleDateString(),
-      sortable: true,
-    },
-    {
-      id: "type",
-      header: t("type"),
-      accessorFn: (r) => t(`types.${r.recordType}`),
-      sortable: true,
-      filterable: true,
-    },
-    {
-      id: "title",
-      header: t("title"),
-      accessorFn: (r) => r.title,
-      sortable: true,
-      filterable: true,
-    },
-    {
-      id: "performedBy",
-      header: t("performedBy"),
-      accessorFn: (r) => r.performedBy ?? "-",
-    },
+  const columns: DataTableColumnDef<PublicHealthRecord>[] = [
+    { id: "date", accessorFn: (r) => new Date(r.date).toLocaleDateString(), header: t("date"), enableSorting: true },
+    { id: "type", accessorFn: (r) => t(`types.${r.recordType}`), header: t("type"), enableSorting: true, filterType: "input" },
+    { id: "title", accessorKey: "title", header: t("title"), enableSorting: true, filterType: "input" },
+    { id: "performedBy", accessorFn: (r) => r.performedBy ?? "-", header: t("performedBy") },
   ];
 
   return (
@@ -151,8 +131,9 @@ export function HorseHealthPageContent({ horseId }: Props) {
       <DataTable
         columns={columns}
         data={records}
-        filterPlaceholder={t("filterPlaceholder")}
-        emptyMessage={t("noRecords")}
+        enableSorting
+        enableFiltering
+        emptyStateMessage={t("noRecords")}
       />
     </HorsePageShell>
   );

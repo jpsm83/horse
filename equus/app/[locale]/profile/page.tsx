@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 
 import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
-import { ProfilePageSkeleton } from "@/components/profile/profile-page-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -16,7 +16,7 @@ const ProfilePage = dynamic(
     import("@/components/profile/profile-page.tsx").then((m) => ({
       default: m.ProfilePage,
     })),
-  { loading: () => <ProfilePageSkeleton /> },
+  { loading: () => <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" /> },
 );
 
 export default function Page() {

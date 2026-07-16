@@ -67,22 +67,51 @@ All client-side data fetching uses **TanStack Query** (React Query v5). Domain h
 * **Shared fetch utility** — `lib/api/fetchWithAuth.ts` handles cookies + token refresh; TanStack hooks call it. `lib/api/auth/session.ts` owns auth session state (synchronous context).
 * **Auth state is not TanStack Query** — `useAppAuth()` remains driven by the `session.ts` observer pattern. TanStack Query only handles async server data (profile, navigation, entities).
 * **Default config** — `staleTime: 30_000`, `gcTime: 5 * 60_000`, `retry: 1`, `refetchOnWindowFocus: true`. Override per query when needed (e.g. `staleTime: 0` for real-time lists).
-* **Suspense** — prefer `useSuspenseQuery` for page-level data that must resolve before render. Use `loading.tsx` + `Suspense` boundary. Non-critical data can use `useQuery` with manual loading state.
+* **Suspense** — prefer `useSuspenseQuery` for page-level data that must resolve before render (for non-cookie-auth data). For cookie-authenticated fetches, use `useQuery` with `placeholderData` and inline skeletons — see [`documentation/component-resilience.md`](documentation/component-resilience.md). Do **not** wrap page content in `<Suspense>` for hydration mismatch mitigation — use `suppressHydrationWarning` on the content container instead.
 * **New hooks** — add domain hooks to `hooks/queries/` following the existing pattern. Keep query functions colocated with the hook (not in `lib/api/` client files).
 
 #### Loading states (web UI)
 
-* **Every locale page** should have a **Suspense** boundary and a **skeleton** that mirrors the loaded layout (shadcn [`Skeleton`](https://ui.shadcn.com/docs/components/radix/skeleton)). Profile is the reference — see [`documentation/profile.md`](documentation/profile.md).
-* **Route `loading.tsx`** — use the same skeleton component for segment navigations.
+**Mandatory pattern — every data-driven section follows this:**
+
+```
+Page / Layout (Server Component)
+  └── renders chrome immediately (tabs, title, back button)
+      └── Content section that fetches data
+          ├── ErrorBoundary with InlineErrorFallback
+          │   └── SectionComponent (self-contained)
+          │       ├── isPending → inline skeleton (never full-page)
+          │       └── resolved → data UI
+```
+
+**Rules enforced for every feature:**
+
+- [ ] Each independent data section is extracted into its own component
+- [ ] Each section owns its own `useQuery` with `placeholderData: (prev) => prev`
+- [ ] Each section shows its own inline skeleton during `isPending`
+- [ ] Each section is wrapped in `<ErrorBoundary fallbackRender={InlineErrorFallback}>`
+- [ ] The parent never blocks on data — chrome renders immediately
+- [ ] No full-page skeletons — only content-area skeletons via `HorsePageContentSkeleton`
+
+Example from the reference implementations:
+- `ConnectionsTableSection` in the Connect tab — owns data, skeleton, and mutations
+- `PlanningCalendarSection` in the Planning tab — owns calendar/table data and loading state
+
+* **Shell renders immediately** — the page chrome (tabs, title, back button) never blocks on data. See [`documentation/component-resilience.md`](documentation/component-resilience.md).
+* **Component-level skeletons** — each data-dependent section shows its own inline skeleton during `isPending`. No full-page skeletons.
+* **`suppressHydrationWarning`** — use on the content container when SSR renders a loading skeleton and the client immediately shows cached data. Prevents React hydration instrumentation errors. See [`documentation/component-resilience.md`](documentation/component-resilience.md).
+* **`placeholderData: (prev) => prev`** — use on all TanStack Query hooks to preserve cached data during navigation, eliminating skeleton flashes on tab switches.
+* **Route `loading.tsx`** — use a minimal skeleton (e.g. `HorsePageContentSkeleton`), not a full-page duplicate of the chrome.
 * **Client-only REST fetches** (cookie auth) — load after mount with TanStack Query hooks (not `useEffect`). TanStack handles retry, caching, and deduplication.
 * **`LoadingOverlay`** — in-flight **mutations** (e.g. profile save), not initial page load. Spinner is viewport-centered; header/sidebar stay visible.
 * **Do not** use `Alert` for page-level loading — use TanStack's `isPending`/`isLoading` state + skeleton or `loading.tsx`.
 
 #### Error handling (web UI)
 
+* **Component-level boundaries** — wrap each independent data section in its own `ErrorBoundary` with `InlineErrorFallback`. A failing section never takes down the chrome or other sections. See [`documentation/component-resilience.md`](documentation/component-resilience.md).
 * **Uncaught render errors** — `react-error-boundary` via `AppErrorBoundary` in `AppProviders`; Next.js `app/[locale]/error.tsx` and `app/global-error.tsx`. Shared UI: `components/errors/error-recovery-page.tsx`. See [`documentation/errors.md`](documentation/errors.md).
 * **API / auth failures** — `try/catch` in features; toasts (`useAppToast`) or redirect — **not** error boundaries. Auth-load failures (network down on initial load) render the unauthenticated view with `console.error` + toast — never an infinite spinner.
-* **Do not** use error boundaries for expected load failures; use skeleton + redirect patterns from [`profile.md`](documentation/profile.md).
+* **Do not** use error boundaries for expected load failures; use skeleton + redirect patterns from [`component-resilience.md`](documentation/component-resilience.md).
 
 ### Web UI i18n
 

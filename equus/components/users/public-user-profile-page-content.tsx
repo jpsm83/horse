@@ -8,7 +8,7 @@ import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { PublicUserProfileCardView } from "@/components/users/public-user-profile-card.tsx";
-import { PublicUserProfilePageSkeleton } from "@/components/users/public-user-profile-page-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
 import { usePublicUser } from "@/hooks/queries/useUser.ts";
 import { isFetchError } from "@/lib/api/fetchWithAuth";
 
@@ -28,7 +28,7 @@ export function PublicUserProfilePageContent({ userId }: PublicUserProfilePageCo
   }
 
   if (isLoading || !user) {
-    return <PublicUserProfilePageSkeleton />;
+    return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
   }
 
   return (

@@ -3,7 +3,8 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
-import { EntityPlaceholderSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
+
 import type { NavigationEntityKey } from "@/components/layout/navigation-config.ts";
 import { CREATE_LINKS, MY_OWN_LINKS, PLURAL_OWNED_CREATE_ENTITIES } from "@/components/layout/navigation-config.ts";
 import { useRouter } from "@/i18n/navigation.ts";
@@ -47,7 +48,7 @@ export function MyPlaceholderPage({ entity, mode = "owned" }: MyPlaceholderPageP
   }, [verifyAuth]);
 
   if (isLoading) {
-    return <EntityPlaceholderSkeleton />;
+    return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
   }
 
   return (

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
-import { InviteHubPageSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { AppHomeLink } from "@/components/navigation/app-home-link.tsx";
@@ -21,7 +21,7 @@ import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { cn } from "@/lib/utils";
 
 function OwnershipTransfersLoadingShell() {
-  return <InviteHubPageSkeleton titleNamespace="invites.ownershipTransfers" />;
+  return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
 }
 
 function entityLabel(transfer: { entityName?: string; entityType: string }, t: (key: string) => string): string {

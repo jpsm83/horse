@@ -12,7 +12,8 @@ import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { HorseSaleForm } from "@/components/horses/horse-sale-form.tsx";
 import { HorseOwnershipHub } from "@/components/horses/horse-ownership-hub.tsx";
 import { useOwnerHorse, useHorseOwnershipTransfers, useHorseOwnershipHistory } from "@/hooks/queries/useHorse.ts";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table.tsx";
+import { DataTable } from "@/components/table";
+import type { DataTableColumnDef } from "@/components/table";
 import { queryKeys } from "@/lib/api/queryKeys";
 
 type HorseAdminPageContentProps = {
@@ -37,30 +38,11 @@ export function HorseAdminPageContent({ horseId }: HorseAdminPageContentProps) {
     to: string;
   };
 
-  const historyColumns: ColumnDef<HistoryRow>[] = [
-    {
-      id: "date",
-      header: tSale("historyDate"),
-      accessorFn: (row) => row.date,
-      sortable: true,
-    },
-    {
-      id: "type",
-      header: tSale("historyType"),
-      accessorFn: (row) => row.type,
-      sortable: true,
-      filterable: true,
-    },
-    {
-      id: "from",
-      header: tSale("historyFrom"),
-      accessorFn: (row) => row.from,
-    },
-    {
-      id: "to",
-      header: tSale("historyTo"),
-      accessorFn: (row) => row.to,
-    },
+  const historyColumns: DataTableColumnDef<HistoryRow>[] = [
+    { id: "date", accessorKey: "date", header: tSale("historyDate"), enableSorting: true },
+    { id: "type", accessorKey: "type", header: tSale("historyType"), enableSorting: true, filterType: "input" },
+    { id: "from", accessorKey: "from", header: tSale("historyFrom") },
+    { id: "to", accessorKey: "to", header: tSale("historyTo") },
   ];
 
   const historyRows: HistoryRow[] = ownershipHistory.map((transfer: Record<string, unknown>) => {
@@ -110,8 +92,9 @@ export function HorseAdminPageContent({ horseId }: HorseAdminPageContentProps) {
             <DataTable
               columns={historyColumns}
               data={historyRows}
-              filterPlaceholder={tSale("historyType")}
-              emptyMessage={tSale("noHistory")}
+              enableSorting
+              enableFiltering
+              emptyStateMessage={tSale("noHistory")}
             />
           </section>
 

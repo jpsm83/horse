@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 
 import { HorseHubPageContent } from "@/components/horses/horse-hub-page-content.tsx";
-import { HorseHubPageSkeleton } from "@/components/horses/horse-hub-page-skeleton.tsx";
 import { generateHorseMetadata } from "@/lib/seo/entity-metadata.ts";
 import Horse from "@/models/Horse.ts";
 
@@ -31,9 +29,5 @@ export async function generateMetadata({ params }: HorseHubPageProps): Promise<M
 export default async function HorseHubPage({ params }: HorseHubPageProps) {
   const { horseId } = await params;
 
-  return (
-    <Suspense fallback={<HorseHubPageSkeleton />}>
-      <HorseHubPageContent horseId={horseId} />
-    </Suspense>
-  );
+  return <HorseHubPageContent horseId={horseId} />;
 }

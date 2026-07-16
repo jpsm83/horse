@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { EntityFilter, type FilterFieldConfig } from "@/components/shared/entity-filter.tsx";
 import { HorseCard } from "@/components/horses/horse-card.tsx";
-import { HorseListPageSkeleton } from "@/components/horses/horse-list-page-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useAppAuth } from "@/hooks/use-app-auth.ts";
 import { useHorseList } from "@/hooks/queries/useHorse.ts";
@@ -94,7 +94,7 @@ export function HorseListPage() {
   }
 
   if (isLoading) {
-    return <HorseListPageSkeleton />;
+    return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
   }
 
   const horses = data?.horses ?? [];

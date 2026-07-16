@@ -1,7 +1,7 @@
 import HorseEvent from "@/models/HorseEvent.ts";
 import { recordAudit } from "@/lib/services/horseAuditService.ts";
 
-export type PublicEvent = {
+export type PublicPlanningItem = {
   id: string;
   horseId: string;
   eventType: string;
@@ -16,7 +16,7 @@ export type PublicEvent = {
   createdAt: string;
 };
 
-function toPublic(record: Record<string, unknown>): PublicEvent {
+function toPublic(record: Record<string, unknown>): PublicPlanningItem {
   return {
     id: String(record._id),
     horseId: String(record.horseId),
@@ -33,11 +33,11 @@ function toPublic(record: Record<string, unknown>): PublicEvent {
   };
 }
 
-export async function listEvents(
+export async function listPlanning(
   horseId: string,
   from?: string,
   to?: string,
-): Promise<PublicEvent[]> {
+): Promise<PublicPlanningItem[]> {
   const query: Record<string, unknown> = { horseId, isActive: true };
   if (from || to) {
     query.startDate = {};
@@ -48,11 +48,11 @@ export async function listEvents(
   return events.map(toPublic);
 }
 
-export async function createEvent(
+export async function createPlanningItem(
   userId: string,
   horseId: string,
   input: Record<string, unknown>,
-): Promise<PublicEvent> {
+): Promise<PublicPlanningItem> {
   const event = await HorseEvent.create({
     ...input,
     horseId,
@@ -67,4 +67,25 @@ export async function createEvent(
     description: `Event "${input.title}" scheduled`,
   }).catch(() => {});
   return toPublic(event.toObject());
+}
+
+export async function listProviderPlanning(
+  horseId: string,
+  providerIds: string[],
+  from?: string,
+  to?: string,
+): Promise<PublicPlanningItem[]> {
+  if (providerIds.length === 0) return [];
+  const query: Record<string, unknown> = {
+    horseId,
+    isActive: true,
+    sourceEntityId: { $in: providerIds },
+  };
+  if (from || to) {
+    query.startDate = {};
+    if (from) (query.startDate as Record<string, unknown>).$gte = new Date(from);
+    if (to) (query.startDate as Record<string, unknown>).$lte = new Date(to);
+  }
+  const events = await HorseEvent.find(query).sort({ startDate: 1 }).lean();
+  return events.map(toPublic);
 }

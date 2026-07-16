@@ -6,9 +6,9 @@ import { useEffect, useState } from "react";
 
 import { ProfileForm } from "@/components/profile/profile-form.tsx";
 import { ProfileDeactivateAccount } from "@/components/profile/profile-deactivate-account.tsx";
-import { ProfilePageSkeleton } from "@/components/profile/profile-page-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { LoadingOverlay } from "@/components/ui/loading-overlay.tsx";
+import { LoadingOverlay } from "@/components/shared/loading-overlay.tsx";
 import { useRouter } from "@/i18n/navigation.ts";
 import { useAppAuth } from "@/hooks/use-app-auth.ts";
 import { useUserProfile } from "@/hooks/queries/useCurrentUser.ts";
@@ -36,7 +36,7 @@ export function ProfilePageContent() {
   const isLoading = authLoading || profileLoading;
 
   if (isLoading || !user) {
-    return <ProfilePageSkeleton />;
+    return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
   }
 
   const personalDetails = (profile?.personalDetails ?? {}) as Record<string, unknown>;

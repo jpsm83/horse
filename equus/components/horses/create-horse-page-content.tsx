@@ -9,8 +9,8 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { CreateHorseForm } from "@/components/horses/create-horse-form.tsx";
-import { CreateHorsePageSkeleton } from "@/components/horses/create-horse-page-skeleton.tsx";
-import { LoadingOverlay } from "@/components/ui/loading-overlay.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingOverlay } from "@/components/shared/loading-overlay.tsx";
 import { useAppAuth } from "@/hooks/use-app-auth.ts";
 import { useRouter } from "@/i18n/navigation.ts";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
@@ -30,7 +30,7 @@ export function CreateHorsePageContent() {
   }, [isAuthenticated, isLoading, router]);
 
   if (isLoading || !isAuthenticated) {
-    return <CreateHorsePageSkeleton />;
+    return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
   }
 
   return (

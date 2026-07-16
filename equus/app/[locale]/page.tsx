@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 
 import { HomePage } from "@/components/home/home-page.tsx";
-import { HomePageSkeleton } from "@/components/home/home-page-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Metadata } from "next";
 import { generatePublicMetadata } from "@/lib/seo/metadata-factory.ts";
 
@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default function Page() {
   return (
-    <Suspense fallback={<HomePageSkeleton />}>
+    <Suspense fallback={<Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />}>
       <HomePage />
     </Suspense>
   );

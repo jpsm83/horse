@@ -1,5 +1,5 @@
-import { HorseHubPageSkeleton } from "@/components/horses/horse-hub-page-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton.tsx";
 
 export default function HorseHubLoading() {
-  return <HorseHubPageSkeleton />;
+  return <Skeleton className="h-[600px] w-full rounded-lg" />;
 }

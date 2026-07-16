@@ -45,7 +45,6 @@ export const createRelationshipSchema = z
     }
 
     if (
-      hasProfile &&
       data.relationshipType &&
       (entityOwnedRelationshipTypes as readonly string[]).includes(data.relationshipType) &&
       !hasProfile

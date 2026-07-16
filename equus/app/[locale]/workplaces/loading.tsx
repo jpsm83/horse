@@ -1,5 +1,6 @@
-import { InviteHubPageSkeleton } from "@/components/layout/entity-placeholder-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
+
 
 export default function WorkplacesLoading() {
-  return <InviteHubPageSkeleton titleNamespace="invites.workplaces" />;
+  return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
 }

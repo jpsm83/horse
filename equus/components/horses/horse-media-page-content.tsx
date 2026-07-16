@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
-import { SectionVisibilityPopover } from "@/components/ui/section-visibility-popover.tsx";
+import { SectionVisibilityPopover } from "@/components/shared/section-visibility-popover.tsx";
 import { Button } from "@/components/ui/button";
 import { useHorseMedia } from "@/hooks/queries/useHorseMedia.ts";
 
