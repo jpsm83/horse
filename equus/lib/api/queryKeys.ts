@@ -52,4 +52,7 @@ export const queryKeys = {
   invites: {
     preview: (ref: string) => ["invites", "preview", ref] as const,
   },
+  search: {
+    entities: (q: string) => ["search", "entities", q] as const,
+  },
 };
