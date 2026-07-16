@@ -5,7 +5,6 @@ import { flexRender } from "@tanstack/react-table";
 import { GripVertical, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -193,10 +192,10 @@ export function DataTable<TData extends Record<string, unknown>>({
   const isEmpty = rows.length === 0;
 
   return (
-    <div ref={tableRef} className={cn("flex flex-col", className)}>
-      <div className="rounded-md border overflow-auto">
-        <Table>
-          <TableHeader>
+    <div ref={tableRef} className={cn("flex flex-1 flex-col overflow-hidden", className)}>
+      <div className="rounded-md border overflow-auto flex-1">
+        <table className="w-full caption-bottom text-sm">
+          <TableHeader className="sticky top-0 z-10 bg-background">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -327,7 +326,7 @@ export function DataTable<TData extends Record<string, unknown>>({
               </TableRow>
             )}
           </TableBody>
-        </Table>
+        </table>
       </div>
 
       {enablePagination && (

@@ -27,8 +27,8 @@ export function ConnectContent({ horseId }: ConnectContentProps) {
         </ErrorBoundary>
       </section>
 
-      <section className="space-y-4 h-full">
-        <h2 className="text-xl font-semibold">{t("connectionsSection")}</h2>
+      <section className="flex min-h-0 flex-1 flex-col gap-4">
+        <h2 className="text-xl font-semibold shrink-0">{t("connectionsSection")}</h2>
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
           <ConnectionsTableSection horseId={horseId} />
         </ErrorBoundary>
