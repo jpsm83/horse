@@ -31,5 +31,25 @@ export function useHorsePlanning(horseId: string, from?: string, to?: string) {
     queryKey: queryKeys.horses.planning(horseId),
     queryFn: () => fetchPlanning(horseId, from, to),
     enabled: !!horseId,
+    placeholderData: (previousData) => previousData,
+  });
+}
+
+async function createPlanningEvent(horseId: string, body: Record<string, unknown>) {
+  const res = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(horseId)}/planning`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  return parseApiResponse<{ event: CalendarEvent }>(res);
+}
+
+export function useCreatePlanningEvent(horseId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Record<string, unknown>) => createPlanningEvent(horseId, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.planning(horseId) });
+    },
   });
 }

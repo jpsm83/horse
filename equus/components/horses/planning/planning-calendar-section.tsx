@@ -1,16 +1,7 @@
-/**
- * PlanningCalendarSection  calendar for the Planning tab.
- *
- * Owns data fetching, provider-event colorization, and inline skeleton.
- * Clicking a date opens a dialog to create an event.
- * Errors are caught by the parent ErrorBoundary wrapper.
- */
-
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { EventsCalendar } from "@/components/shared/events-calendar";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
@@ -18,58 +9,42 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useHorsePlanning } from "@/hooks/queries/useHorsePlanning.ts";
+import { useHorsePlanning, useCreatePlanningEvent } from "@/hooks/queries/useHorsePlanning.ts";
 import { useHorseProviders } from "@/hooks/queries/useHorse.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
-import { queryKeys } from "@/lib/api/queryKeys";
 
 type Props = { horseId: string };
 
 function EventForm({ horseId, defaultDate, onSaved }: { horseId: string; defaultDate: string; onSaved: () => void }) {
   const t = useTranslations("horsePlanning");
   const toast = useAppToast();
-  const queryClient = useQueryClient();
+  const createMutation = useCreatePlanningEvent(horseId);
   const [eventType, setEventType] = useState("appointment");
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState(defaultDate);
   const [endDate, setEndDate] = useState("");
   const [location, setLocation] = useState("");
   const [sourceProviderId, setSourceProviderId] = useState("");
-  const [saving, setSaving] = useState(false);
 
   const { data: providers = [] } = useHorseProviders(horseId, "accepted");
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim() || !startDate) return;
-    setSaving(true);
-    try {
-      const body: Record<string, unknown> = { eventType, title: title.trim(), startDate };
-      if (endDate) body.endDate = endDate;
-      if (location.trim()) body.location = location.trim();
-      if (sourceProviderId) {
-        const p = providers.find((pr) => pr.id === sourceProviderId);
-        if (p) { body.sourceEntityType = p.relationshipType; body.sourceEntityId = p.receiverAccountId; }
-      }
-
-      const res = await fetch("/api/v1/horses/" + horseId + "/planning", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (res.ok) {
-        toast.success(t("eventCreated"));
-        queryClient.invalidateQueries({ queryKey: queryKeys.horses.planning(horseId) });
-        onSaved();
-      } else {
-        toast.error(t("eventError"));
-      }
-    } catch {
-      toast.error(t("eventError"));
-    } finally {
-      setSaving(false);
+    const body: Record<string, unknown> = { eventType, title: title.trim(), startDate };
+    if (endDate) body.endDate = endDate;
+    if (location.trim()) body.location = location.trim();
+    if (sourceProviderId) {
+      const p = providers.find((pr) => pr.id === sourceProviderId);
+      if (p) { body.sourceEntityType = p.relationshipType; body.sourceEntityId = p.receiverAccountId; }
     }
+    createMutation.mutate(body, {
+      onSuccess: () => {
+        toast.success(t("eventCreated"));
+        onSaved();
+      },
+      onError: () => toast.error(t("eventError")),
+    });
   }
 
   return (
@@ -111,8 +86,8 @@ function EventForm({ horseId, defaultDate, onSaved }: { horseId: string; default
           </select>
         </div>
       )}
-      <Button type="submit" disabled={saving || !title.trim() || !startDate} className="w-full">
-        {saving ? t("saving") : t("saveEvent")}
+      <Button type="submit" disabled={createMutation.isPending || !title.trim() || !startDate} className="w-full">
+        {createMutation.isPending ? t("saving") : t("saveEvent")}
       </Button>
     </form>
   );
@@ -159,5 +134,3 @@ export function PlanningCalendarSection({ horseId }: Props) {
     </>
   );
 }
-
-

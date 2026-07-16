@@ -111,15 +111,14 @@ Rules:
 
 ## 4.5. The `Section` Component (`components/shared/section.tsx`)
 
-Reusable wrapper that standardizes section layout across all pages.
+Reusable layout wrapper that standardizes section headers across all pages. Pure layout — no data fetching, no error handling.
 
 ```tsx
 "use client";
 
-import { ErrorBoundary } from "react-error-boundary";
 import type { ReactNode } from "react";
 
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
+import { cn } from "@/lib/utils";
 import { SectionVisibilityPopover, type SectionVisibility } from "@/components/shared/section-visibility-popover.tsx";
 
 type SectionProps = {
@@ -128,26 +127,26 @@ type SectionProps = {
   sectionKey?: string;
   visibility?: SectionVisibility;
   onVisibilityChange?: (visibility: SectionVisibility) => void;
-  errorBoundary?: boolean;    // defaults true
+  className?: string;      // parent controls sizing (flex-1, shrink-0, etc.)
   children: ReactNode;
 };
 ```
 
 ### Layout
 ```
-<section> flex min-h-0 flex-1 flex-col gap-4
+<section className={cn("flex min-h-0 flex-col gap-4", className)}>
   ├── <header> shrink-0
   │   ├── title + description
   │   └── SectionVisibilityPopover (if sectionKey + visibility + onVisibilityChange provided)
-  └── children wrapped in ErrorBoundary (if errorBoundary true, default)
+  └── children (rendered as-is — ErrorBoundary lives in client.tsx)
 ```
 
 ### Rules
 - **Always** use `<Section>` for page sections — never raw `<section>` elements
-- **`errorBoundary` defaults to true** — the `<Section>` automatically wraps children in `<ErrorBoundary fallbackRender={InlineErrorFallback}>`. If the children throw, the section header (title + toggle) stays visible and the body shows an inline error card with "Try Again".
+- Section is **pure layout** — it does NOT wrap children in ErrorBoundary. Wrap children in `ErrorBoundary` at the `client.tsx` level (see section 7)
 - **Toggle is optional** — omit `sectionKey`, `visibility`, and `onVisibilityChange` to render a section without visibility control
 - **Toggle requires all three props** — if one is missing, no toggle button renders
-- **`errorBoundary={false}`** — opt out for sections with no data fetching (static info, pure forms)
+- **Parent controls sizing** via `className` — use `className="flex-1"` for sections that should fill remaining space, `className="shrink-0"` for sections that take natural height
 
 ## 5. Shell Component (`HorsePageShell`, `*PageShell`)
 
@@ -196,7 +195,7 @@ Each section is a `"use client"` component that:
 - Shows inline skeleton during `isPending`
 - Destructures data with fallback: `{ data = [] }`
 - Uses `placeholderData: (prev) => prev` on all queries
-- Does NOT define its own `ErrorBoundary` — the parent `<Section>` component wraps it automatically (unless `errorBoundary={false}`)
+- Does NOT define its own `ErrorBoundary` — the `client.tsx` assembly wraps each section child manually in `<ErrorBoundary fallbackRender={InlineErrorFallback}>`
 - Does NOT use raw `fetch()` — always through hooks
 
 ### Pattern
@@ -228,20 +227,19 @@ global-error.tsx              ← Root layout crash (unrecoverable)
       └─ AppErrorBoundary     ← Higher app crash (resets on route change)
           └─ HorsePageShell   ← Chrome (EntityTabs, sidebar) — no inline boundary
               │                 (falls back to AppErrorBoundary if chrome itself crashes)
-              ├─ <Section>    ← automatically wraps children in ErrorBoundary
+              ├─ <Section>    ← pure layout (header only)
               │   ├─ header (title + toggle) — survives crashes
-              │   └─ ErrorBoundary → InviteSection
+              │   └─ ErrorBoundary → InviteSection  ← from client.tsx
               │                   (fails → inline card, header + tabs survive)
-              └─ <Section>    ← automatically wraps children in ErrorBoundary
+              └─ <Section>    ← pure layout (header only)
                   ├─ header (title + toggle) — survives crashes
-                  └─ ErrorBoundary → ConnectionsTableSection
+                  └─ ErrorBoundary → ConnectionsTableSection  ← from client.tsx
                                   (fails → inline card, header + tabs survive)
 ```
 
 Rules:
-- `ErrorBoundary` only wraps **data-dependent children**, not the section header
-- The `<Section>` component provides the ErrorBoundary automatically (when `errorBoundary` is not set to `false`)
-- If children throw, the section header (title + visibility toggle) stays visible — the user can still navigate via tabs
+- `ErrorBoundary` lives in `client.tsx`, wrapping each section's children inside the `<Section>` component
+- `ErrorBoundary` only wraps **data-dependent children**, not the section header — if children throw, the section title + visibility toggle stay visible
 - Each section is isolated — one failing does not cascade
 - `AppErrorBoundary` is the last resort, not the first line of defense
 - `InlineErrorFallback` is compact (card + Try Again button) — never full-page
@@ -276,9 +274,9 @@ Rules:
 [ ] Create `app/[locale]/horses/[horseId]/<tab>/client.tsx` — HorsePageShell + `<Section>` components (co-located with the route)
 [ ] For each data section in the tab:
     [ ] Extract into a dedicated `"use client"` section component
-    [ ] Wrap it in `<Section title={...}>` (not raw `<section>`, not manual ErrorBoundary)
+    [ ] Wrap it in `<Section title={...} className="flex-1">` (never raw `<section>`)
+    [ ] Wrap children inside `<Section>` with `<ErrorBoundary fallbackRender={InlineErrorFallback}>`
     [ ] Add `sectionKey` + `visibility` + `onVisibilityChange` for toggleable visibility
-    [ ] Set `errorBoundary={false}` if section has no data fetching
     [ ] Use TanStack Query hooks (no raw fetch)
     [ ] Use `placeholderData: (prev) => prev`
     [ ] Show inline skeleton during `isPending`
