@@ -42,11 +42,6 @@ export function HorsePageShell({
   const { data: horse, isLoading: isHorseLoading, error: horseError } = useOwnerHorse(horseId);
 
   const isLoading = isAuthLoading || isHorseLoading;
-  const shouldRedirect = !isLoading && !isAuthenticated;
-
-  if (shouldRedirect) {
-    return null;
-  }
 
   useEffect(() => {
     if (isLoading) return;
@@ -65,6 +60,12 @@ export function HorsePageShell({
       return;
     }
   }, [isLoading, isAuthenticated, horseError, router, horseId]);
+
+  const shouldRedirect = !isLoading && !isAuthenticated;
+
+  if (shouldRedirect) {
+    return null;
+  }
 
   const isOwner = horse?.isMainOwner ?? true;
 
