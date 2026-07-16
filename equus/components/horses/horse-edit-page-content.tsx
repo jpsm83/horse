@@ -61,7 +61,7 @@ export function HorseEditPageContent({ horseId }: HorseEditPageContentProps) {
   }
 
   return (
-    <HorsePageShell horseId={horseId} title={t("title")} requireOwnership>
+    <HorsePageShell horseId={horseId} requireOwnership>
       {({ horse }) => (
         <>
           <HorseEditForm

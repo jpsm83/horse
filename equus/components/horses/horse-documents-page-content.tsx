@@ -20,7 +20,7 @@ export function HorseDocumentsPageContent({ horseId }: Props) {
   ];
 
   return (
-    <HorsePageShell horseId={horseId} title={t("title")}>
+    <HorsePageShell horseId={horseId}>
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">{t("description")}</p>
         <SectionVisibilityPopover

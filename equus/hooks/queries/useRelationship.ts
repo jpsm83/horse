@@ -14,7 +14,7 @@ import type { DiscoverProviderType } from "@/lib/api/discoverClient";
 
 export type CreateRelationshipInvitePayload = {
   horseId: string;
-  relationshipType: DiscoverProviderType;
+  relationshipType?: DiscoverProviderType;
   receiverAccountId?: string;
   invitedEmail?: string;
   invitedName?: string;

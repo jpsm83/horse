@@ -63,7 +63,7 @@ export function HorseAdminPageContent({ horseId }: HorseAdminPageContentProps) {
   });
 
   return (
-    <HorsePageShell horseId={horseId} title={t("pageTitle")} requireOwnership>
+    <HorsePageShell horseId={horseId} requireOwnership>
       {({ horse, isOwner }) => (
         <>
           <HorseSaleForm

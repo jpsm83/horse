@@ -7,6 +7,7 @@ import { Loader2, Search, UserPlus, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/hooks/use-debounced-value.ts";
+import type { DiscoverProviderType } from "@/lib/api/discoverClient.ts";
 import { useEntitySearch } from "@/hooks/queries/useEntitySearch.ts";
 import { useCreateRelationshipInvite } from "@/hooks/queries/useRelationship.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
@@ -24,10 +25,10 @@ export function InviteSection({ horseId }: InviteSectionProps) {
   const [name, setName] = useState("");
 
   const debouncedQuery = useDebouncedValue(query, 300);
-  const { data: results = [], isPending: isSearching, error: searchError } = useEntitySearch(debouncedQuery);
+  const { data: results = [], isLoading: isSearching, error: searchError } = useEntitySearch(debouncedQuery);
   const inviteMutation = useCreateRelationshipInvite();
 
-  function handleInvite(receiverAccountId: string, relationshipType: string) {
+  function handleInvite(receiverAccountId: string, relationshipType: DiscoverProviderType) {
     inviteMutation.mutate(
       { horseId, receiverAccountId, relationshipType },
       {
@@ -95,7 +96,7 @@ export function InviteSection({ horseId }: InviteSectionProps) {
               </div>
               <Button
                 size="sm"
-                onClick={() => handleInvite(result.id, result.entityType)}
+                onClick={() => handleInvite(result.id, result.entityType as DiscoverProviderType)}
                 disabled={inviteMutation.isPending}
               >
                 <UserPlus className="mr-1 h-3 w-3" />

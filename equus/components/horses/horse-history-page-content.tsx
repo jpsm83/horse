@@ -36,7 +36,7 @@ export function HorseHistoryPageContent({ horseId }: Props) {
   }));
 
   return (
-    <HorsePageShell horseId={horseId} title={t("title")}>
+    <HorsePageShell horseId={horseId}>
       <DataTable
         columns={columns}
         data={rows}

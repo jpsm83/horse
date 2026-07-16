@@ -20,7 +20,7 @@ export function HorsePlanningPageContent({ horseId }: Props) {
   const t = useTranslations("horsePlanning");
 
   return (
-    <HorsePageShell horseId={horseId} title={t("title")}>
+    <HorsePageShell horseId={horseId}>
       <ErrorBoundary
         fallbackRender={({ error, resetErrorBoundary }) => (
           <InlineErrorFallback error={error} resetErrorBoundary={resetErrorBoundary} />
