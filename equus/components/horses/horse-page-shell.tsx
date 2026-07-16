@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { EntityTabs } from "@/components/shared/entity-tabs.tsx";
-import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { HorsePageSkeleton } from "@/components/horses/horse-page-skeleton.tsx";
 import { Link } from "@/i18n/navigation.ts";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { getHorseTabs } from "@/lib/navigation/horseTabs.ts";
@@ -28,9 +28,6 @@ type HorsePageShellRenderProps = {
 
 type HorsePageShellProps = {
   horseId: string;
-  title: string;
-  backHref?: string;
-  backLabel?: string;
   requireOwnership?: boolean;
   children: ReactNode | ((props: HorsePageShellRenderProps) => ReactNode);
 };
@@ -45,6 +42,11 @@ export function HorsePageShell({
   const { data: horse, isLoading: isHorseLoading, error: horseError } = useOwnerHorse(horseId);
 
   const isLoading = isAuthLoading || isHorseLoading;
+  const shouldRedirect = !isLoading && !isAuthenticated;
+
+  if (shouldRedirect) {
+    return null;
+  }
 
   useEffect(() => {
     if (isLoading) return;
@@ -69,10 +71,10 @@ export function HorsePageShell({
   return (
     <>
       <EntityTabs tabs={getHorseTabs(horseId)} isOwner={isOwner} variant="header" />
-        <div className="mx-auto flex w-full flex-1 flex-col gap-8 px-4 py-4 sm:py-6" suppressHydrationWarning>
+        <div className="mx-auto flex w-full flex-1 flex-col gap-8 px-4 py-4 sm:py-6">
 
         {isLoading || !horse ? (
-          <Skeleton className="h-full w-full rounded-lg bg-green-800" />
+          <HorsePageSkeleton suppressHydrationWarning />
         ) : requireOwnership && !(horse.isMainOwner === true) ? (
           <div className="mx-auto p-6">
             <p className="text-muted-foreground">You don&apos;t have permission to view this page.</p>

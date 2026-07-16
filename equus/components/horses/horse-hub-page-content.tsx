@@ -20,12 +20,7 @@ export function HorseHubPageContent({ horseId }: HorseHubPageContentProps) {
     : t("subtitle");
 
   return (
-    <HorsePageShell
-      horseId={horseId}
-      title={horseName}
-      backHref="/horses"
-      backLabel={t("backToHorses")}
-    >
+    <HorsePageShell horseId={horseId}>
       <p className="text-muted-foreground -mt-6">{subtitle}</p>
 
       <section className="space-y-2 rounded-lg border p-4">

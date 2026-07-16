@@ -102,7 +102,7 @@ export function HorseHealthPageContent({ horseId }: Props) {
   ];
 
   return (
-    <HorsePageShell horseId={horseId} title={t("title")} requireOwnership>
+    <HorsePageShell horseId={horseId} requireOwnership>
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">{t("records")}</h2>

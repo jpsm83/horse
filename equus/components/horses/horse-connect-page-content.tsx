@@ -68,7 +68,7 @@ export function HorseConnectPageContent({ horseId }: Props) {
   }
 
   return (
-    <HorsePageShell horseId={horseId} title={t("title")} requireOwnership>
+    <HorsePageShell horseId={horseId} requireOwnership>
       <section className="space-y-4">
         <div>
           <h2 className="text-xl font-semibold">{t("inviteSection")}</h2>
