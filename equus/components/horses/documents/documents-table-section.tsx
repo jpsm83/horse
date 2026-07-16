@@ -71,6 +71,8 @@ export function DocumentsTableSection({ horseId }: Props) {
       id: "description",
       accessorFn: (r) => r.description ?? "-",
       header: t("description"),
+      enableSorting: true,
+      filterType: "input",
       cell: ({ row }) => {
         const text = row.original.description;
         if (!text) return <span className="text-muted-foreground">-</span>;
