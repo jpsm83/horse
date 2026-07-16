@@ -59,9 +59,9 @@ export function ConnectionsTableSection({ horseId }: Props) {
   const columns: DataTableColumnDef<ConnectionRow>[] = useMemo(() => [
     { id: "type", accessorKey: "type", header: t("tableType"), enableSorting: true, filterType: "dropdown" },
     { id: "status", accessorKey: "status", header: t("tableStatus"), enableSorting: true, filterType: "dropdown" },
-    { id: "name", accessorKey: "name", header: t("tableName"), enableSorting: true, filterType: "input", meta: { debounceMs: 300 } },
-    { id: "email", accessorKey: "email", header: t("tableEmail"), filterType: "input", meta: { debounceMs: 300 } },
-    { id: "since", accessorKey: "since", header: t("tableSince"), enableSorting: true, filterType: "input", meta: { dataType: "date", debounceMs: 300 } },
+    { id: "name", accessorKey: "name", header: t("tableName"), enableSorting: true, filterType: "input" },
+    { id: "email", accessorKey: "email", header: t("tableEmail"), filterType: "input" },
+    { id: "since", accessorKey: "since", header: t("tableSince"), enableSorting: true, filterType: "input", meta: { dataType: "date" } },
     {
       id: "actions",
       header: t("tableActions"),
