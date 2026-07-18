@@ -963,11 +963,26 @@
         "noProvider": "Sin proveedor"
     },
     "horseMedia": {
-        "title": "Multimedia y GalerÃ­a",
+        "title": "Multimedia y Galería",
         "description": "Fotos y videos de este caballo.",
-        "noMedia": "AÃºn no hay contenido multimedia.",
+        "uploadTitle": "Subir multimedia",
+        "uploadDescription": "Arrastra y suelta fotos o videos. Formatos: JPG, PNG, GIF, MP4, WebM hasta 10MB.",
+        "galleryTitle": "Galería",
+        "noMedia": "Aún no hay contenido multimedia. Sube fotos o videos arriba.",
         "uploadMedia": "Subir",
-        "addMedia": "AÃ±adir multimedia"
+        "addMedia": "Añadir multimedia",
+        "uploadButton": "Subir",
+        "uploading": "Subiendo...",
+        "uploadSuccess": "Multimedia subido correctamente.",
+        "uploadError": "Error al subir multimedia.",
+        "delete": "Eliminar",
+        "deleteConfirm": "¿Eliminar este archivo?",
+        "deleteConfirmDescription": "Esta acción no se puede deshacer. El archivo se eliminará de la galería y del almacenamiento.",
+        "deleteSuccess": "Multimedia eliminado.",
+        "deleteError": "Error al eliminar multimedia.",
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "close": "Cerrar"
     },
     "horseDocuments": {
         "documentsTitle": "Documentos",

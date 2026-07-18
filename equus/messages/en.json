@@ -965,9 +965,24 @@
     "horseMedia": {
         "title": "Media & Gallery",
         "description": "Photos and videos of this horse.",
-        "noMedia": "No media yet.",
+        "uploadTitle": "Upload Media",
+        "uploadDescription": "Drag and drop photos or videos. Supports JPG, PNG, GIF, MP4, WebM up to 10MB.",
+        "galleryTitle": "Gallery",
+        "noMedia": "No media yet. Upload some photos or videos above.",
         "uploadMedia": "Upload",
-        "addMedia": "Add media"
+        "addMedia": "Add media",
+        "uploadButton": "Upload",
+        "uploading": "Uploading...",
+        "uploadSuccess": "Media uploaded successfully.",
+        "uploadError": "Failed to upload media.",
+        "delete": "Delete",
+        "deleteConfirm": "Delete this media?",
+        "deleteConfirmDescription": "This action cannot be undone. The file will be removed from the gallery and Cloudinary storage.",
+        "deleteSuccess": "Media deleted.",
+        "deleteError": "Failed to delete media.",
+        "previous": "Previous",
+        "next": "Next",
+        "close": "Close"
     },
     "horseDocuments": {
         "documentsTitle": "Documents",
