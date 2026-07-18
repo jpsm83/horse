@@ -978,7 +978,7 @@
         "descriptions": "Descripciones (opcional)",
         "descriptionPlaceholder": "Añade una descripción...",
         "visibilityOn": "Visible en el Hub",
-        "visibilityOff": "Oculta del Hub"
+        "visibilityOff": "Oculta del Hub",
         "delete": "Eliminar",
         "deleteConfirm": "¿Eliminar este archivo?",
         "deleteConfirmDescription": "Esta acción no se puede deshacer. El archivo se eliminará de la galería y del almacenamiento.",
