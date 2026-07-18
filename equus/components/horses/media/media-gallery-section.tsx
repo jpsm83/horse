@@ -27,6 +27,7 @@ type MediaGallerySectionProps = {
 
 export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
   const t = useTranslations("horseMedia");
+  const tCommon = useTranslations("common");
   const toast = useAppToast();
   const { data: media = [], isPending } = useHorseMedia(horseId);
   const deleteMutation = useDeleteHorseMedia(horseId);
@@ -164,7 +165,7 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
