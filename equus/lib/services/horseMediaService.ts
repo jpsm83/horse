@@ -11,6 +11,7 @@ export type PublicMedia = {
   url: string;
   thumbnailUrl?: string;
   title?: string;
+  description?: string;
   visibilityMode: string;
   createdAt: string;
 };
@@ -23,6 +24,7 @@ function toPublic(record: Record<string, unknown>): PublicMedia {
     url: record.url as string,
     thumbnailUrl: record.thumbnailUrl as string | undefined,
     title: record.title as string | undefined,
+    description: record.description as string | undefined,
     visibilityMode: record.visibilityMode as string,
     createdAt: (record.createdAt as Date).toISOString(),
   };
