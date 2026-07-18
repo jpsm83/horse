@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Upload, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { FileUpload, type UploadedFileState } from "@/components/shared/file-upload.tsx";
 import { useUploadHorseMedia } from "@/hooks/queries/useHorseMedia.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
@@ -23,6 +24,7 @@ export function MediaUploadSection({
   const t = useTranslations("horseMedia");
   const toast = useAppToast();
   const [files, setFiles] = useState<UploadedFileState[]>([]);
+  const [descriptions, setDescriptions] = useState<Record<string, string>>({});
   const [isUploading, setIsUploading] = useState(false);
 
   const uploadMutation = useUploadHorseMedia(horseId);
@@ -42,6 +44,8 @@ export function MediaUploadSection({
     uploadMutation.mutate(
       {
         files: pendingFiles.map((f) => f.file),
+        fileIds: pendingFiles.map((f) => f.id),
+        descriptions,
         sourceEntityType,
         sourceEntityId,
       },
@@ -49,6 +53,7 @@ export function MediaUploadSection({
         onSuccess: () => {
           toast.success(t("uploadSuccess"));
           setFiles([]);
+          setDescriptions({});
         },
         onError: () => {
           toast.error(t("uploadError"));
@@ -67,7 +72,8 @@ export function MediaUploadSection({
     );
   }
 
-  const hasPendingFiles = files.some((f) => f.status === "pending");
+  const pendingFiles = files.filter((f) => f.status === "pending");
+  const hasPendingFiles = pendingFiles.length > 0;
 
   return (
     <div className="space-y-4">
@@ -80,6 +86,34 @@ export function MediaUploadSection({
         disabled={isUploading}
         uploading={isUploading}
       />
+      {hasPendingFiles && (
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground font-medium">
+            {t("descriptions")}
+          </p>
+          <div className="space-y-1.5">
+            {pendingFiles.map((entry) => (
+              <div key={entry.id} className="flex items-center gap-2">
+                <span className="text-xs truncate min-w-0 flex-1 max-w-[200px]">
+                  {entry.file.name}
+                </span>
+                <Input
+                  placeholder={t("descriptionPlaceholder")}
+                  value={descriptions[entry.id] ?? ""}
+                  onChange={(e) =>
+                    setDescriptions((prev) => ({
+                      ...prev,
+                      [entry.id]: e.target.value,
+                    }))
+                  }
+                  className="h-8 text-sm flex-1"
+                  disabled={isUploading}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {hasPendingFiles && (
         <Button onClick={handleUpload} disabled={isUploading}>
           {isUploading ? (

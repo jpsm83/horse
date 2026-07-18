@@ -67,8 +67,8 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
 
   if (isPending) {
     return (
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-        {Array.from({ length: 8 }).map((_, i) => (
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
+        {Array.from({ length: 12 }).map((_, i) => (
           <Skeleton key={i} className="aspect-square w-full rounded-lg" />
         ))}
       </div>
@@ -86,7 +86,7 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
         {media.map((item, index) => (
           <div
             key={item.id}
@@ -123,7 +123,7 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="absolute top-1 right-1 z-20 size-7 rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70 hover:text-white"
+              className="absolute top-1 right-1 z-20 size-7 rounded-full bg-destructive/70 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive"
               onClick={(e) => {
                 e.stopPropagation();
                 setDeleteTarget(item.id);

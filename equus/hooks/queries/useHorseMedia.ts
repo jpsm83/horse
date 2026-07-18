@@ -22,6 +22,8 @@ export function useHorseMedia(horseId: string) {
 
 type UploadMediaInput = {
   files: File[];
+  fileIds: string[];
+  descriptions: Record<string, string>;
   sourceEntityType: string;
   sourceEntityId?: string;
 };
@@ -30,11 +32,13 @@ export function useUploadHorseMedia(horseId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ files, sourceEntityType, sourceEntityId }: UploadMediaInput): Promise<PublicMedia[]> => {
+    mutationFn: async ({ files, fileIds, descriptions, sourceEntityType, sourceEntityId }: UploadMediaInput): Promise<PublicMedia[]> => {
       const formData = new FormData();
       for (const file of files) {
         formData.append("files", file);
       }
+      const descriptionsArr = fileIds.map((id) => descriptions[id] ?? "");
+      formData.append("descriptions", JSON.stringify(descriptionsArr));
       formData.append("sourceEntityType", sourceEntityType);
       if (sourceEntityId) {
         formData.append("sourceEntityId", sourceEntityId);

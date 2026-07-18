@@ -213,7 +213,7 @@ export function FileUpload({
       </div>
 
       {hasFiles ? (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
           {existingUrls?.map((url) => (
             <div
               key={url}

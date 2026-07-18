@@ -38,7 +38,7 @@ export function LightboxDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 gap-0 bg-black/95 border-0">
+      <DialogContent className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh] p-0 gap-0 bg-black/95 border-0">
         <DialogTitle className="sr-only">
           {item.title ?? t("addMedia")}
         </DialogTitle>
@@ -46,7 +46,7 @@ export function LightboxDialog({
           {item.description ?? ""}
         </DialogDescription>
 
-        <div className="relative flex items-center justify-center w-full h-[80vh]">
+        <div className="relative flex items-center justify-center w-full h-full">
           {hasPrev && (
             <Button
               variant="ghost"

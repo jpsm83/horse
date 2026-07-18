@@ -21,6 +21,10 @@ export async function POST(request: Request, context: RouteContext) {
     const files = formData.getAll("files") as File[];
     const sourceEntityType = (formData.get("sourceEntityType") as string) || "horse";
     const sourceEntityId = formData.get("sourceEntityId") as string | undefined;
+    let descriptions: string[] = [];
+    try {
+      descriptions = JSON.parse((formData.get("descriptions") as string) || "[]");
+    } catch {}
 
     if (files.length === 0) {
       throw new ApiError(400, "No files provided", "VALIDATION_ERROR");
@@ -42,7 +46,7 @@ export async function POST(request: Request, context: RouteContext) {
     const basePath = buildCloudinaryPath(`/horses/${horseId}/media/${sourceEntityType}`);
 
     const results = await Promise.all(
-      files.map(async (file) => {
+      files.map(async (file, i) => {
         const buffer = Buffer.from(await file.arrayBuffer());
         const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;
         const publicId = `${basePath}/${Date.now()}`;
@@ -61,11 +65,14 @@ export async function POST(request: Request, context: RouteContext) {
 
         const visibilityMode = sourceEntityType === "horse" ? "public" : "owner";
 
+        const description = descriptions[i]?.trim() || undefined;
+
         return mediaService.createMedia(session.id, horseId, {
           type: isVideo ? "video" : "image",
           url: result.secure_url,
           thumbnailUrl,
           title: file.name.replace(/\.[^.]+$/, ""),
+          description,
           mimeType: file.type,
           fileSizeBytes: file.size,
           sourceEntityType,

@@ -975,6 +975,8 @@
         "uploading": "Uploading...",
         "uploadSuccess": "Media uploaded successfully.",
         "uploadError": "Failed to upload media.",
+        "descriptions": "Descriptions (optional)",
+        "descriptionPlaceholder": "Add a description...",
         "delete": "Delete",
         "deleteConfirm": "Delete this media?",
         "deleteConfirmDescription": "This action cannot be undone. The file will be removed from the gallery and Cloudinary storage.",

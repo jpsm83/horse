@@ -975,6 +975,8 @@
         "uploading": "Subiendo...",
         "uploadSuccess": "Multimedia subido correctamente.",
         "uploadError": "Error al subir multimedia.",
+        "descriptions": "Descripciones (opcional)",
+        "descriptionPlaceholder": "Añade una descripción...",
         "delete": "Eliminar",
         "deleteConfirm": "¿Eliminar este archivo?",
         "deleteConfirmDescription": "Esta acción no se puede deshacer. El archivo se eliminará de la galería y del almacenamiento.",
