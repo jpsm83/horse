@@ -977,6 +977,8 @@
         "uploadError": "Failed to upload media.",
         "descriptions": "Descriptions (optional)",
         "descriptionPlaceholder": "Add a description...",
+        "visibilityOn": "Visible on Hub",
+        "visibilityOff": "Hidden from Hub"
         "delete": "Delete",
         "deleteConfirm": "Delete this media?",
         "deleteConfirmDescription": "This action cannot be undone. The file will be removed from the gallery and Cloudinary storage.",

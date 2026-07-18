@@ -13,15 +13,16 @@ export async function DELETE(request: Request, context: RouteContext) {
     await requireAuthFromRequest(request);
     const { mediaId } = await context.params;
 
-    const record = await HorseMedia.findById(mediaId).lean();
+    const record = await HorseMedia.findById(mediaId)
+      .select("storagePublicId")
+      .lean();
     if (!record) {
       throw new ApiError(404, "Media not found", "NOT_FOUND");
     }
 
     await mediaService.deleteMedia(
       mediaId,
-      record.url as string,
-      record.thumbnailUrl as string | undefined,
+      record.storagePublicId as string | undefined,
     );
     return ok({ deleted: true });
   });

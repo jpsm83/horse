@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { Trash2, Play, ImageIcon } from "lucide-react";
+import { Trash2, Play, ImageIcon, Eye, EyeOff } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useHorseMedia, useDeleteHorseMedia } from "@/hooks/queries/useHorseMedia.ts";
+import { useHorseMedia, useDeleteHorseMedia, useToggleMediaVisibility } from "@/hooks/queries/useHorseMedia.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { LightboxDialog } from "@/components/horses/media/lightbox-dialog.tsx";
 
@@ -30,6 +30,7 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
   const toast = useAppToast();
   const { data: media = [], isPending } = useHorseMedia(horseId);
   const deleteMutation = useDeleteHorseMedia(horseId);
+  const toggleVisibilityMutation = useToggleMediaVisibility(horseId);
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -120,17 +121,37 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
               )}
             </div>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-1 right-1 z-20 size-7 rounded-full bg-destructive/70 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive"
-              onClick={(e) => {
-                e.stopPropagation();
-                setDeleteTarget(item.id);
-              }}
-            >
-              <Trash2 className="size-3.5" />
-            </Button>
+            <div className="absolute top-1 right-1 z-20 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 rounded-full bg-primary/70 text-primary-foreground hover:bg-primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleVisibilityMutation.mutate({
+                    mediaId: item.id,
+                    isVisibleOnHub: !item.isVisibleOnHub,
+                  });
+                }}
+              >
+                {item.isVisibleOnHub !== false ? (
+                  <Eye className="size-3.5" />
+                ) : (
+                  <EyeOff className="size-3.5" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 rounded-full bg-destructive/70 text-white hover:bg-destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteTarget(item.id);
+                }}
+              >
+                <Trash2 className="size-3.5" />
+              </Button>
+            </div>
           </div>
         ))}
       </div>
@@ -164,7 +185,7 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-white hover:bg-destructive/90"
             >
               {deleteMutation.isPending ? (
                 <span className="flex items-center gap-1">

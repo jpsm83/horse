@@ -87,31 +87,22 @@ export function MediaUploadSection({
         uploading={isUploading}
       />
       {hasPendingFiles && (
-        <div className="space-y-2">
-          <p className="text-xs text-muted-foreground font-medium">
-            {t("descriptions")}
-          </p>
-          <div className="space-y-1.5">
-            {pendingFiles.map((entry) => (
-              <div key={entry.id} className="flex items-center gap-2">
-                <span className="text-xs truncate min-w-0 flex-1 max-w-[200px]">
-                  {entry.file.name}
-                </span>
-                <Input
-                  placeholder={t("descriptionPlaceholder")}
-                  value={descriptions[entry.id] ?? ""}
-                  onChange={(e) =>
-                    setDescriptions((prev) => ({
-                      ...prev,
-                      [entry.id]: e.target.value,
-                    }))
-                  }
-                  className="h-8 text-sm flex-1"
-                  disabled={isUploading}
-                />
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+          {pendingFiles.map((entry) => (
+            <Input
+              key={entry.id}
+              placeholder={t("descriptionPlaceholder")}
+              value={descriptions[entry.id] ?? ""}
+              onChange={(e) =>
+                setDescriptions((prev) => ({
+                  ...prev,
+                  [entry.id]: e.target.value,
+                }))
+              }
+              className="h-8 text-sm"
+              disabled={isUploading}
+            />
+          ))}
         </div>
       )}
       {hasPendingFiles && (

@@ -75,9 +75,11 @@ export async function POST(request: Request, context: RouteContext) {
           description,
           mimeType: file.type,
           fileSizeBytes: file.size,
+          storagePublicId: result.public_id,
           sourceEntityType,
           sourceEntityId,
           visibilityMode,
+          isVisibleOnHub: sourceEntityType === "horse",
         });
       }),
     );

@@ -8,6 +8,10 @@ export const createMediaSchema = z.object({
   description: z.string().max(2000).optional(),
   mimeType: z.string().optional(),
   fileSizeBytes: z.number().int().positive().optional(),
+  storagePublicId: z.string().optional(),
+  isVisibleOnHub: z.boolean().optional().default(true),
+  sourceEntityType: z.string().optional(),
+  sourceEntityId: z.string().optional(),
   visibilityMode: z.enum(["owner", "entities", "public"]).optional().default("owner"),
   visibilityEntityIds: z.array(z.string()).optional(),
 });

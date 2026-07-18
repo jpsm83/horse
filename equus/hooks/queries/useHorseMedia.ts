@@ -81,3 +81,26 @@ export function useDeleteHorseMedia(horseId: string) {
     },
   });
 }
+
+export function useToggleMediaVisibility(horseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ mediaId, isVisibleOnHub }: { mediaId: string; isVisibleOnHub: boolean }) => {
+      const res = await fetchWithAuth(
+        `/api/v1/horses/${encodeURIComponent(horseId)}/media/${encodeURIComponent(mediaId)}/visibility`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isVisibleOnHub }),
+        },
+      );
+      return parseApiResponse<{ media: PublicMedia }>(res);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.horses.all, horseId, "media"],
+      });
+    },
+  });
+}

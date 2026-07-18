@@ -94,12 +94,12 @@ export function LightboxDialog({
           </Button>
         </div>
 
-        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-6">
           {item.title && (
-            <p className="text-sm font-medium text-white">{item.title}</p>
+            <p className="text-base font-medium text-white">{item.title}</p>
           )}
           {item.description && (
-            <p className="text-xs text-white/70 mt-1">{item.description}</p>
+            <p className="text-sm text-white/80 mt-1">{item.description}</p>
           )}
         </div>
       </DialogContent>

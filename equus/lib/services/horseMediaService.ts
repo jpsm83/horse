@@ -2,7 +2,6 @@ import HorseMedia from "@/models/HorseMedia.ts";
 import { recordAudit } from "@/lib/services/horseAuditService.ts";
 import configureCloudinary from "@/lib/cloudinary/cloudinaryConfig.ts";
 import { v2 as cloudinary } from "cloudinary";
-import { extractStoragePublicId } from "@/lib/cloudinary/extractStoragePublicId.ts";
 
 export type PublicMedia = {
   id: string;
@@ -12,6 +11,8 @@ export type PublicMedia = {
   thumbnailUrl?: string;
   title?: string;
   description?: string;
+  storagePublicId?: string;
+  isVisibleOnHub: boolean;
   visibilityMode: string;
   createdAt: string;
 };
@@ -25,6 +26,8 @@ function toPublic(record: Record<string, unknown>): PublicMedia {
     thumbnailUrl: record.thumbnailUrl as string | undefined,
     title: record.title as string | undefined,
     description: record.description as string | undefined,
+    storagePublicId: record.storagePublicId as string | undefined,
+    isVisibleOnHub: record.isVisibleOnHub !== false,
     visibilityMode: record.visibilityMode as string,
     createdAt: (record.createdAt as Date).toISOString(),
   };
@@ -58,10 +61,8 @@ export async function createMedia(
 
 export async function deleteMedia(
   mediaId: string,
-  url: string,
-  thumbnailUrl?: string | null,
+  storagePublicId?: string | null,
 ): Promise<void> {
-  const storagePublicId = extractStoragePublicId(thumbnailUrl ?? url);
   if (storagePublicId) {
     configureCloudinary();
     await cloudinary.uploader

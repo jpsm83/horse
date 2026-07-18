@@ -18,6 +18,9 @@ const horseMediaSchema = new Schema(
     description: { type: String },
     fileSizeBytes: { type: Number },
     mimeType: { type: String },
+    storagePublicId: { type: String },
+
+    isVisibleOnHub: { type: Boolean, default: true },
 
     visibilityMode: {
       type: String,
