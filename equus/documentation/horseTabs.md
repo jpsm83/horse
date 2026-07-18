@@ -7,7 +7,7 @@
 | Hub | `/horses/[id]` | Public | View-only dashboard with basic info, pedigree, ownership summary |
 | Connect | `/horses/[id]/connect` | Owner-only | Invite providers + manage connections table |
 | Planning | `/horses/[id]/planning` | Public | Calendar for appointments, competitions, training, and daily activities. Shows events from connected providers. |
-| Media | `/horses/[id]/media` | Public | Photos and videos of the horse |
+| Media | `/horses/[id]/media` | Public | Upload and view photos and videos. Drag-and-drop upload with thumbnail gallery and lightbox viewer. |
 | Documents | `/horses/[id]/documents` | Public | Horse documents and files |
 | Medical | `/horses/[id]/health` | Owner-only | Health records and medical history |
 | Feed | `/horses/[id]/feed` | Owner-only | Feed plans and nutrition schedules |

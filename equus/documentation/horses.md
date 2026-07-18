@@ -22,6 +22,9 @@ Related:
 | `GET` | `/api/v1/horses/:id/relationships?status=pending` | Outbound pending invites sent by the owner for this horse |
 | `PATCH` | `/api/v1/horses/:id/discovery` | Update discovery visibility/contact (`profileVisibility`, `contactDisplay`) for owner/co-owner |
 | `GET` | `/api/v1/horses/:id` | Return public horse card filtered by horse visibility and user privacy policy |
+| `GET` | `/api/v1/horses/:id/media` | List media items (images/videos) for a horse |
+| `POST` | `/api/v1/horses/:id/media` | Create a media record (url, type, title, etc.) |
+| `DELETE` | `/api/v1/horses/:id/media/:mediaId` | Delete a media record + Cloudinary file |
 
 ---
 
@@ -117,4 +120,21 @@ Minimal owner hub after create (or direct URL):
 Auth gate: non-owners receive 403 and redirect to `/not-allowed`. Pending invite state on the hub uses **outbound** sent invites (not the receiver inbox at `/users/me/relationships`).
 
 See [`relationships.md`](./relationships.md) for invitation policy and discover endpoint details.
+
+### Horse media (`/horses/[horseId]/media`)
+
+Media gallery with drag-and-drop upload. Two-section layout: upload section on top, thumbnail gallery below.
+
+- Server component: `app/[locale]/horses/[horseId]/media/page.tsx`
+- Client assembly: `app/[locale]/horses/[horseId]/media/client.tsx`
+- Upload component: `components/horses/media/media-upload-section.tsx` — wraps shared `FileUpload` with Cloudinary upload + HorseMedia record creation
+- Gallery component: `components/horses/media/media-gallery-section.tsx` — thumbnail grid + lightbox dialog + delete
+- Hooks: `hooks/queries/useHorseMedia.ts` — `useHorseMedia`, `useUploadHorseMedia`, `useDeleteHorseMedia`
+- Service: `lib/services/horseMediaService.ts` — `listMedia`, `createMedia`, `deleteMedia`, `extractStoragePublicId`
+- Model: `models/HorseMedia.ts` — `type` (image/video), `url`, `thumbnailUrl`, `sourceEntityType`, `sourceEntityId`, `visibilityMode`
+- Upload: `POST /api/v1/horses/:id/media/upload` (multipart + Cloudinary folder + record creation)
+- i18n: `horseMedia` namespace
+
+**Cloudinary folder structure:** `horses/{horseId}/media/{sourceEntityType}/`
+**Visibility rule:** Owner-uploaded media defaults to public; entity-uploaded media defaults to owner-only.
 
