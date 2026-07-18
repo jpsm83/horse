@@ -1,5 +1,8 @@
 import HorseMedia from "@/models/HorseMedia.ts";
 import { recordAudit } from "@/lib/services/horseAuditService.ts";
+import configureCloudinary from "@/lib/cloudinary/cloudinaryConfig.ts";
+import { v2 as cloudinary } from "cloudinary";
+import { CLOUDINARY_UPLOAD_PRESET } from "@/lib/cloudinary/constants.ts";
 
 export type PublicMedia = {
   id: string;
@@ -49,4 +52,23 @@ export async function createMedia(
     description: `Media "${input.title ?? "untitled"}" added`,
   }).catch(() => {});
   return toPublic(item.toObject());
+}
+
+export function extractStoragePublicId(url: string): string | null {
+  const pattern = new RegExp(`${CLOUDINARY_UPLOAD_PRESET}\\/[^.]+`);
+  const match = url.match(pattern);
+  return match ? match[0] : null;
+}
+
+export async function deleteMedia(
+  mediaId: string,
+  storagePublicId?: string | null,
+): Promise<void> {
+  if (storagePublicId) {
+    configureCloudinary();
+    await cloudinary.uploader
+      .destroy(storagePublicId, { resource_type: "auto" })
+      .catch(() => {});
+  }
+  await HorseMedia.findByIdAndUpdate(mediaId, { isActive: false });
 }
