@@ -63,20 +63,10 @@ export function useDeleteHorseMedia(horseId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      mediaId,
-      storagePublicId,
-    }: {
-      mediaId: string;
-      storagePublicId?: string | null;
-    }) => {
+    mutationFn: async ({ mediaId }: { mediaId: string }) => {
       const res = await fetchWithAuth(
         `/api/v1/horses/${encodeURIComponent(horseId)}/media/${encodeURIComponent(mediaId)}`,
-        {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ storagePublicId }),
-        },
+        { method: "DELETE" },
       );
       return parseApiResponse<{ deleted: boolean }>(res);
     },

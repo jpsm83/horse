@@ -58,8 +58,10 @@ export async function createMedia(
 
 export async function deleteMedia(
   mediaId: string,
-  storagePublicId?: string | null,
+  url: string,
+  thumbnailUrl?: string | null,
 ): Promise<void> {
+  const storagePublicId = extractStoragePublicId(thumbnailUrl ?? url);
   if (storagePublicId) {
     configureCloudinary();
     await cloudinary.uploader

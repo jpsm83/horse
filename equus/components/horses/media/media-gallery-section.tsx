@@ -19,7 +19,6 @@ import {
 import { useHorseMedia, useDeleteHorseMedia } from "@/hooks/queries/useHorseMedia.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { LightboxDialog } from "@/components/horses/media/lightbox-dialog.tsx";
-import { extractStoragePublicId } from "@/lib/cloudinary/extractStoragePublicId.ts";
 
 type MediaGallerySectionProps = {
   horseId: string;
@@ -50,13 +49,9 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
 
   function handleDelete() {
     if (!deleteTarget) return;
-    const item = media.find((m) => m.id === deleteTarget);
-    const storagePublicId = item?.url
-      ? extractStoragePublicId(item.thumbnailUrl ?? item.url)
-      : null;
 
     deleteMutation.mutate(
-      { mediaId: deleteTarget, storagePublicId },
+      { mediaId: deleteTarget },
       {
         onSuccess: () => {
           toast.success(t("deleteSuccess"));

@@ -34,6 +34,7 @@ describe("extractStoragePublicId", () => {
 
 describe("deleteMedia", () => {
   const mockFindByIdAndUpdate = vi.fn();
+  const CLOUDINARY_URL = "https://res.cloudinary.com/demo/image/upload/v1234567890/equus/horses/abc/media/horse/550e8400.jpg";
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -41,13 +42,24 @@ describe("deleteMedia", () => {
     (HorseMedia as any).findByIdAndUpdate = mockFindByIdAndUpdate;
   });
 
-  it("destroys Cloudinary resource and soft-deletes the record", async () => {
+  it("extracts public_id from URL and destroys Cloudinary resource, then soft-deletes", async () => {
     mockFindByIdAndUpdate.mockResolvedValue({ _id: "media123" });
     mockDestroy.mockResolvedValue({ result: "ok" });
 
-    await deleteMedia("media123", "equus/horses/abc/media/horse/550e8400");
+    await deleteMedia("media123", CLOUDINARY_URL);
 
     expect(mockDestroy).toHaveBeenCalledWith("equus/horses/abc/media/horse/550e8400", expect.any(Object));
+    expect(mockFindByIdAndUpdate).toHaveBeenCalledWith("media123", { isActive: false });
+  });
+
+  it("uses thumbnailUrl when provided", async () => {
+    mockFindByIdAndUpdate.mockResolvedValue({ _id: "media123" });
+    mockDestroy.mockResolvedValue({ result: "ok" });
+    const thumbUrl = "https://res.cloudinary.com/demo/image/upload/v1234567890/equus/horses/abc/media/horse/550e8400_thumb.jpg";
+
+    await deleteMedia("media123", CLOUDINARY_URL, thumbUrl);
+
+    expect(mockDestroy).toHaveBeenCalledWith("equus/horses/abc/media/horse/550e8400_thumb", expect.any(Object));
     expect(mockFindByIdAndUpdate).toHaveBeenCalledWith("media123", { isActive: false });
   });
 
@@ -55,15 +67,15 @@ describe("deleteMedia", () => {
     mockFindByIdAndUpdate.mockResolvedValue({ _id: "media123" });
     mockDestroy.mockRejectedValue(new Error("network error"));
 
-    await deleteMedia("media123", "equus/horses/abc/media/horse/550e8400");
+    await deleteMedia("media123", CLOUDINARY_URL);
 
     expect(mockFindByIdAndUpdate).toHaveBeenCalledWith("media123", { isActive: false });
   });
 
-  it("soft-deletes when no storagePublicId provided", async () => {
+  it("soft-deletes when URL is empty", async () => {
     mockFindByIdAndUpdate.mockResolvedValue({ _id: "media123" });
 
-    await deleteMedia("media123", undefined);
+    await deleteMedia("media123", "");
 
     expect(mockDestroy).not.toHaveBeenCalled();
     expect(mockFindByIdAndUpdate).toHaveBeenCalledWith("media123", { isActive: false });
