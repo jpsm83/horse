@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { deleteMedia } from "@/lib/services/horseMediaService";
-import HorseMedia from "@/models/HorseMedia";
+import { deleteMedia } from "@/lib/services/mediaService";
+import Media from "@/models/Media";
 
 const { mockDestroy } = vi.hoisted(() => ({
   mockDestroy: vi.fn(),
 }));
 
-vi.mock("@/models/HorseMedia");
+vi.mock("@/models/Media");
 vi.mock("@/lib/services/horseAuditService");
 vi.mock("@/lib/cloudinary/cloudinaryConfig");
 vi.mock("cloudinary", () => ({
@@ -26,7 +26,7 @@ describe("deleteMedia", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFindByIdAndUpdate.mockReset();
-    (HorseMedia as any).findByIdAndUpdate = mockFindByIdAndUpdate;
+    (Media as any).findByIdAndUpdate = mockFindByIdAndUpdate;
   });
 
   it("destroys Cloudinary resource and soft-deletes the record", async () => {

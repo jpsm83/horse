@@ -31,5 +31,5 @@ export { default as Notification } from "./Notification.ts";
 export { default as HorseHealthRecord } from "./HorseHealthRecord.ts";
 export { default as HorseFeedPlan } from "./HorseFeedPlan.ts";
 export { default as HorseEvent } from "./HorseEvent.ts";
-export { default as HorseMedia } from "./HorseMedia.ts";
+export { default as Media } from "./Media.ts";
 export { default as HorseAuditLog } from "./HorseAuditLog.ts";

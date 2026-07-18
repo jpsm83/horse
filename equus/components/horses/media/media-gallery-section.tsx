@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useHorseMedia, useDeleteHorseMedia, useToggleMediaVisibility } from "@/hooks/queries/useHorseMedia.ts";
+import { useMedia, useDeleteMedia, useToggleMediaVisibility } from "@/hooks/queries/useMedia.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { LightboxDialog } from "@/components/horses/media/lightbox-dialog.tsx";
 
@@ -28,8 +28,8 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
   const t = useTranslations("horseMedia");
   const tCommon = useTranslations("common");
   const toast = useAppToast();
-  const { data: media = [], isPending } = useHorseMedia(horseId);
-  const deleteMutation = useDeleteHorseMedia(horseId);
+  const { data: media = [], isPending } = useMedia(horseId);
+  const deleteMutation = useDeleteMedia(horseId);
   const toggleVisibilityMutation = useToggleMediaVisibility(horseId);
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);

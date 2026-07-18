@@ -5,7 +5,7 @@ import { requireAuthFromRequest } from "@/lib/auth/requireAuth.ts";
 import configureCloudinary from "@/lib/cloudinary/cloudinaryConfig.ts";
 import { buildCloudinaryPath } from "@/lib/cloudinary/constants.ts";
 import { v2 as cloudinary } from "cloudinary";
-import * as mediaService from "@/lib/services/horseMediaService.ts";
+import * as mediaService from "@/lib/services/mediaService.ts";
 
 type RouteContext = { params: Promise<{ id: string }> };
 

@@ -2,8 +2,8 @@ import connectDb from "@/lib/db.ts";
 import { withRoute, ok } from "@/lib/api/response.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { requireAuthFromRequest } from "@/lib/auth/requireAuth.ts";
-import HorseMedia from "@/models/HorseMedia.ts";
-import * as mediaService from "@/lib/services/horseMediaService.ts";
+import Media from "@/models/Media.ts";
+import * as mediaService from "@/lib/services/mediaService.ts";
 
 type RouteContext = { params: Promise<{ mediaId: string }> };
 
@@ -18,7 +18,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       throw new ApiError(400, "isVisibleOnHub must be a boolean", "VALIDATION_ERROR");
     }
 
-    const record = await HorseMedia.findByIdAndUpdate(
+    const record = await Media.findByIdAndUpdate(
       mediaId,
       { isVisibleOnHub },
       { new: true },

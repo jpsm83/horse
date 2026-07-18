@@ -1,4 +1,4 @@
-import HorseMedia from "@/models/HorseMedia.ts";
+import Media from "@/models/Media.ts";
 import { recordAudit } from "@/lib/services/horseAuditService.ts";
 import configureCloudinary from "@/lib/cloudinary/cloudinaryConfig.ts";
 import { v2 as cloudinary } from "cloudinary";
@@ -34,7 +34,7 @@ function toPublic(record: Record<string, unknown>): PublicMedia {
 }
 
 export async function listMedia(horseId: string): Promise<PublicMedia[]> {
-  const items = await HorseMedia.find({ horseId, isActive: true })
+  const items = await Media.find({ horseId, isActive: true })
     .sort({ createdAt: -1 })
     .lean();
   return items.map(toPublic);
@@ -45,7 +45,7 @@ export async function createMedia(
   horseId: string,
   input: Record<string, unknown>,
 ): Promise<PublicMedia> {
-  const item = await HorseMedia.create({
+  const item = await Media.create({
     ...input,
     horseId,
     uploadedByUserId: userId,
@@ -69,5 +69,5 @@ export async function deleteMedia(
       .destroy(storagePublicId, { resource_type: "auto" })
       .catch(() => {});
   }
-  await HorseMedia.findByIdAndUpdate(mediaId, { isActive: false });
+  await Media.findByIdAndUpdate(mediaId, { isActive: false });
 }

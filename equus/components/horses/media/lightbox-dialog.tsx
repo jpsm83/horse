@@ -10,7 +10,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import type { PublicMedia } from "@/lib/services/horseMediaService";
+import type { PublicMedia } from "@/lib/services/mediaService";
 
 type LightboxDialogProps = {
   items: PublicMedia[];

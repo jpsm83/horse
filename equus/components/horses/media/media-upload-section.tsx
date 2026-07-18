@@ -7,7 +7,7 @@ import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FileUpload, type UploadedFileState } from "@/components/shared/file-upload.tsx";
-import { useUploadHorseMedia } from "@/hooks/queries/useHorseMedia.ts";
+import { useUploadMedia } from "@/hooks/queries/useMedia.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 
 type MediaUploadSectionProps = {
@@ -27,7 +27,7 @@ export function MediaUploadSection({
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
   const [isUploading, setIsUploading] = useState(false);
 
-  const uploadMutation = useUploadHorseMedia(horseId);
+  const uploadMutation = useUploadMedia(horseId);
 
   async function handleUpload() {
     const pendingFiles = files.filter((f) => f.status === "pending");

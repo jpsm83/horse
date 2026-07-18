@@ -1,8 +1,8 @@
 import connectDb from "@/lib/db.ts";
 import { withRoute, ok } from "@/lib/api/response.ts";
 import { requireAuthFromRequest } from "@/lib/auth/requireAuth.ts";
-import { createMediaSchema } from "@/lib/validations/horseMedia.ts";
-import * as mediaService from "@/lib/services/horseMediaService.ts";
+import { createMediaSchema } from "@/lib/validations/media.ts";
+import * as mediaService from "@/lib/services/mediaService.ts";
 
 type RouteContext = { params: Promise<{ id: string }> };
 

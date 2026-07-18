@@ -38,5 +38,5 @@ const horseMediaSchema = new Schema(
 horseMediaSchema.index({ horseId: 1, createdAt: -1 });
 horseMediaSchema.index({ sourceEntityId: 1, sourceEntityType: 1 });
 
-const HorseMedia = mongoose.models.HorseMedia || model("HorseMedia", horseMediaSchema);
-export default HorseMedia;
+const Media = mongoose.models.Media || model("Media", horseMediaSchema);
+export default Media;
