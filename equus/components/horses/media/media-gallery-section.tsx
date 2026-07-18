@@ -19,7 +19,7 @@ import {
 import { useHorseMedia, useDeleteHorseMedia } from "@/hooks/queries/useHorseMedia.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { LightboxDialog } from "@/components/horses/media/lightbox-dialog.tsx";
-import { extractStoragePublicId } from "@/lib/services/horseMediaService.ts";
+import { extractStoragePublicId } from "@/lib/cloudinary/extractStoragePublicId.ts";
 
 type MediaGallerySectionProps = {
   horseId: string;

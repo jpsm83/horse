@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { createMedia, listMedia, deleteMedia, extractStoragePublicId } from "@/lib/services/horseMediaService";
+import { createMedia, listMedia, deleteMedia } from "@/lib/services/horseMediaService";
+import { extractStoragePublicId } from "@/lib/cloudinary/extractStoragePublicId";
 import HorseMedia from "@/models/HorseMedia";
 
 const { mockDestroy } = vi.hoisted(() => ({
