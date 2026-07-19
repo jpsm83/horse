@@ -1,5 +1,6 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -14,8 +15,14 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
+import { useUpdateHorseSale } from "@/hooks/queries/useHorse.ts";
 import type { OwnerHorseSummary } from "@/lib/api/horseClient";
-import { currencyEnums, saleStatusEnums } from "@/utils/enums.ts";
+import {
+  horseFormMessagesFromTranslations,
+  saleFormSchemas,
+  type SaleFormValues,
+} from "@/lib/validations/horseForms.ts";
+import { currencyEnums } from "@/utils/enums.ts";
 import { useRouter } from "@/i18n/navigation";
 
 type HorseSaleFormProps = {
@@ -29,10 +36,22 @@ export function HorseSaleForm({ horseId, horse, onSaved }: HorseSaleFormProps) {
   const t = useTranslations("horseSale");
   const tCommon = useTranslations("common");
   const toast = useAppToast();
+  const updateHorseSale = useUpdateHorseSale();
 
-  const form = useForm({
+  const formMessages = useMemo(
+    () => horseFormMessagesFromTranslations(t),
+    [t],
+  );
+
+  const { saleFormSchema } = useMemo(
+    () => saleFormSchemas(formMessages),
+    [formMessages],
+  );
+
+  const form = useForm<SaleFormValues>({
+    resolver: zodResolver(saleFormSchema),
     defaultValues: {
-      saleStatus: horse.saleStatus ?? "not_for_sale",
+      saleStatus: (horse.saleStatus as "not_for_sale" | "for_sale") ?? "not_for_sale",
       estimatedValue: horse.estimatedValue != null ? String(horse.estimatedValue) : "",
       valueCurrency: horse.valueCurrency ?? "USD",
       askingPrice: horse.askingPrice != null ? String(horse.askingPrice) : "",
@@ -43,7 +62,7 @@ export function HorseSaleForm({ horseId, horse, onSaved }: HorseSaleFormProps) {
   });
 
   const { dirtyFields } = form.formState;
-  const isSubmitting = form.formState.isSubmitting;
+  const isPending = updateHorseSale.isPending;
   const saleStatus = form.watch("saleStatus");
 
   const saleStatusOptions = useMemo(
@@ -70,26 +89,32 @@ export function HorseSaleForm({ horseId, horse, onSaved }: HorseSaleFormProps) {
     [t],
   );
 
-  async function onSubmit(values: Record<string, unknown>) {
+  function buildPatch(values: SaleFormValues): Record<string, unknown> {
     const patch: Record<string, unknown> = {};
     const dirty = dirtyFields as Record<string, boolean>;
 
-    if (dirty.saleStatus) patch.saleStatus = String(values.saleStatus).trim();
+    if (dirty.saleStatus) patch.saleStatus = values.saleStatus;
     if (dirty.estimatedValue) {
-      const v = String(values.estimatedValue).trim();
+      const v = values.estimatedValue.trim();
       patch.estimatedValue = v ? Number(v) : "";
     }
-    if (dirty.valueCurrency) patch.valueCurrency = String(values.valueCurrency).trim() || "";
+    if (dirty.valueCurrency) patch.valueCurrency = values.valueCurrency.trim() || "";
     if (dirty.askingPrice) {
-      const p = String(values.askingPrice).trim();
+      const p = values.askingPrice.trim();
       patch.askingPrice = p ? Number(p) : "";
     }
     if (dirty.showValuePublicly) patch.showValuePublicly = values.showValuePublicly === "true";
     if (dirty.acquisitionDate) {
-      const d = String(values.acquisitionDate).trim();
+      const d = values.acquisitionDate.trim();
       patch.acquisitionDate = d ? new Date(d) : "";
     }
-    if (dirty.acquisitionSource) patch.acquisitionSource = String(values.acquisitionSource).trim() || "";
+    if (dirty.acquisitionSource) patch.acquisitionSource = values.acquisitionSource.trim() || "";
+
+    return patch;
+  }
+
+  async function onSubmit(values: SaleFormValues) {
+    const patch = buildPatch(values);
 
     if (Object.keys(patch).length === 0) {
       toast.info(t("noChanges"));
@@ -97,12 +122,7 @@ export function HorseSaleForm({ horseId, horse, onSaved }: HorseSaleFormProps) {
     }
 
     try {
-      const res = await fetch(`/api/v1/horses/${horseId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(patch),
-      });
-      if (!res.ok) throw new Error("Failed to save");
+      await updateHorseSale.mutateAsync({ horseId, patch });
       toast.success(t("saved"));
       onSaved();
     } catch {
@@ -202,8 +222,8 @@ export function HorseSaleForm({ horseId, horse, onSaved }: HorseSaleFormProps) {
       </FieldSet>
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? tCommon("saving") : tCommon("save")}
+        <Button type="submit" disabled={isPending}>
+          {isPending ? tCommon("saving") : tCommon("save")}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.push(`/horses/${horseId}`)}>
           {tCommon("cancel")}
