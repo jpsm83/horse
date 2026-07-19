@@ -133,7 +133,7 @@ Find line 30 in `equus/components/shared/section.tsx`:
 ```
 Replace with:
 ```tsx
-    <section className={cn("flex min-h-0 flex-col gap-4 border border-primary/20 rounded-lg p-4 bg-primary/10", className)}>
+    <section className={cn("flex min-h-0 flex-col gap-4 border border-primary/20 rounded-lg p-4 bg-primary/5", className)}>
 ```
 
 - [ ] **Step 2: Replace raw color in file-upload.tsx**
@@ -496,7 +496,7 @@ Insert the following block after the `components/ui/` subsection (before `#### T
   in `app/globals.css` (to `@theme inline`, `:root`, `.theme-neutral`, and `.dark`)
   before using it in any component. Do NOT inline raw colors in JSX.
 - **Opacity via modifiers**: use Tailwind's opacity modifier syntax on the semantic
-  class (`bg-primary/10`, `text-muted-foreground/70`) — not on the variable definition.
+  class (`bg-primary/5`, `text-muted-foreground/70`) — not on the variable definition.
 ```
 
 - [ ] **Step 3: Run tests**

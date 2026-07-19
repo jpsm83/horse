@@ -21,7 +21,7 @@ The entire raw color surface is **9 files, 17 occurrences** (plus 2 skippable fi
 | # | File | Line | Current | Replacement | Category |
 |---|------|------|---------|-------------|----------|
 | 1 | `shared/section.tsx` | 30 | `border-orange-200` | `border-primary/20` | brand accent |
-| 2 | `shared/section.tsx` | 30 | `bg-orange-50/30` | `bg-primary/10` | brand accent |
+| 2 | `shared/section.tsx` | 30 | `bg-orange-50/30` | `bg-primary/5` | brand accent |
 | 3 | `shared/file-upload.tsx` | 285 | `bg-green-500/80` | `bg-success/80` | success |
 | 4 | `shared/loading-overlay.tsx` | 12 | `"#914d21"` | `var(--primary)` | brand spinner |
 | 5 | `shared/loading-overlay.tsx` | 20 | stale comment | remove comment | cleanup |
@@ -115,7 +115,7 @@ Three files used across the entire app.
 **`shared/section.tsx:30`**
 ```diff
 - className={cn("flex min-h-0 flex-col gap-4 border border-orange-200 rounded-lg p-4 bg-orange-50/30", className)}
-+ className={cn("flex min-h-0 flex-col gap-4 border border-primary/20 rounded-lg p-4 bg-primary/10", className)}
++ className={cn("flex min-h-0 flex-col gap-4 border border-primary/20 rounded-lg p-4 bg-primary/5", className)}
 ```
 
 **`shared/file-upload.tsx:285`**
@@ -246,7 +246,7 @@ Add to `AGENTS.md` §9 (UI and Styling) after the existing `components/ui/` subs
   in `app/globals.css` (to `@theme inline`, `:root`, `.theme-neutral`, and `.dark`)
   before using it in any component. Do NOT inline raw colors in JSX.
 - **Opacity via modifiers**: use Tailwind's opacity modifier syntax on the semantic
-  class (`bg-primary/10`, `text-muted-foreground/70`) — not on the variable definition.
+  class (`bg-primary/5`, `text-muted-foreground/70`) — not on the variable definition.
 ```
 
 ---
