@@ -7,6 +7,14 @@ import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useUploadHorseDocument } from "@/hooks/queries/useHorseDocuments.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 
@@ -32,7 +40,7 @@ export function UploadSection({ horseId }: UploadSectionProps) {
   const toast = useAppToast();
   const [showForm, setShowForm] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [documentType, setDocumentType] = useState<string>("other");
+  const [documentType, setDocumentType] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
@@ -55,7 +63,7 @@ export function UploadSection({ horseId }: UploadSectionProps) {
         setFile(null);
         setTitle("");
         setDescription("");
-        setDocumentType("other");
+        setDocumentType("");
       },
       onError: () => toast.error(t("uploadError")),
     });
@@ -66,8 +74,7 @@ export function UploadSection({ horseId }: UploadSectionProps) {
     setFile(null);
     setTitle("");
     setDescription("");
-    setDocumentType("other");
-  }
+    setDocumentType("");  }
 
   return (
     <div className="space-y-4">
@@ -77,45 +84,60 @@ export function UploadSection({ horseId }: UploadSectionProps) {
           {t("uploadButton")}
         </Button>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border p-4" noValidate>
-          <div className="space-y-2">
-            <Label htmlFor="doc-file">{t("file")}</Label>
-            <Input
-              id="doc-file"
-              type="file"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              required
-              className="file:mr-2 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm"
-            />
-          </div>
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 rounded-lg border p-4"
+          noValidate
+        >
+          <div className="flex gap-2 sm:gap-4 flex-wrap">
+            <div className="space-y-2">
+              <Label htmlFor="doc-type">{t("type")}</Label>
+              <Select
+                value={documentType}
+                onValueChange={(value) => setDocumentType(value)}
+              >
+                <SelectTrigger id="doc-type" className="h-9 w-full">
+                  <SelectValue placeholder={t("type")} />
+                </SelectTrigger>
+                <SelectContent
+                  side="bottom"
+                  align="start"
+                  alignItemWithTrigger={false}
+                  className="max-h-60"
+                >
+                  {DOCUMENT_TYPES.map((dt) => (
+                    <SelectItem key={dt} value={dt}>
+                      {t(`types.${dt}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="doc-file">{t("file")}</Label>
+              <input
+                id="doc-file"
+                type="file"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                required
+                className="flex h-8 w-full min-w-0 cursor-pointer rounded-lg border border-input bg-transparent file:mr-2 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm file:cursor-pointer"
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="doc-type">{t("type")}</Label>
-            <select
-              id="doc-type"
-              value={documentType}
-              onChange={(e) => setDocumentType(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            >
-              {DOCUMENT_TYPES.map((dt) => (
-                <option key={dt} value={dt}>{t(`types.${dt}`)}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="doc-title">{t("title")}</Label>
-            <Input
-              id="doc-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
+            <div className="space-y-2 flex-1">
+              <Label htmlFor="doc-title">{t("title")}</Label>
+              <Input
+                id="doc-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="doc-desc">{t("description")}</Label>
-            <textarea
+            <Textarea
               id="doc-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}

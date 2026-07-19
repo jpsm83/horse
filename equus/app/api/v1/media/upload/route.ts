@@ -45,7 +45,14 @@ export async function POST(request: Request) {
         const result = await new Promise<Record<string, unknown>>((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
             { invalidate: true, folder: basePath, public_id: publicId, resource_type: "auto" },
-            (error, res) => { error ? reject(error) : resolve(res!); }
+            (error, res) => {
+              if (error) {
+                const e = error as { message?: string; name?: string; http_code?: number };
+                reject(new ApiError(e.http_code ?? 500, e.message || e.name || "Cloudinary upload failed"));
+              } else {
+                resolve(res!);
+              }
+            }
           );
           stream.end(buffer);
         });
