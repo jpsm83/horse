@@ -347,7 +347,7 @@ models/
 
 ### Data lifecycle (no hard deletes)
 
-- **Never** hard-delete domain documents in product flows — horses, users, entities, relationships, invoices, and ratings must remain for referential integrity.
+- **Never** hard-delete domain documents in product flows — horses, users, entities, relationships, invoices, and ratings must remain for referential integrity. **Exception:** User-uploaded media (`Media` model + Cloudinary assets) can be hard-deleted with horse owner consent. Nothing references `Media` records, so hard-delete poses no referential integrity risk.
 - Top-level collections spread **`deactivationAuditFields`** from `models/sharedSchemas/deactivationAudit.ts`: `isActive`, `deactivatedAt`, `deactivatedByUserId`, `deactivationReason`.
 - **Deactivate** tombstone writes use **`lib/lifecycle/deactivateDocument.ts`** (`deactivateDocument`, `mergeDeactivationUpdate`).
 - **Anonymize** PII on inactive users via **`lib/lifecycle/anonymizeUserPii.ts`** + `userService.anonymizeUserPii` — see [`documentation/piiAnonymization.md`](documentation/piiAnonymization.md).

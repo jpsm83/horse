@@ -72,9 +72,15 @@ export async function createHorseDocument(
 export async function deleteHorseDocument(docId: string, storagePublicId?: string): Promise<void> {
   if (storagePublicId) {
     configureCloudinary();
-    await cloudinary.uploader
-      .destroy(storagePublicId, { resource_type: "auto" })
-      .catch(() => {});
+    const result = await cloudinary.uploader.destroy(
+      storagePublicId,
+      { resource_type: "raw" },
+    );
+    if (result.result !== "ok") {
+      console.error(
+        `[horseDocumentService.deleteHorseDocument] Cloudinary destroy returned "${result.result}" for public_id: ${storagePublicId}`,
+      );
+    }
   }
   await Document.findByIdAndUpdate(docId, { isActive: false });
 }

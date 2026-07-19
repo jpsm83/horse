@@ -35,6 +35,7 @@ Spread into top-level Mongoose schemas. **Do not** use on nested embeds that alr
 | `Document` | Also `isArchived` for file archive UX; prefer `isActive: false` for operator removal |
 | `Booking` / `Invoice` | Domain `status` enum is primary; `isActive: false` for admin void / hide from lists |
 | `Notification` | `readByUserIds` for read state; `isActive: false` to retract/dismiss globally |
+| `Media` | **Exception**: hard-delete from MongoDB + Cloudinary. No referential integrity risk (nothing references Media). Only horse owner can authorize. `MediaDeletionRequest` tracks audit trail. |
 
 ---
 
@@ -74,6 +75,7 @@ Discovery/public paths use `activeQuery` to hide inactive providers. **Horse own
 | Compensating transaction | `Groom.findByIdAndDelete` when `User.groomProfileId` link fails after insert |
 | Invite email failure | `WorkplaceRelationship.deleteOne` when email send fails before invite is durable |
 | Test teardown | `tests/setup.ts` `deleteMany` on memory DB |
+| Media delete (owner authorized) | `Media.findByIdAndDelete` after Cloudinary `destroy` — no incoming references, owner consent required |
 
 ---
 

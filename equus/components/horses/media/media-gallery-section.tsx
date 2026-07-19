@@ -115,23 +115,23 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
               </div>
             )}
 
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-              {item.title && (
-                <p className="text-xs text-white truncate">{item.title}</p>
-              )}
-            </div>
-
             <div className="absolute top-1 right-1 z-20 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-7 rounded-full bg-primary/70 text-primary-foreground hover:bg-primary"
+                className="size-7 rounded-full bg-black/70 text-white hover:bg-black/90 hover:text-white border-white"
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleVisibilityMutation.mutate({
-                    mediaId: item.id,
-                    isVisibleOnHub: !item.isVisibleOnHub,
-                  });
+                  toggleVisibilityMutation.mutate(
+                    {
+                      mediaId: item.id,
+                      isVisibleOnHub: !item.isVisibleOnHub,
+                    },
+                    {
+                      onSuccess: () => toast.success(t("visibilityUpdateSuccess")),
+                      onError: () => toast.error(t("visibilityUpdateError")),
+                    },
+                  );
                 }}
               >
                 {item.isVisibleOnHub !== false ? (
@@ -143,7 +143,7 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-7 rounded-full bg-destructive/70 text-white hover:bg-destructive"
+                className="size-7 rounded-full bg-destructive/70 text-white hover:bg-destructive/90 hover:text-white border-white"
                 onClick={(e) => {
                   e.stopPropagation();
                   setDeleteTarget(item.id);
@@ -164,6 +164,25 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
           onOpenChange={closeLightbox}
           onPrevious={goPrevious}
           onNext={goNext}
+          onToggleVisibility={() => {
+            const item = media[lightboxIndex];
+            if (!item) return;
+            toggleVisibilityMutation.mutate(
+              {
+                mediaId: item.id,
+                isVisibleOnHub: !item.isVisibleOnHub,
+              },
+              {
+                onSuccess: () => toast.success(t("visibilityUpdateSuccess")),
+                onError: () => toast.error(t("visibilityUpdateError")),
+              },
+            );
+          }}
+          onRequestDelete={() => {
+            const item = media[lightboxIndex];
+            if (!item) return;
+            setDeleteTarget(item.id);
+          }}
         />
       )}
 

@@ -107,6 +107,27 @@ When a vet (or any provider) **deactivates their account**, **closes their pract
 
 ---
 
+---
+## Media files (Cloudinary) — exception
+
+**User-uploaded media files** (images, videos, documents) stored on Cloudinary are an exception to the never-hard-delete rule. Reasons:
+
+1. **No referential integrity risk** — No other model stores a foreign key pointing to the `Media` collection. The `Media` document only references outward (`horseId`, `uploadedByUserId`). Nothing depends on a Media record existing.
+2. **Storage cost** — Cloudinary charges for asset storage. Keeping deleted files indefinitely incurs real operational cost with zero product value.
+3. **Owner consent** — Only the horse owner (main owner or co-owner) can authorize hard-delete. Non-owners must use the deletion request flow.
+
+**What gets deleted:**
+- Cloudinary asset: **hard-deleted** via `cloudinary.uploader.destroy()`
+- MongoDB Media document: **hard-deleted** via `Media.findByIdAndDelete()`
+
+**What stays:**
+- `MediaDeletionRequest` document: **soft-deleted** (`isActive: false`) — preserves audit trail of who requested and who approved.
+- Audit log entries: unchanged (text descriptions, not Media ObjectIds).
+
+**Rule:** If no other document has a foreign key to a record, and the record's primary value is an external file URL, hard-delete is acceptable with owner consent. This applies to `Media` only.
+
+---
+
 ## Changelog
 
 | Date | Change |

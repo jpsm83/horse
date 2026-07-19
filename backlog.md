@@ -1,4 +1,2 @@
-- media delte is not deleting on db neither cloudinary, that is not an error because is part of the architecture of not delete data, the image is false on isactive, must think if that is the desired behavier
-- gallery/modal not right size
 - organize what to see about horse on each of its tabs
 - make the tab menu bar better ui

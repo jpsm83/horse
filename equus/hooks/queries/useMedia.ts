@@ -44,13 +44,9 @@ export function useUploadMedia(horseId: string) {
         formData.append("sourceEntityId", sourceEntityId);
       }
 
-      const res = await fetch(
+      const res = await fetchWithAuth(
         `/api/v1/horses/${encodeURIComponent(horseId)}/media/upload`,
-        {
-          method: "POST",
-          body: formData,
-          credentials: "include",
-        },
+        { method: "POST", body: formData },
       );
       const data = await parseApiResponse<{ media: PublicMedia[] }>(res);
       return data.media;

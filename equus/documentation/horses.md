@@ -24,7 +24,11 @@ Related:
 | `GET` | `/api/v1/horses/:id` | Return public horse card filtered by horse visibility and user privacy policy |
 | `GET` | `/api/v1/horses/:id/media` | List media items (images/videos) for a horse |
 | `POST` | `/api/v1/horses/:id/media` | Create a media record (url, type, title, etc.) |
-| `DELETE` | `/api/v1/horses/:id/media/:mediaId` | Delete a media record + Cloudinary file |
+| `DELETE` | `/api/v1/horses/:id/media/:mediaId` | Delete a media record + Cloudinary file (owner only, hard-delete) |
+| `GET` | `/api/v1/horses/:id/media-deletion-requests?status=pending` | List pending deletion requests (owner/co-owner only) |
+| `POST` | `/api/v1/horses/:id/media-deletion-requests` | Request deletion of a media item (non-owners) — creates pending request for owner approval |
+| `PATCH` | `/api/v1/horses/:id/media-deletion-requests/:requestId` | Approve or decline a deletion request (owner/co-owner only) |
+| `DELETE` | `/api/v1/horses/:id/media-deletion-requests/:requestId` | Cancel own pending deletion request (requester only) |
 
 ---
 
@@ -137,4 +141,12 @@ Media gallery with drag-and-drop upload. Two-section layout: upload section on t
 
 **Cloudinary folder structure:** `horses/{horseId}/media/{sourceEntityType}/`
 **Visibility rule:** Owner-uploaded media defaults to public; entity-uploaded media defaults to owner-only.
+
+### Deletion policy
+
+- **Hard-delete:** Media is hard-deleted from both Cloudinary and MongoDB. No referential integrity risk (nothing references `Media` documents).
+- **Owner-only delete:** Only the horse owner (main owner or co-owner) can directly delete media via `DELETE /api/v1/horses/:id/media/:mediaId`.
+- **Deletion requests (non-owners):** Vets, trainers, and other non-owners cannot directly delete media. They can create a deletion request via `POST /api/v1/horses/:id/media-deletion-requests`. The owner reviews and approves or declines via `PATCH /api/v1/horses/:id/media-deletion-requests/:requestId`.
+- **Request cancellation:** The original requester can cancel their own pending request via `DELETE /api/v1/horses/:id/media-deletion-requests/:requestId`.
+- **Audit:** `MediaDeletionRequest` records are soft-deleted (`isActive: false`) to preserve the audit trail.
 

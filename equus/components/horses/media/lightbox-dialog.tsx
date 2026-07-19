@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Eye, EyeOff, Trash2 } from "lucide-react";
 
 import {
   Dialog,
@@ -19,6 +19,8 @@ type LightboxDialogProps = {
   onOpenChange: (open: boolean) => void;
   onPrevious: () => void;
   onNext: () => void;
+  onToggleVisibility: () => void;
+  onRequestDelete: () => void;
 };
 
 export function LightboxDialog({
@@ -28,6 +30,8 @@ export function LightboxDialog({
   onOpenChange,
   onPrevious,
   onNext,
+  onToggleVisibility,
+  onRequestDelete,
 }: LightboxDialogProps) {
   const t = useTranslations("horseMedia");
   const item = items[currentIndex];
@@ -38,7 +42,7 @@ export function LightboxDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh] p-0 gap-0 bg-black/95 border-0">
+      <DialogContent className="max-w-none sm:max-w-none w-[90vw] h-[90vh] p-0 gap-0 bg-black/95 border-0 overflow-hidden">
         <DialogTitle className="sr-only">
           {item.title ?? t("addMedia")}
         </DialogTitle>
@@ -46,7 +50,7 @@ export function LightboxDialog({
           {item.description ?? ""}
         </DialogDescription>
 
-        <div className="relative flex items-center justify-center w-full h-full">
+        <div className="absolute inset-0 flex items-center justify-center">
           {hasPrev && (
             <Button
               variant="ghost"
@@ -84,23 +88,42 @@ export function LightboxDialog({
             </Button>
           )}
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2 z-10 text-white hover:bg-white/20 rounded-full"
-            onClick={() => onOpenChange(false)}
-          >
-            <X className="size-6" />
-          </Button>
-        </div>
-
-        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-          {item.title && (
-            <p className="text-base font-medium text-white">{item.title}</p>
-          )}
-          {item.description && (
-            <p className="text-sm text-white/80 mt-1">{item.description}</p>
-          )}
+          <div className="absolute top-2 right-2 z-10 flex gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 rounded-full"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleVisibility();
+              }}
+            >
+              {item.isVisibleOnHub !== false ? (
+                <Eye className="size-5" />
+              ) : (
+                <EyeOff className="size-5" />
+              )}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 rounded-full"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRequestDelete();
+              }}
+            >
+              <Trash2 className="size-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 rounded-full"
+              onClick={(e) => {e.stopPropagation(); onOpenChange(false)}}
+            >
+              <X className="size-5" />
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

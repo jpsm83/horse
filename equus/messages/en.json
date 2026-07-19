@@ -984,6 +984,8 @@
         "deleteConfirmDescription": "This action cannot be undone. The file will be removed from the gallery and Cloudinary storage.",
         "deleteSuccess": "Media deleted.",
         "deleteError": "Failed to delete media.",
+        "visibilityUpdateSuccess": "Visibility updated.",
+        "visibilityUpdateError": "Failed to update visibility.",
         "previous": "Previous",
         "next": "Next",
         "close": "Close"

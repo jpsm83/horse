@@ -984,6 +984,8 @@
         "deleteConfirmDescription": "Esta acción no se puede deshacer. El archivo se eliminará de la galería y del almacenamiento.",
         "deleteSuccess": "Multimedia eliminado.",
         "deleteError": "Error al eliminar multimedia.",
+        "visibilityUpdateSuccess": "Visibilidad actualizada.",
+        "visibilityUpdateError": "Error al actualizar visibilidad.",
         "previous": "Anterior",
         "next": "Siguiente",
         "close": "Cerrar"

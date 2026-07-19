@@ -1,4 +1,8 @@
+import mongoose from "mongoose";
 import Media from "@/models/Media.ts";
+import Horse from "@/models/Horse.ts";
+import { ApiError } from "@/lib/api/errors.ts";
+import { ownedByUserQuery } from "@/lib/ownership/entityOwnership.ts";
 import { recordAudit } from "@/lib/services/horseAuditService.ts";
 import configureCloudinary from "@/lib/cloudinary/cloudinaryConfig.ts";
 import { v2 as cloudinary } from "cloudinary";
@@ -60,14 +64,51 @@ export async function createMedia(
 }
 
 export async function deleteMedia(
+  actorUserId: string,
+  horseId: string,
   mediaId: string,
-  storagePublicId?: string | null,
 ): Promise<void> {
-  if (storagePublicId) {
-    configureCloudinary();
-    await cloudinary.uploader
-      .destroy(storagePublicId, { resource_type: "auto" })
-      .catch(() => {});
+  if (!mongoose.Types.ObjectId.isValid(mediaId)) {
+    throw new ApiError(400, "Invalid media id", "VALIDATION_ERROR");
   }
-  await Media.findByIdAndUpdate(mediaId, { isActive: false });
+
+  const horse = await Horse.findOne({
+    _id: horseId,
+    ...ownedByUserQuery(actorUserId),
+  })
+    .select("_id")
+    .lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  const record = await Media.findOne({ _id: mediaId, horseId })
+    .select("storagePublicId type title")
+    .lean();
+  if (!record) {
+    throw new ApiError(404, "Media not found", "NOT_FOUND");
+  }
+
+  if (record.storagePublicId) {
+    configureCloudinary();
+    const resourceType = record.type === "video" ? "video" : "image";
+    const result = await cloudinary.uploader.destroy(
+      record.storagePublicId as string,
+      { resource_type: resourceType },
+    );
+    if (result.result !== "ok") {
+      console.error(
+        `[mediaService.deleteMedia] Cloudinary destroy returned "${result.result}" for public_id: ${record.storagePublicId}`,
+      );
+    }
+  }
+
+  await Media.findByIdAndDelete(mediaId);
+
+  recordAudit({
+    horseId,
+    actorId: actorUserId,
+    actionType: "media.deleted",
+    description: `Media "${record.title ?? "untitled"}" deleted`,
+  }).catch(() => {});
 }
