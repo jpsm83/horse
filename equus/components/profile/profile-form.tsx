@@ -35,7 +35,7 @@ import { syncLocaleCookie } from "@/i18n/syncLocaleCookie.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { formatAuthProvider } from "@/lib/api/auth/session";
 import { requestPasswordResetForCurrentUser } from "@/lib/api/auth/credentials";
-import { updateUserProfile } from "@/lib/api/auth/profile";
+import { useUpdateProfile } from "@/hooks/queries/useCurrentUser.ts";
 import type { PublicUser } from "@/lib/services/userService.ts";
 import {
   mapProfileFormValuesToPatch,
@@ -113,6 +113,7 @@ export function ProfileForm({
   const tCommon = useTranslations("common");
   const tValidation = useTranslations("validation");
   const toast = useAppToast();
+  const updateProfile = useUpdateProfile();
 
   const [imageFile, setImageFile] = useState<File | undefined>();
   const [previewUrl, setPreviewUrl] = useState<string | undefined>();
@@ -215,12 +216,12 @@ export function ProfileForm({
       return;
     }
 
-    let outcome: "success" | "error" = "success";
-    let errorMessage = "";
-
     setIsSaving(true);
     try {
-      const { user: savedUser } = await updateUserProfile(patch, imageFile);
+      const { user: savedUser } = await updateProfile.mutateAsync({
+        input: patch,
+        imageFile: imageFile ?? undefined,
+      });
       const savedDetails = savedUser.personalDetails;
       const savedValues = mapUserToProfileFormValues(
         savedDetails,
@@ -251,17 +252,12 @@ export function ProfileForm({
           locale: savedValues.preferredLanguage as AppLocale,
         });
       }
+
+      toast.success(t("saved"));
     } catch (err) {
-      outcome = "error";
-      errorMessage = err instanceof Error ? err.message : t("saveFailed");
+      toast.error(err instanceof Error ? err.message : t("saveFailed"));
     } finally {
       setIsSaving(false);
-    }
-
-    if (outcome === "success") {
-      toast.success(t("saved"));
-    } else {
-      toast.error(errorMessage);
     }
   }
 
