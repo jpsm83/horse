@@ -282,7 +282,7 @@ export function FileUpload({
                 ) : null}
 
                 {entry.status === "uploaded" ? (
-                  <div className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-green-500/80">
+                  <div className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-success/80">
                     <svg
                       className="size-3 text-white"
                       fill="none"

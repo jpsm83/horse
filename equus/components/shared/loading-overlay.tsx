@@ -9,7 +9,7 @@ import { PulseLoader } from "react-spinners";
 
 import { cn } from "@/lib/utils";
 
-const DEFAULT_SPINNER_COLOR = "#914d21";
+const DEFAULT_SPINNER_COLOR = "var(--primary)";
 
 type AppSpinnerProps = {
   className?: string;
@@ -17,7 +17,7 @@ type AppSpinnerProps = {
   size?: number;
 };
 
-/** PulseLoader color — matches `--primary` in `globals.css` (`#914d21`). */
+/** PulseLoader color — matches `--primary` design token. */
 export function AppSpinner({
   className,
   color = DEFAULT_SPINNER_COLOR,
