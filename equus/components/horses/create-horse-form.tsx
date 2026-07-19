@@ -21,6 +21,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "@/i18n/navigation.ts";
 import type { AppLocale } from "@/i18n/resolveLocale.ts";
+import { useCreateHorse } from "@/hooks/queries/useHorse.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { uploadFiles } from "@/lib/cloudinary/clientUpload.ts";
 import { getCountrySelectOptions } from "@/lib/profile/selectOptions.ts";
@@ -50,6 +51,7 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
   const locale = useLocale() as AppLocale;
   const t = useTranslations("createHorse");
   const toast = useAppToast();
+  const createHorseMutation = useCreateHorse();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [galleryFiles, setGalleryFiles] = useState<UploadedFileState[]>([]);
   const [profileFile, setProfileFile] = useState<File | undefined>();
@@ -219,26 +221,9 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
         gallery: gallery.length > 0 ? gallery : undefined,
       });
 
-      const response = await fetch("/api/v1/horses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-
-      const body = await response.json();
-      if (!response.ok) {
-        const message =
-          (body as { error?: { message?: string } }).error?.message ??
-          t("saveFailed");
-        toast.error(message);
-        setIsSubmitting(false);
-        return;
-      }
-
-      const horse = (body as { data: { horse: { _id: string } } }).data.horse;
+      const result = await createHorseMutation.mutateAsync(payload);
       toast.success(t("success"));
-      router.push(`/horses/${horse._id}`);
+      router.push(`/horses/${result.horse._id}`);
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
         return;
