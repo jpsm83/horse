@@ -362,20 +362,20 @@ export function ProfileForm({
                   {emailVerified ? (
                     <>
                       <CircleCheckBig
-                        className="size-4 shrink-0 text-green-600 dark:text-green-500"
+                        className="size-4 shrink-0 text-success"
                         aria-hidden
                       />
-                      <span className="text-green-600 dark:text-green-500">
+                      <span className="text-success">
                         {t("emailVerified")}
                       </span>
                     </>
                   ) : (
                     <>
                       <CircleAlert
-                        className="size-4 shrink-0 text-red-600 dark:text-red-500"
+                        className="size-4 shrink-0 text-destructive"
                         aria-hidden
                       />
-                      <span className="text-red-600 dark:text-red-500">
+                      <span className="text-destructive">
                         {t("emailNotVerified")}
                       </span>
                     </>
