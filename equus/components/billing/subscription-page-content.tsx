@@ -68,10 +68,10 @@ export function SubscriptionPageContent() {
   if (isFetching) {
     return (
       <div className="max-w-2xl mx-auto p-6 animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-48 mb-4" />
-        <div className="h-4 bg-gray-200 rounded w-96 mb-8" />
+        <div className="h-8 bg-muted rounded w-48 mb-4" />
+        <div className="h-4 bg-muted rounded w-96 mb-8" />
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="h-24 bg-gray-200 rounded mb-4" />
+          <div key={i} className="h-24 bg-muted rounded mb-4" />
         ))}
       </div>
     );
@@ -80,7 +80,7 @@ export function SubscriptionPageContent() {
   if (error && isAuthenticated) {
     return (
       <div className="max-w-2xl mx-auto p-6">
-        <p className="text-red-500">Failed to load subscription info.</p>
+        <p className="text-destructive">Failed to load subscription info.</p>
       </div>
     );
   }
@@ -102,7 +102,7 @@ export function SubscriptionPageContent() {
             {billing?.current ?? 0} of{" "}
             {billing?.limit === Infinity ? "∞" : billing?.limit} {t("horsesUsed")}
           </p>
-          <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+          <div className="w-full bg-muted rounded-full h-3 mb-4">
             <div
               className="bg-primary h-3 rounded-full transition-all"
               style={{
