@@ -18,7 +18,13 @@ import {
 } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
+import { useUpdateHorse } from "@/hooks/queries/useHorse.ts";
 import type { OwnerHorseSummary } from "@/lib/api/horseClient";
+import {
+  editHorseFormSchemas,
+  horseFormMessagesFromTranslations,
+  type EditHorseFormValues,
+} from "@/lib/validations/horseForms.ts";
 import {
   horseBreedEnums,
   horseColorEnums,
@@ -38,8 +44,20 @@ export function HorseEditForm({ horseId, horse, onSaved }: HorseEditFormProps) {
   const t = useTranslations("horseEdit");
   const tCommon = useTranslations("common");
   const toast = useAppToast();
+  const updateHorse = useUpdateHorse();
 
-  const form = useForm({
+  const formMessages = useMemo(
+    () => horseFormMessagesFromTranslations(t),
+    [t],
+  );
+
+  const { editHorseFormSchema } = useMemo(
+    () => editHorseFormSchemas(formMessages),
+    [formMessages],
+  );
+
+  const form = useForm<EditHorseFormValues>({
+    resolver: zodResolver(editHorseFormSchema),
     defaultValues: {
       name: horse.name ?? "",
       breed: horse.breed ?? "",
@@ -69,7 +87,7 @@ export function HorseEditForm({ horseId, horse, onSaved }: HorseEditFormProps) {
   });
 
   const { dirtyFields } = form.formState;
-  const isSubmitting = form.formState.isSubmitting;
+  const isPending = updateHorse.isPending;
 
   const sexOptions = useMemo(
     () => horseSexEnums.map((v) => ({ value: v, label: t(`sexOptions.${v}`) })),
@@ -97,50 +115,54 @@ export function HorseEditForm({ horseId, horse, onSaved }: HorseEditFormProps) {
     [t],
   );
 
-  async function onSubmit(values: Record<string, unknown>) {
+  function buildPatch(values: EditHorseFormValues): Record<string, unknown> {
     const patch: Record<string, unknown> = {};
     const dirty = dirtyFields as Record<string, boolean | object>;
 
-    if (dirty.name) patch.name = String(values.name).trim();
-    if (dirty.breed) patch.breed = String(values.breed).trim();
-    if (dirty.sex) patch.sex = String(values.sex).trim();
-    if (dirty.registeredName) patch.registeredName = String(values.registeredName).trim() || "";
-    if (dirty.registryId) patch.registryId = String(values.registryId).trim() || "";
-    if (dirty.microchipId) patch.microchipId = String(values.microchipId).trim() || "";
-    if (dirty.passportNumber) patch.passportNumber = String(values.passportNumber).trim() || "";
-    if (dirty.color) patch.color = String(values.color).trim() || "";
+    if (dirty.name) patch.name = values.name.trim();
+    if (dirty.breed) patch.breed = values.breed.trim();
+    if (dirty.sex) patch.sex = values.sex.trim();
+    if (dirty.registeredName) patch.registeredName = values.registeredName.trim() || "";
+    if (dirty.registryId) patch.registryId = values.registryId.trim() || "";
+    if (dirty.microchipId) patch.microchipId = values.microchipId.trim() || "";
+    if (dirty.passportNumber) patch.passportNumber = values.passportNumber.trim() || "";
+    if (dirty.color) patch.color = values.color.trim() || "";
     if (dirty.heightHands) {
-      const h = String(values.heightHands).trim();
+      const h = values.heightHands.trim();
       patch.heightHands = h ? Number(h) : "";
     }
     if (dirty.dateOfBirth) {
-      const d = String(values.dateOfBirth).trim();
+      const d = values.dateOfBirth.trim();
       patch.dateOfBirth = d ? new Date(d) : "";
     }
-    if (dirty.marksDescription) patch.marksDescription = String(values.marksDescription).trim() || "";
-    if (dirty.countryOfBirth) patch.countryOfBirth = String(values.countryOfBirth).trim() || "";
-    if (dirty.importExportStatus) patch.importExportStatus = String(values.importExportStatus).trim() || "";
-    if (dirty.primaryDiscipline) patch.primaryDiscipline = String(values.primaryDiscipline).trim() || "";
+    if (dirty.marksDescription) patch.marksDescription = values.marksDescription.trim() || "";
+    if (dirty.countryOfBirth) patch.countryOfBirth = values.countryOfBirth.trim() || "";
+    if (dirty.importExportStatus) patch.importExportStatus = values.importExportStatus.trim() || "";
+    if (dirty.primaryDiscipline) patch.primaryDiscipline = values.primaryDiscipline.trim() || "";
     if (dirty.disciplines) {
-      const disc = values.disciplines;
-      patch.disciplines = Array.isArray(disc) ? disc : [];
+      patch.disciplines = Array.isArray(values.disciplines) ? values.disciplines : [];
     }
-    if (dirty.description) patch.description = String(values.description).trim() || "";
-    if (dirty.notes) patch.notes = String(values.notes).trim() || "";
+    if (dirty.description) patch.description = values.description.trim() || "";
+    if (dirty.notes) patch.notes = values.notes.trim() || "";
 
     const pedigreeDirty = dirty.pedigree as Record<string, boolean> | undefined;
     if (pedigreeDirty && typeof pedigreeDirty === "object") {
-      const pd = values.pedigree as Record<string, unknown>;
       const pedigreePatch: Record<string, string> = {};
-      if (pedigreeDirty.sireName) pedigreePatch.sireName = String(pd.sireName).trim() || "";
-      if (pedigreeDirty.sireId) pedigreePatch.sireId = String(pd.sireId).trim() || "";
-      if (pedigreeDirty.damName) pedigreePatch.damName = String(pd.damName).trim() || "";
-      if (pedigreeDirty.damId) pedigreePatch.damId = String(pd.damId).trim() || "";
-      if (pedigreeDirty.bloodlineNotes) pedigreePatch.bloodlineNotes = String(pd.bloodlineNotes).trim() || "";
+      if (pedigreeDirty.sireName) pedigreePatch.sireName = values.pedigree.sireName.trim() || "";
+      if (pedigreeDirty.sireId) pedigreePatch.sireId = values.pedigree.sireId.trim() || "";
+      if (pedigreeDirty.damName) pedigreePatch.damName = values.pedigree.damName.trim() || "";
+      if (pedigreeDirty.damId) pedigreePatch.damId = values.pedigree.damId.trim() || "";
+      if (pedigreeDirty.bloodlineNotes) pedigreePatch.bloodlineNotes = values.pedigree.bloodlineNotes.trim() || "";
       if (Object.keys(pedigreePatch).length > 0) {
         patch.pedigree = pedigreePatch;
       }
     }
+
+    return patch;
+  }
+
+  async function onSubmit(values: EditHorseFormValues) {
+    const patch = buildPatch(values);
 
     if (Object.keys(patch).length === 0) {
       toast.info(t("noChanges"));
@@ -148,12 +170,7 @@ export function HorseEditForm({ horseId, horse, onSaved }: HorseEditFormProps) {
     }
 
     try {
-      const res = await fetch(`/api/v1/horses/${horseId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(patch),
-      });
-      if (!res.ok) throw new Error("Failed to save");
+      await updateHorse.mutateAsync({ horseId, patch });
       toast.success(t("saved"));
       onSaved();
     } catch {
@@ -412,8 +429,8 @@ export function HorseEditForm({ horseId, horse, onSaved }: HorseEditFormProps) {
       </FieldSet>
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? tCommon("saving") : tCommon("save")}
+        <Button type="submit" disabled={isPending}>
+          {isPending ? tCommon("saving") : tCommon("save")}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.push(`/horses/${horseId}`)}>
           {tCommon("cancel")}
