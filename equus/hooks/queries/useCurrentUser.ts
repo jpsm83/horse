@@ -1,10 +1,12 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { fetchWithAuth, parseApiResponse } from "@/lib/api/fetchWithAuth";
+import { updateUserProfile } from "@/lib/api/auth/profile";
 import { queryKeys } from "@/lib/api/queryKeys";
 import type { PublicUser } from "@/lib/services/userService";
+import type { UpdatePersonalDetailsInput } from "@/lib/services/userService";
 import type { UserOwnedNavigation } from "@/lib/services/navigationService";
 
 async function fetchUserProfile(): Promise<PublicUser> {
@@ -34,5 +36,17 @@ export function useUserNavigation(enabled = true) {
     queryFn: fetchUserNavigation,
     staleTime: 60_000,
     enabled,
+  });
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ input, imageFile }: { input: UpdatePersonalDetailsInput; imageFile?: File }) =>
+      updateUserProfile(input, imageFile),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+    },
   });
 }
