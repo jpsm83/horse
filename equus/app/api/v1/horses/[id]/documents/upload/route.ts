@@ -40,26 +40,26 @@ export async function POST(request: Request, context: RouteContext) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;
     const basePath = buildCloudinaryPath(`/horses/${horseId}/documents`);
     const publicId = `${basePath}/${Date.now()}`;
 
-    const result = await cloudinary.uploader.upload(dataUri, {
-      invalidate: true,
-      folder: basePath,
-      public_id: publicId,
-      resource_type: "auto",
+    const result = await new Promise<Record<string, unknown>>((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { invalidate: true, folder: basePath, public_id: publicId, resource_type: "auto" },
+        (error, res) => { error ? reject(error) : resolve(res!); }
+      );
+      stream.end(buffer);
     });
 
     const doc = await docService.createHorseDocument(session.id, horseId, {
       documentType,
       title: title.trim(),
       description: description?.trim() || undefined,
-      fileUrl: result.secure_url,
+      fileUrl: result.secure_url as string,
       fileName: file.name,
       mimeType: file.type,
       fileSizeBytes: file.size,
-      storagePublicId: result.public_id,
+      storagePublicId: result.public_id as string,
     });
 
     return ok({ document: doc }, 201);

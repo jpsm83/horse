@@ -40,17 +40,17 @@ export async function POST(request: Request) {
     const urls = await Promise.all(
       files.map(async (file) => {
         const buffer = Buffer.from(await file.arrayBuffer());
-        const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;
         const publicId = `${basePath}/${randomUUID()}`;
 
-        const result = await cloudinary.uploader.upload(dataUri, {
-          invalidate: true,
-          folder: basePath,
-          public_id: publicId,
-          resource_type: "auto",
+        const result = await new Promise<Record<string, unknown>>((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { invalidate: true, folder: basePath, public_id: publicId, resource_type: "auto" },
+            (error, res) => { error ? reject(error) : resolve(res!); }
+          );
+          stream.end(buffer);
         });
 
-        return result.secure_url;
+        return result.secure_url as string;
       }),
     );
 
