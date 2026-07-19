@@ -106,7 +106,7 @@ export function PlanningCalendarSection({ horseId }: Props) {
         const isProviderLinked = e.sourceEntityType && providers.some(
           (p) => p.relationshipType === e.sourceEntityType && p.receiverAccountId === e.sourceEntityId,
         );
-        return { ...e, backgroundColor: isProviderLinked ? "#3b82f6" : undefined };
+        return { ...e, backgroundColor: isProviderLinked ? "var(--info)" : undefined };
       }),
     [events, providers],
   );
