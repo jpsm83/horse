@@ -124,7 +124,7 @@ export function WorkplacesContent() {
                     {workplace.status ? ` · ${workplace.status}` : ""}
                   </p>
                   {isInvited ? (
-                    <p className="text-sm font-medium text-orange-700 dark:text-orange-400">
+                    <p className="text-sm font-medium text-primary">
                       {t("invited")}
                     </p>
                   ) : null}
