@@ -233,6 +233,107 @@ export const createHorseFormSchema = defaultSchemas.createHorseFormSchema;
 
 export type CreateHorseFormValues = z.infer<typeof createHorseFormSchema>;
 
+// --- Edit Horse Form Schema ---
+
+export function editHorseFormSchemas(messages: HorseFormMessages) {
+  const editHorseFormSchema = z.object({
+    name: requiredTrimmedString(messages),
+    breed: requiredEnum(horseBreedEnums, messages),
+    sex: requiredEnum(horseSexEnums, messages),
+    registeredName: optionalTrimmedString(120),
+    registryId: optionalTrimmedString(120),
+    microchipId: optionalTrimmedString(120),
+    passportNumber: optionalTrimmedString(120),
+    color: optionalEnum(horseColorEnums, messages),
+    marksDescription: optionalTrimmedString(500),
+    heightHands: optionalNumber(messages),
+    dateOfBirth: z.string().refine(
+      (value) => {
+        if (value.trim() === "") return true;
+        const date = new Date(value);
+        return !Number.isNaN(date.getTime());
+      },
+      { message: messages.invalidDate },
+    ),
+    countryOfBirth: optionalTrimmedString(100),
+    importExportStatus: optionalTrimmedString(100),
+    primaryDiscipline: optionalEnum(horseDisciplineEnums, messages),
+    disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
+    description: optionalTrimmedString(2000),
+    notes: optionalTrimmedString(5000),
+    pedigree: z.object({
+      sireName: optionalTrimmedString(120),
+      sireId: optionalTrimmedString(120),
+      damName: optionalTrimmedString(120),
+      damId: optionalTrimmedString(120),
+      bloodlineNotes: optionalTrimmedString(1000),
+    }),
+  });
+
+  return { editHorseFormSchema };
+}
+
+// --- Sale Form Schema ---
+
+export function saleFormSchemas(messages: HorseFormMessages) {
+  const saleFormSchema = z.object({
+    saleStatus: z.enum(["not_for_sale", "for_sale"], {
+      message: messages.invalidEnum,
+    }),
+    estimatedValue: optionalNumber(messages),
+    valueCurrency: z
+      .string()
+      .refine(
+        (value) =>
+          value === "" || (currencyEnums as readonly string[]).includes(value),
+        { message: messages.invalidEnum },
+      ),
+    askingPrice: optionalNumber(messages),
+    showValuePublicly: z.enum(["true", "false"], {
+      message: messages.invalidEnum,
+    }),
+    acquisitionDate: z.string().refine(
+      (value) => {
+        if (value.trim() === "") return true;
+        const date = new Date(value);
+        return !Number.isNaN(date.getTime());
+      },
+      { message: messages.invalidDate },
+    ),
+    acquisitionSource: optionalTrimmedString(200),
+  });
+
+  return { saleFormSchema };
+}
+
+const defaultEditSchemas = editHorseFormSchemas({
+  required: "This field is required",
+  invalidDate: "Please enter a valid date",
+  invalidEnum: "Please select a valid option",
+  invalidNumber: "Please enter a valid number",
+  contactNameRequired: "Contact name is required when not using owner contact",
+  contactPhoneRequired: "Contact phone is required when not using owner contact",
+  contactEmailRequired: "Contact email is required when not using owner contact",
+  contactEmailInvalid: "Please provide a valid email address",
+});
+
+export const editHorseFormSchema = defaultEditSchemas.editHorseFormSchema;
+export type EditHorseFormValues = z.infer<typeof editHorseFormSchema>;
+
+const defaultSaleSchemas = saleFormSchemas({
+  required: "This field is required",
+  invalidDate: "Please enter a valid date",
+  invalidEnum: "Please select a valid option",
+  invalidNumber: "Please enter a valid number",
+  contactNameRequired: "Contact name is required when not using owner contact",
+  contactPhoneRequired: "Contact phone is required when not using owner contact",
+  contactEmailRequired: "Contact email is required when not using owner contact",
+  contactEmailInvalid: "Please provide a valid email address",
+});
+
+export const saleFormSchema = defaultSaleSchemas.saleFormSchema;
+export type SaleFormValues = z.infer<typeof saleFormSchema>;
+
 export const emptyCreateHorseFormValues: CreateHorseFormValues = {
   name: "",
   breed: "",
