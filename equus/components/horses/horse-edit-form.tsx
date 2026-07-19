@@ -73,7 +73,7 @@ export function HorseEditForm({ horseId, horse, onSaved }: HorseEditFormProps) {
       countryOfBirth: horse.countryOfBirth ?? "",
       importExportStatus: horse.importExportStatus ?? "",
       primaryDiscipline: horse.primaryDiscipline ?? "",
-      disciplines: horse.disciplines ?? [],
+      disciplines: (horse.disciplines ?? []) as EditHorseFormValues["disciplines"],
       description: horse.description ?? "",
       notes: horse.notes ?? "",
       pedigree: {
@@ -189,7 +189,6 @@ export function HorseEditForm({ horseId, horse, onSaved }: HorseEditFormProps) {
               name="name"
               id="edit-name"
               label={t("name")}
-              required
             />
             <Controller
               name="breed"
