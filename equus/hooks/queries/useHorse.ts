@@ -136,3 +136,53 @@ export function useCreateHorse() {
     },
   });
 }
+
+// --- Update Horse ---
+
+type UpdateHorseInput = { horseId: string; patch: Record<string, unknown> };
+
+async function updateHorseApi(input: UpdateHorseInput): Promise<void> {
+  const response = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(input.horseId)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input.patch),
+  });
+  await parseApiResponse<{ horse: Record<string, unknown> }>(response);
+}
+
+export function useUpdateHorse() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateHorseApi,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.owner(variables.horseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.lists() });
+    },
+  });
+}
+
+// --- Update Horse Sale ---
+
+type UpdateHorseSaleInput = { horseId: string; patch: Record<string, unknown> };
+
+async function updateHorseSaleApi(input: UpdateHorseSaleInput): Promise<void> {
+  const response = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(input.horseId)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input.patch),
+  });
+  await parseApiResponse<{ horse: Record<string, unknown> }>(response);
+}
+
+export function useUpdateHorseSale() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateHorseSaleApi,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.owner(variables.horseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.lists() });
+    },
+  });
+}
