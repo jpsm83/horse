@@ -227,6 +227,20 @@ Your primary goals are:
 * Do **not** use native HTML form controls (`<select>`, `<textarea>`, `<input>`) in pages or feature components — use shadcn primitives from `components/ui/` (wrapped with RHF `Controller` + `Field` when needed).
 * RHF adapters in `components/forms/` (e.g. `text-field.tsx`) are allowed when reused across screens; prefer inline `Controller` + shadcn for one-off fields.
 
+#### Color convention — semantic tokens only
+
+- **Definitions**: all app colors are defined in `app/globals.css` via CSS custom properties
+  mapped through Tailwind v4's `@theme inline` block. No other file defines color values.
+- **Usage**: components, pages, and layouts reference colors exclusively through
+  semantic design tokens — `text-primary`, `bg-muted`, `text-success`, `bg-card`,
+  `text-destructive`, etc. Never use raw Tailwind color names (`text-orange-500`,
+  `bg-gray-200`, `text-red-600`) or inline hex values (`#ff0000`, `"#3b82f6"`).
+- **Adding a color**: if a needed semantic category lacks a token, add the CSS variable
+  in `app/globals.css` (to `@theme inline`, `:root`, `.theme-neutral`, and `.dark`)
+  before using it in any component. Do NOT inline raw colors in JSX.
+- **Opacity via modifiers**: use Tailwind's opacity modifier syntax on the semantic
+  class (`bg-primary/10`, `text-muted-foreground/70`) — not on the variable definition.
+
 #### Toasts (mutation feedback)
 
 * Sonner (`components/ui/sonner.tsx`) is the shadcn primitive; mount `<Toaster />` once in `AppProviders`.
