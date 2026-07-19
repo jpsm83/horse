@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Upload, X } from "lucide-react";
 
@@ -43,15 +43,17 @@ export function UploadSection({ horseId }: UploadSectionProps) {
   const [documentType, setDocumentType] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadMutation = useUploadHorseDocument(horseId);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!file || !title.trim()) return;
+    const selectedFile = fileInputRef.current?.files?.[0];
+    if (!selectedFile || !title.trim()) return;
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", selectedFile);
     formData.append("documentType", documentType);
     formData.append("title", title.trim());
     if (description.trim()) formData.append("description", description.trim());
@@ -64,6 +66,7 @@ export function UploadSection({ horseId }: UploadSectionProps) {
         setTitle("");
         setDescription("");
         setDocumentType("");
+        if (fileInputRef.current) fileInputRef.current.value = "";
       },
       onError: () => toast.error(t("uploadError")),
     });
@@ -74,7 +77,9 @@ export function UploadSection({ horseId }: UploadSectionProps) {
     setFile(null);
     setTitle("");
     setDescription("");
-    setDocumentType("");  }
+    setDocumentType("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
 
   return (
     <div className="space-y-4">
@@ -116,6 +121,7 @@ export function UploadSection({ horseId }: UploadSectionProps) {
             <div className="space-y-2">
               <Label htmlFor="doc-file">{t("file")}</Label>
               <input
+                ref={fileInputRef}
                 id="doc-file"
                 type="file"
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}
