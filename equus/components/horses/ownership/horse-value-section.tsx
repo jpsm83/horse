@@ -6,7 +6,6 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAppToast } from "@/hooks/use-app-toast";
 import { useOwnerHorse, useUpdateHorseSale } from "@/hooks/queries/useHorse.ts";
 import { currencyEnums } from "@/utils/enums.ts";
@@ -19,7 +18,7 @@ export function HorseValueSection({ horseId }: HorseValueSectionProps) {
   const t = useTranslations("horseSale");
   const tCommon = useTranslations("common");
   const toast = useAppToast();
-  const { data: horse, isPending } = useOwnerHorse(horseId);
+  const { data: horse } = useOwnerHorse(horseId);
   const updateHorseSale = useUpdateHorseSale();
 
   const [saleStatus, setSaleStatus] = useState("");
@@ -37,9 +36,7 @@ export function HorseValueSection({ horseId }: HorseValueSectionProps) {
     setAcquisitionDate(horse.acquisitionDate ? horse.acquisitionDate.slice(0, 10) : "");
   }, [horse]);
 
-  if (isPending || !horse) {
-    return <Skeleton className="h-64 w-full rounded-lg" />;
-  }
+  if (!horse) return null;
 
   const h = horse;
 

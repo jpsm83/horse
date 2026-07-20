@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
 import { UserInviteSection } from "@/components/horses/shared/user-invite-section.tsx";
 import { useOwnerHorse } from "@/hooks/queries/useHorse.ts";
 import { useEntitySearch } from "@/hooks/queries/useEntitySearch.ts";
@@ -19,7 +18,7 @@ type OwnershipManagementSectionProps = {
 export function OwnershipManagementSection({ horseId }: OwnershipManagementSectionProps) {
   const t = useTranslations("horseAdmin");
   const toast = useAppToast();
-  const { data: horse, isPending } = useOwnerHorse(horseId);
+  const { data: horse } = useOwnerHorse(horseId);
   const createTransfer = useCreateOwnershipTransfer();
 
   const [query, setQuery] = useState("");
@@ -29,11 +28,7 @@ export function OwnershipManagementSection({ horseId }: OwnershipManagementSecti
   const debouncedQuery = useDebouncedValue(query, 300);
   const { data: results = [], isLoading: isSearching, error: searchError } = useEntitySearch(debouncedQuery);
 
-  if (isPending || !horse) {
-    return <Skeleton className="h-32 w-full rounded-lg" />;
-  }
-
-  if (!horse.isMainOwner) return null;
+  if (!horse?.isMainOwner) return null;
 
   function handleInviteUser(userId: string) {
     setPendingInvite({ userId });

@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 
 import { DataTable } from "@/components/table";
 import type { DataTableColumnDef } from "@/components/table";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useOwnerHorse } from "@/hooks/queries/useHorse.ts";
 
 type AdminHistorySectionProps = {
@@ -29,10 +28,10 @@ const typeFilterOptions = [
 
 export function AdminHistorySection({ horseId }: AdminHistorySectionProps) {
   const t = useTranslations("horseAdmin");
-  const { data: horse, isPending } = useOwnerHorse(horseId);
+  const { data: horse } = useOwnerHorse(horseId);
 
   const rows: AdminRow[] = useMemo(() => {
-    if (!horse?.adminTeam) return [];
+    if (!horse) return [];
     return horse.adminTeam.map((member) => ({
       id: member.userId,
       type: t(`adminTypes.${member.type}`),
@@ -56,10 +55,6 @@ export function AdminHistorySection({ horseId }: AdminHistorySectionProps) {
     { id: "phone", accessorKey: "phone", header: t("adminHistoryPhone"), filterType: "input" },
     { id: "joinedAt", accessorKey: "joinedAt", header: t("adminHistoryJoined"), enableSorting: true, filterType: "input", meta: { dataType: "date" } },
   ], [t]);
-
-  if (isPending) {
-    return <Skeleton className="h-48 w-full rounded-lg" />;
-  }
 
   return (
     <DataTable

@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { UserInviteSection, type UserInviteLabels } from "@/components/horses/shared/user-invite-section.tsx";
 import { useOwnerHorse } from "@/hooks/queries/useHorse.ts";
 import { useEntitySearch } from "@/hooks/queries/useEntitySearch.ts";
@@ -36,7 +35,7 @@ export function AdminRoleInviteSection({
 }: AdminRoleInviteSectionProps) {
   const t = useTranslations("horseAdmin");
   const toast = useAppToast();
-  const { data: horse, isPending } = useOwnerHorse(horseId);
+  const { data: horse } = useOwnerHorse(horseId);
   const createTransfer = useCreateOwnershipTransfer();
 
   const [query, setQuery] = useState("");
@@ -44,11 +43,7 @@ export function AdminRoleInviteSection({
   const debouncedQuery = useDebouncedValue(query, 300);
   const { data: results = [], isLoading: isSearching, error: searchError } = useEntitySearch(debouncedQuery);
 
-  if (isPending || !horse) {
-    return <Skeleton className="h-32 w-full rounded-lg" />;
-  }
-
-  if (!horse.isMainOwner) return null;
+  if (!horse?.isMainOwner) return null;
 
   const members = horse[memberSource] ?? [];
 
