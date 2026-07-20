@@ -10,6 +10,7 @@ import {
 describe("entityOwnership", () => {
   const mainOwnerId = new mongoose.Types.ObjectId().toString();
   const coOwnerId = new mongoose.Types.ObjectId().toString();
+  const responsibleId = new mongoose.Types.ObjectId().toString();
   const otherId = new mongoose.Types.ObjectId().toString();
 
   const hostProfile = {
@@ -22,7 +23,13 @@ describe("entityOwnership", () => {
     ],
   };
 
-  it("ownedByUserQuery matches main owner and co-owner", () => {
+  const hostProfileWithResponsible = {
+    mainOwnerUserId: new mongoose.Types.ObjectId(mainOwnerId),
+    coOwners: [],
+    responsibles: [{ userId: new mongoose.Types.ObjectId(responsibleId) }],
+  };
+
+  it("ownedByUserQuery matches main owner, co-owner, and responsible person", () => {
     const query = ownedByUserQuery(mainOwnerId);
     expect(query.$or).toEqual(
       expect.arrayContaining([
@@ -32,13 +39,21 @@ describe("entityOwnership", () => {
     );
 
     const coQuery = ownedByUserQuery(coOwnerId);
-    expect(coQuery.$or).toHaveLength(2);
+    expect(coQuery.$or).toHaveLength(3);
+
+    const responsibleQuery = ownedByUserQuery(responsibleId);
+    expect(responsibleQuery.$or).toEqual(
+      expect.arrayContaining([
+        { "responsibles.userId": new mongoose.Types.ObjectId(responsibleId) },
+      ]),
+    );
   });
 
-  it("userOwnsEntity returns true for main owner and co-owner", () => {
+  it("userOwnsEntity returns true for main owner, co-owner, and responsible person", () => {
     expect(userOwnsEntity(mainOwnerId, hostProfile)).toBe(true);
     expect(userOwnsEntity(coOwnerId, hostProfile)).toBe(true);
     expect(userOwnsEntity(otherId, hostProfile)).toBe(false);
+    expect(userOwnsEntity(responsibleId, hostProfileWithResponsible)).toBe(true);
   });
 
   it("resolveMainOwnerUserId reads mainOwnerUserId for all business host types", () => {
