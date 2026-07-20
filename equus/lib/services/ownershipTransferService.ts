@@ -95,8 +95,18 @@ function readCoOwners(entity: Record<string, unknown>): CoOwnerEntry[] {
   return Array.isArray(entity.coOwners) ? (entity.coOwners as CoOwnerEntry[]) : [];
 }
 
+function readResponsibles(entity: Record<string, unknown>): CoOwnerEntry[] {
+  return Array.isArray(entity.responsibles) ? (entity.responsibles as CoOwnerEntry[]) : [];
+}
+
 function coOwnerUserIds(entity: Record<string, unknown>): string[] {
   return readCoOwners(entity)
+    .map((entry) => (entry.userId != null ? String(entry.userId) : null))
+    .filter((id): id is string => id !== null);
+}
+
+function responsibleUserIds(entity: Record<string, unknown>): string[] {
+  return readResponsibles(entity)
     .map((entry) => (entry.userId != null ? String(entry.userId) : null))
     .filter((id): id is string => id !== null);
 }
@@ -247,6 +257,7 @@ function validateCreateInput(
   referralReference?: string;
 } {
   const coOwnerIds = coOwnerUserIds(entity);
+  const responsibleIds = responsibleUserIds(entity);
 
   if (input.transferKind === "transfer_main") {
     if (coOwnerIds.length > 0) {
@@ -272,6 +283,24 @@ function validateCreateInput(
         "VALIDATION_ERROR",
       );
     }
+  } else if (input.transferKind === "add_responsible") {
+    if (!input.receiverUserId && !input.invitedEmail?.trim()) {
+      throw new ApiError(400, "Receiver user or invited email is required", "VALIDATION_ERROR");
+    }
+
+    if (input.targetCoOwnerUserId) {
+      throw new ApiError(400, "targetCoOwnerUserId is not used for add_responsible", "VALIDATION_ERROR");
+    }
+  } else if (input.transferKind === "remove_responsible") {
+    if (!input.targetCoOwnerUserId) {
+      throw new ApiError(400, "targetCoOwnerUserId (the responsible person to remove) is required", "VALIDATION_ERROR");
+    }
+
+    ensureObjectId(input.targetCoOwnerUserId, "target responsible user id");
+
+    if (!responsibleIds.includes(input.targetCoOwnerUserId)) {
+      throw new ApiError(400, "Target user is not a responsible person for this entity", "VALIDATION_ERROR");
+    }
   } else {
     if (!input.targetCoOwnerUserId) {
       throw new ApiError(400, "targetCoOwnerUserId is required", "VALIDATION_ERROR");
@@ -296,10 +325,14 @@ async function resolveReceiverForCreate(
   invitedName?: string;
   referralReference?: string;
 }> {
-  if (input.transferKind === "remove_co_owner" || input.transferKind === "promote_co_owner") {
+  if (
+    input.transferKind === "remove_co_owner" ||
+    input.transferKind === "promote_co_owner" ||
+    input.transferKind === "remove_responsible"
+  ) {
     const targetId = input.targetCoOwnerUserId!;
     if (targetId === actorUserId) {
-      throw new ApiError(400, "Cannot target yourself as co-owner", "VALIDATION_ERROR");
+      throw new ApiError(400, "Cannot target yourself", "VALIDATION_ERROR");
     }
     return { receiverUserId: targetId };
   }
@@ -428,6 +461,42 @@ async function applyEntityOwnershipChange(
 
       if (!updated) {
         throw new ApiError(409, "Co-owner is no longer on this entity", "CONFLICT");
+      }
+      break;
+    }
+
+    case "add_responsible": {
+      const receiverUserId = transfer.receiverUserId;
+      if (!receiverUserId) {
+        throw new ApiError(400, "Receiver user is required to accept", "VALIDATION_ERROR");
+      }
+
+      const added = await Model.findOneAndUpdate(
+        { _id: entityId, mainOwnerUserId },
+        { $addToSet: { responsibles: { userId: receiverUserId } } },
+        { returnDocument: "after" },
+      );
+
+      if (!added) {
+        throw new ApiError(409, "Failed to add responsible person", "CONFLICT");
+      }
+      break;
+    }
+
+    case "remove_responsible": {
+      const targetResponsibleId = transfer.targetCoOwnerUserId;
+      if (!targetResponsibleId) {
+        throw new ApiError(400, "Target responsible person is required", "VALIDATION_ERROR");
+      }
+
+      const removed = await Model.findOneAndUpdate(
+        { _id: entityId, mainOwnerUserId },
+        { $pull: { responsibles: { userId: targetResponsibleId } } },
+        { returnDocument: "after" },
+      );
+
+      if (!removed) {
+        throw new ApiError(409, "Responsible person is no longer on this entity", "CONFLICT");
       }
       break;
     }
