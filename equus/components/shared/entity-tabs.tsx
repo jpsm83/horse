@@ -26,7 +26,7 @@ export function EntityTabs({ tabs, isAdmin, isMainOwner, isPending, variant = "d
   if (isPending) {
     if (variant === "header") {
       return (
-        <nav className="sticky top-0 z-20 flex w-full items-center justify-center bg-background px-4 pt-2 sm:pt-4 sm:px-6">
+        <nav className="sticky top-0 z-20 flex w-full items-center justify-center bg-background p-2">
           <Skeleton className="h-[34px] w-[500px] rounded-lg" />
         </nav>
       );
@@ -44,7 +44,7 @@ export function EntityTabs({ tabs, isAdmin, isMainOwner, isPending, variant = "d
 
   if (variant === "header") {
     return (
-      <nav className="sticky top-0 z-20 flex w-full items-center justify-center bg-background px-4 pt-2 sm:pt-4 sm:px-6">
+      <nav className="sticky top-0 z-20 flex w-full items-center justify-center bg-background p-2">
         <div className="inline-flex items-center gap-4 rounded-lg bg-muted p-[3px]">
           {visibleTabs.map((tab) => {
             const isParentOfOtherTab = visibleTabs.some(

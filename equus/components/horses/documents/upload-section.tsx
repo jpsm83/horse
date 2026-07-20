@@ -99,7 +99,7 @@ export function UploadSection({ horseId }: UploadSectionProps) {
               <Label htmlFor="doc-type">{t("type")}</Label>
               <Select
                 value={documentType}
-                onValueChange={(value) => setDocumentType(value)}
+                onValueChange={(value) => setDocumentType(value ?? "")}
               >
                 <SelectTrigger id="doc-type" className="h-9 w-full">
                   <SelectValue placeholder={t("type")} />
