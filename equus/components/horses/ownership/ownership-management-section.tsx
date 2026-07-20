@@ -4,11 +4,9 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { UserInviteSection } from "@/components/horses/shared/user-invite-section.tsx";
+import { UserInviteSection } from "@/components/shared/user-invite-section.tsx";
 import { useOwnerHorse } from "@/hooks/queries/useHorse.ts";
-import { useEntitySearch } from "@/hooks/queries/useEntitySearch.ts";
 import { useCreateOwnershipTransfer } from "@/hooks/queries/useOwnershipTransfer.ts";
-import { useDebouncedValue } from "@/hooks/use-debounced-value.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 
 type OwnershipManagementSectionProps = {
@@ -21,12 +19,7 @@ export function OwnershipManagementSection({ horseId }: OwnershipManagementSecti
   const { data: horse } = useOwnerHorse(horseId);
   const createTransfer = useCreateOwnershipTransfer();
 
-  const [query, setQuery] = useState("");
-  const [showEmailFallback, setShowEmailFallback] = useState(false);
   const [pendingInvite, setPendingInvite] = useState<{ userId?: string; email?: string; name?: string } | null>(null);
-
-  const debouncedQuery = useDebouncedValue(query, 300);
-  const { data: results = [], isLoading: isSearching, error: searchError } = useEntitySearch(debouncedQuery);
 
   if (!horse?.isMainOwner) return null;
 
@@ -47,7 +40,6 @@ export function OwnershipManagementSection({ horseId }: OwnershipManagementSecti
         {
           onSuccess: () => {
             toast.success(t("ownershipTransferSent"));
-            setQuery("");
             setPendingInvite(null);
           },
           onError: () => toast.error(t("inviteFailed")),
@@ -59,8 +51,6 @@ export function OwnershipManagementSection({ horseId }: OwnershipManagementSecti
         {
           onSuccess: () => {
             toast.success(t("ownershipTransferSent"));
-            setQuery("");
-            setShowEmailFallback(false);
             setPendingInvite(null);
           },
           onError: () => toast.error(t("inviteFailed")),
@@ -72,16 +62,9 @@ export function OwnershipManagementSection({ horseId }: OwnershipManagementSecti
   return (
     <div className="space-y-4">
       <UserInviteSection
-        query={query}
-        onQueryChange={setQuery}
-        results={results}
-        isSearching={isSearching}
-        searchError={searchError}
+        isInviting={createTransfer.isPending}
         onInviteUser={handleInviteUser}
         onEmailInvite={handleEmailInvite}
-        isInviting={createTransfer.isPending}
-        showEmailFallback={showEmailFallback}
-        onShowEmailFallback={setShowEmailFallback}
         labels={{
           searchPlaceholder: t("searchPlaceholder"),
           inviteLabel: t("transferOwnership"),

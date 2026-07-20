@@ -5,7 +5,8 @@ import { Loader2, Search, UserPlus, Mail, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { EntitySearchResult } from "@/hooks/queries/useEntitySearch.ts";
+import { useDebouncedValue } from "@/hooks/use-debounced-value.ts";
+import { useEntitySearch, type EntitySearchResult } from "@/hooks/queries/useEntitySearch.ts";
 
 export type UserInviteLabels = {
   searchPlaceholder: string;
@@ -22,34 +23,25 @@ export type UserInviteLabels = {
 };
 
 type UserInviteSectionProps = {
-  query: string;
-  onQueryChange: (query: string) => void;
-  results: EntitySearchResult[];
-  isSearching: boolean;
-  searchError: Error | null;
-  onInviteUser: (userId: string) => void;
-  onEmailInvite: (email: string, name?: string) => void;
   isInviting: boolean;
-  showEmailFallback: boolean;
-  onShowEmailFallback: (show: boolean) => void;
+  onInviteUser: (userId: string, searchResult: EntitySearchResult) => void;
+  onEmailInvite: (email: string, name?: string) => void;
   labels: UserInviteLabels;
 };
 
 export function UserInviteSection({
-  query,
-  onQueryChange,
-  results,
-  isSearching,
-  searchError,
+  isInviting,
   onInviteUser,
   onEmailInvite,
-  isInviting,
-  showEmailFallback,
-  onShowEmailFallback,
   labels,
 }: UserInviteSectionProps) {
+  const [query, setQuery] = useState("");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [showEmailFallback, setShowEmailFallback] = useState(false);
+
+  const debouncedQuery = useDebouncedValue(query, 300);
+  const { data: results = [], isLoading: isSearching, error: searchError } = useEntitySearch(debouncedQuery);
 
   useEffect(() => {
     setEmail("");
@@ -61,7 +53,7 @@ export function UserInviteSection({
     onEmailInvite(email.trim(), name.trim() || undefined);
     setEmail("");
     setName("");
-    onShowEmailFallback(false);
+    setShowEmailFallback(false);
   }
 
   return (
@@ -72,8 +64,8 @@ export function UserInviteSection({
           placeholder={labels.searchPlaceholder}
           value={query}
           onChange={(e) => {
-            onQueryChange(e.target.value);
-            onShowEmailFallback(false);
+            setQuery(e.target.value);
+            setShowEmailFallback(false);
           }}
           className="pl-9"
         />
@@ -105,7 +97,7 @@ export function UserInviteSection({
               </div>
               <Button
                 size="sm"
-                onClick={() => onInviteUser(result.id)}
+                onClick={() => onInviteUser(result.id, result)}
                 disabled={isInviting}
               >
                 <UserPlus className="mr-1 h-3 w-3" />
@@ -119,7 +111,7 @@ export function UserInviteSection({
       {!isSearching && query.trim().length >= 2 && results.length === 0 && !searchError && !showEmailFallback && (
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{labels.noResultsLabel}</p>
-          <Button variant="outline" size="sm" onClick={() => onShowEmailFallback(true)}>
+          <Button variant="outline" size="sm" onClick={() => setShowEmailFallback(true)}>
             <Mail className="mr-1 h-3 w-3" />
             {labels.emailFallbackToggle}
           </Button>
@@ -149,7 +141,7 @@ export function UserInviteSection({
               onClick={() => {
                 setEmail("");
                 setName("");
-                onShowEmailFallback(false);
+                setShowEmailFallback(false);
               }}
             >
               <X className="mr-1 h-3 w-3" />
