@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, Search, UserPlus, Mail, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -50,6 +50,13 @@ export function UserInviteSection({
 }: UserInviteSectionProps) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+
+  useEffect(() => {
+    if (!showEmailFallback) {
+      setEmail("");
+      setName("");
+    }
+  }, [showEmailFallback]);
 
   function handleEmailInvite() {
     if (!email.trim()) return;

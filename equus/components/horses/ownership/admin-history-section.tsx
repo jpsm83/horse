@@ -69,6 +69,7 @@ export function AdminHistorySection({ horseId }: AdminHistorySectionProps) {
       enableFiltering
       emptyStateMessage={t("adminHistoryEmpty")}
       dropdownOptionsByColumnKey={dropdownOptionsByColumnKey}
+      isRealtimeFilterColumn={() => true}
     />
   );
 }
