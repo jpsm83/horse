@@ -330,3 +330,165 @@ A: Refunds are handled in the Stripe Dashboard. The webhook syncs the updated su
 
 **Q: How do we handle international users without Stripe support?**
 A: Stripe is available in all target markets (US, EU, UK, Brazil, Canada, Australia, Switzerland, Japan). If a user's country is unsupported, the system falls back to their default currency or blocks checkout with a clear message.
+
+---
+
+## Key Flows
+
+### 1. Subscription Purchase (New User)
+
+```
+User clicks "Subscribe" on Bronze/Silver/Gold/Diamond
+  ↓
+Frontend calls POST /api/v1/billing/create-checkout
+  Body: { tierId: "bronze", currency: "USD" }
+  ↓
+createCheckoutSession() in stripe.ts:
+  1. Gets plan from plans.ts → amount = 8900 ($89)
+  2. Creates Stripe Price: { unit_amount: 8900, currency: "usd",
+     product: STRIPE_PRODUCT_BRONZE, recurring: { interval: "month" } }
+  3. Creates Stripe Checkout Session with that Price
+  ↓
+Returns { url: "https://checkout.stripe.com/..." }
+  ↓
+Frontend redirects user to Stripe Checkout
+  ↓
+User enters card info on Stripe-hosted page
+  ↓
+Stripe processes payment, creates Subscription
+  ↓
+Stripe sends webhook: checkout.session.completed
+  ↓
+handleSubscriptionWebhook() in stripe.ts:
+  Updates User.subscription:
+    tier = "bronze"
+    status = "active"
+    stripeCustomerId = "cus_xxx"
+    stripeSubscriptionId = "sub_xxx"
+    currentPeriodStart = now
+    currentPeriodEnd = now + 30 days
+  ↓
+User is now on Bronze plan with access to 3 horse slots
+```
+
+### 2. Recurring Monthly Billing
+
+```
+Stripe automatically charges the saved payment method every 30 days
+  ↓
+Stripe sends webhook: invoice.payment_succeeded
+  ↓
+handleSubscriptionWebhook():
+  Updates User.subscription.status = "active"
+  Calls restorePaymentAccess(userId) → ensures data is available
+  ↓
+(If payment fails, webhook: invoice.payment_failed)
+  ↓
+handleSubscriptionWebhook():
+  Sets User.subscription.status = "past_due"
+  ↓
+After 14-day grace period, applyPaymentGate() blocks horse data access
+```
+
+### 3. Plan Change (Upgrade/Downgrade)
+
+```
+User goes to Stripe Customer Portal (via /portal endpoint)
+  ↓
+Stripe Portal shows current plan, available plans
+  ↓
+User selects new plan
+  ↓
+Stripe handles proration automatically:
+  - Upgrade: charges prorated difference for remaining days
+  - Downgrade: credits unused time, applies to next invoice
+  ↓
+Stripe sends webhook: customer.subscription.updated
+  ↓
+handleSubscriptionWebhook():
+  Syncs subscription.status, currentPeriod dates
+  Updates tier if the plan changed
+```
+
+### 4. Cancel Subscription
+
+```
+User goes to Stripe Customer Portal → "Cancel subscription"
+  ↓
+Stripe sets subscription to "canceled" (access continues until period end)
+  ↓
+Stripe sends webhook: customer.subscription.deleted
+  ↓
+handleSubscriptionWebhook():
+  Sets User.subscription.tier = "free"
+  Sets User.subscription.status = "canceled"
+  Sets User.subscription.canceledAt = now
+  ↓
+User is downgraded to Free tier (1 horse limit)
+  If user has more than 1 horse → cannot add new ones
+  until they upgrade or transfer/remove horses
+```
+
+### 5. Subscription Enforcement (Horse Creation)
+
+```
+User tries to create a horse (POST /api/v1/horses)
+  ↓
+horseService.createHorse() calls guardHorseCreation(userId)
+  ↓
+guardHorseCreation() in subscriptionGuard.ts:
+  1. Gets user's plan: tier, horseLimit
+  2. Counts user's active horses: Horse.countDocuments({ mainOwnerUserId, isActive })
+  3. If current < limit → allow
+  4. If current >= limit → return { ok: false, requiredTier: "silver" }
+  ↓
+If blocked → API returns 403 with code "HORSE_LIMIT_REACHED"
+  Frontend shows popup: "Upgrade to Silver to add more horses"
+```
+
+### 6. Subscription Enforcement (Ownership Transfer)
+
+```
+Owner A transfers a horse to User B
+  ↓
+User B receives notification (in-app + email)
+  ↓
+User B clicks "Accept"
+  ↓
+ownershipTransferService calls guardAcceptTransfer(userBId)
+  ↓
+guardAcceptTransfer() checks User B's plan limit
+  If within limit → transfer proceeds
+  If at limit → return { ok: false, requiredTier }
+  ↓
+Frontend shows popup:
+  "Accepting this horse would exceed your plan limit.
+   Upgrade to Silver to accept."
+  [Upgrade & Accept] or [Decline]
+```
+
+---
+
+## Stripe Objects Mapping
+
+| Stripe Object | How it's Used | Created By |
+|---|---|---|
+| **Product** | Identifies the tier (Bronze, Silver, etc.) | Stripe Dashboard (once) |
+| **Price** | Defines amount + currency + interval | Dynamically on each checkout |
+| **Checkout Session** | Payment page for initial subscription | `createCheckoutSession()` |
+| **Subscription** | Recurring billing | Stripe (after checkout) |
+| **Customer Portal** | User manages plan/payment/cancel | `createPortalSession()` |
+| **Invoice** | Monthly billing receipt | Stripe (auto) |
+| **Customer** | User's payment profile | Stripe (auto, from checkout) |
+
+---
+
+## Proration
+
+Proration (mid-cycle plan changes) is handled **entirely by Stripe**:
+
+- **Upgrade mid-cycle:** Stripe calculates the prorated amount for remaining days on the old plan, charges the difference
+- **Downgrade mid-cycle:** Stripe calculates a credit for unused days on the old plan, applies to the next invoice
+- Our system only syncs the result via webhooks (tier change, period dates)
+
+The detailed receipt showing proration calculation is available in Stripe Customer Portal.

@@ -239,7 +239,7 @@ Your primary goals are:
   in `app/globals.css` (to `@theme inline`, `:root`, `.theme-neutral`, and `.dark`)
   before using it in any component. Do NOT inline raw colors in JSX.
 - **Opacity via modifiers**: use Tailwind's opacity modifier syntax on the semantic
-  class (`bg-primary/10`, `text-muted-foreground/70`) — not on the variable definition.
+  class (`bg-primary/5`, `text-muted-foreground/70`) — not on the variable definition.
 
 #### Toasts (mutation feedback)
 

@@ -51,7 +51,7 @@ export function PublicUserProfileCardView({ user }: PublicUserProfileCardViewPro
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
           <Avatar className="size-24 shrink-0 ring-2 ring-primary/15 sm:size-28">
             {user.imageUrl ? <AvatarImage src={user.imageUrl} alt="" className="object-cover" /> : null}
-            <AvatarFallback className="bg-primary/10 text-xl font-semibold text-primary">
+            <AvatarFallback className="bg-primary/5 text-xl font-semibold text-primary">
               {readInitials(displayName)}
             </AvatarFallback>
           </Avatar>

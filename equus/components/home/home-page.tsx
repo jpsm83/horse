@@ -16,7 +16,7 @@ function HomeWelcomeHero({ title, subtitle }: { title: string; subtitle: string 
     <div className="relative overflow-hidden rounded-2xl border bg-card px-6 py-8 shadow-sm">
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-16 -right-10 size-48 rounded-full bg-primary/10 blur-3xl"
+        className="pointer-events-none absolute -top-16 -right-10 size-48 rounded-full bg-primary/5 blur-3xl"
       />
       <div
         aria-hidden

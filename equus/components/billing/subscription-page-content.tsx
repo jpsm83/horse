@@ -137,7 +137,7 @@ export function SubscriptionPageContent() {
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-bold capitalize">{plan.name}</h3>
                   {isCurrentPlan && (
-                    <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-medium text-primary bg-primary/5 px-2 py-0.5 rounded-full">
                       {t("current")}
                     </span>
                   )}

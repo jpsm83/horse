@@ -10,7 +10,7 @@
 | Media | `/horses/[id]/media` | Public | Upload and view photos and videos. Drag-and-drop upload with thumbnail gallery and lightbox viewer. |
 | Documents | `/horses/[id]/documents` | Public | Horse documents and files |
 | Edit | `/horses/[id]/edit` | Admin (owner, co-owner, responsible) | Edit basic info + contact display |
-| Admin | `/horses/[id]/sale` | Owner-only | Sale settings + ownership management + responsible persons + Hub toggle |
+| Admin | `/horses/[id]/admin` | Owner-only | Sale settings + ownership management + responsible persons + Hub toggle |
 | History | `/horses/[id]/history` | Owner + entities | Activity/audit log |
 
 ## Removed Tabs

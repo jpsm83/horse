@@ -44,7 +44,7 @@ function UserHomeWelcomeHero({
     <div className="relative overflow-hidden rounded-2xl border bg-card px-6 py-8 shadow-sm">
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-16 -right-10 size-48 rounded-full bg-primary/10 blur-3xl"
+        className="pointer-events-none absolute -top-16 -right-10 size-48 rounded-full bg-primary/5 blur-3xl"
       />
       <div
         aria-hidden
@@ -55,7 +55,7 @@ function UserHomeWelcomeHero({
         {avatarLabel ? (
           <Avatar size="lg" className="size-14 shrink-0 ring-2 ring-primary/15">
             {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-            <AvatarFallback className="bg-primary/10 text-base font-semibold text-primary">
+            <AvatarFallback className="bg-primary/5 text-base font-semibold text-primary">
               {readInitials(avatarLabel)}
             </AvatarFallback>
           </Avatar>
@@ -138,7 +138,7 @@ function UserHomeSubsectionCard({
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       )}
     >
-      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/5 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
         <Icon className="size-5" strokeWidth={1.75} aria-hidden />
       </div>
 

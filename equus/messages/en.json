@@ -681,6 +681,8 @@
     },
     "horseAdmin": {
         "pageTitle": "Admin",
+        "ownershipTitle": "Ownership Management",
+        "ownershipHistory": "Ownership History",
         "hubToggleTitle": "Hub page",
         "hubToggleDescription": "Enable or disable the public Hub page for this horse.",
         "hubToggleComingSoon": "Hub configuration coming in a future update.",

@@ -1,6 +1,6 @@
-import { HorseAdminPageContent } from "@/components/horses/horse-admin-page-content.tsx";
 import type { Metadata } from "next";
 import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
+import { AdminContent } from "./client";
 
 type PageProps = {
   params: Promise<{ locale: string; horseId: string }>;
@@ -8,10 +8,10 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  return generatePrivateMetadata(locale, "/horses/[horseId]/sale", "metadata.horseAdmin");
+  return generatePrivateMetadata(locale, "/horses/[horseId]/admin", "metadata.horseAdmin");
 }
 
 export default async function HorseAdminPage({ params }: PageProps) {
   const { horseId } = await params;
-  return <HorseAdminPageContent horseId={horseId} />;
+  return <AdminContent horseId={horseId} />;
 }

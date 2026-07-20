@@ -83,4 +83,4 @@ Discovery/public paths use `activeQuery` to hide inactive providers. **Horse own
 
 - [`auth.md`](./auth.md) — session revoke on deactivate
 - [`profile.md`](./profile.md) — account deactivation API + web UI
-- [`../../documentation/userAuthTodo.md`](../../documentation/userAuthTodo.md) — UA-00, UA-27+
+- [`userAuthTodo.md`](./userAuthTodo.md) — UA-00, UA-27+

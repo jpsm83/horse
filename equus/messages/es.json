@@ -682,6 +682,8 @@
     },
     "horseAdmin": {
         "pageTitle": "Admin",
+        "ownershipTitle": "GestiÃ³n de Propiedad",
+        "ownershipHistory": "Historial de Propiedad",
         "hubToggleTitle": "PÃ¡gina Hub",
         "hubToggleDescription": "Activar o desactivar la pÃ¡gina pÃºblica Hub para este caballo.",
         "hubToggleComingSoon": "ConfiguraciÃ³n del Hub disponible en una futura actualizaciÃ³n.",

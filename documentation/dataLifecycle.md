@@ -8,7 +8,7 @@ Related:
 - [`userModule.md`](userModule.md) — account deactivation vs profile visibility
 - [`ownershipTransfer.md`](ownershipTransfer.md) — consent-based ownership changes (never delete entity)
 - [`workplaceRelationship.md`](workplaceRelationship.md) — collaboration lifecycle
-- [`userAuthTodo.md`](userAuthTodo.md) — execution tasks (UA-00, UA-27+)
+- [`../equus/documentation/userAuthTodo.md`](../equus/documentation/userAuthTodo.md) — execution tasks (UA-00, UA-27+)
 
 ---
 

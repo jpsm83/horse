@@ -57,4 +57,4 @@ Low-level: `lib/lifecycle/anonymizeUserPii.ts` — `applyUserPiiAnonymization`, 
 
 - [`profile.md`](./profile.md) — account deactivation (`DELETE /users/me`)
 - [`dataLifecycle.md`](./dataLifecycle.md) — engineering lifecycle conventions
-- [`../../documentation/userAuthTodo.md`](../../documentation/userAuthTodo.md) — UA-31
+- [`userAuthTodo.md`](./userAuthTodo.md) — UA-31

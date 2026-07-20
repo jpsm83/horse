@@ -1,6 +1,6 @@
 # User & authentication readiness — execution plan
 
-Living checklist derived from [`userModule.md`](userModule.md) (2026-06-30), cross-checked against `equus/` implementation.
+Living checklist derived from [`../../documentation/userModule.md`](../../documentation/userModule.md) (2026-06-30), cross-checked against `equus/` implementation.
 
 **Scope:** `User` model, credentials/OAuth auth, personal profile, privacy preferences, and user-centric APIs/UI.  
 **Out of scope here:** horse/stable/vet modules, entity discover directories, create flows for other roles, chat/DM product, activity assignment — those ship with their modules.
@@ -21,9 +21,9 @@ Living checklist derived from [`userModule.md`](userModule.md) (2026-06-30), cro
 
 **Verdict:** Auth, personal profile (including account deactivation), and public user profile (U-PRIV-05) are usable today. To call the **user slice production-ready**, finish **`OwnershipTransfer`** (U-ROLE-06/07) when sale/partnership flows are in MVP scope, and any remaining discovery lifecycle gaps beyond UA-29 baseline.
 
-**Data lifecycle:** [`dataLifecycle.md`](dataLifecycle.md) — no hard deletes; tombstone fields on models; status enums on links.
+**Data lifecycle:** [`../../documentation/dataLifecycle.md`](../../documentation/dataLifecycle.md) — no hard deletes; tombstone fields on models; status enums on links.
 
-**Ownership spec:** [`ownershipTransfer.md`](ownershipTransfer.md) — `transfer_main`, `remove_co_owner`, `promote_co_owner`; entity-owned only (horse + host businesses); never services.
+**Ownership spec:** [`../../documentation/ownershipTransfer.md`](../../documentation/ownershipTransfer.md) — `transfer_main`, `remove_co_owner`, `promote_co_owner`; entity-owned only (horse + host businesses); never services.
 
 ---
 
@@ -35,7 +35,7 @@ Living checklist derived from [`userModule.md`](userModule.md) (2026-06-30), cro
 - Email verification + resend, password reset (anonymous + authenticated request from profile)
 - Browse-first signup (no roles on create), referral link on signup (`ref` for relationship invites)
 - Session probe (`tryFetchCurrentUser`), token refresh in `apiFetch`, session-expired redirect
-- Docs: [`equus/documentation/auth.md`](../equus/documentation/auth.md)
+- Docs: [`auth.md`](auth.md)
 
 ### §2 Personal profile (U-PROF-01 … U-PROF-06)
 
@@ -55,7 +55,7 @@ Living checklist derived from [`userModule.md`](userModule.md) (2026-06-30), cro
 
 - `GET /api/v1/users/me/relationships`, accept/decline — UI at `/relationships`
 - `GET /api/v1/users/me/workplaces`, workplace invitation accept/decline — UI at `/workplaces`
-- `GET /api/v1/users/me/navigation` + header “My own” links
+- `GET /api/v1/users/me/navigation` + header "My own" links
 
 ### User model foundations
 
@@ -71,12 +71,12 @@ Living checklist derived from [`userModule.md`](userModule.md) (2026-06-30), cro
 
 | ID | Task | Why | Touch |
 |----|------|-----|-------|
-| UA-00 | `[x]` **Document data lifecycle policy** — no hard deletes; tombstone vs status lifecycle | Team rule for referential integrity across modules | `documentation/dataLifecycle.md`, `equus/documentation/dataLifecycle.md`, `userModule.md` §principles, `AGENTS.md` |
-| UA-27 | `[x]` **`deactivationAuditFields` on top-level models** — `isActive`, `deactivatedAt`, `deactivatedByUserId`, `deactivationReason` | Consistent schema for “removed” without `deleteOne` | `models/sharedSchemas/deactivationAudit.ts`, all collection models |
-| UA-28 | `[x]` **`softDelete` audit fields** — set `deactivatedAt`, `deactivatedByUserId` (self) on account deactivate | Traceability for support and compliance | `lib/services/userService.ts`, tests |
+| UA-00 | `[x]` **Document data lifecycle policy** — no hard deletes; tombstone vs status lifecycle | Team rule for referential integrity across modules | `../../documentation/dataLifecycle.md`, `./dataLifecycle.md`, `../../documentation/userModule.md` §principles, `../AGENTS.md` |
+| UA-27 | `[x]` **`deactivationAuditFields` on top-level models** — `isActive`, `deactivatedAt`, `deactivatedByUserId`, `deactivationReason` | Consistent schema for "removed" without `deleteOne` | `../models/sharedSchemas/deactivationAudit.ts`, all collection models |
+| UA-28 | `[x]` **`softDelete` audit fields** — set `deactivatedAt`, `deactivatedByUserId` (self) on account deactivate | Traceability for support and compliance | `../lib/services/userService.ts`, tests |
 | UA-29 | `[x]` **Filter `isActive` in discovery and operator lists** — horses, entities, role profiles; exclude deactivated users from public read | Fields exist on models; services do not filter yet | `horseService`, `discoverService`, entity `*Service` list paths |
-| UA-30 | `[x]` **Shared `deactivateDocument` helper** — set tombstone fields consistently | Avoid per-service drift | `lib/lifecycle/deactivateDocument.ts` |
-| UA-31 | `[x]` **PII anonymization pipeline** — `anonymizeUserPii` scrubs PII on inactive `User`; keeps `userId` stub | Soft delete ≠ regulatory erasure | `lib/lifecycle/anonymizeUserPii.ts`, `userService`, `piiAnonymization.md` |
+| UA-30 | `[x]` **Shared `deactivateDocument` helper** — set tombstone fields consistently | Avoid per-service drift | `../lib/lifecycle/deactivateDocument.ts` |
+| UA-31 | `[x]` **PII anonymization pipeline** — `anonymizeUserPii` scrubs PII on inactive `User`; keeps `userId` stub | Soft delete ≠ regulatory erasure | `../lib/lifecycle/anonymizeUserPii.ts`, `userService`, `piiAnonymization.md` |
 
 **Lifecycle collections** (`Relationship`, `WorkplaceRelationship`) use **status + `endedAt`** — documented; no `isActive` on those models.
 
@@ -84,20 +84,20 @@ Living checklist derived from [`userModule.md`](userModule.md) (2026-06-30), cro
 
 | ID | Task | Why | Touch |
 |----|------|-----|-------|
-| UA-01 | `[x]` **Harden `softDelete`** — on deactivate: `$inc: { refreshSessionVersion: 1 }`, set `isActive: false` | Deactivated users can still use access JWT until expiry; refresh only fails on next `establishSession` if `isActive` checked — access tokens are not re-validated against DB today | `lib/services/userService.ts` |
-| UA-02 | `[x]` **`DELETE /api/v1/users/me` clears session** — clear auth cookies on response (same as logout) | Client may keep calling API with stale cookies after delete | `app/api/v1/users/me/route.ts`, `authService.logout` |
-| UA-03 | `[x]` **Reject inactive users on refresh** (verify `establishSession` path — already fails via `buildAuthUserSessionFromUserId`; add test) | Confirm regression coverage | `tests/lib/services/userService.test.ts`, `authService.test.ts` |
-| UA-04 | `[x]` **Live `isActive` check on protected routes** — `requireAuthFromRequest` verifies JWT then checks `User.isActive` in DB | Deactivated users could call APIs with a still-valid access token until expiry | `lib/auth/requireAuth.ts`, `lib/auth/session.ts` |
+| UA-01 | `[x]` **Harden `softDelete`** — on deactivate: `$inc: { refreshSessionVersion: 1 }`, set `isActive: false` | Deactivated users can still use access JWT until expiry; refresh only fails on next `establishSession` if `isActive` checked — access tokens are not re-validated against DB today | `../lib/services/userService.ts` |
+| UA-02 | `[x]` **`DELETE /api/v1/users/me` clears session** — clear auth cookies on response (same as logout) | Client may keep calling API with stale cookies after delete | `../app/api/v1/users/me/route.ts`, `authService.logout` |
+| UA-03 | `[x]` **Reject inactive users on refresh** (verify `establishSession` path — already fails via `buildAuthUserSessionFromUserId`; add test) | Confirm regression coverage | `../tests/lib/services/userService.test.ts`, `authService.test.ts` |
+| UA-04 | `[x]` **Live `isActive` check on protected routes** — `requireAuthFromRequest` verifies JWT then checks `User.isActive` in DB | Deactivated users could call APIs with a still-valid access token until expiry | `../lib/auth/requireAuth.ts`, `../lib/auth/session.ts` |
 
 ### P1 — User profile surface (U-PRIV-05)
 
 | ID | Task | Why | Touch |
 |----|------|-----|-------|
-| UA-05 | `[x]` **`getPublicUserForRequester` service** — load User by id; resolve requester audience (`public` / `platform` / `relationship` / `collaboration`) via existing relationship + workplace queries; map with `toPublicUserIdentity` + safe fields (avatar, bio if allowed) | Core of entity-linked “view owner” without people search | `lib/privacy/userPublicProfile.ts` |
-| UA-06 | `[x]` **`GET /api/v1/users/:id`** — auth optional; returns filtered public card; 404 when user missing or `profileVisibility` blocks audience | API contract for mobile + web | `app/api/v1/users/[id]/route.ts`, `lib/validations/user.ts` |
-| UA-07 | `[x]` **Web page `/users/[userId]`** (locale-prefixed) — skeleton, entity-style card, no index/search | U-PRIV-05 UI; entry from future entity owner links | `app/[locale]/users/[userId]/`, `components/users/` |
-| UA-08 | `[x]` **Tests** — visibility matrix for public read (anonymous vs signed-in vs relationship) | Matches U-PRIV-01 matrix | `tests/lib/privacy/userPublicProfile.visibilityMatrix.test.ts` |
-| UA-09 | `[x]` **Update userModule** — mark U-PRIV-05 `in progress` → `done`; document `GET /users/:id` | Keep spec in sync | `documentation/userModule.md` |
+| UA-05 | `[x]` **`getPublicUserForRequester` service** — load User by id; resolve requester audience (`public` / `platform` / `relationship` / `collaboration`) via existing relationship + workplace queries; map with `toPublicUserIdentity` + safe fields (avatar, bio if allowed) | Core of entity-linked "view owner" without people search | `../lib/privacy/userPublicProfile.ts` |
+| UA-06 | `[x]` **`GET /api/v1/users/:id`** — auth optional; returns filtered public card; 404 when user missing or `profileVisibility` blocks audience | API contract for mobile + web | `../app/api/v1/users/[id]/route.ts`, `../lib/validations/user.ts` |
+| UA-07 | `[x]` **Web page `/users/[userId]`** (locale-prefixed) — skeleton, entity-style card, no index/search | U-PRIV-05 UI; entry from future entity owner links | `../app/[locale]/users/[userId]/`, `../components/users/` |
+| UA-08 | `[x]` **Tests** — visibility matrix for public read (anonymous vs signed-in vs relationship) | Matches U-PRIV-01 matrix | `../tests/lib/privacy/userPublicProfile.visibilityMatrix.test.ts` |
+| UA-09 | `[x]` **Update userModule** — mark U-PRIV-05 `in progress` → `done`; document `GET /users/:id` | Keep spec in sync | `../../documentation/userModule.md` |
 
 **Note:** `allowDirectMessagesFrom` (U-PRIV-03) stays **stored only** until the chat module exists — do not block user/auth readiness on DM enforcement.
 
@@ -105,28 +105,28 @@ Living checklist derived from [`userModule.md`](userModule.md) (2026-06-30), cro
 
 | ID | Task | Why | Touch |
 |----|------|-----|-------|
-| UA-10 | `[x]` **Account deactivation UI on `/profile`** — confirm dialog, `DELETE /api/v1/users/me`, logout redirect | API exists; no UI | `components/profile/`, `lib/api/authClient.ts` |
-| UA-11 | `[x]` **Document account deactivation** — U-PROF-07 in userModule; profile.md + dataLifecycle.md | Shipped with UA-10 UI | `documentation/userModule.md`, `equus/documentation/profile.md` |
-| UA-12 | `[x]` **Global incomplete-profile banner** (optional) — `AppShell` or post-login nudge when `profileComplete === false` | Today banner only on `/profile`; productFlows may expect onboarding before create-horse | `components/layout/incomplete-profile-banner.tsx`, `lib/profile/incompleteProfileBanner.ts` |
+| UA-10 | `[x]` **Account deactivation UI on `/profile`** — confirm dialog, `DELETE /api/v1/users/me`, logout redirect | API exists; no UI | `../components/profile/`, `../lib/api/authClient.ts` |
+| UA-11 | `[x]` **Document account deactivation** — U-PROF-07 in userModule; profile.md + dataLifecycle.md | Shipped with UA-10 UI | `../../documentation/userModule.md`, `./profile.md` |
+| UA-12 | `[x]` **Global incomplete-profile banner** (optional) — `AppShell` or post-login nudge when `profileComplete === false` | Today banner only on `/profile`; productFlows may expect onboarding before create-horse | `../components/layout/incomplete-profile-banner.tsx`, `../lib/profile/incompleteProfileBanner.ts` |
 
 ### P3 — Entity ownership (`OwnershipTransfer`) — U-ROLE-06, U-ROLE-07
 
-Product rules: [`ownershipTransfer.md`](ownershipTransfer.md). API sketch: [`equus/documentation/ownershipTransfer.md`](../equus/documentation/ownershipTransfer.md).
+Product rules: [`../../documentation/ownershipTransfer.md`](../../documentation/ownershipTransfer.md). API sketch: [`./ownershipTransfer.md`](./ownershipTransfer.md).
 
 `coOwners[]` embed exists on Horse, Stable, RidingClub, Breeder, Transport. **Pending and consent logic must not live on the entity** — use a dedicated collection modeled like `Relationship`.
 
 | ID | Task | Why | Touch |
 |----|------|-----|-------|
-| UA-13 | `[x]` **`OwnershipTransfer` Mongoose model** — `entityType`, `entityId`, `transferKind`, `status`, `initiatorUserId`, `receiverUserId`, `targetCoOwnerUserId`, optional email invite fields, `historicalReference` | U-ROLE-06 foundation | `models/OwnershipTransfer.ts`, `utils/enums.ts` |
-| UA-14 | `[x]` **`ownershipTransferService`** — create with preconditions; accept/decline/cancel; atomic apply to entity | Business rules | `lib/services/ownershipTransferService.ts` |
+| UA-13 | `[x]` **`OwnershipTransfer` Mongoose model** — `entityType`, `entityId`, `transferKind`, `status`, `initiatorUserId`, `receiverUserId`, `targetCoOwnerUserId`, optional email invite fields, `historicalReference` | U-ROLE-06 foundation | `../models/OwnershipTransfer.ts`, `../utils/enums.ts` |
+| UA-14 | `[x]` **`ownershipTransferService`** — create with preconditions; accept/decline/cancel; atomic apply to entity | Business rules | `../lib/services/ownershipTransferService.ts` |
 | UA-15 | `[x]` **`transfer_main`** — reject create when `coOwners.length > 0`; on accept set `mainOwnerUserId`, former main loses access | Sale / external handoff | Service + tests |
 | UA-16 | `[x]` **`remove_co_owner`** — main initiates; target co-owner accepts; `$pull` from `coOwners[]` | Syndicate wind-down before sale | Service + tests |
 | UA-17 | `[x]` **`promote_co_owner`** — main initiates; target accepts; swap main, pull promoted from `coOwners[]`, **keep other co-owners** | Partner takeover | Service + tests |
-| UA-18 | `[x]` **REST routes** — `POST /ownership-transfers`, `GET /users/me/ownership-transfers`, `PATCH /ownership-transfers/:id`, cancel pending | Mobile + web contract | `app/api/v1/ownership-transfers/` |
-| UA-19 | `[x]` **Inbox UI** `/ownership-transfers` — accept/decline like `/relationships` | U-ROLE-07 | `app/[locale]/ownership-transfers/`, i18n |
-| UA-20 | `[x]` **Hub entry points** — “Transfer ownership” / “Manage co-owners” on horse hub (and stable hub when shipped) | Initiator UX | Horse/stable components |
+| UA-18 | `[x]` **REST routes** — `POST /ownership-transfers`, `GET /users/me/ownership-transfers`, `PATCH /ownership-transfers/:id`, cancel pending | Mobile + web contract | `../app/api/v1/ownership-transfers/` |
+| UA-19 | `[x]` **Inbox UI** `/ownership-transfers` — accept/decline like `/relationships` | U-ROLE-07 | `../app/[locale]/ownership-transfers/`, i18n |
+| UA-20 | `[x]` **Hub entry points** — "Transfer ownership" / "Manage co-owners" on horse hub (and stable hub when shipped) | Initiator UX | Horse/stable components |
 | UA-21 | `[x]` **Horse billing hook** — on `transfer_main` accept, reassign subscription payer to new `mainOwnerUserId` | H-BILL-03 | `horseService` / subscription module |
-| UA-22 | `[x]` **Integration tests** — full flows: remove all co-owners → transfer_main; promote with remaining co-owners | Regression | `tests/lib/services/ownershipTransferService.test.ts` |
+| UA-22 | `[x]` **Integration tests** — full flows: remove all co-owners → transfer_main; promote with remaining co-owners | Regression | `../tests/lib/services/ownershipTransferService.test.ts` |
 
 **Out of scope for OwnershipTransfer:** trainer, veterinary, groom, farrier, coach, rider (user-linked; not transferable entities).
 
@@ -136,8 +136,8 @@ Product rules: [`ownershipTransfer.md`](ownershipTransfer.md). API sketch: [`equ
 
 | ID | Task | Why | Touch |
 |----|------|-----|-------|
-| UA-23 | `[x]` **Username uniqueness** — sparse unique index or service check if username is shown on public profile | `personalDetails.username` has no uniqueness constraint today | `models/PersonalDetails.ts`, `userService.updatePersonalDetails` |
-| UA-24 | `[x]` **Credentials ↔ Google linking** — if same email, merge or block duplicate | Edge case for multi-provider accounts | `userService.findOrCreateFromGoogle`, auth docs |
+| UA-23 | `[x]` **Username uniqueness** — sparse unique index or service check if username is shown on public profile | `personalDetails.username` has no uniqueness constraint today | `../models/PersonalDetails.ts`, `../userService.updatePersonalDetails` |
+| UA-24 | `[x]` **Credentials ↔ Google linking** — if same email, merge or block duplicate | Edge case for multi-provider accounts | `../userService.findOrCreateFromGoogle`, auth docs |
 | UA-25 | `[x]` **`lastActiveAt` updates** — touch on authenticated API use | Field exists on User; may be unused | Middleware or `requireAuth` hook |
 | UA-26 | `[x]` **Riding club baseline API** — listed §8 as `planned` | Host entity gap; not strictly auth but affects `User` navigation flags | `POST /api/v1/riding-clubs` — **role module**; track separately |
 
@@ -175,7 +175,7 @@ Week D — OwnershipTransfer (U-ROLE-06/07)
 
 ---
 
-## Acceptance — “user + auth ready”
+## Acceptance — "user + auth ready"
 
 Use this before marking §1–3 production-ready in userModule:
 
@@ -197,7 +197,7 @@ Use this before marking §1–3 production-ready in userModule:
 | Date | Change |
 |------|--------|
 | 2026-06-30 | Initial plan from userModule audit vs `equus` codebase |
-| 2026-06-30 | OwnershipTransfer tasks (UA-13–22) per [`ownershipTransfer.md`](ownershipTransfer.md) |
+| 2026-06-30 | OwnershipTransfer tasks (UA-13–22) per [`../../documentation/ownershipTransfer.md`](../../documentation/ownershipTransfer.md) |
 | 2026-06-30 | Data lifecycle policy (UA-00, UA-27–31); `deactivationAuditFields` on models; `softDelete` audit |
 | 2026-06-30 | UA-29: `activeQuery` helpers; filter inactive in discover, public reads, nav, workplaces |
 | 2026-06-30 | UA-30: `deactivateDocument` helper; `softDelete` refactored |

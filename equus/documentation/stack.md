@@ -3,12 +3,12 @@
 Canonical technical direction for the horse ecosystem app. All other documentation defers here for engineering decisions.
 
 Related docs:
-- `README.md` — documentation index
-- `businessPlan.md` — product vision and domain rules
-- `userModule.md` — one login, optional roles, layered discovery
-- `mvpScope.md` — what to build first
-- `productFlows.md` — user journeys
-- `equus/AGENTS.md` — coding conventions for the app repo
+- [`../../documentation/README.md`](../../documentation/README.md) — documentation index
+- [`../../documentation/businessPlan.md`](../../documentation/businessPlan.md) — product vision and domain rules
+- [`../../documentation/userModule.md`](../../documentation/userModule.md) — one login, optional roles, layered discovery
+- [`../../documentation/mvpScope.md`](../../documentation/mvpScope.md) — what to build first
+- [`../../documentation/productFlows.md`](../../documentation/productFlows.md) — user journeys
+- [`../AGENTS.md`](../AGENTS.md) — coding conventions for the app repo
 
 ---
 
@@ -134,7 +134,7 @@ Versioned REST under `equus/app/api/v1/`:
 | Area | Prefix | Examples |
 |------|--------|----------|
 | Auth | `/api/v1/auth` | `login`, `register`, `refresh`, `logout` |
-| Users | `/api/v1/users` | profile (`GET`/`PATCH` `/me`) — see [`equus/documentation/profile.md`](../equus/documentation/profile.md) for PATCH clear-field semantics and web UI |
+| Users | `/api/v1/users` | profile (`GET`/`PATCH` `/me`) — see [`profile.md`](./profile.md) for PATCH clear-field semantics and web UI |
 | Horses | `/api/v1/horses` | CRUD, gallery, `PATCH .../discovery` (visibility + contact) |
 | Relationships | `/api/v1/relationships` | request, accept, decline, invite |
 | Bookings | `/api/v1/bookings` | create, accept, decline |
@@ -181,7 +181,7 @@ equus/lib/validations/
 - Reject unknown keys with `.strict()` on object schemas where appropriate
 - Share the same schema (or `pick`/`omit` variants) between API and web forms via `@hookform/resolvers/zod`
 - Do not trust client input; Mongoose validates persistence shape, Zod validates API boundary
-- **Profile PATCH** (`user.ts`): omitted field = no change; `""` = clear stored value (`$unset` in `userService`) — details in [`equus/documentation/profile.md`](../equus/documentation/profile.md)
+- **Profile PATCH** (`user.ts`): omitted field = no change; `""` = clear stored value (`$unset` in `userService`) — details in [`profile.md`](./profile.md)
 
 ### 6.3 Example pattern
 
@@ -286,7 +286,7 @@ Custom Node server (server.ts)
 
 **MVP path**
 
-1. **Phase 1 (optional):** REST send message + short polling or “fetch on focus” — simplest, no custom server yet
+1. **Phase 1 (optional):** REST send message + short polling or "fetch on focus" — simplest, no custom server yet
 2. **Phase 2 (recommended for live feel):** custom `server.ts` + Socket.io + JWT auth on connect + persist messages in MongoDB
 
 **Single-server deployment** (one Node instance): in-memory connection registry is enough — same pattern as `restaurant-pos` live chat registry. **No Redis required.**
@@ -395,10 +395,10 @@ Optimize for:
 
 1. **Shipping to production** — User, Horse, Veterinary, and Stable modules complete (`mvpScope.md`)
 2. **Wedge pilots** — owners, stables, trainers using Phase 1A/1B flows daily
-2. **One API contract** — web and mobile never diverge on business rules
-3. **Type safety end-to-end** — TypeScript + Zod at boundaries
-4. **Consistency** — shadcn on web, Zod on input, services for logic
-5. **Customer learning** over infrastructure debates
+3. **One API contract** — web and mobile never diverge on business rules
+4. **Type safety end-to-end** — TypeScript + Zod at boundaries
+5. **Consistency** — shadcn on web, Zod on input, services for logic
+6. **Customer learning** over infrastructure debates
 
 The competitive advantage is understanding horse businesses, not the choice of ORM or websocket library.
 
@@ -458,4 +458,3 @@ const queryClient = new QueryClient({
     },
   },
 });
-```

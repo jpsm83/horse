@@ -12,9 +12,9 @@ Living document for planning, updating, and tracking **user identity, roles, pri
 - [`horseModule.md`](horseModule.md) — per-horse discovery and owner hub
 - [`stableModule.md`](stableModule.md) — stable operations on hosted horses
 - [`productFlows.md`](productFlows.md) — onboarding journeys
-- [`stack.md`](stack.md) — technical stack and API layout
+- [`../equus/documentation/stack.md`](../equus/documentation/stack.md) — technical stack and API layout
 - [`equus/documentation/profile.md`](../equus/documentation/profile.md) — profile page UI and `PATCH /api/v1/users/me`
-- [`userAuthTodo.md`](userAuthTodo.md) — **execution checklist** for user/auth gaps not yet implemented (audit 2026-06-30)
+- [`../equus/documentation/userAuthTodo.md`](../equus/documentation/userAuthTodo.md) — **execution checklist** for user/auth gaps not yet implemented (audit 2026-06-30)
 - [`ownershipTransfer.md`](ownershipTransfer.md) — consent-based entity ownership changes (`OwnershipTransfer`)
 - [`dataLifecycle.md`](dataLifecycle.md) — no hard deletes; tombstone fields and lifecycle rules
 

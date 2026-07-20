@@ -28,10 +28,9 @@ import { useRouter } from "@/i18n/navigation";
 type HorseSaleFormProps = {
   horseId: string;
   horse: OwnerHorseSummary;
-  onSaved: () => void;
 };
 
-export function HorseSaleForm({ horseId, horse, onSaved }: HorseSaleFormProps) {
+export function HorseSaleForm({ horseId, horse }: HorseSaleFormProps) {
   const router = useRouter();
   const t = useTranslations("horseSale");
   const tCommon = useTranslations("common");
@@ -124,7 +123,6 @@ export function HorseSaleForm({ horseId, horse, onSaved }: HorseSaleFormProps) {
     try {
       await updateHorseSale.mutateAsync({ horseId, patch });
       toast.success(t("saved"));
-      onSaved();
     } catch {
       toast.error(t("saveFailed"));
     }
