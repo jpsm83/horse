@@ -29,6 +29,7 @@ Related:
 |-------|---------|
 | `mainOwnerUserId` | Single operator with full owner capabilities |
 | `coOwners[]` | Accepted partners (`userId`, `ownershipPercentage`) |
+| `responsibles[]` | Accepted responsible persons (`userId`) — can admin horse but not access Admin tab |
 | `createdByUserId` | Audit only — never changed by transfer |
 
 Helpers: [`equus/lib/ownership/entityOwnership.ts`](../equus/lib/ownership/entityOwnership.ts).
@@ -44,6 +45,8 @@ One collection models all ownership **lifecycle** events (like `Relationship` fo
 | **`transfer_main`** | Current `mainOwnerUserId` | New main owner (User or email invite) | `mainOwnerUserId` → receiver; `coOwners[]` must already be **empty**; former main **loses** owner access |
 | **`remove_co_owner`** | `mainOwnerUserId` | Co-owner being removed | Remove that user from `coOwners[]`; co-owner **loses** owner access |
 | **`promote_co_owner`** | `mainOwnerUserId` | Co-owner being promoted | Promoted user → `mainOwnerUserId`; remove them from `coOwners[]`; **other co-owners stay**; former main **loses** owner access |
+| **`add_responsible`** | `mainOwnerUserId` | Person being added | `$push { userId }` to `responsibles[]` |
+| **`remove_responsible`** | `mainOwnerUserId` | Responsible person being removed | `$pull { userId }` from `responsibles[]` |
 
 ### Rules by kind
 

@@ -14,7 +14,7 @@ Collection: **`OwnershipTransfer`** (`models/OwnershipTransfer.ts`) — lifecycl
 |-------|---------|
 | `entityType` | `horse` \| `stable` \| `breeder` \| `transport` \| `ridingClub` |
 | `entityId` | Target entity ObjectId |
-| `transferKind` | `transfer_main` \| `remove_co_owner` \| `promote_co_owner` |
+| `transferKind` | `transfer_main` \| `remove_co_owner` \| `promote_co_owner` \| `add_responsible` \| `remove_responsible` |
 | `status` | `pending` \| `accepted` \| `declined` \| `cancelled` |
 | `initiatorUserId` | Usually current `mainOwnerUserId` |
 | `receiverUserId` | Set when receiver is registered |
@@ -28,6 +28,8 @@ Collection: **`OwnershipTransfer`** (`models/OwnershipTransfer.ts`) — lifecycl
 - `transfer_main` — require `coOwners.length === 0` at create **and** accept; set `mainOwnerUserId`; former main loses `userOwnsEntity` access; `createdByUserId` unchanged (UA-15)
 - `remove_co_owner` — `$pull` matching `coOwners.userId`; main owner unchanged; target co-owner must accept (UA-16)
 - `promote_co_owner` — set `mainOwnerUserId` to promoted user; `$pull` promoted from `coOwners`; leave other co-owners; former main loses access (UA-17)
+- `add_responsible` — `$push` to `responsibles[]` for the receiver user id; initiator must be main owner (UA-19)
+- `remove_responsible` — `$pull` from `responsibles[]` for the `targetCoOwnerUserId`; initiator must be main owner; target must accept (UA-19)
 
 Reject duplicate pending transfers of the same kind for the same entity + receiver (409).
 

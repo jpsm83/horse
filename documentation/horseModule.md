@@ -87,6 +87,7 @@ const tabs: EntityTab[] = [
 | H-OWN-04 | Ownership history via `OwnershipTransfer` audit trail | Parity | done |
 | H-OWN-05 | Owner/co-owner authorization for discovery PATCH and sensitive fields | Beyond | done |
 | H-OWN-06 | Transfer / co-owner lifecycle via `OwnershipTransfer` ([`ownershipTransfer.md`](ownershipTransfer.md)) | Beyond | done |
+| H-OWN-07 | Responsible persons (`responsibles[]` embed) — admin-level access without ownership; managed via `add_responsible`/`remove_responsible` transfer kinds | New | done |
 
 ---
 
