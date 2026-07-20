@@ -29,12 +29,14 @@ type HorsePageShellRenderProps = {
 type HorsePageShellProps = {
   horseId: string;
   requireOwnership?: boolean;
+  requireMainOwner?: boolean;
   children: ReactNode | ((props: HorsePageShellRenderProps) => ReactNode);
 };
 
 export function HorsePageShell({
   horseId,
   requireOwnership,
+  requireMainOwner,
   children,
 }: HorsePageShellProps) {
   const router = useRouter();
@@ -67,16 +69,20 @@ export function HorsePageShell({
     return null;
   }
 
-  const isOwner = horse?.isMainOwner ?? false;
+  const isMainOwner = horse?.isMainOwner ?? false;
+  const isAdmin = horse?.isAdmin ?? false;
+
+  const blocked =
+    (requireMainOwner && !isMainOwner) || (requireOwnership && !isAdmin);
 
   return (
     <>
-      <EntityTabs tabs={getHorseTabs(horseId)} isOwner={isOwner} variant="header" />
+      <EntityTabs tabs={getHorseTabs(horseId)} isAdmin={isAdmin} isMainOwner={isMainOwner} isPending={isLoading} variant="header" />
         <div className="mx-auto flex w-full flex-1 flex-col gap-4 p-4 sm:p-6 sm:gap-6">
 
         {isLoading || !horse ? (
           <HorsePageSkeleton suppressHydrationWarning />
-        ) : requireOwnership && !(horse.isMainOwner === true) ? (
+        ) : blocked ? (
           <div className="mx-auto p-6">
             <p className="text-muted-foreground">You don&apos;t have permission to view this page.</p>
             <Link
