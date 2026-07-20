@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -19,24 +19,14 @@ export function HorseValueSection({ horseId }: HorseValueSectionProps) {
   const tCommon = useTranslations("common");
   const toast = useAppToast();
   const { data: horse } = useOwnerHorse(horseId);
+  const h = horse!;
   const updateHorseSale = useUpdateHorseSale();
 
-  const [saleStatus, setSaleStatus] = useState("");
-  const [estimatedValue, setEstimatedValue] = useState("");
-  const [valueCurrency, setValueCurrency] = useState("");
-  const [askingPrice, setAskingPrice] = useState("");
-  const [acquisitionDate, setAcquisitionDate] = useState("");
-
-  useEffect(() => {
-    const h = horse!;
-    setSaleStatus(h.saleStatus as string ?? "not_for_sale");
-    setEstimatedValue(h.estimatedValue != null ? String(h.estimatedValue) : "");
-    setValueCurrency(h.valueCurrency ?? "USD");
-    setAskingPrice(h.askingPrice != null ? String(h.askingPrice) : "");
-    setAcquisitionDate(h.acquisitionDate ? h.acquisitionDate.slice(0, 10) : "");
-  }, [horse]);
-
-  const h = horse!;
+  const [saleStatus, setSaleStatus] = useState(h.saleStatus ?? "not_for_sale");
+  const [estimatedValue, setEstimatedValue] = useState(h.estimatedValue != null ? String(h.estimatedValue) : "");
+  const [valueCurrency, setValueCurrency] = useState(h.valueCurrency ?? "USD");
+  const [askingPrice, setAskingPrice] = useState(h.askingPrice != null ? String(h.askingPrice) : "");
+  const [acquisitionDate, setAcquisitionDate] = useState(h.acquisitionDate ? h.acquisitionDate.slice(0, 10) : "");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
