@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { useAppToast } from "@/hooks/use-app-toast";
 import { useOwnerHorse, useUpdateHorseSale } from "@/hooks/queries/useHorse.ts";
 import { currencyEnums } from "@/utils/enums.ts";
@@ -61,7 +61,7 @@ export function HorseValueSection({ horseId }: HorseValueSectionProps) {
           <label className="text-sm font-medium">{t("saleStatus")}</label>
           <Select value={saleStatus} onValueChange={(val) => setSaleStatus(val ?? "")}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("selectPlaceholder")} />
+              {saleStatus === "not_for_sale" ? t("saleStatusOptions.not_for_sale") : saleStatus === "for_sale" ? t("saleStatusOptions.for_sale") : t("selectPlaceholder")}
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="not_for_sale">{t("saleStatusOptions.not_for_sale")}</SelectItem>
@@ -83,7 +83,7 @@ export function HorseValueSection({ horseId }: HorseValueSectionProps) {
           <label className="text-sm font-medium">{t("valueCurrency")}</label>
           <Select value={valueCurrency} onValueChange={(val) => setValueCurrency(val ?? "")}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("selectPlaceholder")} />
+              {valueCurrency || t("selectPlaceholder")}
             </SelectTrigger>
             <SelectContent>
               {currencyEnums.map((v) => (
