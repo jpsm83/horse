@@ -684,7 +684,12 @@
         "pageTitle": "Admin",
         "hubToggleTitle": "PÃ¡gina Hub",
         "hubToggleDescription": "Activar o desactivar la pÃ¡gina pÃºblica Hub para este caballo.",
-        "hubToggleComingSoon": "ConfiguraciÃ³n del Hub disponible en una futura actualizaciÃ³n."
+        "hubToggleComingSoon": "ConfiguraciÃ³n del Hub disponible en una futura actualizaciÃ³n.",
+        "responsiblePersons": "Personas Responsables",
+        "noResponsibles": "Sin personas responsables.",
+        "removeResponsible": "Eliminar",
+        "inviteResponsible": "Invitar",
+        "inviteEmailPlaceholder": "Correo electrÃ³nico"
     },
     "errors": {
         "EMAIL_NOT_VERIFIED": "Verifique su email antes de iniciar sesiÃ³n.",
@@ -885,55 +890,7 @@
         "updatePayment": "Actualizar mÃ©todo de pago",
         "billingHistory": "Historial de facturaciÃ³n"
     },
-    "horseMedical": {
-        "title": "Planificación",
-        "description": "Registros mÃ©dicos, vacunas, exÃ¡menes y medicamentos.",
-        "records": "Registros de salud",
-        "addRecord": "AÃ±adir registro",
-        "cancel": "Cancelar",
-        "date": "Fecha",
-        "type": "Tipo",
-        "performedBy": "Realizado por",
-        "notes": "Notas",
-        "filterPlaceholder": "Filtrar registros...",
-        "noRecords": "AÃºn no hay registros de salud.",
-        "recordCreated": "Registro de salud aÃ±adido.",
-        "recordError": "Error al aÃ±adir registro de salud.",
-        "saving": "Guardando...",
-        "saveRecord": "Guardar registro",
-        "types": {
-            "vaccination": "VacunaciÃ³n",
-            "exam": "Examen",
-            "medication": "MedicaciÃ³n",
-            "injury": "LesiÃ³n",
-            "allergy": "Alergia",
-            "other": "Otro"
-        }
-    },
-    "horseFeed": {
-        "title": "AlimentaciÃ³n y NutriciÃ³n",
-        "description": "Plan de alimentaciÃ³n diario, suplementos y dietas.",
-        "plans": "Planes de alimentaciÃ³n",
-        "addPlan": "AÃ±adir comida",
-        "cancel": "Cancelar",
-        "mealTime": "Horario de comida",
-        "feedType": "Tipo de alimento",
-        "quantity": "Cantidad",
-        "supplements": "Suplementos",
-        "notes": "Notas",
-        "filterPlaceholder": "Filtrar planes...",
-        "noPlans": "AÃºn no hay planes de alimentaciÃ³n.",
-        "planCreated": "Plan de alimentaciÃ³n aÃ±adido.",
-        "planError": "Error al aÃ±adir plan de alimentaciÃ³n.",
-        "saving": "Guardando...",
-        "savePlan": "Guardar plan",
-        "mealTimes": {
-            "morning": "MaÃ±ana",
-            "afternoon": "Tarde",
-            "evening": "Noche",
-            "night": "Madrugada"
-        }
-    },
+
     "horsePlanning": {
         "title": "Planificación",
         "description": "Programa citas, competiciones, entrenamiento y actividades diarias.",
@@ -1170,16 +1127,7 @@
             "description": "Invita y gestiona conexiones de proveedores para tu caballo.",
             "keywords": ""
         },
-        "horseHealth": {
-            "title": "MÃ©dico | Equus",
-            "description": "Gestiona los registros de salud de tu caballo.",
-            "keywords": ""
-        },
-        "horseFeed": {
-            "title": "AlimentaciÃ³n | Equus",
-            "description": "Gestiona los planes de alimentaciÃ³n de tu caballo.",
-            "keywords": ""
-        },
+
         "horsePlanning": {
             "title": "Planificación | Equus",
             "description": "Planifica y gestiona citas, competiciones y actividades diarias de tu caballo.",

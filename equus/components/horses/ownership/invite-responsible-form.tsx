@@ -8,9 +8,17 @@ type InviteResponsibleFormProps = {
   horseId: string;
   onSubmit: (email: string) => void;
   isPending?: boolean;
+  inviteLabel?: string;
+  emailPlaceholder?: string;
 };
 
-export function InviteResponsibleForm({ horseId, onSubmit, isPending }: InviteResponsibleFormProps) {
+export function InviteResponsibleForm({
+  horseId,
+  onSubmit,
+  isPending,
+  inviteLabel = "Invite",
+  emailPlaceholder = "Email address",
+}: InviteResponsibleFormProps) {
   const [email, setEmail] = useState("");
 
   return (
@@ -25,13 +33,13 @@ export function InviteResponsibleForm({ horseId, onSubmit, isPending }: InviteRe
     >
       <Input
         type="email"
-        placeholder="Email address"
+        placeholder={emailPlaceholder}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         className="h-9"
       />
       <Button type="submit" size="sm" disabled={isPending}>
-        Invite
+        {inviteLabel}
       </Button>
     </form>
   );

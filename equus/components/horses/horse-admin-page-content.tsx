@@ -94,10 +94,12 @@ export function HorseAdminPageContent({ horseId }: HorseAdminPageContentProps) {
           {isOwner && (
             <>
               <section className="space-y-4">
-                <h2 className="text-xl font-semibold">Responsible Persons</h2>
+                <h2 className="text-xl font-semibold">{t("responsiblePersons")}</h2>
                 <ResponsibleList
                   responsibles={horse.responsibles}
                   isMainOwner={isOwner}
+                  emptyLabel={t("noResponsibles")}
+                  removeLabel={t("removeResponsible")}
                   onRemove={(userId) =>
                     createTransfer.mutate({
                       entityType: "horse",
@@ -110,6 +112,8 @@ export function HorseAdminPageContent({ horseId }: HorseAdminPageContentProps) {
                 <InviteResponsibleForm
                   horseId={horseId}
                   isPending={createTransfer.isPending}
+                  inviteLabel={t("inviteResponsible")}
+                  emailPlaceholder={t("inviteEmailPlaceholder")}
                   onSubmit={(email) =>
                     createTransfer.mutate({
                       entityType: "horse",

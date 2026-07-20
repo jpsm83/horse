@@ -683,7 +683,12 @@
         "pageTitle": "Admin",
         "hubToggleTitle": "Hub page",
         "hubToggleDescription": "Enable or disable the public Hub page for this horse.",
-        "hubToggleComingSoon": "Hub configuration coming in a future update."
+        "hubToggleComingSoon": "Hub configuration coming in a future update.",
+        "responsiblePersons": "Responsible Persons",
+        "noResponsibles": "No responsible persons.",
+        "removeResponsible": "Remove",
+        "inviteResponsible": "Invite",
+        "inviteEmailPlaceholder": "Email address"
     },
     "errors": {
         "EMAIL_NOT_VERIFIED": "Please verify your email before signing in.",
@@ -885,55 +890,7 @@
         "updatePayment": "Update payment method",
         "billingHistory": "Billing history"
     },
-    "horseMedical": {
-        "title": "Planning",
-        "description": "Medical records, vaccinations, exams, and medications.",
-        "records": "Health records",
-        "addRecord": "Add record",
-        "cancel": "Cancel",
-        "date": "Date",
-        "type": "Type",
-        "performedBy": "Performed by",
-        "notes": "Notes",
-        "filterPlaceholder": "Filter records...",
-        "noRecords": "No health records yet.",
-        "recordCreated": "Health record added.",
-        "recordError": "Failed to add health record.",
-        "saving": "Saving...",
-        "saveRecord": "Save record",
-        "types": {
-            "vaccination": "Vaccination",
-            "exam": "Exam",
-            "medication": "Medication",
-            "injury": "Injury",
-            "allergy": "Allergy",
-            "other": "Other"
-        }
-    },
-    "horseFeed": {
-        "title": "Feed & Nutrition",
-        "description": "Daily feed schedule, supplements, and diet plans.",
-        "plans": "Feed plans",
-        "addPlan": "Add meal",
-        "cancel": "Cancel",
-        "mealTime": "Meal time",
-        "feedType": "Feed type",
-        "quantity": "Quantity",
-        "supplements": "Supplements",
-        "notes": "Notes",
-        "filterPlaceholder": "Filter plans...",
-        "noPlans": "No feed plans yet.",
-        "planCreated": "Feed plan added.",
-        "planError": "Failed to add feed plan.",
-        "saving": "Saving...",
-        "savePlan": "Save plan",
-        "mealTimes": {
-            "morning": "Morning",
-            "afternoon": "Afternoon",
-            "evening": "Evening",
-            "night": "Night"
-        }
-    },
+
     "horsePlanning": {
         "title": "Planning",
         "description": "Schedule appointments, competitions, training, and daily activities.",
@@ -1170,16 +1127,7 @@
             "description": "Invite and manage provider connections for your horse.",
             "keywords": ""
         },
-        "horseHealth": {
-            "title": "Medical | Equus",
-            "description": "Manage health records for your horse.",
-            "keywords": ""
-        },
-        "horseFeed": {
-            "title": "Feed | Equus",
-            "description": "Manage feed plans for your horse.",
-            "keywords": ""
-        },
+
         "horsePlanning": {
             "title": "Planning | Equus",
             "description": "Plan and manage appointments, competitions, and daily activities for your horse.",

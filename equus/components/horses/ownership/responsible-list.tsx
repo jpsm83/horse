@@ -7,11 +7,19 @@ type ResponsibleListProps = {
   responsibles: OwnerHorseHubSummary["responsibles"];
   isMainOwner: boolean;
   onRemove: (userId: string) => void;
+  emptyLabel?: string;
+  removeLabel?: string;
 };
 
-export function ResponsibleList({ responsibles, isMainOwner, onRemove }: ResponsibleListProps) {
+export function ResponsibleList({
+  responsibles,
+  isMainOwner,
+  onRemove,
+  emptyLabel = "No responsible persons.",
+  removeLabel = "Remove",
+}: ResponsibleListProps) {
   if (responsibles.length === 0) {
-    return <p className="text-sm text-muted-foreground">No responsible persons.</p>;
+    return <p className="text-sm text-muted-foreground">{emptyLabel}</p>;
   }
 
   return (
@@ -21,7 +29,7 @@ export function ResponsibleList({ responsibles, isMainOwner, onRemove }: Respons
           <span className="text-sm font-medium">{r.label}</span>
           {isMainOwner && (
             <Button size="sm" variant="outline" onClick={() => onRemove(r.userId)}>
-              Remove
+              {removeLabel}
             </Button>
           )}
         </li>
