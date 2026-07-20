@@ -90,6 +90,11 @@ export type OwnerHorseCoOwner = {
   ownershipPercentage: number;
 };
 
+export type OwnerHorseResponsible = {
+  userId: string;
+  label: string;
+};
+
 export type OwnerHorseHubSummary = {
   id: string;
   name?: string;
@@ -122,7 +127,11 @@ export type OwnerHorseHubSummary = {
   profileVisibility?: string;
   contactDisplay?: Record<string, unknown>;
   isMainOwner: boolean;
+  isCoOwner: boolean;
+  isResponsible: boolean;
+  isAdmin: boolean;
   coOwners: OwnerHorseCoOwner[];
+  responsibles: OwnerHorseResponsible[];
 };
 
 function ensureObjectId(id: string, fieldName: string): void {
@@ -434,13 +443,20 @@ async function resolveUserLabel(userId: string): Promise<string> {
   );
 }
 
-/** Owner hub summary — includes main-owner flag and co-owner list for transfer UI. */
+/** Owner hub summary — includes role flags, co-owner list, and responsible person list. */
 export async function getOwnerHorseHubSummary(
   actorUserId: string,
   horseId: string,
 ): Promise<OwnerHorseHubSummary> {
   const horse = await getHorseForOwner(actorUserId, horseId);
   const isMainOwner = String(horse.mainOwnerUserId) === actorUserId;
+  const isCoOwner = (Array.isArray(horse.coOwners) ? horse.coOwners : []).some(
+    (c: { userId?: unknown }) => c.userId != null && String(c.userId) === actorUserId,
+  );
+  const isResponsible = (Array.isArray(horse.responsibles) ? horse.responsibles : []).some(
+    (r: { userId?: unknown }) => r.userId != null && String(r.userId) === actorUserId,
+  );
+  const isAdmin = isMainOwner || isCoOwner || isResponsible;
 
   const rawCoOwners = Array.isArray(horse.coOwners)
     ? (horse.coOwners as Array<{ userId?: unknown; ownershipPercentage?: number }>)
@@ -454,6 +470,20 @@ export async function getOwnerHorseHubSummary(
       userId,
       label: await resolveUserLabel(userId),
       ownershipPercentage: Number(entry.ownershipPercentage ?? 0),
+    });
+  }
+
+  const rawResponsibles = Array.isArray(horse.responsibles)
+    ? (horse.responsibles as Array<{ userId?: unknown }>)
+    : [];
+
+  const responsibles: OwnerHorseResponsible[] = [];
+  for (const entry of rawResponsibles) {
+    if (entry.userId == null) continue;
+    const userId = String(entry.userId);
+    responsibles.push({
+      userId,
+      label: await resolveUserLabel(userId),
     });
   }
 
@@ -489,7 +519,11 @@ export async function getOwnerHorseHubSummary(
     profileVisibility: horse.profileVisibility as string | undefined,
     contactDisplay: horse.contactDisplay as Record<string, unknown> | undefined,
     isMainOwner,
+    isCoOwner,
+    isResponsible,
+    isAdmin,
     coOwners,
+    responsibles,
   };
 }
 
