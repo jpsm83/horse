@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Mail, X } from "lucide-react";
+import { UserPlus, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,11 +11,11 @@ import { useOwnerHorse } from "@/hooks/queries/useHorse.ts";
 import { useCreateOwnershipTransfer } from "@/hooks/queries/useOwnershipTransfer.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 
-type ResponsiblePersonsSectionProps = {
+type CoOwnerManagementSectionProps = {
   horseId: string;
 };
 
-export function ResponsiblePersonsSection({ horseId }: ResponsiblePersonsSectionProps) {
+export function CoOwnerManagementSection({ horseId }: CoOwnerManagementSectionProps) {
   const t = useTranslations("horseAdmin");
   const toast = useAppToast();
   const { data: horse, isPending } = useOwnerHorse(horseId);
@@ -33,41 +33,41 @@ export function ResponsiblePersonsSection({ horseId }: ResponsiblePersonsSection
     e.preventDefault();
     if (!email.trim()) return;
     createTransfer.mutate(
-      { entityType: "horse", entityId: horseId, transferKind: "add_responsible", invitedEmail: email.trim() },
-      { onSuccess: () => { toast.success(t("responsibleInvited")); setEmail(""); }, onError: () => toast.error(t("inviteFailed")) },
+      { entityType: "horse", entityId: horseId, transferKind: "promote_co_owner", invitedEmail: email.trim() },
+      { onSuccess: () => { toast.success(t("coOwnerInvited")); setEmail(""); }, onError: () => toast.error(t("inviteFailed")) },
     );
   }
 
   function handleRemove(userId: string) {
     createTransfer.mutate(
-      { entityType: "horse", entityId: horseId, transferKind: "remove_responsible", targetCoOwnerUserId: userId },
-      { onSuccess: () => toast.success(t("responsibleRemoved")), onError: () => toast.error(t("removeFailed")) },
+      { entityType: "horse", entityId: horseId, transferKind: "remove_co_owner", targetCoOwnerUserId: userId },
+      { onSuccess: () => toast.success(t("coOwnerRemoved")), onError: () => toast.error(t("removeFailed")) },
     );
   }
 
-  const responsibles = horse.responsibles ?? [];
+  const coOwners = horse.coOwners ?? [];
 
   return (
     <div className="space-y-4">
       <form className="flex gap-2" onSubmit={handleInvite}>
-        <Input type="email" placeholder={t("inviteEmailPlaceholder")} value={email}
+        <Input type="email" placeholder={t("coOwnerEmailPlaceholder")} value={email}
           onChange={(e) => setEmail(e.target.value)} className="h-9" />
         <Button type="submit" size="sm" disabled={!email.trim() || createTransfer.isPending}>
-          <Mail className="mr-1 h-3 w-3" />{t("inviteResponsible")}
+          <UserPlus className="mr-1 h-3 w-3" />{t("inviteCoOwner")}
         </Button>
       </form>
-      {responsibles.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("noResponsibles")}</p>
+      {coOwners.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{t("noCoOwners")}</p>
       ) : (
         <ul className="divide-y divide-border">
-          {responsibles.map((r) => (
-            <li key={r.userId} className="flex items-center justify-between py-2">
+          {coOwners.map((c) => (
+            <li key={c.userId} className="flex items-center justify-between py-2">
               <div>
-                <span className="text-sm font-medium">{r.label}</span>
-                {r.email && <span className="ml-2 text-xs text-muted-foreground">{r.email}</span>}
+                <span className="text-sm font-medium">{c.label}</span>
+                <span className="ml-2 text-xs text-muted-foreground">{c.ownershipPercentage}%</span>
               </div>
-              <Button size="sm" variant="outline" onClick={() => handleRemove(r.userId)}>
-                <X className="mr-1 h-3 w-3" />{t("removeResponsible")}
+              <Button size="sm" variant="outline" onClick={() => handleRemove(c.userId)}>
+                <X className="mr-1 h-3 w-3" />{t("removeCoOwner")}
               </Button>
             </li>
           ))}

@@ -1,15 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { Section } from "@/components/shared/section.tsx";
 import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
-import { SaleSettingsSection } from "@/components/horses/ownership/sale-settings-section.tsx";
-import { OwnershipHubSection } from "@/components/horses/ownership/ownership-hub-section.tsx";
+import { HorseValueSection } from "@/components/horses/ownership/horse-value-section.tsx";
+import { AdminHistorySection } from "@/components/horses/ownership/admin-history-section.tsx";
 import { ResponsiblePersonsSection } from "@/components/horses/ownership/responsible-persons-section.tsx";
-import { OwnershipHistorySection } from "@/components/horses/ownership/ownership-history-section.tsx";
+import { CoOwnerManagementSection } from "@/components/horses/ownership/co-owner-management-section.tsx";
+import { OwnershipManagementSection } from "@/components/horses/ownership/ownership-management-section.tsx";
+import type { SectionVisibility } from "@/components/shared/section-visibility-popover.tsx";
 
 type AdminContentProps = {
   horseId: string;
@@ -17,18 +20,25 @@ type AdminContentProps = {
 
 export function AdminContent({ horseId }: AdminContentProps) {
   const t = useTranslations("horseAdmin");
+  const [valueVisibility, setValueVisibility] = useState<SectionVisibility>({ mode: "owner" });
 
   return (
     <HorsePageShell horseId={horseId} requireOwnership requireMainOwner>
-      <Section title={t("pageTitle")} className="shrink-0">
+      <Section
+        title={t("horseValueTitle")}
+        sectionKey="admin-value"
+        visibility={valueVisibility}
+        onVisibilityChange={setValueVisibility}
+        className="shrink-0"
+      >
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <SaleSettingsSection horseId={horseId} />
+          <HorseValueSection horseId={horseId} />
         </ErrorBoundary>
       </Section>
 
-      <Section title={t("ownershipTitle")} className="shrink-0">
+      <Section title={t("adminHistoryTitle")} className="flex-1">
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <OwnershipHubSection horseId={horseId} />
+          <AdminHistorySection horseId={horseId} />
         </ErrorBoundary>
       </Section>
 
@@ -38,9 +48,15 @@ export function AdminContent({ horseId }: AdminContentProps) {
         </ErrorBoundary>
       </Section>
 
-      <Section title={t("ownershipHistory")} className="flex-1">
+      <Section title={t("coOwnerManagementTitle")} className="shrink-0">
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <OwnershipHistorySection horseId={horseId} />
+          <CoOwnerManagementSection horseId={horseId} />
+        </ErrorBoundary>
+      </Section>
+
+      <Section title={t("ownershipTitle")} className="shrink-0">
+        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <OwnershipManagementSection horseId={horseId} />
         </ErrorBoundary>
       </Section>
     </HorsePageShell>
