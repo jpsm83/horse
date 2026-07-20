@@ -67,7 +67,10 @@ export function AdminContent({ horseId }: AdminContentProps) {
         </ErrorBoundary>
       </Section>
 
-      <Section title={t("ownershipTitle")} className="shrink-0">
+      <Section
+      title={t("ownershipTitle")}
+      description={t("ownershipTransferDescription")}
+      className="shrink-0">
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
           <OwnershipManagementSection horseId={horseId} />
         </ErrorBoundary>

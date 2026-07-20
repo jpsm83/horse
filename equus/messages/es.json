@@ -727,7 +727,7 @@
         "coOwnerRemoved": "Co-propietario eliminado.",
         "ownershipEmailPlaceholder": "Correo del nuevo propietario",
         "transferOwnership": "Transferir Propiedad",
-        "ownershipTransferWarning": "Esto transferirÃ¡ permanentemente todos los derechos de propiedad. DespuÃ©s de la aceptaciÃ³n, no tendrÃ¡ control sobre este caballo.",
+        "ownershipTransferDescription": "Esto transferirÃ¡ permanentemente todos los derechos de propiedad. DespuÃ©s de la aceptaciÃ³n, no tendrÃ¡ control sobre este caballo.",
         "ownershipTransferSent": "InvitaciÃ³n de transferencia de propiedad enviada.",
         "ownershipConfirmTitle": "Confirmar Transferencia de Propiedad",
         "ownershipConfirmDescription": "Â¿EstÃ¡ seguro de que desea transferir la propiedad de este caballo? Esta acciÃ³n no se puede deshacer. Una vez que el destinatario acepte, perderÃ¡ permanentemente todos los derechos sobre este caballo.",

@@ -76,8 +76,6 @@ export function OwnershipManagementSection({ horseId }: OwnershipManagementSecti
 
   return (
     <div className="space-y-4">
-      <p className="text-xs text-muted-foreground">{t("ownershipTransferWarning")}</p>
-
       <UserInviteSection
         query={query}
         onQueryChange={setQuery}

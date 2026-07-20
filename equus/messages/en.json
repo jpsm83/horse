@@ -726,7 +726,7 @@
         "coOwnerRemoved": "Co-owner removed.",
         "ownershipEmailPlaceholder": "New owner email",
         "transferOwnership": "Transfer Ownership",
-        "ownershipTransferWarning": "This will permanently transfer all ownership rights. After acceptance, you will have no control over this horse.",
+        "ownershipTransferDescription": "This will permanently transfer all ownership rights. After acceptance, you will have no control over this horse.",
         "ownershipTransferSent": "Ownership transfer invitation sent.",
         "ownershipConfirmTitle": "Confirm Ownership Transfer",
         "ownershipConfirmDescription": "Are you sure you want to transfer ownership of this horse? This action cannot be undone. Once the recipient accepts, you will permanently lose all rights to this horse.",
