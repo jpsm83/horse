@@ -2,27 +2,45 @@
 
 import { cn } from "@/lib/utils";
 import { Link, usePathname } from "@/i18n/navigation";
+import { Skeleton } from "@/components/ui/skeleton.tsx";
 
 export interface EntityTab {
   id: string;
   label: string;
   href: string;
   requireOwnership?: boolean;
+  requireMainOwner?: boolean;
 }
 
 interface EntityTabsProps {
   tabs: EntityTab[];
-  isOwner: boolean;
+  isAdmin: boolean;
+  isMainOwner?: boolean;
   isPending?: boolean;
   variant?: "default" | "header";
 }
 
-export function EntityTabs({ tabs, isOwner, isPending, variant = "default" }: EntityTabsProps) {
+export function EntityTabs({ tabs, isAdmin, isMainOwner, isPending, variant = "default" }: EntityTabsProps) {
   const pathname = usePathname();
 
-  const visibleTabs = tabs.filter((t) => !t.requireOwnership || isOwner);
+  if (isPending) {
+    if (variant === "header") {
+      return (
+        <nav className="sticky top-0 z-20 flex w-full items-center justify-center bg-background px-4 pt-2 sm:pt-4 sm:px-6">
+          <Skeleton className="h-[34px] w-[500px] rounded-lg" />
+        </nav>
+      );
+    }
+    return null;
+  }
 
-  if (isPending || visibleTabs.length <= 1) return null;
+  const visibleTabs = tabs.filter((t) => {
+    if (t.requireMainOwner) return isMainOwner;
+    if (t.requireOwnership) return isAdmin;
+    return true;
+  });
+
+  if (visibleTabs.length <= 1) return null;
 
   if (variant === "header") {
     return (
