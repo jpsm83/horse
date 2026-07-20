@@ -139,6 +139,8 @@ export const ownershipTransferKindEnums = [
   "transfer_main",
   "remove_co_owner",
   "promote_co_owner",
+  "add_responsible",
+  "remove_responsible",
 ] as const;
 
 export const ownershipTransferStatusEnums = [

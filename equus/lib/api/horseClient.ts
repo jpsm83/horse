@@ -87,10 +87,17 @@ export type OwnerHorseSummary = {
   profileVisibility?: string;
   contactDisplay?: Record<string, unknown>;
   isMainOwner: boolean;
+  isCoOwner: boolean;
+  isResponsible: boolean;
+  isAdmin: boolean;
   coOwners: Array<{
     userId: string;
     label: string;
     ownershipPercentage: number;
+  }>;
+  responsibles: Array<{
+    userId: string;
+    label: string;
   }>;
 };
 

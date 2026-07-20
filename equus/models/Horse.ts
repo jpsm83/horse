@@ -94,6 +94,7 @@ const horseSchema = new Schema(
       index: true,
     },
     coOwners: { type: [coOwnerSchema], default: undefined },
+    responsibles: { type: [{ userId: { type: Schema.Types.ObjectId, ref: "User", required: true } }], default: undefined },
 
     /** Commercial */
     estimatedValue: { type: Number, min: 0 },
