@@ -88,11 +88,26 @@ export type OwnerHorseCoOwner = {
   userId: string;
   label: string;
   ownershipPercentage: number;
+  email?: string;
+  phone?: string;
+  joinedAt?: string;
 };
 
 export type OwnerHorseResponsible = {
   userId: string;
   label: string;
+  email?: string;
+  phone?: string;
+  joinedAt?: string;
+};
+
+export type AdminTeamMember = {
+  userId: string;
+  type: "owner" | "co_owner" | "responsible";
+  name: string;
+  email: string;
+  phone?: string;
+  joinedAt: string;
 };
 
 export type OwnerHorseHubSummary = {
@@ -132,6 +147,7 @@ export type OwnerHorseHubSummary = {
   isAdmin: boolean;
   coOwners: OwnerHorseCoOwner[];
   responsibles: OwnerHorseResponsible[];
+  adminTeam: AdminTeamMember[];
 };
 
 function ensureObjectId(id: string, fieldName: string): void {
@@ -443,7 +459,28 @@ async function resolveUserLabel(userId: string): Promise<string> {
   );
 }
 
-/** Owner hub summary — includes role flags, co-owner list, and responsible person list. */
+async function resolveUserDetails(userId: string): Promise<{
+  label: string;
+  email: string;
+  phone?: string;
+}> {
+  const user = await User.findById(userId)
+    .select("personalDetails.firstName personalDetails.lastName personalDetails.username personalDetails.email personalDetails.phoneNumber")
+    .lean();
+  const pd = user?.personalDetails as
+    | { firstName?: string; lastName?: string; username?: string; email?: string; phoneNumber?: string }
+    | undefined;
+  return {
+    label:
+      [pd?.firstName, pd?.lastName].filter(Boolean).join(" ").trim() ||
+      pd?.username?.trim() ||
+      "A user",
+    email: pd?.email ?? "",
+    phone: pd?.phoneNumber,
+  };
+}
+
+/** Owner hub summary — includes role flags, co-owner/responsible lists, and admin team roster. */
 export async function getOwnerHorseHubSummary(
   actorUserId: string,
   horseId: string,
@@ -459,33 +496,69 @@ export async function getOwnerHorseHubSummary(
   const isAdmin = isMainOwner || isCoOwner || isResponsible;
 
   const rawCoOwners = Array.isArray(horse.coOwners)
-    ? (horse.coOwners as Array<{ userId?: unknown; ownershipPercentage?: number }>)
+    ? (horse.coOwners as Array<{ userId?: unknown; ownershipPercentage?: number; joinedAt?: unknown }>)
     : [];
 
   const coOwners: OwnerHorseCoOwner[] = [];
   for (const entry of rawCoOwners) {
     if (entry.userId == null) continue;
     const userId = String(entry.userId);
+    const details = await resolveUserDetails(userId);
     coOwners.push({
       userId,
-      label: await resolveUserLabel(userId),
+      label: details.label,
       ownershipPercentage: Number(entry.ownershipPercentage ?? 0),
+      email: details.email,
+      phone: details.phone,
+      joinedAt: entry.joinedAt instanceof Date ? entry.joinedAt.toISOString() : undefined,
     });
   }
 
   const rawResponsibles = Array.isArray(horse.responsibles)
-    ? (horse.responsibles as Array<{ userId?: unknown }>)
+    ? (horse.responsibles as Array<{ userId?: unknown; joinedAt?: unknown }>)
     : [];
 
   const responsibles: OwnerHorseResponsible[] = [];
   for (const entry of rawResponsibles) {
     if (entry.userId == null) continue;
     const userId = String(entry.userId);
+    const details = await resolveUserDetails(userId);
     responsibles.push({
       userId,
-      label: await resolveUserLabel(userId),
+      label: details.label,
+      email: details.email,
+      phone: details.phone,
+      joinedAt: entry.joinedAt instanceof Date ? entry.joinedAt.toISOString() : undefined,
     });
   }
+
+  const mainOwnerDetails = await resolveUserDetails(String(horse.mainOwnerUserId));
+  const adminTeam: AdminTeamMember[] = [
+    {
+      userId: String(horse.mainOwnerUserId),
+      type: "owner",
+      name: mainOwnerDetails.label,
+      email: mainOwnerDetails.email,
+      phone: mainOwnerDetails.phone,
+      joinedAt: (horse.createdAt instanceof Date ? horse.createdAt : new Date()).toISOString(),
+    },
+    ...coOwners.map((c) => ({
+      userId: c.userId,
+      type: "co_owner" as const,
+      name: c.label,
+      email: c.email ?? "",
+      phone: c.phone,
+      joinedAt: c.joinedAt ?? "",
+    })),
+    ...responsibles.map((r) => ({
+      userId: r.userId,
+      type: "responsible" as const,
+      name: r.label,
+      email: r.email ?? "",
+      phone: r.phone,
+      joinedAt: r.joinedAt ?? "",
+    })),
+  ];
 
   return {
     id: String(horse._id),
@@ -524,6 +597,7 @@ export async function getOwnerHorseHubSummary(
     isAdmin,
     coOwners,
     responsibles,
+    adminTeam,
   };
 }
 

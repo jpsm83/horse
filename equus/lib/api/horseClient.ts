@@ -94,10 +94,24 @@ export type OwnerHorseSummary = {
     userId: string;
     label: string;
     ownershipPercentage: number;
+    email?: string;
+    phone?: string;
+    joinedAt?: string;
   }>;
   responsibles: Array<{
     userId: string;
     label: string;
+    email?: string;
+    phone?: string;
+    joinedAt?: string;
+  }>;
+  adminTeam: Array<{
+    userId: string;
+    type: "owner" | "co_owner" | "responsible";
+    name: string;
+    email: string;
+    phone?: string;
+    joinedAt: string;
   }>;
 };
 
