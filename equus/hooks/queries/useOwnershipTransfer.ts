@@ -13,7 +13,7 @@ import type { PublicOwnershipTransfer } from "@/lib/services/ownershipTransferSe
 export type CreateOwnershipTransferInput = {
   entityType: "horse" | "stable" | "breeder" | "transport" | "ridingClub";
   entityId: string;
-  transferKind: "transfer_main" | "remove_co_owner" | "promote_co_owner";
+  transferKind: "transfer_main" | "remove_co_owner" | "promote_co_owner" | "add_responsible" | "remove_responsible";
   receiverUserId?: string;
   targetCoOwnerUserId?: string;
   invitedEmail?: string;

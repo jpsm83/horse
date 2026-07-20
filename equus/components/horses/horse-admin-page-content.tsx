@@ -11,7 +11,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { HorseSaleForm } from "@/components/horses/horse-sale-form.tsx";
 import { HorseOwnershipHub } from "@/components/horses/horse-ownership-hub.tsx";
+import { ResponsibleList } from "@/components/horses/ownership/responsible-list.tsx";
+import { InviteResponsibleForm } from "@/components/horses/ownership/invite-responsible-form.tsx";
 import { useOwnerHorse, useHorseOwnershipTransfers, useHorseOwnershipHistory } from "@/hooks/queries/useHorse.ts";
+import { useCreateOwnershipTransfer } from "@/hooks/queries/useOwnershipTransfer.ts";
 import { DataTable } from "@/components/table";
 import type { DataTableColumnDef } from "@/components/table";
 import { queryKeys } from "@/lib/api/queryKeys";
@@ -29,6 +32,7 @@ export function HorseAdminPageContent({ horseId }: HorseAdminPageContentProps) {
     horse?.isMainOwner ? horseId : undefined,
   );
   const { data: ownershipHistory = [] } = useHorseOwnershipHistory(horseId);
+  const createTransfer = useCreateOwnershipTransfer();
 
   type HistoryRow = {
     id: string;
@@ -83,6 +87,39 @@ export function HorseAdminPageContent({ horseId }: HorseAdminPageContentProps) {
                 horse={horse}
                 pendingTransfers={ownershipTransfers}
               />
+              <hr className="my-6" />
+            </>
+          )}
+
+          {isOwner && (
+            <>
+              <section className="space-y-4">
+                <h2 className="text-xl font-semibold">Responsible Persons</h2>
+                <ResponsibleList
+                  responsibles={horse.responsibles}
+                  isMainOwner={isOwner}
+                  onRemove={(userId) =>
+                    createTransfer.mutate({
+                      entityType: "horse",
+                      entityId: horseId,
+                      transferKind: "remove_responsible",
+                      targetCoOwnerUserId: userId,
+                    })
+                  }
+                />
+                <InviteResponsibleForm
+                  horseId={horseId}
+                  isPending={createTransfer.isPending}
+                  onSubmit={(email) =>
+                    createTransfer.mutate({
+                      entityType: "horse",
+                      entityId: horseId,
+                      transferKind: "add_responsible",
+                      invitedEmail: email,
+                    })
+                  }
+                />
+              </section>
               <hr className="my-6" />
             </>
           )}
