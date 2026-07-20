@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Loader2, Search, UserPlus, Mail, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -42,11 +42,6 @@ export function UserInviteSection({
 
   const debouncedQuery = useDebouncedValue(query, 300);
   const { data: results = [], isLoading: isSearching, error: searchError } = useEntitySearch(debouncedQuery);
-
-  useEffect(() => {
-    setEmail("");
-    setName("");
-  }, [showEmailFallback]);
 
   function handleEmailInvite() {
     if (!email.trim()) return;
