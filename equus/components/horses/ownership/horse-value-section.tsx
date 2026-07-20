@@ -28,17 +28,15 @@ export function HorseValueSection({ horseId }: HorseValueSectionProps) {
   const [acquisitionDate, setAcquisitionDate] = useState("");
 
   useEffect(() => {
-    if (!horse) return;
-    setSaleStatus(horse.saleStatus as string ?? "not_for_sale");
-    setEstimatedValue(horse.estimatedValue != null ? String(horse.estimatedValue) : "");
-    setValueCurrency(horse.valueCurrency ?? "USD");
-    setAskingPrice(horse.askingPrice != null ? String(horse.askingPrice) : "");
-    setAcquisitionDate(horse.acquisitionDate ? horse.acquisitionDate.slice(0, 10) : "");
+    const h = horse!;
+    setSaleStatus(h.saleStatus as string ?? "not_for_sale");
+    setEstimatedValue(h.estimatedValue != null ? String(h.estimatedValue) : "");
+    setValueCurrency(h.valueCurrency ?? "USD");
+    setAskingPrice(h.askingPrice != null ? String(h.askingPrice) : "");
+    setAcquisitionDate(h.acquisitionDate ? h.acquisitionDate.slice(0, 10) : "");
   }, [horse]);
 
-  if (!horse) return null;
-
-  const h = horse;
+  const h = horse!;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
