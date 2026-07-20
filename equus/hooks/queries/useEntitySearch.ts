@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/api/queryKeys";
 
-type EntitySearchResult = {
+export type EntitySearchResult = {
   id: string;
   name: string;
   email: string;

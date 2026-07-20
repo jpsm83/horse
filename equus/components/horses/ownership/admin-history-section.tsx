@@ -21,6 +21,12 @@ type AdminRow = {
   joinedAt: string;
 };
 
+const typeFilterOptions = [
+  { value: "Owner", label: "Owner" },
+  { value: "Co-owner", label: "Co-owner" },
+  { value: "Proactive Representative", label: "Proactive Representative" },
+];
+
 export function AdminHistorySection({ horseId }: AdminHistorySectionProps) {
   const t = useTranslations("horseAdmin");
   const { data: horse, isPending } = useOwnerHorse(horseId);
@@ -39,12 +45,16 @@ export function AdminHistorySection({ horseId }: AdminHistorySectionProps) {
     }));
   }, [horse?.adminTeam, t]);
 
+  const dropdownOptionsByColumnKey = useMemo(() => ({
+    type: typeFilterOptions,
+  }), []);
+
   const columns: DataTableColumnDef<AdminRow>[] = useMemo(() => [
     { id: "type", accessorKey: "type", header: t("adminHistoryType"), enableSorting: true, filterType: "dropdown" },
-    { id: "name", accessorKey: "name", header: t("adminHistoryName"), enableSorting: true },
-    { id: "email", accessorKey: "email", header: t("adminHistoryEmail"), enableSorting: true },
-    { id: "phone", accessorKey: "phone", header: t("adminHistoryPhone") },
-    { id: "joinedAt", accessorKey: "joinedAt", header: t("adminHistoryJoined"), enableSorting: true },
+    { id: "name", accessorKey: "name", header: t("adminHistoryName"), enableSorting: true, filterType: "input" },
+    { id: "email", accessorKey: "email", header: t("adminHistoryEmail"), filterType: "input" },
+    { id: "phone", accessorKey: "phone", header: t("adminHistoryPhone"), filterType: "input" },
+    { id: "joinedAt", accessorKey: "joinedAt", header: t("adminHistoryJoined"), enableSorting: true, filterType: "input", meta: { dataType: "date" } },
   ], [t]);
 
   if (isPending) {
@@ -58,6 +68,7 @@ export function AdminHistorySection({ horseId }: AdminHistorySectionProps) {
       enableSorting
       enableFiltering
       emptyStateMessage={t("adminHistoryEmpty")}
+      dropdownOptionsByColumnKey={dropdownOptionsByColumnKey}
     />
   );
 }

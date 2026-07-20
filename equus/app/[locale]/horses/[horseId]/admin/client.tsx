@@ -9,7 +9,7 @@ import { Section } from "@/components/shared/section.tsx";
 import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { HorseValueSection } from "@/components/horses/ownership/horse-value-section.tsx";
 import { AdminHistorySection } from "@/components/horses/ownership/admin-history-section.tsx";
-import { ResponsiblePersonsSection } from "@/components/horses/ownership/responsible-persons-section.tsx";
+import { ProactiveRepresentativesSection } from "@/components/horses/ownership/proactive-representatives-section.tsx";
 import { CoOwnerManagementSection } from "@/components/horses/ownership/co-owner-management-section.tsx";
 import { OwnershipManagementSection } from "@/components/horses/ownership/ownership-management-section.tsx";
 import type { SectionVisibility } from "@/components/shared/section-visibility-popover.tsx";
@@ -42,9 +42,9 @@ export function AdminContent({ horseId }: AdminContentProps) {
         </ErrorBoundary>
       </Section>
 
-      <Section title={t("responsiblePersons")} className="shrink-0">
+      <Section title={t("proactiveRepresentativesTitle")} className="shrink-0">
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <ResponsiblePersonsSection horseId={horseId} />
+          <ProactiveRepresentativesSection horseId={horseId} />
         </ErrorBoundary>
       </Section>
 

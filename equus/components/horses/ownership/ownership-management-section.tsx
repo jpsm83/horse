@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowRightLeft } from "lucide-react";
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UserInviteSection } from "@/components/horses/shared/user-invite-section.tsx";
 import { useOwnerHorse } from "@/hooks/queries/useHorse.ts";
+import { useEntitySearch } from "@/hooks/queries/useEntitySearch.ts";
 import { useCreateOwnershipTransfer } from "@/hooks/queries/useOwnershipTransfer.ts";
+import { useDebouncedValue } from "@/hooks/use-debounced-value.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 
 type OwnershipManagementSectionProps = {
@@ -22,8 +22,12 @@ export function OwnershipManagementSection({ horseId }: OwnershipManagementSecti
   const { data: horse, isPending } = useOwnerHorse(horseId);
   const createTransfer = useCreateOwnershipTransfer();
 
-  const [email, setEmail] = useState("");
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [query, setQuery] = useState("");
+  const [showEmailFallback, setShowEmailFallback] = useState(false);
+  const [pendingInvite, setPendingInvite] = useState<{ userId?: string; email?: string; name?: string } | null>(null);
+
+  const debouncedQuery = useDebouncedValue(query, 300);
+  const { data: results = [], isLoading: isSearching, error: searchError } = useEntitySearch(debouncedQuery);
 
   if (isPending || !horse) {
     return <Skeleton className="h-32 w-full rounded-lg" />;
@@ -31,39 +35,76 @@ export function OwnershipManagementSection({ horseId }: OwnershipManagementSecti
 
   if (!horse.isMainOwner) return null;
 
-  function handleRequestTransfer(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setShowConfirm(true);
+  function handleInviteUser(userId: string) {
+    setPendingInvite({ userId });
+  }
+
+  function handleEmailInvite(email: string, name?: string) {
+    setPendingInvite({ email, name });
   }
 
   function handleConfirmTransfer() {
-    createTransfer.mutate(
-      { entityType: "horse", entityId: horseId, transferKind: "transfer_main", invitedEmail: email.trim() },
-      {
-        onSuccess: () => {
-          toast.success(t("ownershipTransferSent"));
-          setEmail("");
-          setShowConfirm(false);
+    if (!pendingInvite) return;
+
+    if (pendingInvite.userId) {
+      createTransfer.mutate(
+        { entityType: "horse", entityId: horseId, transferKind: "transfer_main", receiverUserId: pendingInvite.userId },
+        {
+          onSuccess: () => {
+            toast.success(t("ownershipTransferSent"));
+            setQuery("");
+            setPendingInvite(null);
+          },
+          onError: () => toast.error(t("inviteFailed")),
         },
-        onError: () => toast.error(t("inviteFailed")),
-      },
-    );
+      );
+    } else {
+      createTransfer.mutate(
+        { entityType: "horse", entityId: horseId, transferKind: "transfer_main", invitedEmail: pendingInvite.email, invitedName: pendingInvite.name },
+        {
+          onSuccess: () => {
+            toast.success(t("ownershipTransferSent"));
+            setQuery("");
+            setShowEmailFallback(false);
+            setPendingInvite(null);
+          },
+          onError: () => toast.error(t("inviteFailed")),
+        },
+      );
+    }
   }
 
   return (
     <div className="space-y-4">
-      <form className="flex gap-2" onSubmit={handleRequestTransfer}>
-        <Input type="email" placeholder={t("ownershipEmailPlaceholder")} value={email}
-          onChange={(e) => setEmail(e.target.value)} className="h-9" />
-        <Button type="submit" size="sm" disabled={!email.trim() || createTransfer.isPending}>
-          <ArrowRightLeft className="mr-1 h-3 w-3" />{t("transferOwnership")}
-        </Button>
-      </form>
-
       <p className="text-xs text-muted-foreground">{t("ownershipTransferWarning")}</p>
 
-      <AlertDialog open={showConfirm} onOpenChange={(open) => { if (!open) setShowConfirm(false); }}>
+      <UserInviteSection
+        query={query}
+        onQueryChange={setQuery}
+        results={results}
+        isSearching={isSearching}
+        searchError={searchError}
+        onInviteUser={handleInviteUser}
+        onEmailInvite={handleEmailInvite}
+        isInviting={createTransfer.isPending}
+        showEmailFallback={showEmailFallback}
+        onShowEmailFallback={setShowEmailFallback}
+        labels={{
+          searchPlaceholder: t("searchPlaceholder"),
+          inviteLabel: t("transferOwnership"),
+          searchingLabel: t("searchingLabel"),
+          searchErrorLabel: t("searchErrorLabel"),
+          noResultsLabel: t("noResultsLabel"),
+          emailFallbackToggle: t("emailFallbackToggle"),
+          emailFallbackHint: t("emailFallbackHint"),
+          emailLabel: t("emailLabel"),
+          nameLabel: t("nameLabel"),
+          sendEmailInvite: t("sendEmailInvite"),
+          cancelLabel: t("cancel"),
+        }}
+      />
+
+      <AlertDialog open={pendingInvite !== null} onOpenChange={(open) => { if (!open) setPendingInvite(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("ownershipConfirmTitle")}</AlertDialogTitle>
