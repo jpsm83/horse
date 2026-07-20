@@ -5,9 +5,11 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAppToast } from "@/hooks/use-app-toast";
 import { useOwnerHorse, useUpdateHorseSale } from "@/hooks/queries/useHorse.ts";
+import { currencyEnums } from "@/utils/enums.ts";
 
 type HorseValueSectionProps = {
   horseId: string;
@@ -20,15 +22,15 @@ export function HorseValueSection({ horseId }: HorseValueSectionProps) {
   const { data: horse, isPending } = useOwnerHorse(horseId);
   const updateHorseSale = useUpdateHorseSale();
 
-  const [saleStatus, setSaleStatus] = useState("not_for_sale");
+  const [saleStatus, setSaleStatus] = useState("");
   const [estimatedValue, setEstimatedValue] = useState("");
-  const [valueCurrency, setValueCurrency] = useState("USD");
+  const [valueCurrency, setValueCurrency] = useState("");
   const [askingPrice, setAskingPrice] = useState("");
   const [acquisitionDate, setAcquisitionDate] = useState("");
 
   useEffect(() => {
     if (!horse) return;
-    setSaleStatus(horse.saleStatus as "not_for_sale" | "for_sale" ?? "not_for_sale");
+    setSaleStatus(horse.saleStatus as string ?? "not_for_sale");
     setEstimatedValue(horse.estimatedValue != null ? String(horse.estimatedValue) : "");
     setValueCurrency(horse.valueCurrency ?? "USD");
     setAskingPrice(horse.askingPrice != null ? String(horse.askingPrice) : "");
@@ -72,11 +74,15 @@ export function HorseValueSection({ horseId }: HorseValueSectionProps) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <label className="text-sm font-medium">{t("saleStatus")}</label>
-          <select className="flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm shadow-xs"
-            value={saleStatus} onChange={(e) => setSaleStatus(e.target.value)}>
-            <option value="not_for_sale">{t("saleStatusOptions.not_for_sale")}</option>
-            <option value="for_sale">{t("saleStatusOptions.for_sale")}</option>
-          </select>
+          <Select value={saleStatus} onValueChange={(val) => setSaleStatus(val ?? "")}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t("selectPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="not_for_sale">{t("saleStatusOptions.not_for_sale")}</SelectItem>
+              <SelectItem value="for_sale">{t("saleStatusOptions.for_sale")}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         {saleStatus === "for_sale" && (
           <div className="space-y-2">
@@ -90,13 +96,16 @@ export function HorseValueSection({ horseId }: HorseValueSectionProps) {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">{t("valueCurrency")}</label>
-          <select className="flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm shadow-xs"
-            value={valueCurrency} onChange={(e) => setValueCurrency(e.target.value)}>
-            <option value="">{t("selectPlaceholder")}</option>
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="GBP">GBP</option>
-          </select>
+          <Select value={valueCurrency} onValueChange={(val) => setValueCurrency(val ?? "")}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t("selectPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              {currencyEnums.map((v) => (
+                <SelectItem key={v} value={v}>{v}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">{t("acquisitionDate")}</label>

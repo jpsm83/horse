@@ -683,9 +683,13 @@
     "horseAdmin": {
         "pageTitle": "Admin",
         "horseValueTitle": "Valor del Caballo",
+        "horseValueDescription": "Configure el estado de venta, valor estimado y detalles de precio para este caballo.",
         "adminHistoryTitle": "Equipo de AdministraciÃ³n",
+        "adminHistoryDescription": "Vea todos los usuarios con acceso administrativo a este caballo.",
         "proactiveRepresentativesTitle": "Representantes Proactivos",
+        "proactiveRepresentativesDescription": "AÃ±ada o elimine representantes proactivos que puedan ayudar a gestionar este caballo.",
         "coOwnerManagementTitle": "GestiÃ³n de Co-propietarios",
+        "coOwnerManagementDescription": "Invite nuevos co-propietarios o elimine los existentes.",
         "ownershipTitle": "GestiÃ³n de Propiedad",
         "ownershipHistory": "Historial de Propiedad",
         "hubToggleTitle": "PÃ¡gina Hub",

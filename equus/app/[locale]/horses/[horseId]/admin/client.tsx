@@ -26,6 +26,7 @@ export function AdminContent({ horseId }: AdminContentProps) {
     <HorsePageShell horseId={horseId} requireOwnership requireMainOwner>
       <Section
         title={t("horseValueTitle")}
+        description={t("horseValueDescription")}
         sectionKey="admin-value"
         visibility={valueVisibility}
         onVisibilityChange={setValueVisibility}
@@ -36,19 +37,31 @@ export function AdminContent({ horseId }: AdminContentProps) {
         </ErrorBoundary>
       </Section>
 
-      <Section title={t("adminHistoryTitle")} className="flex-1">
+      <Section
+        title={t("adminHistoryTitle")}
+        description={t("adminHistoryDescription")}
+        className="flex-1"
+      >
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
           <AdminHistorySection horseId={horseId} />
         </ErrorBoundary>
       </Section>
 
-      <Section title={t("proactiveRepresentativesTitle")} className="shrink-0">
+      <Section
+        title={t("proactiveRepresentativesTitle")}
+        description={t("proactiveRepresentativesDescription")}
+        className="shrink-0"
+      >
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
           <ProactiveRepresentativesSection horseId={horseId} />
         </ErrorBoundary>
       </Section>
 
-      <Section title={t("coOwnerManagementTitle")} className="shrink-0">
+      <Section
+        title={t("coOwnerManagementTitle")}
+        description={t("coOwnerManagementDescription")}
+        className="shrink-0"
+      >
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
           <CoOwnerManagementSection horseId={horseId} />
         </ErrorBoundary>

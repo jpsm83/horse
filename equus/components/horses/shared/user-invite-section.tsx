@@ -52,10 +52,8 @@ export function UserInviteSection({
   const [name, setName] = useState("");
 
   useEffect(() => {
-    if (!showEmailFallback) {
-      setEmail("");
-      setName("");
-    }
+    setEmail("");
+    setName("");
   }, [showEmailFallback]);
 
   function handleEmailInvite() {

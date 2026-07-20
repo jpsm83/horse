@@ -682,9 +682,13 @@
     "horseAdmin": {
         "pageTitle": "Admin",
         "horseValueTitle": "Horse Value",
+        "horseValueDescription": "Set sale status, estimated value, and pricing details for this horse.",
         "adminHistoryTitle": "Admin History Team",
+        "adminHistoryDescription": "View all users with administrative access to this horse.",
         "proactiveRepresentativesTitle": "Proactive Representatives",
+        "proactiveRepresentativesDescription": "Add or remove proactive representatives who can help manage this horse.",
         "coOwnerManagementTitle": "Co-owner Management",
+        "coOwnerManagementDescription": "Invite new co-owners or remove existing ones.",
         "ownershipTitle": "Ownership Management",
         "ownershipHistory": "Ownership History",
         "hubToggleTitle": "Hub page",
