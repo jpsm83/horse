@@ -1194,7 +1194,15 @@
             "transfer_main": "Transferencia",
             "promote_co_owner": "Ascendido",
             "remove_co_owner": "Eliminado"
-        }
+        },
+        "required": "Este campo es obligatorio",
+        "invalidDate": "Introduzca una fecha vÃ¡lida",
+        "invalidEnum": "Seleccione una opciÃ³n vÃ¡lida",
+        "invalidNumber": "Introduzca un nÃºmero vÃ¡lido",
+        "contactNameRequired": "El nombre de contacto es obligatorio cuando no se usa el contacto del propietario",
+        "contactPhoneRequired": "El telÃ©fono de contacto es obligatorio cuando no se usa el contacto del propietario",
+        "contactEmailRequired": "El correo de contacto es obligatorio cuando no se usa el contacto del propietario",
+        "contactEmailInvalid": "Proporcione una direcciÃ³n de correo vÃ¡lida"
     },
     "table": {
         "resetColumnsSuccess": "Columnas restablecidas correctamente",

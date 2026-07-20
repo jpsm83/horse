@@ -1194,7 +1194,15 @@
             "transfer_main": "Transfer",
             "promote_co_owner": "Promoted",
             "remove_co_owner": "Removed"
-        }
+        },
+        "required": "This field is required",
+        "invalidDate": "Please enter a valid date",
+        "invalidEnum": "Please select a valid option",
+        "invalidNumber": "Please enter a valid number",
+        "contactNameRequired": "Contact name is required when not using owner contact",
+        "contactPhoneRequired": "Contact phone is required when not using owner contact",
+        "contactEmailRequired": "Contact email is required when not using owner contact",
+        "contactEmailInvalid": "Please provide a valid email address"
     },
     "table": {
         "resetColumnsSuccess": "Columns reset successfully",
