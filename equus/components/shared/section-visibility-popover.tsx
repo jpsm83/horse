@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, Users, Globe, Lock } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -88,12 +89,12 @@ export function SectionVisibilityPopover({
           </RadioGroup>
 
           <div className="flex justify-end gap-2">
-            <button type="button" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-8 px-3 border border-input bg-background hover:bg-accent hover:text-accent-foreground" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
               {t("cancel")}
-            </button>
-            <button type="button" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleSave}>
+            </Button>
+            <Button type="button" size="sm" onClick={handleSave}>
               {t("save")}
-            </button>
+            </Button>
           </div>
         </div>
       </PopoverContent>

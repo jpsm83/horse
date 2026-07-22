@@ -156,11 +156,12 @@ Provider links use `Relationship` documents (`relationshipType`: stable, trainer
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
-| H-DOC-01 | Upload documents (passport, insurance, certificates) | Parity | planned |
+| H-DOC-01 | Upload documents (passport, insurance, certificates) | Parity | done |
 | H-DOC-02 | Document organization (folders/tags per horse) | Parity | planned |
 | H-DOC-03 | URLs and external links per horse | Parity | planned |
 | H-DOC-04 | Digital tack room | Parity | planned |
 | H-DOC-05 | Permission-scoped document access per relationship | Beyond | planned |
+| H-DOC-06 | Hard-delete documents + Cloudinary; admin direct delete; non-admin deletion requests (representative-first) | Parity | done |
 
 ---
 

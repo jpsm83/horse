@@ -96,6 +96,7 @@ export type OwnerHorseSummary = {
     ownershipPercentage: number;
     email?: string;
     phone?: string;
+    imageUrl?: string;
     joinedAt?: string;
   }>;
   responsibles: Array<{
@@ -103,6 +104,7 @@ export type OwnerHorseSummary = {
     label: string;
     email?: string;
     phone?: string;
+    imageUrl?: string;
     joinedAt?: string;
   }>;
   adminTeam: Array<{
@@ -111,6 +113,7 @@ export type OwnerHorseSummary = {
     name: string;
     email: string;
     phone?: string;
+    imageUrl?: string;
     joinedAt: string;
   }>;
 };

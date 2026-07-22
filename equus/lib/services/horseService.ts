@@ -90,6 +90,7 @@ export type OwnerHorseCoOwner = {
   ownershipPercentage: number;
   email?: string;
   phone?: string;
+  imageUrl?: string;
   joinedAt?: string;
 };
 
@@ -98,6 +99,7 @@ export type OwnerHorseResponsible = {
   label: string;
   email?: string;
   phone?: string;
+  imageUrl?: string;
   joinedAt?: string;
 };
 
@@ -107,6 +109,7 @@ export type AdminTeamMember = {
   name: string;
   email: string;
   phone?: string;
+  imageUrl?: string;
   joinedAt: string;
 };
 
@@ -463,13 +466,25 @@ async function resolveUserDetails(userId: string): Promise<{
   label: string;
   email: string;
   phone?: string;
+  imageUrl?: string;
 }> {
   const user = await User.findById(userId)
-    .select("personalDetails.firstName personalDetails.lastName personalDetails.username personalDetails.email personalDetails.phoneNumber")
+    .select(
+      "personalDetails.firstName personalDetails.lastName personalDetails.username personalDetails.email personalDetails.phoneNumber personalDetails.imageUrl",
+    )
     .lean();
   const pd = user?.personalDetails as
-    | { firstName?: string; lastName?: string; username?: string; email?: string; phoneNumber?: string }
+    | {
+        firstName?: string;
+        lastName?: string;
+        username?: string;
+        email?: string;
+        phoneNumber?: string;
+        imageUrl?: string;
+      }
     | undefined;
+  const imageUrl =
+    typeof pd?.imageUrl === "string" && pd.imageUrl.trim() ? pd.imageUrl.trim() : undefined;
   return {
     label:
       [pd?.firstName, pd?.lastName].filter(Boolean).join(" ").trim() ||
@@ -477,6 +492,7 @@ async function resolveUserDetails(userId: string): Promise<{
       "A user",
     email: pd?.email ?? "",
     phone: pd?.phoneNumber,
+    imageUrl,
   };
 }
 
@@ -510,6 +526,7 @@ export async function getOwnerHorseHubSummary(
       ownershipPercentage: Number(entry.ownershipPercentage ?? 0),
       email: details.email,
       phone: details.phone,
+      imageUrl: details.imageUrl,
       joinedAt: entry.joinedAt instanceof Date ? entry.joinedAt.toISOString() : undefined,
     });
   }
@@ -528,6 +545,7 @@ export async function getOwnerHorseHubSummary(
       label: details.label,
       email: details.email,
       phone: details.phone,
+      imageUrl: details.imageUrl,
       joinedAt: entry.joinedAt instanceof Date ? entry.joinedAt.toISOString() : undefined,
     });
   }
@@ -540,6 +558,7 @@ export async function getOwnerHorseHubSummary(
       name: mainOwnerDetails.label,
       email: mainOwnerDetails.email,
       phone: mainOwnerDetails.phone,
+      imageUrl: mainOwnerDetails.imageUrl,
       joinedAt: (horse.createdAt instanceof Date ? horse.createdAt : new Date()).toISOString(),
     },
     ...coOwners.map((c) => ({
@@ -548,6 +567,7 @@ export async function getOwnerHorseHubSummary(
       name: c.label,
       email: c.email ?? "",
       phone: c.phone,
+      imageUrl: c.imageUrl,
       joinedAt: c.joinedAt ?? "",
     })),
     ...responsibles.map((r) => ({
@@ -556,6 +576,7 @@ export async function getOwnerHorseHubSummary(
       name: r.label,
       email: r.email ?? "",
       phone: r.phone,
+      imageUrl: r.imageUrl,
       joinedAt: r.joinedAt ?? "",
     })),
   ];

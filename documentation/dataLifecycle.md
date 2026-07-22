@@ -14,9 +14,19 @@ Related:
 
 ## Principle
 
-**Domain documents are never physically removed from the database** in product-facing flows. When a user “deletes,” “removes,” or “excludes” something, the system **changes state** — flags, status enums, or dedicated lifecycle collections — so foreign keys, invoices, ratings, and history remain valid.
+**Domain documents are never physically removed from the database** in product-facing flows, **except storage-backed file assets** (`Media`, `Document`) where the Cloudinary object is destroyed and the MongoDB row is hard-deleted so no dangling URL remains. For everything else, the system **changes state** — flags, status enums, or dedicated lifecycle collections — so foreign keys, invoices, ratings, and history remain valid.
 
-Hard `delete` in MongoDB is allowed **only** for failed compensating transactions (e.g. rolling back a profile row when linking `User.*ProfileId` fails). That is implementation cleanup, not user-facing deletion.
+Hard `delete` in MongoDB is otherwise allowed **only** for failed compensating transactions (e.g. rolling back a profile row when linking `User.*ProfileId` fails). That is implementation cleanup, not user-facing deletion.
+
+### File asset exception (Media and Documents)
+
+| Asset | Direct delete who | Non-admin path | Decision recipients |
+|-------|-------------------|----------------|---------------------|
+| `Media` | Main owner, co-owner, responsible | `MediaDeletionRequest` | Responsibles if any; else main + co-owners |
+| `Document` | Main owner, co-owner, responsible | `DocumentDeletionRequest` | Same |
+
+See [`equus/documentation/dataLifecycle.md`](../equus/documentation/dataLifecycle.md) and [`equus/documentation/horses.md`](../equus/documentation/horses.md).
+
 
 ---
 
@@ -108,23 +118,25 @@ When a vet (or any provider) **deactivates their account**, **closes their pract
 ---
 
 ---
-## Media files (Cloudinary) — exception
+## Media and Document files (Cloudinary) — exception
 
-**User-uploaded media files** (images, videos, documents) stored on Cloudinary are an exception to the never-hard-delete rule. Reasons:
+**User-uploaded media and horse documents** stored on Cloudinary are an exception to the never-hard-delete rule. Reasons:
 
-1. **No referential integrity risk** — No other model stores a foreign key pointing to the `Media` collection. The `Media` document only references outward (`horseId`, `uploadedByUserId`). Nothing depends on a Media record existing.
+1. **No referential integrity risk** — No other model stores a foreign key pointing to the `Media` or `Document` collections for these file rows. Nothing depends on the record existing once the Cloudinary URL is gone.
 2. **Storage cost** — Cloudinary charges for asset storage. Keeping deleted files indefinitely incurs real operational cost with zero product value.
-3. **Owner consent** — Only the horse owner (main owner or co-owner) can authorize hard-delete. Non-owners must use the deletion request flow.
+3. **Admin consent** — Direct hard-delete is allowed for main owner, co-owner, or proactive representative. Non-admins must use the deletion request flow.
 
 **What gets deleted:**
 - Cloudinary asset: **hard-deleted** via `cloudinary.uploader.destroy()`
-- MongoDB Media document: **hard-deleted** via `Media.findByIdAndDelete()`
+- MongoDB `Media` / `Document` row: **hard-deleted** via `findByIdAndDelete()`
 
 **What stays:**
-- `MediaDeletionRequest` document: **soft-deleted** (`isActive: false`) — preserves audit trail of who requested and who approved.
-- Audit log entries: unchanged (text descriptions, not Media ObjectIds).
+- `MediaDeletionRequest` / `DocumentDeletionRequest`: status lifecycle (pending / approved / declined / cancelled) — preserves audit trail of who requested and who decided.
+- Audit log entries: unchanged.
 
-**Rule:** If no other document has a foreign key to a record, and the record's primary value is an external file URL, hard-delete is acceptable with owner consent. This applies to `Media` only.
+**Decision recipients:** If the horse has any `responsibles[]`, only those users are notified and may approve/decline. Otherwise main owner and co-owners.
+
+**Rule:** If no other document has a foreign key to a record, and the record's primary value is an external file URL, hard-delete is acceptable with admin (or approved request) consent. This applies to `Media` and `Document` only.
 
 ---
 
@@ -135,4 +147,4 @@ When a vet (or any provider) **deactivates their account**, **closes their pract
 | 2026-06-30 | Initial policy — tombstone fields on models, lifecycle doc, userAuthTodo UA-00 / UA-27+ |
 | 2026-06-30 | Horse-attached records section — provider deactivation does not remove owner-visible horse history |
 | 2026-06-30 | UA-31 — `anonymizeUserPii` pipeline documented and implemented |
-| 2026-06-30 | UA-11 — account deactivation end-to-end flow (web UI, API, auth) documented for U-PROF-07 |
+| 2026-07-21 | Media **and Document** hard-delete exception; representative-first deletion-request recipients |

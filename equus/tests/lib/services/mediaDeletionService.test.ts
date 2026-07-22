@@ -141,7 +141,7 @@ describe("mediaDeletionService", () => {
     it("rejects approval from non-owner", async () => {
       await expect(
         mediaDeletionService.approveDeletionRequest(nonOwnerId, requestId),
-      ).rejects.toThrow("Only the horse owner can approve");
+      ).rejects.toThrow("Only a responsible person (or owner if none) can decide");
     });
 
     it("rejects approval if request is already resolved", async () => {
@@ -182,7 +182,7 @@ describe("mediaDeletionService", () => {
     it("rejects decline from non-owner", async () => {
       await expect(
         mediaDeletionService.declineDeletionRequest(nonOwnerId, requestId),
-      ).rejects.toThrow("Only the horse owner can decline");
+      ).rejects.toThrow("Only a responsible person (or owner if none) can decide");
     });
 
     it("rejects decline if request is already cancelled", async () => {
@@ -259,7 +259,7 @@ describe("mediaDeletionService", () => {
     it("rejects listing from non-owner", async () => {
       await expect(
         mediaDeletionService.listDeletionRequests(nonOwnerId, horseId),
-      ).rejects.toThrow("Only the horse owner can view deletion requests");
+      ).rejects.toThrow("Only a responsible person (or owner if none) can decide");
     });
 
     it("filters by status", async () => {
@@ -280,6 +280,23 @@ describe("mediaDeletionService", () => {
       );
 
       expect(requests).toHaveLength(0);
+    });
+
+    it("when responsibles exist, only they can list — owner cannot", async () => {
+      const responsibleId = new mongoose.Types.ObjectId().toHexString();
+      await Horse.findByIdAndUpdate(horseId, {
+        $push: { responsibles: { userId: new mongoose.Types.ObjectId(responsibleId) } },
+      });
+
+      await expect(
+        mediaDeletionService.listDeletionRequests(ownerId, horseId),
+      ).rejects.toThrow("Only a responsible person (or owner if none) can decide");
+
+      const requests = await mediaDeletionService.listDeletionRequests(
+        responsibleId,
+        horseId,
+      );
+      expect(requests).toHaveLength(1);
     });
   });
 });

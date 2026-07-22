@@ -182,18 +182,20 @@ function ColorPickerPopover({
         ) : (
           <div className="flex flex-wrap gap-2" role="listbox">
             {keys.map((paletteKey) => (
-              <button
+              <Button
                 key={paletteKey}
                 type="button"
+                variant="outline"
+                size="icon"
                 role="option"
-                className={`border border-border/60 p-0.5 rounded-full focus:outline-none focus:ring-2 focus:ring-ring`}
+                className="size-auto rounded-full border-border/60 p-0.5"
                 onClick={() => {
                   onSelect(paletteKey);
                   setOpen(false);
                 }}
               >
                 <Swatch paletteKey={paletteKey} />
-              </button>
+              </Button>
             ))}
           </div>
         )}
@@ -290,9 +292,10 @@ export function ColorRangeEditor({
                     keys={changeableKeys}
                     onSelect={(key) => onChangeBandColor(index, key)}
                   >
-                    <button
+                    <Button
                       type="button"
-                      className={`block shrink-0 ${SWATCH_SIZE} rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1`}
+                      variant="ghost"
+                      className={`block shrink-0 ${SWATCH_SIZE} rounded-full p-0 hover:bg-transparent`}
                       style={{ backgroundColor: swatchColor(paletteKey) }}
                     />
                   </ColorPickerPopover>

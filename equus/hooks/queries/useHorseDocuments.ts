@@ -25,11 +25,10 @@ export function useUploadHorseDocument(horseId: string) {
 
   return useMutation({
     mutationFn: async (formData: FormData) => {
-      const res = await fetch(`/api/v1/horses/${encodeURIComponent(horseId)}/documents/upload`, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
+      const res = await fetchWithAuth(
+        `/api/v1/horses/${encodeURIComponent(horseId)}/documents/upload`,
+        { method: "POST", body: formData },
+      );
       return parseApiResponse<{ document: PublicHorseDocument }>(res);
     },
     onSuccess: () => {
@@ -42,12 +41,11 @@ export function useDeleteHorseDocument(horseId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ docId, storagePublicId }: { docId: string; storagePublicId?: string }) => {
-      const res = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(horseId)}/documents/${encodeURIComponent(docId)}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ storagePublicId }),
-      });
+    mutationFn: async ({ docId }: { docId: string }) => {
+      const res = await fetchWithAuth(
+        `/api/v1/horses/${encodeURIComponent(horseId)}/documents/${encodeURIComponent(docId)}`,
+        { method: "DELETE" },
+      );
       return parseApiResponse<{ deleted: boolean }>(res);
     },
     onSuccess: () => {

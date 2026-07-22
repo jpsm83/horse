@@ -7,8 +7,8 @@
 | Hub | `/horses/[id]` | Public | View-only dashboard with basic info, pedigree, ownership summary |
 | Connect | `/horses/[id]/connect` | Admin (owner, co-owner, responsible) | Invite providers + manage connections table |
 | Planning | `/horses/[id]/planning` | Public | Calendar for appointments, competitions, training, and daily activities. Shows events from connected providers. |
-| Media | `/horses/[id]/media` | Public | Upload and view photos and videos. Drag-and-drop upload with thumbnail gallery and lightbox viewer. |
-| Documents | `/horses/[id]/documents` | Public | Horse documents and files |
+| Media | `/horses/[id]/media` | Public | Upload/view photos and videos. Direct delete: owner, co-owner, responsible. Others request deletion (representatives decide when present). |
+| Documents | `/horses/[id]/documents` | Public | Horse documents and files. Same delete/request policy as Media. |
 | Edit | `/horses/[id]/edit` | Admin (owner, co-owner, responsible) | Edit basic info + contact display |
 | Admin | `/horses/[id]/admin` | Owner-only | Sale settings + ownership management + responsible persons + Hub toggle |
 | History | `/horses/[id]/history` | Owner + entities | Activity/audit log |

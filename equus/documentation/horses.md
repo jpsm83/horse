@@ -142,11 +142,30 @@ Media gallery with drag-and-drop upload. Two-section layout: upload section on t
 **Cloudinary folder structure:** `horses/{horseId}/media/{sourceEntityType}/`
 **Visibility rule:** Owner-uploaded media defaults to public; entity-uploaded media defaults to owner-only.
 
-### Deletion policy
+### Deletion policy (Media and Documents)
 
-- **Hard-delete:** Media is hard-deleted from both Cloudinary and MongoDB. No referential integrity risk (nothing references `Media` documents).
-- **Owner-only delete:** Only the horse owner (main owner or co-owner) can directly delete media via `DELETE /api/v1/horses/:id/media/:mediaId`.
-- **Deletion requests (non-owners):** Vets, trainers, and other non-owners cannot directly delete media. They can create a deletion request via `POST /api/v1/horses/:id/media-deletion-requests`. The owner reviews and approves or declines via `PATCH /api/v1/horses/:id/media-deletion-requests/:requestId`.
-- **Request cancellation:** The original requester can cancel their own pending request via `DELETE /api/v1/horses/:id/media-deletion-requests/:requestId`.
-- **Audit:** `MediaDeletionRequest` records are soft-deleted (`isActive: false`) to preserve the audit trail.
+**Direct delete** (hard-delete Cloudinary + MongoDB): main owner, co-owner, or proactive representative (`ownedByUserQuery` / `userOwnsEntity`).
+
+**Deletion requests (non-admins):** Vets, trainers, and other non-admins cannot directly delete. They create a request:
+
+| Asset | Create | Decide | Cancel |
+|-------|--------|--------|--------|
+| Media | `POST /api/v1/horses/:id/media-deletion-requests` | `PATCH .../media-deletion-requests/:requestId` | `DELETE` (requester) |
+| Documents | `POST /api/v1/horses/:id/document-deletion-requests` | `PATCH .../document-deletion-requests/:requestId` | `DELETE` (requester) |
+
+**Decision recipients** (`getDeletionDecisionRecipients`): if the horse has any `responsibles[]`, only those users are notified and may approve/decline; otherwise main owner and co-owners.
+
+**Audit:** `MediaDeletionRequest` / `DocumentDeletionRequest` rows remain (status lifecycle); request records are not hard-deleted.
+
+### Horse documents (`/horses/[horseId]/documents`)
+
+- Upload: `POST /api/v1/horses/:id/documents/upload` (multipart + Cloudinary + `Document` record)
+- List: `GET /api/v1/horses/:id/documents`
+- Delete (admin): `DELETE /api/v1/horses/:id/documents/:docId` — Cloudinary destroy + hard-delete MongoDB
+- UI: `ConfirmDeleteDialog` before delete; shared with Media / Admin History
+- Service: `lib/services/horseDocumentService.ts`
+- Deletion requests: `lib/services/documentDeletionService.ts`
+- i18n: `horseDocuments` namespace
+
+**Cloudinary folder:** `equus/horses/{horseId}/documents/`
 

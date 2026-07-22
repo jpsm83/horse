@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Download, Trash2 } from "lucide-react";
 
 import { DataTable } from "@/components/table";
 import type { DataTableColumnDef } from "@/components/table";
 import { Button } from "@/components/ui/button";
+import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog.tsx";
 import {
   Tooltip,
   TooltipContent,
@@ -14,6 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { fetchWithAuth } from "@/lib/api/fetchWithAuth";
 import { useHorseDocuments, useDeleteHorseDocument } from "@/hooks/queries/useHorseDocuments.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import type { PublicHorseDocument } from "@/lib/services/horseDocumentService";
@@ -28,14 +30,18 @@ const documentTypeFilterOptions = documentTypeEnums.map((dt) => ({
 
 export function DocumentsTableSection({ horseId }: Props) {
   const t = useTranslations("horseDocuments");
+  const tCommon = useTranslations("common");
   const tTypes = useTranslations("horseDocuments.types");
   const toast = useAppToast();
   const { data: docs = [], isPending } = useHorseDocuments(horseId);
   const deleteMutation = useDeleteHorseDocument(horseId);
+  const [deleteTarget, setDeleteTarget] = useState<PublicHorseDocument | null>(null);
 
   const handleDownload = useCallback(async (doc: PublicHorseDocument) => {
     try {
-      const response = await fetch(`/api/v1/horses/${encodeURIComponent(horseId)}/documents/${encodeURIComponent(doc.id)}/download`);
+      const response = await fetchWithAuth(
+        `/api/v1/horses/${encodeURIComponent(horseId)}/documents/${encodeURIComponent(doc.id)}/download`,
+      );
       if (!response.ok) throw new Error("Download failed");
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
@@ -51,12 +57,20 @@ export function DocumentsTableSection({ horseId }: Props) {
     }
   }, [horseId, toast, t]);
 
-  const handleDelete = useCallback((doc: PublicHorseDocument) => {
-    deleteMutation.mutate({ docId: doc.id, storagePublicId: doc.storagePublicId }, {
-      onSuccess: () => toast.success(t("deleteSuccess")),
-      onError: () => toast.error(t("deleteError")),
-    });
-  }, [deleteMutation, toast, t]);
+  function handleConfirmDelete() {
+    if (!deleteTarget) return;
+
+    deleteMutation.mutate(
+      { docId: deleteTarget.id },
+      {
+        onSuccess: () => {
+          toast.success(t("deleteSuccess"));
+          setDeleteTarget(null);
+        },
+        onError: () => toast.error(t("deleteError")),
+      },
+    );
+  }
 
   const dropdownOptionsByColumnKey = useMemo(() => ({
     type: documentTypeFilterOptions,
@@ -143,7 +157,7 @@ export function DocumentsTableSection({ horseId }: Props) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => handleDelete(doc)}
+              onClick={() => setDeleteTarget(doc)}
               title={t("delete")}
             >
               <Trash2 className="h-4 w-4 text-destructive" />
@@ -152,20 +166,35 @@ export function DocumentsTableSection({ horseId }: Props) {
         );
       },
     },
-  ], [t, tTypes, handleDownload, handleDelete]);
+  ], [t, tTypes, handleDownload]);
 
   if (isPending) {
     return <Skeleton className="h-full w-full rounded-lg" />;
   }
 
   return (
-    <DataTable
-      columns={columns}
-      data={docs}
-      enableSorting
-      enableFiltering
-      emptyStateMessage={t("noDocuments")}
-      dropdownOptionsByColumnKey={dropdownOptionsByColumnKey}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={docs}
+        enableSorting
+        enableFiltering
+        emptyStateMessage={t("noDocuments")}
+        dropdownOptionsByColumnKey={dropdownOptionsByColumnKey}
+      />
+
+      <ConfirmDeleteDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title={t("deleteConfirm")}
+        description={t("deleteConfirmDescription")}
+        confirmLabel={t("delete")}
+        cancelLabel={tCommon("cancel")}
+        isPending={deleteMutation.isPending}
+        onConfirm={handleConfirmDelete}
+      />
+    </>
   );
 }

@@ -19,7 +19,7 @@ Spread into top-level Mongoose schemas. **Do not** use on nested embeds that alr
 
 ### Tombstone (`deactivationAuditFields`)
 
-`User`, `Horse`, `Stable`, `Breeder`, `Transport`, `RidingClub`, `Trainer`, `Groom`, `Veterinary`, `Farrier`, `Coach`, `Rider`, `Booking`, `Invoice`, `Document`, `Notification`, `Rating`
+`User`, `Horse`, `Stable`, `Breeder`, `Transport`, `RidingClub`, `Trainer`, `Groom`, `Veterinary`, `Farrier`, `Coach`, `Rider`, `Booking`, `Invoice`, `Notification`, `Rating`
 
 ### Status lifecycle (no entity-level `isActive` required)
 
@@ -32,10 +32,10 @@ Spread into top-level Mongoose schemas. **Do not** use on nested embeds that alr
 
 | Model | Notes |
 |-------|--------|
-| `Document` | Also `isArchived` for file archive UX; prefer `isActive: false` for operator removal |
 | `Booking` / `Invoice` | Domain `status` enum is primary; `isActive: false` for admin void / hide from lists |
 | `Notification` | `readByUserIds` for read state; `isActive: false` to retract/dismiss globally |
-| `Media` | **Exception**: hard-delete from MongoDB + Cloudinary. No referential integrity risk (nothing references Media). Only horse owner can authorize. `MediaDeletionRequest` tracks audit trail. |
+| `Media` | **Exception**: hard-delete from MongoDB + Cloudinary. No inbound refs. Direct delete: main owner, co-owner, or responsible. Non-admins use `MediaDeletionRequest` (decision recipients: responsibles first, else main/co-owners). |
+| `Document` | **Exception**: hard-delete from MongoDB + Cloudinary (same as Media — storage URL must not dangle). Direct delete: main owner, co-owner, or responsible. Non-admins use `DocumentDeletionRequest` (same decision-recipient rule). |
 
 ---
 
@@ -75,7 +75,8 @@ Discovery/public paths use `activeQuery` to hide inactive providers. **Horse own
 | Compensating transaction | `Groom.findByIdAndDelete` when `User.groomProfileId` link fails after insert |
 | Invite email failure | `WorkplaceRelationship.deleteOne` when email send fails before invite is durable |
 | Test teardown | `tests/setup.ts` `deleteMany` on memory DB |
-| Media delete (owner authorized) | `Media.findByIdAndDelete` after Cloudinary `destroy` — no incoming references, owner consent required |
+| Media delete (admin authorized) | `Media.findByIdAndDelete` after Cloudinary `destroy` — no incoming references |
+| Document delete (admin authorized) | `Document.findByIdAndDelete` after Cloudinary `destroy` — no incoming references |
 
 ---
 

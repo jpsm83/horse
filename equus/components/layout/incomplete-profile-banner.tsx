@@ -28,8 +28,8 @@ export function IncompleteProfileBanner() {
     return null;
   }
 
-  return (
-      <Alert className="flex justify-center rounded-none p-4 bg-primary w-full h-[56px]">
+  return (  
+      <Alert className="sticky top-0 z-30 flex h-14 w-full items-center justify-center rounded-none bg-primary p-4">
         <AlertDescription className="text-primary-foreground flex flex-wrap items-center gap-4">
           {t("incompleteBanner")}{" "}
           <Link
@@ -42,3 +42,6 @@ export function IncompleteProfileBanner() {
       </Alert>
   );
 }
+
+
+

@@ -11,6 +11,9 @@ export type IncompleteProfileBannerContext = {
   profileComplete?: boolean;
 };
 
+/** Matches `h-14` on the global incomplete-profile banner. */
+export const INCOMPLETE_PROFILE_BANNER_HEIGHT = "3.5rem";
+
 export function shouldShowIncompleteProfileBanner(
   context: IncompleteProfileBannerContext,
 ): boolean {

@@ -6,16 +6,7 @@ import { Trash2, Play, ImageIcon, Eye, EyeOff } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog.tsx";
 import { useMedia, useDeleteMedia, useToggleMediaVisibility } from "@/hooks/queries/useMedia.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { LightboxDialog } from "@/components/horses/media/lightbox-dialog.tsx";
@@ -186,38 +177,18 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
         />
       )}
 
-      <AlertDialog
+      <ConfirmDeleteDialog
         open={deleteTarget !== null}
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("deleteConfirm")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("deleteConfirmDescription")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              className="bg-destructive text-white hover:bg-destructive/90"
-            >
-              {deleteMutation.isPending ? (
-                <span className="flex items-center gap-1">
-                  <span className="size-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  {t("delete")}
-                </span>
-              ) : (
-                t("delete")
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        title={t("deleteConfirm")}
+        description={t("deleteConfirmDescription")}
+        confirmLabel={t("delete")}
+        cancelLabel={tCommon("cancel")}
+        isPending={deleteMutation.isPending}
+        onConfirm={handleDelete}
+      />
     </>
   );
 }

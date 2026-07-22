@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import connectDb from "@/lib/db.ts";
 import { withRoute, ok } from "@/lib/api/response.ts";
 import { ApiError } from "@/lib/api/errors.ts";
@@ -28,7 +30,15 @@ export async function POST(request: Request, context: RouteContext) {
     if (!title?.trim()) throw new ApiError(400, "Title is required", "VALIDATION_ERROR");
 
     const maxSize = 10 * 1024 * 1024;
-    const allowedTypes = ["image/", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument", "text/plain", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml"];
+    const allowedTypes = [
+      "image/",
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument",
+      "text/plain",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml",
+    ];
 
     if (file.size > maxSize) {
       throw new ApiError(400, `File ${file.name} exceeds 10MB limit`, "FILE_TOO_LARGE");
@@ -40,72 +50,37 @@ export async function POST(request: Request, context: RouteContext) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
+    const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;
     const basePath = buildCloudinaryPath(`/horses/${horseId}/documents`);
-    const publicId = `${basePath}/${Date.now()}`;
+    const publicId = randomUUID();
 
-    console.log("[documents/upload] Uploading:", {
+    let result: { secure_url: string; public_id: string };
+    try {
+      result = await cloudinary.uploader.upload(dataUri, {
+        invalidate: true,
+        folder: basePath,
+        public_id: publicId,
+        resource_type: "auto",
+      });
+    } catch (err: unknown) {
+      const e = err as { message?: string; name?: string; http_code?: number };
+      throw new ApiError(
+        e.http_code ?? 500,
+        e.message || e.name || "Cloudinary upload failed",
+        "UPLOAD_FAILED",
+      );
+    }
+
+    const doc = await docService.createHorseDocument(session.id, horseId, {
+      documentType,
+      title: title.trim(),
+      description: description?.trim() || undefined,
+      fileUrl: result.secure_url,
       fileName: file.name,
       mimeType: file.type,
-      fileSize: file.size,
-      basePath,
-      publicId,
+      fileSizeBytes: file.size,
+      storagePublicId: result.public_id,
     });
-
-    let result: Record<string, unknown>;
-    try {
-      result = await new Promise<Record<string, unknown>>((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { invalidate: true, folder: basePath, public_id: publicId, resource_type: "auto" },
-        (error, res) => {
-          if (error) {
-            const e = error as { message?: string; name?: string; http_code?: number };
-            reject(new ApiError(e.http_code ?? 500, e.message || e.name || "Cloudinary upload failed"));
-          } else {
-            resolve(res!);
-          }
-        }
-        );
-        stream.end(buffer);
-      });
-      console.log("[documents/upload] Cloudinary upload OK:", result.public_id);
-    } catch (err: unknown) {
-      console.error("[documents/upload] Cloudinary upload FAILED");
-      console.error("  typeof:", typeof err);
-      console.error("  toString:", Object.prototype.toString.call(err));
-      if (err instanceof Error) {
-        console.error("  message:", err.message);
-        console.error("  stack:", err.stack);
-        console.error("  keys:", Object.keys(err));
-      }
-      console.error("  JSON:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
-      console.error("  raw error:", err);
-      throw err;
-    }
-
-    let doc;
-    try {
-      doc = await docService.createHorseDocument(session.id, horseId, {
-        documentType,
-        title: title.trim(),
-        description: description?.trim() || undefined,
-        fileUrl: result.secure_url as string,
-        fileName: file.name,
-        mimeType: file.type,
-        fileSizeBytes: file.size,
-        storagePublicId: result.public_id as string,
-      });
-      console.log("[documents/upload] DB create OK:", doc.id);
-    } catch (err: unknown) {
-      console.error("[documents/upload] DB createHorseDocument FAILED");
-      console.error("  typeof:", typeof err);
-      console.error("  toString:", Object.prototype.toString.call(err));
-      if (err instanceof Error) {
-        console.error("  message:", err.message);
-        console.error("  stack:", err.stack);
-      }
-      console.error("  raw error:", err);
-      throw err;
-    }
 
     return ok({ document: doc }, 201);
   });

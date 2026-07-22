@@ -7,5 +7,13 @@ export {
 export { default as uploadFilesCloudinary } from "./uploadFilesCloudinary.ts";
 export { default as deleteFilesCloudinary } from "./deleteFilesCloudinary.ts";
 export { default as deleteFolderCloudinary } from "./deleteFolderCloudinary.ts";
+export { cloudinaryResourceTypeFromMime } from "./resourceTypeFromMime.ts";
+export {
+  buildDocumentDownloadUrls,
+  buildHorseDocumentDeliveryUrls,
+  formatFromFileName,
+  resourceTypeFromDeliveryUrl,
+} from "./documentDelivery.ts";
+export type { CloudinaryResourceType, DocumentDownloadInput } from "./documentDelivery.ts";
 export { default as moveFilesBetweenFolders } from "./moveFilesBetweenFolders.ts";
 export type { UploadInputFile } from "./types.ts";

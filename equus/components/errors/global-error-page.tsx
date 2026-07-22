@@ -6,6 +6,7 @@
 
 import { useEffect } from "react";
 
+import { Button } from "@/components/ui/button";
 import { logClientError } from "@/lib/errors/logClientError.ts";
 
 type GlobalErrorPageProps = {
@@ -30,13 +31,9 @@ export function GlobalErrorPage({ error, reset }: GlobalErrorPageProps) {
             <p className="text-sm text-muted-foreground">
               Equus could not load the application. Please try again.
             </p>
-            <button
-              type="button"
-              onClick={reset}
-              className="inline-flex h-9 w-full items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
+            <Button type="button" className="w-full" onClick={reset}>
               Try again
-            </button>
+            </Button>
           </div>
         </main>
       </body>

@@ -231,6 +231,10 @@ describe("horseService", () => {
   it("returns owner hub summary with main-owner flag and co-owner labels", async () => {
     const main = await createUser("hub-summary-main@example.com");
     const partner = await createUser("hub-summary-partner@example.com");
+    await User.updateOne(
+      { _id: main._id },
+      { $set: { "personalDetails.imageUrl": "https://example.com/main-avatar.png" } },
+    );
     const created = await horseService.createHorse(String(main._id), {
       name: "Summary Horse",
       breed: "Lusitano",
@@ -253,6 +257,14 @@ describe("horseService", () => {
     expect(mainSummary.isMainOwner).toBe(true);
     expect(mainSummary.coOwners).toHaveLength(1);
     expect(mainSummary.coOwners[0]?.userId).toBe(String(partner._id));
+
+    const ownerEntry = mainSummary.adminTeam.find((member) => member.type === "owner");
+    expect(ownerEntry).toMatchObject({
+      userId: String(main._id),
+      name: expect.any(String),
+      email: "hub-summary-main@example.com",
+      imageUrl: "https://example.com/main-avatar.png",
+    });
 
     const partnerSummary = await horseService.getOwnerHorseHubSummary(
       String(partner._id),

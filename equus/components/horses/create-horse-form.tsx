@@ -480,14 +480,15 @@ function MultiSelectField({
     <Field data-invalid={invalid}>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <div className="relative">
-        <button
+        <Button
           type="button"
           id={id}
+          variant="outline"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
           aria-invalid={invalid}
           data-slot="select-trigger"
-          className="flex w-full items-center justify-between gap-1.5 rounded-lg border border-input py-2 pr-2 pl-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40"
+          className="h-auto w-full justify-between gap-1.5 py-2 pr-2 pl-2.5 font-normal"
         >
           <span className="flex-1 truncate text-left">
             {selectedLabels.length > 0
@@ -497,7 +498,7 @@ function MultiSelectField({
           <svg className="size-4 shrink-0 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
             <path d="m6 9 6 6 6-6" />
           </svg>
-        </button>
+        </Button>
 
         {open ? (
           <>
@@ -509,13 +510,12 @@ function MultiSelectField({
               {options.map((option) => {
                 const isSelected = value.includes(option.value);
                 return (
-                  <button
+                  <div
                     key={option.value}
-                    type="button"
                     role="option"
                     aria-selected={isSelected}
                     onClick={() => toggle(option.value)}
-                    className="flex w-full cursor-default items-center gap-2 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground"
+                    className="flex w-full cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-sm outline-hidden select-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                   >
                     <span className="flex size-4 shrink-0 items-center justify-center rounded-sm border border-input">
                       {isSelected ? (
@@ -525,7 +525,7 @@ function MultiSelectField({
                       ) : null}
                     </span>
                     <span className="flex-1">{option.label}</span>
-                  </button>
+                  </div>
                 );
               })}
             </div>

@@ -229,14 +229,16 @@ export function FileUpload({
                 />
               )}
               {onRemoveExisting ? (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon-xs"
                   onClick={() => onRemoveExisting(url)}
-                  className="absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                  className="absolute top-1 right-1 size-6 rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/50 hover:text-white"
                   aria-label={t("remove")}
                 >
                   <X className="size-3" />
-                </button>
+                </Button>
               ) : null}
             </div>
           ))}
@@ -299,15 +301,17 @@ export function FileUpload({
                   </div>
                 ) : null}
 
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon-xs"
                   onClick={() => removeFile(entry.id)}
                   disabled={disabled || entry.status === "uploading"}
-                  className="absolute top-1 left-1 flex size-6 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-30"
+                  className="absolute top-1 left-1 size-6 rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/50 hover:text-white disabled:opacity-30"
                   aria-label={t("remove")}
                 >
                   <Trash2 className="size-3" />
-                </button>
+                </Button>
               </div>
             );
           })}

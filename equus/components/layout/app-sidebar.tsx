@@ -124,7 +124,7 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
         {isAuthenticated && user ? (
           <>
             {/* Avatar + name row */}
-            <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+            <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 cursor-default">
               <Avatar className="size-8 shrink-0 rounded-full">
                 {profileImageUrlValue ? (
                   <AvatarImage src={profileImageUrlValue} alt="" />

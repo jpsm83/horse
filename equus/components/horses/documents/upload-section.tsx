@@ -50,7 +50,7 @@ export function UploadSection({ horseId }: UploadSectionProps) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const selectedFile = fileInputRef.current?.files?.[0];
-    if (!selectedFile || !title.trim()) return;
+    if (!selectedFile || !documentType || !title.trim()) return;
 
     const formData = new FormData();
     formData.append("file", selectedFile);
@@ -68,7 +68,9 @@ export function UploadSection({ horseId }: UploadSectionProps) {
         setDocumentType("");
         if (fileInputRef.current) fileInputRef.current.value = "";
       },
-      onError: () => toast.error(t("uploadError")),
+      onError: (err) => {
+        toast.error(err instanceof Error ? err.message : t("uploadError"));
+      },
     });
   }
 
@@ -164,7 +166,7 @@ export function UploadSection({ horseId }: UploadSectionProps) {
             <Button
               type="submit"
               size="sm"
-              disabled={!file || !title.trim() || uploadMutation.isPending}
+              disabled={!file || !documentType || !title.trim() || uploadMutation.isPending}
             >
               {uploadMutation.isPending ? t("uploading") : t("uploadButton")}
             </Button>

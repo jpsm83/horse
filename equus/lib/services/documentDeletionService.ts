@@ -1,20 +1,20 @@
 import mongoose from "mongoose";
 import Horse from "@/models/Horse.ts";
-import Media from "@/models/Media.ts";
-import MediaDeletionRequest from "@/models/MediaDeletionRequest.ts";
+import Document from "@/models/Document.ts";
+import DocumentDeletionRequest from "@/models/DocumentDeletionRequest.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { ownedByUserQuery } from "@/lib/ownership/entityOwnership.ts";
 import {
   canDecideDeletionRequest,
   getDeletionDecisionRecipients,
 } from "@/lib/ownership/deletionDecisionRecipients.ts";
-import * as mediaService from "@/lib/services/mediaService.ts";
+import * as docService from "@/lib/services/horseDocumentService.ts";
 import { createNotification } from "@/lib/services/notificationService.ts";
 
-export type PublicDeletionRequest = {
+export type PublicDocumentDeletionRequest = {
   id: string;
   horseId: string;
-  mediaId: string;
+  documentId: string;
   requesterUserId: string;
   decisionByUserId?: string;
   status: string;
@@ -25,11 +25,11 @@ export type PublicDeletionRequest = {
   appliedAt?: string;
 };
 
-function toPublic(record: Record<string, unknown>): PublicDeletionRequest {
+function toPublic(record: Record<string, unknown>): PublicDocumentDeletionRequest {
   return {
     id: String(record._id),
     horseId: String(record.horseId),
-    mediaId: String(record.mediaId),
+    documentId: String(record.documentId),
     requesterUserId: String(record.requesterUserId),
     decisionByUserId: record.decisionByUserId
       ? String(record.decisionByUserId)
@@ -53,11 +53,11 @@ const FORBIDDEN_DECIDE =
 export async function createDeletionRequest(
   requesterUserId: string,
   horseId: string,
-  mediaId: string,
+  documentId: string,
   requestMessage?: string,
-): Promise<PublicDeletionRequest> {
-  if (!mongoose.Types.ObjectId.isValid(mediaId)) {
-    throw new ApiError(400, "Invalid media id", "VALIDATION_ERROR");
+): Promise<PublicDocumentDeletionRequest> {
+  if (!mongoose.Types.ObjectId.isValid(documentId)) {
+    throw new ApiError(400, "Invalid document id", "VALIDATION_ERROR");
   }
   if (!mongoose.Types.ObjectId.isValid(horseId)) {
     throw new ApiError(400, "Invalid horse id", "VALIDATION_ERROR");
@@ -77,15 +77,15 @@ export async function createDeletionRequest(
     );
   }
 
-  const media = await Media.findOne({ _id: mediaId, horseId })
+  const document = await Document.findOne({ _id: documentId, horseId })
     .select("_id")
     .lean();
-  if (!media) {
-    throw new ApiError(404, "Media not found", "NOT_FOUND");
+  if (!document) {
+    throw new ApiError(404, "Document not found", "NOT_FOUND");
   }
 
-  const existing = await MediaDeletionRequest.findOne({
-    mediaId,
+  const existing = await DocumentDeletionRequest.findOne({
+    documentId,
     status: "pending",
   })
     .select("_id")
@@ -93,14 +93,14 @@ export async function createDeletionRequest(
   if (existing) {
     throw new ApiError(
       409,
-      "A pending deletion request already exists for this media",
+      "A pending deletion request already exists for this document",
       "CONFLICT",
     );
   }
 
-  const doc = await MediaDeletionRequest.create({
+  const doc = await DocumentDeletionRequest.create({
     horseId,
-    mediaId,
+    documentId,
     requesterUserId,
     status: "pending",
     requestMessage: requestMessage ?? undefined,
@@ -113,12 +113,16 @@ export async function createDeletionRequest(
     createNotification({
       recipientUserIds: recipientIds,
       senderUserId: requesterUserId,
-      notificationType: "media_deletion",
-      title: "Media deletion requested",
-      message: `User ${requesterLabel} requests deletion of media on horse ${horseId.slice(-6)}`,
+      notificationType: "document_deletion",
+      title: "Document deletion requested",
+      message: `User ${requesterLabel} requests deletion of a document on horse ${horseId.slice(-6)}`,
       horseId,
-      actionUrl: `/horses/${horseId}/media`,
-      metadata: { mediaDeletionRequestId: String(doc._id), mediaId, status: "pending" },
+      actionUrl: `/horses/${horseId}/documents`,
+      metadata: {
+        documentDeletionRequestId: String(doc._id),
+        documentId,
+        status: "pending",
+      },
     }).catch(() => {});
   }
 
@@ -128,12 +132,12 @@ export async function createDeletionRequest(
 export async function approveDeletionRequest(
   actorUserId: string,
   requestId: string,
-): Promise<PublicDeletionRequest> {
+): Promise<PublicDocumentDeletionRequest> {
   if (!mongoose.Types.ObjectId.isValid(requestId)) {
     throw new ApiError(400, "Invalid request id", "VALIDATION_ERROR");
   }
 
-  const request = await MediaDeletionRequest.findById(requestId).lean();
+  const request = await DocumentDeletionRequest.findById(requestId).lean();
   if (!request) {
     throw new ApiError(404, "Deletion request not found", "NOT_FOUND");
   }
@@ -146,10 +150,10 @@ export async function approveDeletionRequest(
     throw new ApiError(403, FORBIDDEN_DECIDE, "FORBIDDEN");
   }
 
-  const mediaId = String(request.mediaId);
-  await mediaService.deleteMedia(actorUserId, horseId, mediaId);
+  const documentId = String(request.documentId);
+  await docService.deleteHorseDocument(actorUserId, horseId, documentId);
 
-  await MediaDeletionRequest.findByIdAndUpdate(requestId, {
+  await DocumentDeletionRequest.findByIdAndUpdate(requestId, {
     status: "approved",
     decisionByUserId: new mongoose.Types.ObjectId(actorUserId),
     respondedAt: new Date(),
@@ -159,14 +163,15 @@ export async function approveDeletionRequest(
   createNotification({
     recipientUserIds: [String(request.requesterUserId)],
     senderUserId: actorUserId,
-    notificationType: "media_deletion",
-    title: "Media deletion approved",
-    message: "Your request to delete media has been approved and the media has been removed.",
+    notificationType: "document_deletion",
+    title: "Document deletion approved",
+    message:
+      "Your request to delete a document has been approved and the document has been removed.",
     horseId,
-    metadata: { mediaDeletionRequestId: requestId, mediaId, status: "approved" },
+    metadata: { documentDeletionRequestId: requestId, documentId, status: "approved" },
   }).catch(() => {});
 
-  const updated = await MediaDeletionRequest.findById(requestId).lean();
+  const updated = await DocumentDeletionRequest.findById(requestId).lean();
   return toPublic(updated ?? request);
 }
 
@@ -174,12 +179,12 @@ export async function declineDeletionRequest(
   actorUserId: string,
   requestId: string,
   responseMessage?: string,
-): Promise<PublicDeletionRequest> {
+): Promise<PublicDocumentDeletionRequest> {
   if (!mongoose.Types.ObjectId.isValid(requestId)) {
     throw new ApiError(400, "Invalid request id", "VALIDATION_ERROR");
   }
 
-  const request = await MediaDeletionRequest.findById(requestId).lean();
+  const request = await DocumentDeletionRequest.findById(requestId).lean();
   if (!request) {
     throw new ApiError(404, "Deletion request not found", "NOT_FOUND");
   }
@@ -192,7 +197,7 @@ export async function declineDeletionRequest(
     throw new ApiError(403, FORBIDDEN_DECIDE, "FORBIDDEN");
   }
 
-  await MediaDeletionRequest.findByIdAndUpdate(requestId, {
+  await DocumentDeletionRequest.findByIdAndUpdate(requestId, {
     status: "declined",
     decisionByUserId: new mongoose.Types.ObjectId(actorUserId),
     respondedAt: new Date(),
@@ -202,32 +207,32 @@ export async function declineDeletionRequest(
   createNotification({
     recipientUserIds: [String(request.requesterUserId)],
     senderUserId: actorUserId,
-    notificationType: "media_deletion",
-    title: "Media deletion declined",
+    notificationType: "document_deletion",
+    title: "Document deletion declined",
     message: responseMessage
-      ? `Your request to delete media was declined: ${responseMessage}`
-      : "Your request to delete media was declined.",
+      ? `Your request to delete a document was declined: ${responseMessage}`
+      : "Your request to delete a document was declined.",
     horseId,
     metadata: {
-      mediaDeletionRequestId: requestId,
-      mediaId: String(request.mediaId),
+      documentDeletionRequestId: requestId,
+      documentId: String(request.documentId),
       status: "declined",
     },
   }).catch(() => {});
 
-  const updated = await MediaDeletionRequest.findById(requestId).lean();
+  const updated = await DocumentDeletionRequest.findById(requestId).lean();
   return toPublic(updated ?? request);
 }
 
 export async function cancelDeletionRequest(
   actorUserId: string,
   requestId: string,
-): Promise<PublicDeletionRequest> {
+): Promise<PublicDocumentDeletionRequest> {
   if (!mongoose.Types.ObjectId.isValid(requestId)) {
     throw new ApiError(400, "Invalid request id", "VALIDATION_ERROR");
   }
 
-  const request = await MediaDeletionRequest.findById(requestId).lean();
+  const request = await DocumentDeletionRequest.findById(requestId).lean();
   if (!request) {
     throw new ApiError(404, "Deletion request not found", "NOT_FOUND");
   }
@@ -238,11 +243,11 @@ export async function cancelDeletionRequest(
     throw new ApiError(403, "Only the requester can cancel their own request", "FORBIDDEN");
   }
 
-  await MediaDeletionRequest.findByIdAndUpdate(requestId, {
+  await DocumentDeletionRequest.findByIdAndUpdate(requestId, {
     status: "cancelled",
   });
 
-  const updated = await MediaDeletionRequest.findById(requestId).lean();
+  const updated = await DocumentDeletionRequest.findById(requestId).lean();
   return toPublic(updated ?? request);
 }
 
@@ -250,7 +255,7 @@ export async function listDeletionRequests(
   actorUserId: string,
   horseId: string,
   status?: string,
-): Promise<PublicDeletionRequest[]> {
+): Promise<PublicDocumentDeletionRequest[]> {
   if (!mongoose.Types.ObjectId.isValid(horseId)) {
     throw new ApiError(400, "Invalid horse id", "VALIDATION_ERROR");
   }
@@ -262,7 +267,7 @@ export async function listDeletionRequests(
   const filter: Record<string, unknown> = { horseId };
   if (status) filter.status = status;
 
-  const items = await MediaDeletionRequest.find(filter)
+  const items = await DocumentDeletionRequest.find(filter)
     .sort({ requestedAt: -1 })
     .lean();
 

@@ -138,9 +138,10 @@ export function HorseListPage() {
             {totalPages > 1 ? (
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 {page > 1 ? (
-                  <button
+                  <Button
                     type="button"
-                    className="underline underline-offset-4 hover:text-foreground"
+                    variant="link"
+                    className="h-auto p-0 text-muted-foreground"
                     onClick={() => {
                       const p = new URLSearchParams(searchParams.toString());
                       p.set("page", String(page - 1));
@@ -148,13 +149,14 @@ export function HorseListPage() {
                     }}
                   >
                     {t("prevPage")}
-                  </button>
+                  </Button>
                 ) : null}
                 <span>{t("pagination", { page, total: totalPages })}</span>
                 {page < totalPages ? (
-                  <button
+                  <Button
                     type="button"
-                    className="underline underline-offset-4 hover:text-foreground"
+                    variant="link"
+                    className="h-auto p-0 text-muted-foreground"
                     onClick={() => {
                       const p = new URLSearchParams(searchParams.toString());
                       p.set("page", String(page + 1));
@@ -162,7 +164,7 @@ export function HorseListPage() {
                     }}
                   >
                     {t("nextPage")}
-                  </button>
+                  </Button>
                 ) : null}
               </div>
             ) : null}

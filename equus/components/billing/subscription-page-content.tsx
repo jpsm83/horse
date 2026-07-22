@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { SUBSCRIPTION_PLANS, type TierId } from "@/lib/billing/plans";
 import { useAppAuth } from "@/hooks/use-app-auth";
+import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect";
 
@@ -161,23 +162,26 @@ export function SubscriptionPageContent() {
                 </div>
 
                 {isCurrentPlan ? (
-                  <button
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="whitespace-nowrap"
                     onClick={handlePortal}
-                    className="py-2 px-4 text-sm rounded-md border hover:bg-muted transition-colors whitespace-nowrap"
                   >
                     {t("manage")}
-                  </button>
+                  </Button>
                 ) : (
-                  <button
+                  <Button
+                    type="button"
+                    className="whitespace-nowrap"
                     onClick={() => handleUpgrade(plan.id)}
-                    className="py-2 px-4 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap"
                   >
                     {!isAuthenticated
                       ? t("subscribe")
                       : billing?.tierId === "free"
                         ? t("subscribe")
                         : t("change")}
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
@@ -188,18 +192,12 @@ export function SubscriptionPageContent() {
       {/* Payment & billing links — only when authenticated */}
       {isAuthenticated && (
         <section className="flex gap-4">
-          <button
-            onClick={handlePortal}
-            className="py-2 px-4 text-sm rounded-md border hover:bg-muted transition-colors"
-          >
+          <Button type="button" variant="outline" onClick={handlePortal}>
             {t("updatePayment")}
-          </button>
-          <button
-            onClick={handlePortal}
-            className="py-2 px-4 text-sm rounded-md border hover:bg-muted transition-colors"
-          >
+          </Button>
+          <Button type="button" variant="outline" onClick={handlePortal}>
             {t("billingHistory")}
-          </button>
+          </Button>
         </section>
       )}
     </div>

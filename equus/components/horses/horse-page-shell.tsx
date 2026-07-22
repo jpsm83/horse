@@ -77,7 +77,7 @@ export function HorsePageShell({
 
   return (
     <>
-      <EntityTabs tabs={getHorseTabs(horseId)} isAdmin={isAdmin} isMainOwner={isMainOwner} isPending={isLoading} variant="header" />
+      <EntityTabs tabs={getHorseTabs(horseId)} isAdmin={isAdmin} isMainOwner={isMainOwner} isPending={isLoading} />
         <div className="mx-auto flex w-full flex-1 flex-col gap-4 p-4 sm:p-6 sm:gap-6">
 
         {isLoading || !horse ? (
