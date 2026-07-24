@@ -5,11 +5,8 @@
 
 import { z } from "zod";
 import {
-  appLocaleEnums,
   genderEnums,
   idTypeEnums,
-  userDirectMessageAudienceEnums,
-  userProfileVisibilityEnums,
   userTypeEnums,
 } from "../../utils/enums.ts";
 import { isKnownCountryCode } from "../data/countries.ts";
@@ -71,7 +68,6 @@ export function createProfileFormSchemas(messages: ProfileFormMessages) {
 
   const profileFormSchema = z.object({
     username: optionalTrimmedString(50),
-    preferredLanguage: z.enum(appLocaleEnums, { message: messages.invalidEnum }),
     firstName: optionalTrimmedString(50),
     lastName: optionalTrimmedString(50),
     gender: optionalEnum(genderEnums, messages),
@@ -90,12 +86,6 @@ export function createProfileFormSchemas(messages: ProfileFormMessages) {
     bio: optionalTrimmedString(2000),
     idType: optionalEnum(idTypeEnums, messages),
     idNumber: optionalTrimmedString(),
-    profileVisibility: z.enum(userProfileVisibilityEnums, {
-      message: messages.invalidEnum,
-    }),
-    allowDirectMessagesFrom: z.enum(userDirectMessageAudienceEnums, {
-      message: messages.invalidEnum,
-    }),
     address: addressFormSchema,
     userType: z.enum(userTypeEnums),
     businessDetails: businessDetailsFormSchema.optional(),
@@ -124,7 +114,6 @@ export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export const emptyProfileFormValues: ProfileFormValues = {
   username: "",
-  preferredLanguage: "en",
   firstName: "",
   lastName: "",
   gender: "",
@@ -134,8 +123,6 @@ export const emptyProfileFormValues: ProfileFormValues = {
   bio: "",
   idType: "",
   idNumber: "",
-  profileVisibility: "public",
-  allowDirectMessagesFrom: "everyone",
   userType: "individual",
   address: {
     country: "",

@@ -57,6 +57,9 @@ export const accountTypeEnums = [
 /** Supported UI and email locales for Equus web and mobile clients. */
 export const appLocaleEnums = ["en", "es"] as const;
 
+/** Color-only UI themes (html class / personalDetails.preferredTheme). */
+export const appThemeEnums = ["default", "onyx"] as const;
+
 /** User-level privacy and discoverability controls for profile exposure. */
 export const userProfileVisibilityEnums = [
   "public",
@@ -141,6 +144,15 @@ export const ownershipTransferKindEnums = [
   "promote_co_owner",
   "add_responsible",
   "remove_responsible",
+] as const;
+
+export const pedigreeConnectionRoleEnums = ["sire", "dam"] as const;
+
+export const pedigreeConnectionStatusEnums = [
+  "pending",
+  "accepted",
+  "declined",
+  "cancelled",
 ] as const;
 
 export const ownershipTransferStatusEnums = [

@@ -36,24 +36,6 @@ describe("profileFormSchema", () => {
     ).toThrow();
   });
 
-  it("rejects invalid preferred language", () => {
-    expect(() =>
-      profileFormSchema.parse({
-        ...emptyProfileFormValues,
-        preferredLanguage: "fr",
-      }),
-    ).toThrow();
-  });
-
-  it("rejects invalid profile visibility", () => {
-    expect(() =>
-      profileFormSchema.parse({
-        ...emptyProfileFormValues,
-        profileVisibility: "friends_only",
-      }),
-    ).toThrow();
-  });
-
   it("rejects invalid birth date", () => {
     expect(() =>
       profileFormSchema.parse({

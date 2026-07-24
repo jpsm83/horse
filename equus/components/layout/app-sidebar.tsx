@@ -8,6 +8,7 @@ import {
   Icon,
   Link2,
   LogOut,
+  Settings2,
   UserRound,
   UserRoundPen,
 } from "lucide-react";
@@ -30,6 +31,10 @@ import { useAppAuth } from "@/hooks/use-app-auth.ts";
 import { useUserProfile } from "@/hooks/queries/useCurrentUser.ts";
 import { Link, usePathname } from "@/i18n/navigation.ts";
 import { resolveAppHomePath } from "@/lib/navigation/postAuthRedirect.ts";
+import {
+  userPreferencesPath,
+  userProfilePath,
+} from "@/lib/navigation/userTabs.ts";
 import { cn } from "@/lib/utils";
 
 type AppSidebarProps = {
@@ -92,7 +97,7 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
               )}
             >
               <Icon iconNode={horseHead} className="size-7" />
-              <span className="truncate text-lg font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
+              <span className="truncate text-lg font-semibold tracking-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">
                 Equus
               </span>
             </SidebarMenuButton>
@@ -129,10 +134,12 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
                 {profileImageUrlValue ? (
                   <AvatarImage src={profileImageUrlValue} alt="" />
                 ) : null}
-                <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                <AvatarFallback className="bg-sidebar-accent text-xs text-sidebar-accent-foreground">
+                  {initials}
+                </AvatarFallback>
               </Avatar>
               <div className="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden">
-                <span className="truncate text-sm font-medium">
+                <span className="truncate text-sm font-medium text-sidebar-foreground">
                   {displayName ?? user.email}
                 </span>
                 <span className="truncate text-xs text-sidebar-foreground/70">
@@ -146,12 +153,22 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    render={<Link href="/profile" />}
-                    isActive={pathname === "/profile"}
+                    render={<Link href={userProfilePath(user.id)} />}
+                    isActive={pathname.startsWith(`/user/${user.id}/profile`)}
                     tooltip={t("profile")}
                   >
                     <UserRoundPen className="size-4" />
                     <span>{t("profile")}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    render={<Link href={userPreferencesPath(user.id)} />}
+                    isActive={pathname.startsWith(`/user/${user.id}/preferences`)}
+                    tooltip={tAccount("preferences")}
+                  >
+                    <Settings2 className="size-4" />
+                    <span>{tAccount("preferences")}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>

@@ -186,3 +186,35 @@ export function useUpdateHorseSale() {
     },
   });
 }
+
+// --- Update Horse Discovery ---
+
+type UpdateHorseDiscoveryInput = {
+  horseId: string;
+  patch: Record<string, unknown>;
+};
+
+async function updateHorseDiscoveryApi(input: UpdateHorseDiscoveryInput): Promise<void> {
+  const response = await fetchWithAuth(
+    `/api/v1/horses/${encodeURIComponent(input.horseId)}/discovery`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input.patch),
+    },
+  );
+  await parseApiResponse<{ horse: Record<string, unknown> }>(response);
+}
+
+export function useUpdateHorseDiscovery() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateHorseDiscoveryApi,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.owner(variables.horseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.lists() });
+    },
+  });
+}
+

@@ -3,9 +3,25 @@
 This document defines **incremental build phases** (Phase 1A/1B), the **production launch gate**, and what is explicitly deferred post-launch.
 
 Source of truth:
-- `businessPlan.md` — Section 0, Section 18, Section 20 (competitive positioning)
+- `businessPlan.md` — Section 0, Section 18, Section 20 (competitive positioning); Section 15 (utility-first social)
 - `stableModule.md` — stable feature specification (living doc)
+- `horseModule.md` — horse feature specification (living doc)
+- `userModule.md` — user feature specification (living doc)
+- `firstDeliveryCompetitiveBacklog.md` — market-derived first-delivery backlog (social user/horse + stable SaaS)
+- `appCompetition/webapps.md` — full competitive benchmark
 - `stack.md` — technical stack (canonical)
+
+---
+
+## First delivery priority (market-aligned)
+
+For the **first delivery**, prioritize:
+
+1. **User + horse details for social interaction** — public Hub/profile richness, care-network sharing, timeline feed, reviews, chat, sale-ready transparency (not an open Instagram feed). Feature IDs: `U-FD-*` in [`userModule.md`](userModule.md), `H-FD-*` in [`horseModule.md`](horseModule.md).
+2. **Stable SaaS** — roster, stalls, daily whiteboard/tasks, health, feed, docs, finance, facilities, owner transparency. Feature IDs: existing `S-*` plus `S-FD-*` in [`stableModule.md`](stableModule.md).
+
+Catalog and suggested build order: [`firstDeliveryCompetitiveBacklog.md`](firstDeliveryCompetitiveBacklog.md).  
+Nothing in existing Equus module specs is removed by this priority — market rows are **additive**.
 
 ---
 
@@ -182,7 +198,7 @@ Required for **Phase 1 wedge pilots** but not listed in the production gate abov
 ### Product areas deferred
 - Full marketplace and in-app horse deal execution
 - Buy/sell transaction workflow (beyond price field on horse profile)
-- Breeder / studfarm webshop suite (mare cards, semen portal — see `equinem.md` / `stableModule.md` §11)
+- Breeder / studfarm webshop suite (mare cards, semen portal — see EquineM in [`appCompetition/webapps.md`](appCompetition/webapps.md#12-equinem) / `stableModule.md` §11)
 - Transport operations module (beyond identity planning)
 - Riding club module
 - Racing/syndicate module

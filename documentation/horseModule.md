@@ -5,8 +5,9 @@ Living document for planning, updating, and tracking **horse-facing** capabiliti
 **Audience:** product, engineering, and GTM Ã¢â‚¬â€ use this file to add, remove, or reprioritize horse features before implementation starts on each area.
 
 **Related docs:**
-- [`equinem.md`](equinem.md) Ã¢â‚¬â€ competitor capability baseline (EquineM)
-- [`businessPlan.md`](businessPlan.md) Ã¢â‚¬â€ vision, monetization (Section 11), relationship rules, Section 10.3 Horse module
+- [`appCompetition/webapps.md`](appCompetition/webapps.md#12-equinem) Ã¢â‚¬â€ market competitive benchmark (EquineM = §12; primary stable-ERP parity baseline)
+- [`firstDeliveryCompetitiveBacklog.md`](firstDeliveryCompetitiveBacklog.md) Ã¢â‚¬â€ first-delivery extract (user/horse social + stable SaaS)
+- [`businessPlan.md`](businessPlan.md) Ã¢â‚¬â€ vision, monetization (Section 11), relationship rules, Section 10.3 Horse module; Section 15 utility-first social
 - [`mvpScope.md`](mvpScope.md) Ã¢â‚¬â€ build phases vs production launch gate
 - [`userModule.md`](userModule.md) Ã¢â‚¬â€ identity, privacy, discovery layers
 - [`ownershipTransfer.md`](ownershipTransfer.md) Ã¢â‚¬â€ consent-based main/co-owner changes (`OwnershipTransfer`)
@@ -36,7 +37,7 @@ Living document for planning, updating, and tracking **horse-facing** capabiliti
 | **Status: planned** | Agreed scope, not started |
 | **Status: in progress** | Actively building |
 | **Status: done** | Shipped in production |
-| **Parity: EquineM** | Feature exists on competitor (see `equinem.md`) |
+| **Parity: EquineM** | Feature exists on competitor (see [`appCompetition/webapps.md`](appCompetition/webapps.md#12-equinem)) |
 | **Beyond** | Differentiator vs EquineM |
 
 Update status as work progresses. Add rows freely; keep IDs stable once referenced in tickets.
@@ -169,10 +170,12 @@ Provider links use `Relationship` documents (`relationshipType`: stable, trainer
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
-| H-COMP-01 | Competition results on horse profile (`competitionResults[]`) | Parity | planned |
-| H-COMP-02 | Trainer/club adds event Ã¢â€ â€™ results on horse timeline | Parity | planned |
-| H-COMP-03 | Performance history and basic analytics | Beyond | planned |
-| H-COMP-04 | Riding club / event registration links | Beyond | planned |
+| H-COMP-01 | Competition results on horse profile (`competitionResults[]`) | Parity | removed |
+| H-COMP-02 | Trainer/club adds event → results on horse timeline | Parity | cancelled |
+| H-COMP-03 | Performance history and basic analytics | Beyond | cancelled |
+| H-COMP-04 | Riding club / event registration links | Beyond | cancelled |
+
+> Competition results were removed from the Horse model, Profile tab, APIs, and services. Not planned for future delivery.
 
 ---
 
@@ -250,9 +253,39 @@ Cross-module production gate (all must be ready together): see [`mvpScope.md`](m
 
 ---
 
+## 14. First delivery — market backlog (social horse surface)
+
+**Priority for first delivery:** user + horse details that enable **social interaction, discovery, sharing, and sale-ready transparency** — without becoming a generic open social network (`businessPlan.md` §15).
+
+Full extraction and competitor mapping: [`firstDeliveryCompetitiveBacklog.md`](firstDeliveryCompetitiveBacklog.md) §A. Source detail: [`appCompetition/webapps.md`](appCompetition/webapps.md).
+
+These rows **add** market-derived scope. They do **not** replace Sections 1–13 above.
+
+| ID | Feature | Market source | Status |
+|----|---------|---------------|--------|
+| H-FD-01 | Equipment sizes on profile (girth, bit, boots, rug size, etc.) for sharing with tack/farrier/leasee | My Cheval | planned |
+| H-FD-02 | Body metrics on horse (weight, height, optional vitals history) for care + Hub display | Happie, Equestrian App | planned |
+| H-FD-03 | Shareable horse information pack (age, pedigree, media, sale links) for owners/buyers | HippoVibe share pack | planned |
+| H-FD-04 | Share modes: read-only vs full-edit access for linked people (map to Relationship / collaborator scopes) | Happie | planned |
+| H-FD-05 | HorseTag QR / scan → open Hub (barn + discovery) | Equestrian App HorseTag | planned |
+| H-FD-06 | Caregiver news feed: relationship-scoped activity from journal/timeline (not global Instagram feed) | Equestrian App feed | planned |
+| H-FD-07 | Injury / issue photo capture into Media + timeline note for vet communication | Equestrian App | planned |
+| H-FD-08 | Sale “Carfax” summary: when for sale, public card shows verified health/farrier/care history summary | Equestrian App horses for sale | planned |
+| H-FD-09 | Public Hub gallery subset (curated photos/videos for discovery visitors) | ehorses rich listings, Equicty horse CV | planned |
+| H-FD-10 | Sale listing field completeness aligned with marketplace filters (breed, age, height, colour, discipline, price, location, pedigree, media) | ehorses | planned |
+| H-FD-11 | Farrier / bodywork / provider visit notes written into horse journal (permissioned) | Equestrian App farrier tools | planned |
+| H-FD-12 | Leasee / share-boarder visibility of scheduled lease days on horse Hub | Equestrian App leasing | planned |
+| H-FD-13 | Document folders / playlists per horse (passport, X-rays, invoices, videos) | HippoVibe playlists | planned |
+| H-FD-14 | Connect tab surfaces multi-party care network clearly (owner, co-owner, stable, vet, trainer, farrier, leasee) | Equestrian App permissions model | planned |
+
+**Deferred from market (documented, not first delivery):** GPS ride tracking / RideSafe / gait AI (Equilab, Ridely, My Cheval); fructan/PPID/pollen OS (Happie); FEI HorseApp compliance modules; full ehorses marketplace liquidity; Ridely video curriculum.
+
+---
+
 ## Changelog
 
 | Date | Change |
 |------|--------|
+| 2026-07-24 | §14 First delivery market backlog (social horse surface) from `appCompetition/webapps.md` / `firstDeliveryCompetitiveBacklog.md` |
 | 2026-06-30 | Create-horse web UI at `/horses/new` (baseline identity + discovery fields); H-PROF-01 partial |
-| 2026-06-30 | Initial specification from `businessPlan.md` Ã‚Â§4.1 / Ã‚Â§10.3, `mvpScope.md`, `equinem.md`, and shipped horse discovery API |
+| 2026-06-30 | Initial specification from `businessPlan.md` Ã‚Â§4.1 / Ã‚Â§10.3, `mvpScope.md`, EquineM baseline (`appCompetition/webapps.md` §12), and shipped horse discovery API |

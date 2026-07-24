@@ -4,7 +4,9 @@ Reference for minimal stable endpoints and discovery visibility behavior.
 
 Related:
 - [`../../documentation/userModule.md`](../../documentation/userModule.md)
-- [`../../documentation/stableModule.md`](../../documentation/stableModule.md)
+- [`../../documentation/stableModule.md`](../../documentation/stableModule.md) — full stable spec; §12 first-delivery SaaS backlog (`S-FD-*`)
+- [`../../documentation/firstDeliveryCompetitiveBacklog.md`](../../documentation/firstDeliveryCompetitiveBacklog.md) — market extract (Equicty, HippoVibe, StallPros)
+- [`../../documentation/appCompetition/webapps.md`](../../documentation/appCompetition/webapps.md) — competitive benchmark
 - [`horses.md`](./horses.md)
 - [`profile.md`](./profile.md)
 

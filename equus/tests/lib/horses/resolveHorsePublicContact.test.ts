@@ -16,32 +16,8 @@ describe("resolveHorsePublicContact", () => {
     },
   } as Record<string, unknown>;
 
-  it("returns delegate contact when useOwnerContact is false", () => {
-    const horse = {
-      contactDisplay: {
-        useOwnerContact: false,
-        name: "Stable Manager",
-        phone: "+351911111111",
-        email: "stable@example.com",
-      },
-    };
-
-    expect(resolveHorsePublicContact(horse, ownerUser, "public")).toEqual({
-      useOwnerContact: false,
-      name: "Stable Manager",
-      phone: "+351911111111",
-      email: "stable@example.com",
-    });
-  });
-
   it("hides owner contact for platform audience when owner is private", () => {
-    const horse = {
-      contactDisplay: {
-        useOwnerContact: true,
-      },
-    };
-
-    expect(resolveHorsePublicContact(horse, ownerUser, "platform")).toEqual({
+    expect(resolveHorsePublicContact({}, ownerUser, "platform")).toEqual({
       useOwnerContact: true,
       name: undefined,
       phone: undefined,
@@ -50,13 +26,7 @@ describe("resolveHorsePublicContact", () => {
   });
 
   it("shows owner contact for relationship audience when owner is private", () => {
-    const horse = {
-      contactDisplay: {
-        useOwnerContact: true,
-      },
-    };
-
-    expect(resolveHorsePublicContact(horse, ownerUser, "relationship")).toEqual({
+    expect(resolveHorsePublicContact({}, ownerUser, "relationship")).toEqual({
       useOwnerContact: true,
       name: "Alice Owner",
       phone: "+351900000000",
@@ -64,4 +34,3 @@ describe("resolveHorsePublicContact", () => {
     });
   });
 });
-

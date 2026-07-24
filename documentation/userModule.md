@@ -5,8 +5,9 @@ Living document for planning, updating, and tracking **user identity, roles, pri
 **Audience:** product, engineering, and GTM — use this file to add, remove, or reprioritize user-facing identity capabilities before implementation starts on each area.
 
 **Related docs:**
-- [`equinem.md`](equinem.md) — competitor capability baseline (EquineM)
-- [`businessPlan.md`](businessPlan.md) — vision, Section 10.1 User module, multi-role model, discovery rules
+- [`appCompetition/webapps.md`](appCompetition/webapps.md#12-equinem) — market competitive benchmark (EquineM = §12; primary stable-ERP parity baseline)
+- [`firstDeliveryCompetitiveBacklog.md`](firstDeliveryCompetitiveBacklog.md) — first-delivery extract (user/horse social + stable SaaS)
+- [`businessPlan.md`](businessPlan.md) — vision, Section 10.1 User module, multi-role model, discovery rules; Section 15 utility-first social
 - [`mvpScope.md`](mvpScope.md) — build phases vs production launch gate
 - [`workplaceRelationship.md`](workplaceRelationship.md) — User ↔ host role profile collaboration (no business account)
 - [`horseModule.md`](horseModule.md) — per-horse discovery and owner hub
@@ -42,7 +43,7 @@ Living document for planning, updating, and tracking **user identity, roles, pri
 | **Status: planned** | Agreed scope, not started |
 | **Status: in progress** | Actively building |
 | **Status: done** | Shipped in production |
-| **Parity: EquineM** | Feature exists on competitor (see `equinem.md`) |
+| **Parity: EquineM** | Feature exists on competitor (see [`appCompetition/webapps.md`](appCompetition/webapps.md#12-equinem)) |
 | **Beyond** | Differentiator vs EquineM |
 
 Update status as work progresses. Add rows freely; keep IDs stable once referenced in tickets.
@@ -381,10 +382,34 @@ Business accounts display `businessName` as display name on public profile cards
 
 ---
 
+## 12. First delivery — market backlog (user social identity)
+
+**Priority for first delivery:** user identity details and interaction surfaces that support **horse/stable social utility** — discovery drill-down, chat, care-network participation — without a people search directory or open social network (`businessPlan.md` §15; entity-first discovery remains locked).
+
+Full extraction: [`firstDeliveryCompetitiveBacklog.md`](firstDeliveryCompetitiveBacklog.md) §A.1. Source detail: [`appCompetition/webapps.md`](appCompetition/webapps.md).
+
+These rows **add** market-derived scope. They do **not** replace Sections 1–11 above.
+
+| ID | Feature | Market source | Status |
+|----|---------|---------------|--------|
+| U-FD-01 | Public card polish: avatar, username, bio, display name (individual or businessName) consistently shown from entity deep-links | Equilab, Equestrian App, Equus U-PRIV-05 | planned |
+| U-FD-02 | Horse-context connection: user can be invited into horse care network (leasee, co-owner, responsible, provider) with clear permission summary on profile | Happie share, Equestrian App connect | planned |
+| U-FD-03 | Open live chat UX tied to entity context (horse / stable / booking) while remaining WhatsApp-style platform-wide | Equus Phase 1A, Equestrian App Barn Chat | planned |
+| U-FD-04 | Notification center for relationship events, timeline posts on shared horses, booking, reviews | My Cheval, Equilab, Equus H-DASH-06 | planned |
+| U-FD-05 | Optional “care network contacts” list on user home (farriers, vets, trainers linked via horses/stables) — not a people directory | Equestrian App contacts | planned |
+| U-FD-06 | Collaborator profile fields usable by stables (title, emergency phone) without granting entity ownership | Equicty staff details, WorkplaceRelationship | planned |
+| U-FD-07 | Preferred language + locale already sync; ensure public/localised strings for social surfaces (EN/ES first) | Equilab multi-lang, Equus i18n | planned |
+| U-FD-08 | Trust surface on public user card: link to verified horse-scoped reviews (aggregate when policy allows) | Equus reviews, Ridely HWS inspiration | planned |
+
+**Deferred from market (documented, not first delivery):** generic follow/friend graph and challenges/leaderboards (Equilab); expert-moderated topic groups and AI coach (Ridely); in-app brand ads / Marketing Cloud (Happie, Equilab); BHS-style membership cards/insurance.
+
+---
+
 ## Changelog
 
 | Date | Change |
 |------|--------|
+| 2026-07-24 | §12 First delivery market backlog (user social identity) from `appCompetition/webapps.md` / `firstDeliveryCompetitiveBacklog.md` |
 | 2026-06-30 | Initial module spec — living doc pattern for user identity/roles; role discovery detail in `equus/documentation/*.md` registry |
 | 2026-06-30 | Create-horse web UI; veterinary baseline API shipped |
 | 2026-06-29 | Entity-owned `mainOwnerUserId`; collaborators as Users; workplace APIs |

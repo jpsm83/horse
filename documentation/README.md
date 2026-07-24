@@ -12,7 +12,8 @@ Canonical docs for product and engineering decisions.
 | [`horseModule.md`](horseModule.md) | **Horse feature spec** — living doc; owner hub, discovery, relationships |
 | [`stableModule.md`](stableModule.md) | **Stable feature spec** — living doc; EquineM parity + differentiators |
 | [`workplaceRelationship.md`](workplaceRelationship.md) | **User ↔ role profile** workplace link (no business account) |
-| [`equinem.md`](equinem.md) | Competitor reference (EquineM capabilities and pricing) |
+| [`appCompetition/webapps.md`](appCompetition/webapps.md) | Market competitive benchmark (12 products, including EquineM §12) |
+| [`firstDeliveryCompetitiveBacklog.md`](firstDeliveryCompetitiveBacklog.md) | **First delivery** extract: user/horse social + stable SaaS from market research |
 | [`validationPlaybook.md`](validationPlaybook.md) | Pre-build customer interviews and go/no-go |
 | [`productFlows.md`](productFlows.md) | Onboarding and core user journeys |
 | [`userModule.md`](userModule.md) | **User feature spec** — identity, roles, privacy, access paths |

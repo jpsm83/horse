@@ -19,6 +19,11 @@ import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { useAppAuth } from "@/hooks/use-app-auth.ts";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
+import {
+  fromSelectValue,
+  selectItemValue,
+  toSelectValue,
+} from "@/lib/ui/selectEmptyValue.ts";
 
 export type FilterFieldConfig = {
   key: string;
@@ -145,13 +150,17 @@ export function EntityFilter({ fields, onSearch, createHref, createLabel }: Enti
         if (field.type === "flag-select") {
           const opts = field.options ?? [];
           const selectedValue = values[field.key] ?? "";
+          const emptySentinel =
+            field.placeholder ?? opts.find((o) => o.value === "")?.label ?? "";
           const selected = opts.find((o) => o.value === selectedValue);
           return (
             <div key={field.key} className="min-w-36 flex-1 space-y-1">
               <label className="text-xs font-medium text-foreground">{field.label}</label>
               <Select
-                value={selectedValue || null}
-                onValueChange={(v) => updateValue(field.key, v ?? "")}
+                value={toSelectValue(selectedValue, opts, emptySentinel)}
+                onValueChange={(v) =>
+                  updateValue(field.key, fromSelectValue(v, emptySentinel))
+                }
               >
                 <SelectTrigger className="h-8 w-full">
                   {selected ? (
@@ -164,14 +173,17 @@ export function EntityFilter({ fields, onSearch, createHref, createLabel }: Enti
                   )}
                 </SelectTrigger>
                 <SelectContent className="max-h-60" side="bottom" align="start" alignItemWithTrigger={false}>
-                  {opts.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      <span className="flex min-w-0 items-center gap-2">
-                        <FlagIcon code={opt.flagCode ?? opt.value} sizeClass="h-4 w-4" />
-                        <span>{opt.label}</span>
-                      </span>
-                    </SelectItem>
-                  ))}
+                  {opts.map((opt) => {
+                    const itemValue = selectItemValue(opt.value, emptySentinel);
+                    return (
+                      <SelectItem key={itemValue} value={itemValue}>
+                        <span className="flex min-w-0 items-center gap-2">
+                          <FlagIcon code={opt.flagCode ?? opt.value} sizeClass="h-4 w-4" />
+                          <span>{opt.label}</span>
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -195,22 +207,29 @@ export function EntityFilter({ fields, onSearch, createHref, createLabel }: Enti
         if (field.type === "select") {
           const opts = field.options ?? [];
           const selectedValue = values[field.key] ?? "";
+          const emptySentinel =
+            field.placeholder ?? opts.find((o) => o.value === "")?.label ?? "";
           return (
             <div key={field.key} className="min-w-36 flex-1 space-y-1">
               <label className="text-xs font-medium text-foreground">{field.label}</label>
               <Select
-                value={selectedValue || null}
-                onValueChange={(v) => updateValue(field.key, v ?? "")}
+                value={toSelectValue(selectedValue, opts, emptySentinel)}
+                onValueChange={(v) =>
+                  updateValue(field.key, fromSelectValue(v, emptySentinel))
+                }
               >
                 <SelectTrigger className="h-8 w-full">
                   <SelectValue placeholder={field.placeholder} />
                 </SelectTrigger>
                 <SelectContent className="max-h-60" side="bottom" align="start" alignItemWithTrigger={false}>
-                  {opts.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
+                  {opts.map((opt) => {
+                    const itemValue = selectItemValue(opt.value, emptySentinel);
+                    return (
+                      <SelectItem key={itemValue} value={itemValue}>
+                        {opt.label}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>

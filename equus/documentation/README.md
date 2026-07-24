@@ -9,7 +9,7 @@ Engineering documentation for the Equus Next.js application. Product specs live 
 | Doc | Purpose |
 |-----|---------|
 | [`stack.md`](./stack.md) | Technical stack, architecture principles, folder structure |
-| [`page-flow-blueprint.md`](./page-flow-blueprint.md) | Canonical page pattern: shell, loading, error boundaries |
+| [`page-flow-blueprint.md`](./page-flow-blueprint.md) | Canonical page pattern: shell, loading, error boundaries, parent-owned Save for Profile/Admin |
 | [`component-resilience.md`](./component-resilience.md) | Loading states, skeletons, ErrorBoundary stacking |
 | [`errors.md`](./errors.md) | Three-layer error handling (global, page, section) |
 | [`i18n.md`](./i18n.md) | Locales, routing, `NEXT_LOCALE` cookie |
@@ -19,7 +19,7 @@ Engineering documentation for the Equus Next.js application. Product specs live 
 | Doc | Purpose |
 |-----|---------|
 | [`auth.md`](./auth.md) | Web session (cookies), mobile JWT, Google bridge, token refresh |
-| [`profile.md`](./profile.md) | Profile page UI, `PATCH /me`, clear-field semantics, account deactivation |
+| [`profile.md`](./profile.md) | Account profile + preferences routes, `PATCH /me`, preview/Save/discard, deactivation |
 | [`userAuthTodo.md`](./userAuthTodo.md) | User/auth readiness checklist (UA-00 through UA-31) |
 | [`dataLifecycle.md`](./dataLifecycle.md) | Engineering patterns: tombstone fields, service conventions |
 | [`piiAnonymization.md`](./piiAnonymization.md) | GDPR PII anonymization pipeline (UA-31) |
@@ -45,6 +45,16 @@ Engineering documentation for the Equus Next.js application. Product specs live 
 | Doc | Purpose |
 |-----|---------|
 | [`horseTabs.md`](./horseTabs.md) | Horse tab structure, routes, visibility, tab order |
+
+## Product / competitive specs (canonical in `/documentation`)
+
+| Doc | Purpose |
+|-----|---------|
+| [`../../documentation/horseModule.md`](../../documentation/horseModule.md) | Horse feature spec — includes §14 first-delivery social backlog (`H-FD-*`) |
+| [`../../documentation/userModule.md`](../../documentation/userModule.md) | User feature spec — includes §12 first-delivery social backlog (`U-FD-*`) |
+| [`../../documentation/stableModule.md`](../../documentation/stableModule.md) | Stable feature spec — includes §12 first-delivery SaaS backlog (`S-FD-*`) |
+| [`../../documentation/firstDeliveryCompetitiveBacklog.md`](../../documentation/firstDeliveryCompetitiveBacklog.md) | First delivery extract from market research |
+| [`../../documentation/appCompetition/webapps.md`](../../documentation/appCompetition/webapps.md) | Full competitive benchmark (12 products, including EquineM) |
 
 ## Relationships & Ownership
 

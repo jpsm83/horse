@@ -2,7 +2,7 @@
 
 /**
  * Create-horse page body — auth gate, skeleton, form, and mutation overlay.
- * Follows the same pattern as profile-page-content.tsx.
+ * Follows the same deferred client content pattern as other account pages.
  */
 
 import { useTranslations } from "next-intl";

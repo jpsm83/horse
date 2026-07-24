@@ -5,17 +5,13 @@
 import type { z } from "zod";
 import type { createHorseSchema } from "@/lib/validations/horse.ts";
 import type { CreateHorseFormValues } from "@/lib/validations/horseForms.ts";
+import { normalizeHorseIdentityFields } from "@/lib/utils/horseIdentity.ts";
 
 export type CreateHorsePayload = z.infer<typeof createHorseSchema>;
 
 function nonEmpty(value: string): string | undefined {
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
-}
-
-function emptyAsUndefined<T>(value: T | ""): T | undefined {
-  if (value === "" || value === undefined) return undefined;
-  return value;
 }
 
 function parseOptionalDate(value: string): Date | undefined {
@@ -44,26 +40,20 @@ export function mapHorseFormValuesToCreatePayload(
   const registeredName = nonEmpty(values.registeredName);
   if (registeredName) payload.registeredName = registeredName;
 
-  const registryId = nonEmpty(values.registryId);
-  if (registryId) payload.registryId = registryId;
-
-  const microchipId = nonEmpty(values.microchipId);
-  if (microchipId) payload.microchipId = microchipId;
-
-  const passportNumber = nonEmpty(values.passportNumber);
-  if (passportNumber) payload.passportNumber = passportNumber;
+  const identity = normalizeHorseIdentityFields({
+    registryId: values.registryId,
+    microchipId: values.microchipId,
+    passportNumber: values.passportNumber,
+  });
+  if (identity.registryId) payload.registryId = identity.registryId;
+  if (identity.microchipId) payload.microchipId = identity.microchipId;
+  if (identity.passportNumber) payload.passportNumber = identity.passportNumber;
 
   const dob = parseOptionalDate(values.dateOfBirth);
   if (dob) payload.dateOfBirth = dob;
 
-  const ageYears = parseOptionalNumber(values.ageYears);
-  if (ageYears !== undefined) payload.ageYears = ageYears;
-
   const color = nonEmpty(values.color);
   if (color) payload.color = color as CreateHorsePayload["color"];
-
-  const marksDescription = nonEmpty(values.marksDescription);
-  if (marksDescription) payload.marksDescription = marksDescription;
 
   const heightHands = parseOptionalNumber(values.heightHands);
   if (heightHands !== undefined) payload.heightHands = heightHands;
@@ -103,17 +93,13 @@ export function mapHorseFormValuesToCreatePayload(
 
   // Pedigree
   const sireName = nonEmpty(values.pedigree.sireName);
-  const sireId = nonEmpty(values.pedigree.sireId);
   const damName = nonEmpty(values.pedigree.damName);
-  const damId = nonEmpty(values.pedigree.damId);
   const bloodlineNotes = nonEmpty(values.pedigree.bloodlineNotes);
 
-  if (sireName || sireId || damName || damId || bloodlineNotes) {
+  if (sireName || damName || bloodlineNotes) {
     payload.pedigree = {};
     if (sireName) payload.pedigree.sireName = sireName;
-    if (sireId) payload.pedigree.sireId = sireId;
     if (damName) payload.pedigree.damName = damName;
-    if (damId) payload.pedigree.damId = damId;
     if (bloodlineNotes) payload.pedigree.bloodlineNotes = bloodlineNotes;
   }
 
@@ -130,22 +116,9 @@ export function mapHorseFormValuesToCreatePayload(
   const description = nonEmpty(values.description);
   if (description) payload.description = description;
 
-  const notes = nonEmpty(values.notes);
-  if (notes) payload.notes = notes;
-
   // Discovery
   if (values.profileVisibility !== "public") {
     payload.profileVisibility = values.profileVisibility;
-  }
-
-  const useOwnerContact = values.contactDisplay.useOwnerContact === "true";
-  if (!useOwnerContact) {
-    payload.contactDisplay = {
-      useOwnerContact: false,
-      name: values.contactDisplay.name.trim(),
-      phone: values.contactDisplay.phone.trim(),
-      email: values.contactDisplay.email.trim(),
-    };
   }
 
   return payload;

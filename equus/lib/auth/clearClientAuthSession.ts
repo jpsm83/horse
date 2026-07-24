@@ -16,6 +16,7 @@ import {
   runWithSilentAuthFailure,
   runWithSuppressedSessionExpired,
 } from "@/lib/api/auth/session";
+import { applyThemeToDocument, syncThemeCookie } from "@/lib/theme/appTheme.ts";
 
 export async function clearClientAuthSession(): Promise<void> {
   await runWithSuppressedSessionExpired(async () => {
@@ -35,5 +36,7 @@ export async function clearClientAuthSession(): Promise<void> {
     }
 
     resetOptionalUserCache();
+    applyThemeToDocument("default");
+    syncThemeCookie("default");
   });
 }

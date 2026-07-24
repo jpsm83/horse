@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
 import { SelectField } from "@/components/forms/select-field.tsx";
 import { TextField } from "@/components/forms/text-field.tsx";
@@ -91,13 +91,6 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
     onSubmittingChange?.(isSubmitting);
   }, [isSubmitting, onSubmittingChange]);
 
-  const useOwnerContact = useWatch({
-    control: form.control,
-    name: "contactDisplay.useOwnerContact",
-  });
-
-  const showContactFields = useOwnerContact === "false";
-
   const sexOptions = useMemo(
     () => horseSexEnums.map((v) => ({ value: v, label: t(`sexOptions.${v}`) })),
     [t],
@@ -131,14 +124,6 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
 
   const visibilityOptions = useMemo(
     () => visibilityEnums.map((v) => ({ value: v, label: t(`visibilityOptions.${v}`) })),
-    [t],
-  );
-
-  const useOwnerContactOptions = useMemo(
-    () => [
-      { value: "true", label: t("useOwnerContactOptions.true") },
-      { value: "false", label: t("useOwnerContactOptions.false") },
-    ],
     [t],
   );
 
@@ -289,13 +274,6 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
               {fieldState.invalid ? <FieldError errors={[fieldState.error]} /> : null}
             </Field>
           )} />
-          <Controller name="notes" control={form.control} render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="create-horse-notes">{t("notes")}</FieldLabel>
-              <Textarea {...field} value={field.value ?? ""} id="create-horse-notes" rows={3} aria-invalid={fieldState.invalid} />
-              {fieldState.invalid ? <FieldError errors={[fieldState.error]} /> : null}
-            </Field>
-          )} />
         </FieldGroup>
       </FieldSet>
 
@@ -317,7 +295,6 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
               <SelectField id="create-horse-sex" label={t("sex")} placeholder={tCommon("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={sexOptions} />
             )} />
             <TextField control={form.control} name="dateOfBirth" id="create-horse-dateOfBirth" label={t("dateOfBirth")} type="date" />
-            <TextField control={form.control} name="ageYears" id="create-horse-ageYears" label={t("ageYears")} type="number" />
             <Controller name="color" control={form.control} render={({ field, fieldState }) => (
               <SelectField id="create-horse-color" label={t("color")} placeholder={tCommon("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={colorOptions} />
             )} />
@@ -332,13 +309,6 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
             <TextField control={form.control} name="microchipId" id="create-horse-microchipId" label={t("microchipId")} />
           </div>
           <TextField control={form.control} name="passportNumber" id="create-horse-passportNumber" label={t("passportNumber")} />
-          <Controller name="marksDescription" control={form.control} render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="create-horse-marks">{t("marksDescription")}</FieldLabel>
-              <Textarea {...field} value={field.value ?? ""} id="create-horse-marks" rows={3} aria-invalid={fieldState.invalid} />
-              {fieldState.invalid ? <FieldError errors={[fieldState.error]} /> : null}
-            </Field>
-          )} />
           <div className="grid gap-5 sm:grid-cols-2">
             <Controller name="countryOfBirth" control={form.control} render={({ field, fieldState }) => (
               <FlagSelectField
@@ -418,16 +388,6 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
             <Controller name="profileVisibility" control={form.control} render={({ field, fieldState }) => (
               <SelectField id="create-horse-profileVisibility" label={t("profileVisibility")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={visibilityOptions} />
             )} />
-            <Controller name="contactDisplay.useOwnerContact" control={form.control} render={({ field, fieldState }) => (
-              <SelectField id="create-horse-useOwnerContact" label={t("useOwnerContact")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={useOwnerContactOptions} />
-            )} />
-            {showContactFields ? (
-              <>
-                <TextField control={form.control} name="contactDisplay.name" id="create-horse-contactName" label={t("contactName")} />
-                <TextField control={form.control} name="contactDisplay.phone" id="create-horse-contactPhone" label={t("contactPhone")} type="tel" />
-                <TextField control={form.control} name="contactDisplay.email" id="create-horse-contactEmail" label={t("contactEmail")} type="email" autoComplete="email" />
-              </>
-            ) : null}
           </div>
         </FieldGroup>
       </FieldSet>

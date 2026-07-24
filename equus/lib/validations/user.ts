@@ -9,6 +9,7 @@ import {
   genderEnums,
   idTypeEnums,
   appLocaleEnums,
+  appThemeEnums,
   userDirectMessageAudienceEnums,
   userProfileVisibilityEnums,
   userTypeEnums,
@@ -68,6 +69,7 @@ export const updatePersonalDetailsSchema = z.object({
   phoneNumber: patchString().optional(),
   bio: z.union([z.string().trim().max(2000), z.literal("")]).optional(),
   preferredLanguage: z.enum(appLocaleEnums).optional(),
+  preferredTheme: z.enum(appThemeEnums).optional(),
   preferences: z
     .object({
       profileVisibility: patchEnum(userProfileVisibilityEnums).optional(),

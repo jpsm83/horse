@@ -1,6 +1,14 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import { afterAll, afterEach, beforeAll } from "vitest";
+import { afterAll, afterEach, beforeAll, vi } from "vitest";
+
+vi.mock("@/lib/email/sendOwnershipTransferInviteEmail.ts", () => ({
+  sendOwnershipTransferInviteEmail: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("@/lib/email/sendPedigreeConnectInviteEmail.ts", () => ({
+  sendPedigreeConnectInviteEmail: vi.fn().mockResolvedValue(undefined),
+}));
 
 let mongoServer: MongoMemoryServer | null = null;
 

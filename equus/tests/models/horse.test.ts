@@ -4,7 +4,7 @@ import User from "@/models/User.ts";
 import * as userService from "@/lib/services/userService.ts";
 
 describe("Horse model discovery defaults", () => {
-  it("defaults profileVisibility to public and contactDisplay to owner contact", async () => {
+  it("defaults profileVisibility to public", async () => {
     const owner = await userService.createCredentialsUser({
       email: "horse-owner@example.com",
       password: "TestPass1!",
@@ -19,33 +19,9 @@ describe("Horse model discovery defaults", () => {
     });
 
     expect(horse.profileVisibility).toBe("public");
-    expect(horse.contactDisplay?.useOwnerContact).toBe(true);
-    expect(horse.contactDisplay?.name).toBeUndefined();
-  });
-
-  it("persists custom contact display when set", async () => {
-    const owner = await User.create({
-      personalDetails: { email: "custom-contact@example.com", password: "hash" },
-      authProvider: "credentials",
-    });
-
-    const horse = await Horse.create({
-      name: "Star",
-      breed: "Arabian",
-      sex: "Mare",
-      mainOwnerUserId: owner._id,
-      createdByUserId: owner._id,
-      contactDisplay: {
-        useOwnerContact: false,
-        name: "Stable Manager",
-        phone: "+351900000000",
-        email: "stable@example.com",
-      },
-    });
-
-    expect(horse.contactDisplay?.useOwnerContact).toBe(false);
-    expect(horse.contactDisplay?.name).toBe("Stable Manager");
-    expect(horse.contactDisplay?.email).toBe("stable@example.com");
+    expect(Horse.schema.path("contactDisplay")).toBeUndefined();
+    expect(Horse.schema.path("ageYears")).toBeUndefined();
+    expect(Horse.schema.path("marksDescription")).toBeUndefined();
   });
 });
 

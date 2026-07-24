@@ -1,24 +1,31 @@
-import type { Metadata } from "next";
-import dynamic from "next/dynamic";
+"use client";
 
-import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
-import { Skeleton } from "@/components/ui/skeleton";
+/**
+ * Legacy `/profile` bookmark — redirects to `/user/{id}/profile`.
+ */
 
-type PageProps = { params: Promise<{ locale: string }> };
+import { useEffect } from "react";
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale } = await params;
-  return generatePrivateMetadata(locale, "/profile", "metadata.profile");
-}
+import { UserPageSkeleton } from "@/components/user/user-page-skeleton.tsx";
+import { useAppAuth } from "@/hooks/use-app-auth.ts";
+import { useRouter } from "@/i18n/navigation.ts";
+import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
+import { userProfilePath } from "@/lib/navigation/userTabs.ts";
 
-const ProfilePage = dynamic(
-  () =>
-    import("@/components/profile/profile-page.tsx").then((m) => ({
-      default: m.ProfilePage,
-    })),
-  { loading: () => <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" /> },
-);
+export default function ProfileRedirectPage() {
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading } = useAppAuth();
 
-export default function Page() {
-  return <ProfilePage />;
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!isAuthenticated || !user) {
+      router.replace(buildSignInPath("/profile"));
+      return;
+    }
+
+    router.replace(userProfilePath(user.id));
+  }, [isLoading, isAuthenticated, user, router]);
+
+  return <UserPageSkeleton suppressHydrationWarning />;
 }

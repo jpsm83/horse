@@ -29,3 +29,23 @@ export function buildRelationshipSignupLink(referralReference: string, locale?: 
 export function buildRelationshipAcceptLink(relationshipId: string, locale?: string): string {
   return buildLocalizedAppLink(locale, "relationships", { relationship: relationshipId });
 }
+
+/** Pedigree connection signup with referral attribution. */
+export function buildPedigreeConnectSignupLink(referralReference: string, locale?: string): string {
+  return buildLocalizedAppLink(locale, "signup", { ref: referralReference });
+}
+
+/** App pedigree connections inbox for existing users. */
+export function buildPedigreeConnectAcceptLink(connectionId: string, locale?: string): string {
+  return buildLocalizedAppLink(locale, "pedigree-connections", { connection: connectionId });
+}
+
+/** Ownership transfer signup with referral attribution. */
+export function buildOwnershipTransferSignupLink(referralReference: string, locale?: string): string {
+  return buildLocalizedAppLink(locale, "signup", { ref: referralReference });
+}
+
+/** App ownership transfers inbox for existing users. */
+export function buildOwnershipTransferAcceptLink(transferId: string, locale?: string): string {
+  return buildLocalizedAppLink(locale, "ownership-transfers", { transfer: transferId });
+}

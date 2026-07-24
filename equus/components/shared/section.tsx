@@ -27,12 +27,12 @@ export function Section({
   const showToggle = !!(sectionKey && visibility && onVisibilityChange);
 
   return (
-    <section className={cn("flex min-h-0 flex-col gap-4 border border-primary/20 rounded-lg p-4 bg-primary/5", className)}>
+    <section className={cn("flex min-h-0 flex-col gap-4 border border-border rounded-lg p-4 bg-card text-card-foreground", className)}>
       <div className="flex items-start justify-between gap-4 shrink-0">
-        <div className="min-w-0">
-          <h2 className="text-xl font-semibold">{title}</h2>
+        <div className="min-w-0 flex flex-col sm:flex-row sm:items-baseline sm:gap-4">
+          <h2 className="text-xl font-semibold text-foreground">{title}</h2>
           {description && (
-            <p className="text-sm text-muted-foreground">{description}</p>
+            <p className="text-sm text-muted-foreground sm:border-l sm:border-border sm:pl-4">{description}</p>
           )}
         </div>
       {showToggle && (

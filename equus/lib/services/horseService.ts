@@ -29,6 +29,11 @@ import type {
   updateHorseDiscoverySchema,
   updateHorseProfileSchema,
 } from "@/lib/validations/horse.ts";
+import {
+  hasAtLeastOneHorseIdentity,
+  HORSE_IDENTITY_REQUIRED_MESSAGE,
+  normalizeHorseIdentityFields,
+} from "@/lib/utils/horseIdentity.ts";
 
 export type CreateHorseInput = z.infer<typeof createHorseSchema>;
 export type UpdateHorseDiscoveryInput = z.infer<typeof updateHorseDiscoverySchema>;
@@ -77,7 +82,7 @@ export type PublicHorseCard = {
   sex?: string;
   profileVisibility?: string;
   contactDisplay: {
-    useOwnerContact: boolean;
+    useOwnerContact: true;
     name?: string;
     phone?: string;
     email?: string;
@@ -123,9 +128,7 @@ export type OwnerHorseHubSummary = {
   microchipId?: string;
   passportNumber?: string;
   dateOfBirth?: string;
-  ageYears?: number;
   color?: string;
-  marksDescription?: string;
   heightHands?: number;
   primaryDiscipline?: string;
   disciplines?: string[];
@@ -142,7 +145,6 @@ export type OwnerHorseHubSummary = {
   description?: string;
   notes?: string;
   profileVisibility?: string;
-  contactDisplay?: Record<string, unknown>;
   isMainOwner: boolean;
   isCoOwner: boolean;
   isResponsible: boolean;
@@ -232,13 +234,12 @@ export async function createHorse(actorUserId: string, input: CreateHorseInput) 
 
   // Identity
   if (input.registeredName) doc.registeredName = input.registeredName;
-  if (input.registryId) doc.registryId = input.registryId;
-  if (input.microchipId) doc.microchipId = input.microchipId;
-  if (input.passportNumber) doc.passportNumber = input.passportNumber;
+  const identity = normalizeHorseIdentityFields(input);
+  if (identity.registryId) doc.registryId = identity.registryId;
+  if (identity.microchipId) doc.microchipId = identity.microchipId;
+  if (identity.passportNumber) doc.passportNumber = identity.passportNumber;
   if (input.dateOfBirth) doc.dateOfBirth = input.dateOfBirth;
-  if (input.ageYears !== undefined) doc.ageYears = input.ageYears;
   if (input.color) doc.color = input.color;
-  if (input.marksDescription) doc.marksDescription = input.marksDescription;
   if (input.heightHands !== undefined) doc.heightHands = input.heightHands;
   if (input.primaryDiscipline) doc.primaryDiscipline = input.primaryDiscipline;
   if (input.disciplines && input.disciplines.length > 0) doc.disciplines = input.disciplines;
@@ -276,7 +277,6 @@ export async function createHorse(actorUserId: string, input: CreateHorseInput) 
 
   // Discovery
   if (input.profileVisibility) doc.profileVisibility = input.profileVisibility;
-  if (input.contactDisplay) doc.contactDisplay = input.contactDisplay;
 
   const horse = await Horse.create(doc);
   return horse.toObject();
@@ -330,10 +330,25 @@ export async function listHorses(
     query.countryOfBirth = { $regex: filters.countryOfBirth, $options: "i" };
   }
   if (filters.ageMin !== undefined || filters.ageMax !== undefined) {
-    const ageFilter: Record<string, number> = {};
-    if (filters.ageMin !== undefined) ageFilter.$gte = filters.ageMin;
-    if (filters.ageMax !== undefined) ageFilter.$lte = filters.ageMax;
-    query.ageYears = ageFilter;
+    const now = new Date();
+    const dobFilter: Record<string, Date> = {};
+    // ageMax N → born on/after today − N years
+    if (filters.ageMax !== undefined) {
+      dobFilter.$gte = new Date(
+        now.getFullYear() - filters.ageMax,
+        now.getMonth(),
+        now.getDate(),
+      );
+    }
+    // ageMin N → born on/before today − N years
+    if (filters.ageMin !== undefined) {
+      dobFilter.$lte = new Date(
+        now.getFullYear() - filters.ageMin,
+        now.getMonth(),
+        now.getDate(),
+      );
+    }
+    query.dateOfBirth = dobFilter;
   }
   if (filters.valueMin !== undefined || filters.valueMax !== undefined) {
     const valueFilter: Record<string, number> = {};
@@ -379,13 +394,6 @@ export async function updateHorseDiscovery(
     horse.profileVisibility = input.profileVisibility;
   }
 
-  if (input.contactDisplay !== undefined) {
-    horse.contactDisplay = {
-      ...(horse.contactDisplay ?? { useOwnerContact: true }),
-      ...input.contactDisplay,
-    };
-  }
-
   await horse.save();
   return horse.toObject();
 }
@@ -398,7 +406,9 @@ export async function updateHorseProfile(
   ensureObjectId(actorUserId, "user id");
   ensureObjectId(horseId, "horse id");
 
-  const horse = await Horse.findById(horseId).select("mainOwnerUserId coOwners");
+  const horse = await Horse.findById(horseId).select(
+    "mainOwnerUserId coOwners registryId microchipId passportNumber",
+  );
   if (!horse) {
     throw new ApiError(404, "Horse not found");
   }
@@ -408,24 +418,71 @@ export async function updateHorseProfile(
   }
 
   const updates: Record<string, unknown> = {};
+  const unset: Record<string, 1> = {};
+
   for (const [key, value] of Object.entries(input)) {
-    if (value !== undefined) {
-      if (key === "pedigree") {
-        // Set each pedigree subfield individually
-        if (typeof value === "object" && value !== null) {
-          for (const [pedKey, pedValue] of Object.entries(value)) {
-            if (pedValue !== undefined) {
-              updates[`pedigree.${pedKey}`] = pedValue;
-            }
+    if (value === undefined) continue;
+
+    if (key === "pedigree") {
+      if (typeof value === "object" && value !== null) {
+        for (const [pedKey, pedValue] of Object.entries(value)) {
+          if (pedValue !== undefined) {
+            updates[`pedigree.${pedKey}`] = pedValue;
           }
         }
-      } else {
-        updates[key] = value;
       }
+      continue;
+    }
+
+    if (key === "registryId" || key === "microchipId" || key === "passportNumber") {
+      const normalized = typeof value === "string" ? value : "";
+      if (normalized) {
+        updates[key] = normalized;
+      } else {
+        unset[key] = 1;
+      }
+      continue;
+    }
+
+    updates[key] = value;
+  }
+
+  const mergedIdentity = {
+    registryId:
+      updates.registryId !== undefined
+        ? String(updates.registryId)
+        : unset.registryId
+          ? ""
+          : (horse.registryId as string | undefined),
+    microchipId:
+      updates.microchipId !== undefined
+        ? String(updates.microchipId)
+        : unset.microchipId
+          ? ""
+          : (horse.microchipId as string | undefined),
+    passportNumber:
+      updates.passportNumber !== undefined
+        ? String(updates.passportNumber)
+        : unset.passportNumber
+          ? ""
+          : (horse.passportNumber as string | undefined),
+  };
+
+  if (
+    input.registryId !== undefined ||
+    input.microchipId !== undefined ||
+    input.passportNumber !== undefined
+  ) {
+    if (!hasAtLeastOneHorseIdentity(mergedIdentity)) {
+      throw new ApiError(400, HORSE_IDENTITY_REQUIRED_MESSAGE, "VALIDATION_ERROR");
     }
   }
 
-  const updated = await Horse.findByIdAndUpdate(horseId, { $set: updates }, { new: true }).lean();
+  const updateOps: Record<string, unknown> = {};
+  if (Object.keys(updates).length > 0) updateOps.$set = updates;
+  if (Object.keys(unset).length > 0) updateOps.$unset = unset;
+
+  const updated = await Horse.findByIdAndUpdate(horseId, updateOps, { new: true }).lean();
 
   return updated;
 }
@@ -587,9 +644,7 @@ export async function getOwnerHorseHubSummary(
     microchipId: horse.microchipId as string | undefined,
     passportNumber: horse.passportNumber as string | undefined,
     dateOfBirth: horse.dateOfBirth instanceof Date ? horse.dateOfBirth.toISOString() : undefined,
-    ageYears: horse.ageYears as number | undefined,
     color: horse.color as string | undefined,
-    marksDescription: horse.marksDescription as string | undefined,
     heightHands: horse.heightHands as number | undefined,
     primaryDiscipline: horse.primaryDiscipline as string | undefined,
     disciplines: horse.disciplines as string[] | undefined,
@@ -606,7 +661,6 @@ export async function getOwnerHorseHubSummary(
     description: horse.description as string | undefined,
     notes: horse.notes as string | undefined,
     profileVisibility: horse.profileVisibility as string | undefined,
-    contactDisplay: horse.contactDisplay as Record<string, unknown> | undefined,
     isMainOwner,
     isCoOwner,
     isResponsible,

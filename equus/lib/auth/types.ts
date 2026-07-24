@@ -8,6 +8,7 @@ export interface AuthUser {
   authProvider?: AuthProvider;
   profileComplete?: boolean;
   preferredLanguage?: string;
+  preferredTheme?: string;
   hasPassword?: boolean;
 }
 

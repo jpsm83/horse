@@ -24,7 +24,7 @@ Related context:
 - `mvpScope.md` — build phases, production launch gate, and exclusions
 - `stableModule.md` — stable feature specification (living doc; EquineM parity + more)
 - `workplaceRelationship.md` — User ↔ role profile workplace relationship (no separate business account)
-- `equinem.md` — competitor capability reference (EquineM)
+- [`appCompetition/webapps.md`](appCompetition/webapps.md#12-equinem) — EquineM competitor baseline (stable ERP parity)
 - `validationPlaybook.md` — pre-build interview script and scoring
 - `productFlows.md` — onboarding and core user journeys
 - `metricsSpec.md` — internal business metrics definitions
@@ -1790,7 +1790,7 @@ Tradeoff management:
 
 ## Section 20 — Competitive Positioning (Stable-Centric Tools)
 
-Reference competitor baseline: [`equinem.md`](equinem.md).  
+Reference competitor baseline: [`appCompetition/webapps.md`](appCompetition/webapps.md#12-equinem) (EquineM).  
 Stable capability target: [`stableModule.md`](stableModule.md).
 
 EquineM and similar products are **stable-organization ERP**: the stable admin pays, owns the tenant, and adds owners/vets as contacts inside one org. Our product is a **connected horse ecosystem**: the horse is central, actors link by consent, businesses use the platform free, and owners pay for the unified horse hub.

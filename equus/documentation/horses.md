@@ -3,9 +3,11 @@
 Reference for minimal horse endpoints and discovery visibility behavior.
 
 Related:
-- [`../../documentation/userModule.md`](../../documentation/userModule.md)
-- [`../../documentation/horseModule.md`](../../documentation/horseModule.md) — full horse module spec (timeline, health, subscription, etc.)
-- [`../../documentation/stableModule.md`](../../documentation/stableModule.md) — barn operations on hosted horses
+- [`../../documentation/userModule.md`](../../documentation/userModule.md) — includes §12 first-delivery social backlog (`U-FD-*`)
+- [`../../documentation/horseModule.md`](../../documentation/horseModule.md) — full horse module spec; §14 first-delivery social backlog (`H-FD-*`)
+- [`../../documentation/stableModule.md`](../../documentation/stableModule.md) — barn operations on hosted horses; §12 first-delivery SaaS backlog (`S-FD-*`)
+- [`../../documentation/firstDeliveryCompetitiveBacklog.md`](../../documentation/firstDeliveryCompetitiveBacklog.md) — market extract for first delivery
+- [`../../documentation/appCompetition/webapps.md`](../../documentation/appCompetition/webapps.md) — competitive benchmark
 - [`stables.md`](./stables.md)
 - [`breeders.md`](./breeders.md)
 - [`profile.md`](./profile.md)
@@ -20,7 +22,7 @@ Related:
 | `POST` | `/api/v1/horses` | Create a horse owned by the authenticated user (`mainOwnerUserId`, `createdByUserId`) |
 | `GET` | `/api/v1/horses/:id/owner` | Owner-only horse summary (name, breed, sex) for hub UI |
 | `GET` | `/api/v1/horses/:id/relationships?status=pending` | Outbound pending invites sent by the owner for this horse |
-| `PATCH` | `/api/v1/horses/:id/discovery` | Update discovery visibility/contact (`profileVisibility`, `contactDisplay`) for owner/co-owner |
+| `PATCH` | `/api/v1/horses/:id/discovery` | Update discovery visibility (`profileVisibility`) for owner/co-owner |
 | `GET` | `/api/v1/horses/:id` | Return public horse card filtered by horse visibility and user privacy policy |
 | `GET` | `/api/v1/horses/:id/media` | List media items (images/videos) for a horse |
 | `POST` | `/api/v1/horses/:id/media` | Create a media record (url, type, title, etc.) |
@@ -38,29 +40,25 @@ Related:
 flowchart TB
   requester[RequesterContext]
   horseRules[Horse.profileVisibility]
-  contactRules[Horse.contactDisplay]
   userPrefs[User.preferences]
   privacyPolicy[userVisibility.ts]
   publicCard[PublicHorseCard]
 
   requester --> horseRules
-  horseRules -->|"horse visible"| contactRules
-  contactRules -->|"useOwnerContact=true"| privacyPolicy
+  horseRules -->|"horse visible"| privacyPolicy
   userPrefs --> privacyPolicy
-  contactRules -->|"useOwnerContact=false"| publicCard
   privacyPolicy --> publicCard
 ```
 
-- `Horse.profileVisibility` controls whether the horse is visible (`public`, `relationship`, `owner_only`).
-- `Horse.contactDisplay` controls whether contact comes from owner or delegate.
-- When `useOwnerContact: true`, owner identity/contact is filtered by `User.preferences` policy.
+- `Horse.profileVisibility` controls whether the horse Hub / public card is visible (`public`, `relationship`, `owner_only`).
+- Public contact always comes from the main owner, filtered by `User.preferences` via `lib/privacy/userVisibility.ts`.
 
 ---
 
 ## Contact resolution rules
 
-1. If `contactDisplay.useOwnerContact === false`, delegate fields are used directly.
-2. If `useOwnerContact === true`, owner contact is mapped through `lib/privacy/userVisibility.ts`.
+1. Public horse cards resolve contact from the main owner only.
+2. Owner identity/contact is mapped through `lib/privacy/userVisibility.ts`.
 3. Private owner profiles can still operate public horses; contact fields may be omitted based on requester audience.
 
 ---
@@ -87,10 +85,10 @@ Authenticated create flow at `/horses/new` (locale-prefixed for `es`). The form 
 
 **Form sections (top to bottom):**
 1. **Media** — profile photo (`ProfilePhotoField` from `components/shared/`), gallery (`FileUpload` from `components/shared/`), description, notes
-2. **Horse identity** — name, registeredName, breed, sex, dateOfBirth, ageYears, color, heightHands, primaryDiscipline, disciplines (multi-select), registryId, microchipId, passportNumber, marksDescription, countryOfBirth, importExportStatus
+2. **Horse identity** — name, registeredName, breed, sex, dateOfBirth, color, heightHands, primaryDiscipline, disciplines (multi-select), registryId, microchipId, passportNumber, countryOfBirth
 3. **Commercial** — estimatedValue, valueCurrency, saleStatus, askingPrice, acquisitionDate, acquisitionSource, showValuePublicly
-4. **Pedigree** — sireName, sireId, damName, damId, bloodlineNotes
-5. **Discovery** — profileVisibility, useOwnerContact, conditional contact fields
+4. **Pedigree** — sireName, damName, bloodlineNotes (sireHorseId/damHorseId set via consent-based connections)
+5. **Discovery** — profileVisibility
 
 **Upload flow:** Files (profile photo + gallery) are uploaded first via `POST /api/v1/media/upload` → Cloudinary URLs. The horse is then created via `POST /api/v1/horses` as JSON with those URLs included as `profileImageUrl` and `gallery`.
 
@@ -105,14 +103,15 @@ Authenticated create flow at `/horses/new` (locale-prefixed for `es`). The form 
 - Upload endpoint: `app/api/v1/media/upload/route.ts` (accepts multipart, uploads to Cloudinary)
 - i18n: `messages/en.json` and `messages/es.json` (`createHorse` namespace with field labels, section titles, option enums, photo labels)
 
-On success the UI toasts and redirects to `/horses/{horseId}`. Discovery fields (`profileVisibility`, `contactDisplay`) are optional on create; defaults match the API (`public`, owner contact).
+On success the UI toasts and redirects to `/horses/{horseId}`. Discovery (`profileVisibility`) is optional on create; default is `public`.
 
 ### Horse hub (`/horses/[horseId]`)
 
-Minimal owner hub after create (or direct URL):
+Owner hub after create (or direct URL). Admins see **Discovery** at the top (controls Hub / public visibility), then overview content.
 
-- Page: `app/[locale]/horses/[horseId]/page.tsx` — `Suspense` + skeleton
+- Page: `app/[locale]/horses/[horseId]/page.tsx`
 - Components: `components/horses/horse-hub-page-content.tsx`
+- Discovery: `components/horses/profile/discovery-section.tsx` + `useUpdateHorseDiscovery`
 - Invites: `components/invites/horse-provider-invites.tsx` → `provider-invite-picker.tsx` (one picker per provider type, grouped Hosting / Care / Training)
 - Client APIs:
   - `fetchHorseForOwner` → `GET /api/v1/horses/:id/owner`
@@ -124,6 +123,30 @@ Minimal owner hub after create (or direct URL):
 Auth gate: non-owners receive 403 and redirect to `/not-allowed`. Pending invite state on the hub uses **outbound** sent invites (not the receiver inbox at `/users/me/relationships`).
 
 See [`relationships.md`](./relationships.md) for invitation policy and discover endpoint details.
+
+### Horse profile (`/horses/[horseId]/profile`)
+
+Deferred edit form for identity, identification, disciplines, pedigree, and about (not discovery).
+
+Pedigree sire/dam linking uses **PedigreeConnection** acknowledgment (not ownership transfer). See [`pedigreeConnections.md`](./pedigreeConnections.md). Registry / microchip / passport are optional at horse **create**; at least one is required when saving the horse **profile**. When set, each is uniquely indexed.
+
+- Assembly: `app/[locale]/horses/[horseId]/profile/client.tsx` — parent owns one `useForm` + single Save
+- Field sections under `components/horses/profile/` receive `control` only (no per-section Save)
+- Patches: `lib/utils/horseProfilePatch.ts` — dirty-field horse patch
+- Hooks: `useUpdateHorse`
+- Unsaved navigation: `UnsavedChangesProvider` in `HorsePageShell` + tab intercept in `EntityTabs`
+- Pattern: [`page-flow-blueprint.md`](./page-flow-blueprint.md) §6.5
+
+### Horse admin (`/horses/[horseId]/admin`)
+
+Owner-only tab. Sale settings use the same deferred-form pattern as Profile; ownership/responsible sections use immediate actions.
+
+- Assembly: `app/[locale]/horses/[horseId]/admin/client.tsx` — parent owns sale `useForm` + single Save
+- Sale fields: `components/horses/ownership/horse-value-section.tsx` (`control` only)
+- Sale patches: `lib/utils/horseSalePatch.ts` → `useUpdateHorseSale`
+- Action sections (own mutations): admin history, co-owners, proactive representatives, ownership transfer
+- Same unsaved-changes guard as Profile when sale fields are dirty
+- Pattern: [`page-flow-blueprint.md`](./page-flow-blueprint.md) §6.5
 
 ### Horse media (`/horses/[horseId]/media`)
 
@@ -162,7 +185,7 @@ Media gallery with drag-and-drop upload. Two-section layout: upload section on t
 - Upload: `POST /api/v1/horses/:id/documents/upload` (multipart + Cloudinary + `Document` record)
 - List: `GET /api/v1/horses/:id/documents`
 - Delete (admin): `DELETE /api/v1/horses/:id/documents/:docId` — Cloudinary destroy + hard-delete MongoDB
-- UI: `ConfirmDeleteDialog` before delete; shared with Media / Admin History
+- UI: `ConfirmActionDialog` / `ConfirmDeleteDialog` before delete; shared with Media / Admin History
 - Service: `lib/services/horseDocumentService.ts`
 - Deletion requests: `lib/services/documentDeletionService.ts`
 - i18n: `horseDocuments` namespace

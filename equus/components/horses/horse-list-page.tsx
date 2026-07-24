@@ -104,7 +104,7 @@ export function HorseListPage() {
 
   return (
     <>
-      <div className="sticky top-0 z-10 border-b bg-background px-4 py-2 sm:px-6">
+      <div className="sticky top-0 z-10 border-b border-border bg-background px-4 py-2 text-foreground sm:px-6">
         <EntityFilter
           fields={filterFields}
           onSearch={handleSearch}

@@ -27,7 +27,7 @@ export const createOwnershipTransferSchema = z
     const isCoOwnerKind =
       data.transferKind === "remove_co_owner" || data.transferKind === "promote_co_owner";
 
-    if (isCoOwnerKind) {
+    if (isCoOwnerKind || data.transferKind === "remove_responsible") {
       if (!data.targetCoOwnerUserId) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -51,7 +51,7 @@ export const createOwnershipTransferSchema = z
     if (data.targetCoOwnerUserId) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "targetCoOwnerUserId is not used for transfer_main",
+        message: "targetCoOwnerUserId is not used for this transfer kind",
         path: ["targetCoOwnerUserId"],
       });
     }

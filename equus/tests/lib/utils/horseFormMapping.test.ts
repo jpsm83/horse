@@ -36,47 +36,17 @@ describe("mapHorseFormValuesToCreatePayload", () => {
     expect(payload.color).toBe("Bay");
     expect(payload.primaryDiscipline).toBe("Dressage");
     expect(payload.profileVisibility).toBe("relationship");
-    expect(payload.contactDisplay).toBeUndefined();
   });
 
-  it("maps delegate contact when not using owner contact", () => {
-    const payload = mapHorseFormValuesToCreatePayload({
-      ...emptyCreateHorseFormValues,
-      name: "Shadow",
-      breed: "Dutch Warmblood",
-      sex: "Stallion",
-      contactDisplay: {
-        useOwnerContact: "false",
-        name: "Barn Manager",
-        phone: "+351911111111",
-        email: "manager@example.com",
-      },
-    });
-
-    expect(payload.contactDisplay).toEqual({
-      useOwnerContact: false,
-      name: "Barn Manager",
-      phone: "+351911111111",
-      email: "manager@example.com",
-    });
-  });
-
-  it("omits default profileVisibility and owner contact", () => {
+  it("omits default profileVisibility", () => {
     const payload = mapHorseFormValuesToCreatePayload({
       ...emptyCreateHorseFormValues,
       name: "Star",
       breed: "Thoroughbred",
       sex: "Colt",
       profileVisibility: "public",
-      contactDisplay: {
-        useOwnerContact: "true",
-        name: "",
-        phone: "",
-        email: "",
-      },
     });
 
     expect(payload.profileVisibility).toBeUndefined();
-    expect(payload.contactDisplay).toBeUndefined();
   });
 });

@@ -38,7 +38,8 @@
         "unsavedChangesDescription": "You have unsaved changes. If you leave this page, your changes will be lost.",
         "stayOnPage": "Stay on page",
         "leaveWithoutSaving": "Leave without saving",
-        "selectPlaceholder": "Select..."
+        "selectPlaceholder": "Select...",
+        "noResults": "No results found"
     },
     "toast": {
         "actionFailed": "Something went wrong. Please try again."
@@ -68,6 +69,7 @@
         },
         "account": {
             "sectionLabel": "My account",
+            "preferences": "Preferences",
             "workplaces": "Workplaces",
             "relationships": "Relationship requests",
             "ownershipTransfers": "Ownership transfers",
@@ -262,8 +264,27 @@
             "transferKinds": {
                 "transfer_main": "Transfer main ownership",
                 "remove_co_owner": "Remove co-owner",
-                "promote_co_owner": "Promote co-owner"
+                "promote_co_owner": "Promote co-owner",
+                "add_responsible": "Add responsible person",
+                "remove_responsible": "Remove responsible person"
             }
+        },
+        "pedigreeConnections": {
+            "title": "Pedigree connection requests",
+            "description": "Confirm that another horse is the offspring of your horse. This does not change ownership.",
+            "empty": "You have no pending pedigree connection requests.",
+            "accept": "Acknowledge",
+            "decline": "Decline",
+            "accepted": "Pedigree connection acknowledged.",
+            "declined": "Pedigree connection declined.",
+            "roles": {
+                "sire": "Sire",
+                "dam": "Dam"
+            },
+            "childLine": "Requested for offspring: {childName}",
+            "unknownParent": "Parent horse",
+            "unknownChild": "Unknown horse",
+            "ackHint": "Accepting only confirms the pedigree link on their horse profile. You keep full ownership of your horse."
         },
         "signup": {
             "staffBanner": "You were invited to join a workplace on Equus. Sign up with the invited email address.",
@@ -274,6 +295,7 @@
             "filterPlaceholder": "Filter by name or city...",
             "searching": "Searching...",
             "noResults": "No providers found.",
+            "searchError": "Search failed. Please try again.",
             "invited": "Invitation sent.",
             "pending": "Invitation pending",
             "emailFallbackToggle": "Not on Equus? Invite by email",
@@ -334,7 +356,7 @@
     },
     "profile": {
         "title": "Your profile",
-        "description": "Update your personal details and preferences.",
+        "description": "Update your personal details and account information.",
         "incompleteBanner": "Your profile is incomplete. You can save changes at any time and finish the rest later.",
         "incompleteGlobalBannerLink": "Complete your profile",
         "submit": "Save profile",
@@ -355,6 +377,11 @@
         },
         "username": "Username",
         "preferredLanguage": "Preferred language",
+        "preferredTheme": "Theme",
+        "themeOptions": {
+            "default": "Default",
+            "onyx": "Onyx"
+        },
         "gender": "Gender",
         "birthDate": "Date of birth",
         "nationality": "Nationality",
@@ -428,6 +455,23 @@
             "nobody": "Nobody"
         }
     },
+    "preferences": {
+        "title": "Preferences",
+        "description": "Appearance, language, and privacy settings.",
+        "submit": "Save preferences",
+        "submitting": "Saving...",
+        "saved": "Preferences saved.",
+        "noChanges": "No changes to save.",
+        "saveFailed": "Failed to save preferences",
+        "sections": {
+            "appearance": "Appearance",
+            "privacy": "Privacy"
+        },
+        "sectionDescriptions": {
+            "appearance": "Theme and language apply as a preview. Save to keep them.",
+            "privacy": "Control who can see your profile and message you."
+        }
+    },
     "createHorse": {
         "title": "Add a horse",
         "description": "Description",
@@ -439,6 +483,7 @@
         "invalidDate": "Please enter a valid date",
         "invalidNumber": "Please enter a valid number",
         "invalidEnum": "Please select a valid option",
+        "identityRequired": "At least one of registry ID, microchip ID, or passport number is required",
         "contactNameRequired": "Contact name is required when not using owner contact",
         "contactPhoneRequired": "Contact phone is required when not using owner contact",
         "contactEmailRequired": "Contact email is required when not using owner contact",
@@ -473,9 +518,7 @@
         "acquisitionSource": "Acquisition source",
         "showValuePublicly": "Show value publicly",
         "sireName": "Sire name",
-        "sireId": "Sire registry ID",
         "damName": "Dam name",
-        "damId": "Dam registry ID",
         "bloodlineNotes": "Bloodline notes",
         "profileImage": "Profile photo",
         "choosePhoto": "Choose photo",
@@ -486,7 +529,6 @@
         "photoInvalidType": "Only image files are allowed",
         "photoTooLarge": "File size exceeds 5 MB limit",
         "gallery": "Gallery",
-        "notes": "Notes",
         "profileVisibility": "Profile visibility",
         "useOwnerContact": "Public contact",
         "contactName": "Contact name",
@@ -757,7 +799,6 @@
         "marksDescription": "Marks",
         "countryOfBirth": "Country of birth",
         "description": "Description",
-        "notes": "Notes",
         "disciplines": "Disciplines",
         "registeredName": "Registered name",
         "registryId": "Registry ID",
@@ -766,10 +807,30 @@
         "primaryDiscipline": "Primary discipline",
         "profileVisibility": "Profile visibility",
         "sireName": "Sire name",
-        "sireId": "Sire ID",
         "damName": "Dam name",
-        "damId": "Dam ID",
         "bloodlineNotes": "Bloodline notes",
+        "sireLabel": "Sire (father)",
+        "sireHorseNameLabel": "Sire horse name",
+        "damLabel": "Dam (mother)",
+        "damHorseNameLabel": "Dam horse name",
+        "connectAsSire": "Connect as Sire",
+        "connectAsDam": "Connect as Dam",
+        "disconnect": "Disconnect",
+        "connected": "Connected",
+        "searching": "Searching...",
+        "searchError": "Search failed",
+        "noResults": "No horses found",
+        "searchPlaceholder": "Search by registry ID, microchip, or passport",
+        "emailFallbackToggle": "Not on Equus? Invite by email",
+        "emailFallbackHint": "Enter the owner's email and the parent horse name to send an invitation.",
+        "emailLabel": "Owner email",
+        "identityRequired": "At least one of registry ID, microchip ID, or passport number is required",
+        "sendInvite": "Send invitation",
+        "cancel": "Cancel",
+        "pedigreeConnectInvited": "Invitation sent to the owner",
+        "pedigreeConnectFailed": "Failed to send invitation",
+        "pedigreeDisconnected": "Disconnected",
+        "pedigreeDisconnectFailed": "Failed to disconnect",
         "noChanges": "No changes to save",
         "saved": "Horse profile saved",
         "saveFailed": "Failed to save horse profile",
@@ -889,6 +950,7 @@
         "invalidDate": "Please enter a valid date",
         "invalidEnum": "Please select a valid option",
         "invalidNumber": "Please enter a valid number",
+        "identityRequired": "At least one of registry ID, microchip ID, or passport number is required",
         "contactNameRequired": "Contact name is required when not using owner contact",
         "contactPhoneRequired": "Contact phone is required when not using owner contact",
         "contactEmailRequired": "Contact email is required when not using owner contact",
@@ -1137,6 +1199,11 @@
             "description": "Manage horse ownership transfers in Equus.",
             "keywords": ""
         },
+        "pedigreeConnections": {
+            "title": "Pedigree Connections | Equus",
+            "description": "Acknowledge sire and dam pedigree requests in Equus.",
+            "keywords": ""
+        },
         "users": {
             "title": "User Profile | Equus",
             "description": "Equus member profile - connected through horses and services.",
@@ -1174,7 +1241,12 @@
         },
         "profile": {
             "title": "Profile | Equus",
-            "description": "Manage your Equus profile and preferences.",
+            "description": "Manage your Equus profile and account details.",
+            "keywords": ""
+        },
+        "preferences": {
+            "title": "Preferences | Equus",
+            "description": "Manage appearance, language, and privacy preferences.",
             "keywords": ""
         },
         "notifications": {

@@ -1,7 +1,8 @@
 /**
  * When to show the global incomplete-profile banner in `AppShell`.
  *
- * Hidden on `/profile` (that page has its own banner) and while auth is loading.
+ * Hidden on account profile/preferences pages (they have their own banner)
+ * and while auth is loading.
  */
 
 export type IncompleteProfileBannerContext = {
@@ -14,6 +15,12 @@ export type IncompleteProfileBannerContext = {
 /** Matches `h-14` on the global incomplete-profile banner. */
 export const INCOMPLETE_PROFILE_BANNER_HEIGHT = "3.5rem";
 
+/** Legacy `/profile` plus `/user/[id]/profile|preferences`. */
+export function isAccountSettingsPath(pathname: string): boolean {
+  if (pathname === "/profile") return true;
+  return /^\/user\/[^/]+\/(profile|preferences)$/.test(pathname);
+}
+
 export function shouldShowIncompleteProfileBanner(
   context: IncompleteProfileBannerContext,
 ): boolean {
@@ -25,5 +32,5 @@ export function shouldShowIncompleteProfileBanner(
     return false;
   }
 
-  return context.pathname !== "/profile";
+  return !isAccountSettingsPath(context.pathname);
 }

@@ -5,7 +5,7 @@
 /** Signed-in user's personal home hub (dashboard, quick actions, owned subsections). */
 export const USER_HOME_PATH = "/home";
 
-/** Account settings — personal details, preferences, deactivation. */
+/** Account settings alias — redirects to `/user/{id}/profile`. */
 export const PROFILE_SETTINGS_PATH = "/profile";
 
 /** Default destination after sign-in, sign-up, or Google OAuth. */

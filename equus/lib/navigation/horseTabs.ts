@@ -7,7 +7,7 @@ export function getHorseTabs(horseId: string): EntityTab[] {
     { id: "planning", label: "Planning", href: `/horses/${horseId}/planning` },
     { id: "media", label: "Media", href: `/horses/${horseId}/media` },
     { id: "documents", label: "Documents", href: `/horses/${horseId}/documents` },
-    { id: "edit", label: "Edit", href: `/horses/${horseId}/edit`, requireOwnership: true },
+    { id: "profile", label: "Profile", href: `/horses/${horseId}/profile`, requireOwnership: true },
     { id: "admin", label: "Admin", href: `/horses/${horseId}/admin`, requireOwnership: true, requireMainOwner: true },
     { id: "history", label: "History", href: `/horses/${horseId}/history` },
   ];

@@ -24,6 +24,10 @@ Links are **locale-prefixed** when the recipient’s `preferredLanguage` is `es`
 | `buildStaffInviteAcceptLink` | `/workplaces?membership={id}` | `/es/workplaces?membership=…` | workplaces accept/decline |
 | `buildRelationshipSignupLink` | `/signup?ref={referralReference}` | `/es/signup?ref=…` | register + `/relationships` |
 | `buildRelationshipAcceptLink` | `/relationships?relationship={id}` | `/es/relationships?relationship=…` | relationships accept/decline |
+| `buildPedigreeConnectSignupLink` | `/signup?ref={referralReference}` | `/es/signup?ref=…` | register + `/pedigree-connections` |
+| `buildPedigreeConnectAcceptLink` | `/pedigree-connections?connection={id}` | `/es/pedigree-connections?connection=…` | pedigree accept/decline |
+| `buildOwnershipTransferSignupLink` | `/signup?ref={referralReference}` | `/es/signup?ref=…` | register + `/ownership-transfers` |
+| `buildOwnershipTransferAcceptLink` | `/ownership-transfers?transfer={id}` | `/es/ownership-transfers?transfer=…` | ownership accept/decline |
 
 Non-prefixed links in already-sent emails still work: next-intl proxy resolves locale from `NEXT_LOCALE` cookie or `Accept-Language`.
 
@@ -39,8 +43,12 @@ lib/email/
     passwordReset.ts        # Auth: reset password (en/es)
     staffInvite.ts          # Staff membership invite (en/es)
     relationshipInvite.ts   # Horse relationship invite (en/es)
+    pedigreeConnectInvite.ts # Pedigree sire/dam acknowledgment (en/es)
+    ownershipTransferInvite.ts # Ownership transfer invite (en/es)
   sendStaffInviteEmail.ts
   sendRelationshipInviteEmail.ts
+  sendPedigreeConnectInviteEmail.ts
+  sendOwnershipTransferInviteEmail.ts
 ```
 
 ## Template catalog
@@ -51,6 +59,8 @@ lib/email/
 | Password reset | Forgot password | same |
 | Staff invite | `POST .../staff` | invitee preference if user exists, else `en` |
 | Relationship invite | `POST /api/v1/relationships` | invitee preference when user exists, else `en` — variant `ownerInvitesProvider` only (`vetAddedHorse` out of scope) |
+| Pedigree connect invite | `POST /api/v1/pedigree-connections` | invitee preference when user exists, else `en` |
+| Ownership transfer invite | `POST /api/v1/ownership-transfers` | invitee preference when user exists, else `en` |
 
 ## Sending pattern
 

@@ -3,7 +3,10 @@
 /**
  * Reusable flag select field — shadcn Select with country flags.
  * Used by ProfileForm and HorseListPage filter.
+ * Empty (`""`) options use `common.selectPlaceholder` as the SelectItem value sentinel.
  */
+
+import { useTranslations } from "next-intl";
 
 import { FlagIcon } from "@/components/shared/country-flag.tsx";
 import {
@@ -19,6 +22,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { FlagSelectOption } from "@/components/shared/country-options.ts";
+import {
+  fromSelectValue,
+  selectItemValue,
+  toSelectValue,
+} from "@/lib/ui/selectEmptyValue.ts";
 import { cn } from "@/lib/utils";
 
 type FlagSelectFieldProps = {
@@ -61,14 +69,16 @@ export function FlagSelectField({
   error,
   options,
 }: FlagSelectFieldProps) {
+  const tCommon = useTranslations("common");
+  const emptySentinel = placeholder ?? tCommon("selectPlaceholder");
   const selected = options.find((option) => option.value === value);
 
   return (
     <Field data-invalid={invalid}>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <Select
-        value={value || null}
-        onValueChange={(nextValue) => onChange(nextValue ?? "")}
+        value={toSelectValue(value, options, emptySentinel)}
+        onValueChange={(nextValue) => onChange(fromSelectValue(nextValue, emptySentinel))}
       >
         <SelectTrigger id={id} className="w-full" aria-invalid={invalid}>
           {selected ? (
@@ -78,15 +88,18 @@ export function FlagSelectField({
               inTrigger
             />
           ) : (
-            <SelectValue placeholder={placeholder} />
+            <SelectValue placeholder={emptySentinel} />
           )}
         </SelectTrigger>
         <SelectContent className="max-h-60" side="bottom" align="start" alignItemWithTrigger={false}>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              <SelectOptionRow flagCode={option.flagCode} label={option.label} />
-            </SelectItem>
-          ))}
+          {options.map((option) => {
+            const itemValue = selectItemValue(option.value, emptySentinel);
+            return (
+              <SelectItem key={itemValue} value={itemValue}>
+                <SelectOptionRow flagCode={option.flagCode} label={option.label} />
+              </SelectItem>
+            );
+          })}
         </SelectContent>
       </Select>
       {invalid ? <FieldError errors={[error]} /> : null}

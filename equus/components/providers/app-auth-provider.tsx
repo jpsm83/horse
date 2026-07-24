@@ -27,6 +27,7 @@ import { GUEST_LANDING_PATH } from "@/lib/navigation/postAuthRedirect.ts";
 import { appToast } from "@/lib/ui/toast.ts";
 import type { AuthUser } from "@/lib/auth/types.ts";
 import type { AppAuthState } from "@/hooks/use-app-auth.ts";
+import { applyThemeToDocument, syncThemeCookie } from "@/lib/theme/appTheme.ts";
 
 const AppAuthContext = createContext<AppAuthState | null>(null);
 
@@ -87,6 +88,8 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
       router.replace(GUEST_LANDING_PATH);
       await clearClientAuthSession();
       setUser(null);
+      applyThemeToDocument("default");
+      syncThemeCookie("default");
     } finally {
       setIsLoggingOut(false);
     }

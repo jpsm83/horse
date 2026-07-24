@@ -9,6 +9,7 @@
 
 import User from "../../models/User.ts";
 import { normalizeLocale } from "@/i18n/resolveLocale.ts";
+import { normalizeTheme } from "@/lib/theme/appTheme.ts";
 import { ApiError } from "../api/errors.ts";
 import { isDocumentActive } from "../lifecycle/activeQuery.ts";
 import type { AuthProvider, AuthUser } from "./types.ts";
@@ -154,6 +155,11 @@ export async function buildAuthUserSessionFromUserId(userId: string): Promise<Au
           ? user.personalDetails.preferredLanguage
           : undefined,
       ),
+    preferredTheme: normalizeTheme(
+      typeof user.personalDetails?.preferredTheme === "string"
+        ? user.personalDetails.preferredTheme
+        : undefined,
+    ),
     hasPassword: userHasPassword(user as Record<string, unknown>),
   };
 }

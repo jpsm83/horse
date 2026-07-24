@@ -4,9 +4,9 @@ import { Schema } from "mongoose";
 export const pedigreeSchema = new Schema(
   {
     sireName: { type: String },
-    sireId: { type: String },
+    sireHorseId: { type: Schema.Types.ObjectId, ref: "Horse" },
     damName: { type: String },
-    damId: { type: String },
+    damHorseId: { type: Schema.Types.ObjectId, ref: "Horse" },
     breederAccountId: { type: Schema.Types.ObjectId, ref: "Breeder" },
     bloodlineNotes: { type: String },
     registryUrl: { type: String },

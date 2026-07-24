@@ -67,6 +67,19 @@ export function toHttpError(error: unknown): ApiError {
     return mapMongooseValidationError(error);
   }
 
+  if (
+    error &&
+    typeof error === "object" &&
+    "code" in error &&
+    (error as { code?: number }).code === 11000
+  ) {
+    return new ApiError(
+      409,
+      "A horse with this registry ID, microchip, or passport number already exists",
+      "CONFLICT",
+    );
+  }
+
   if (error instanceof Error) {
     return new ApiError(500, error.message, "INTERNAL_ERROR");
   }

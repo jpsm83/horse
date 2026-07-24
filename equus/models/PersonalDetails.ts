@@ -10,7 +10,7 @@ import { Schema } from "mongoose";
 import { addressSchema } from "./sharedSchemas/address.ts";
 import * as enums from "../utils/enums.ts";
 
-const { idTypeEnums, genderEnums } = enums;
+const { idTypeEnums, genderEnums, appThemeEnums } = enums;
 
 export const personalDetailsSchema = new Schema(
   {
@@ -44,6 +44,7 @@ export const personalDetailsSchema = new Schema(
     imageUrl: { type: String },
     bio: { type: String },
     preferredLanguage: { type: String },
+    preferredTheme: { type: String, enum: appThemeEnums },
   },
   {
     timestamps: true,

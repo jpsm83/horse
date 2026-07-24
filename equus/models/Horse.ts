@@ -1,8 +1,8 @@
 /**
  * Horse model — horse profiles owned by users.
  *
- * Discovery visibility and public contact are per horse (`profileVisibility`, `contactDisplay`),
- * not on the User document.
+ * Discovery visibility is per horse (`profileVisibility`), not on the User document.
+ * Public contact always resolves from the main owner (subject to owner privacy).
  */
 
 import mongoose, { Schema, model } from "mongoose";
@@ -40,46 +40,18 @@ const horseRegistrationSchema = new Schema(
   { _id: false }
 );
 
-const competitionResultSchema = new Schema(
-  {
-    eventName: { type: String, required: true },
-    eventDate: { type: Date, required: true },
-    discipline: { type: String, enum: horseDisciplineEnums },
-    placement: { type: String },
-    score: { type: Number },
-    location: { type: String },
-    notes: { type: String },
-    recordedByAccountType: { type: String },
-    recordedByAccountId: { type: Schema.Types.ObjectId },
-  },
-  { _id: true, timestamps: true }
-);
-
-/** Public contact shown for this horse when discovered (defaults to main owner contact). */
-const horseContactDisplaySchema = new Schema(
-  {
-    useOwnerContact: { type: Boolean, default: true },
-    name: { type: String },
-    phone: { type: String },
-    email: { type: String },
-  },
-  { _id: false }
-);
-
 const horseSchema = new Schema(
   {
     /** Identity */
     name: { type: String, required: [true, "Horse name is required!"], trim: true },
     registeredName: { type: String, trim: true },
-    registryId: { type: String, index: true },
-    microchipId: { type: String, index: true, sparse: true },
-    passportNumber: { type: String, index: true, sparse: true },
+    registryId: { type: String },
+    microchipId: { type: String },
+    passportNumber: { type: String },
     breed: { type: String, enum: horseBreedEnums, required: [true, "Breed is required!"] },
     sex: { type: String, enum: horseSexEnums, required: [true, "Sex is required!"] },
     dateOfBirth: { type: Date },
-    ageYears: { type: Number, min: 0 },
     color: { type: String, enum: horseColorEnums },
-    marksDescription: { type: String },
     heightHands: { type: Number, min: 0 },
     primaryDiscipline: { type: String, enum: horseDisciplineEnums },
     disciplines: { type: [String], enum: horseDisciplineEnums, default: undefined },
@@ -123,17 +95,9 @@ const horseSchema = new Schema(
     profileImageUrl: { type: String },
     gallery: { type: [mediaAssetSchema], default: undefined },
     description: { type: String },
-    notes: { type: String },
-
-    /** Competition */
-    competitionResults: { type: [competitionResultSchema], default: undefined },
 
     /** Discovery — per horse, not per user */
     profileVisibility: { type: String, enum: visibilityEnums, default: "public" },
-    contactDisplay: {
-      type: horseContactDisplaySchema,
-      default: () => ({ useOwnerContact: true }),
-    },
     showValuePublicly: { type: Boolean, default: false },
 
     /** Operational flags */
@@ -151,6 +115,9 @@ horseSchema.index({ "coOwners.userId": 1 }, { sparse: true });
 horseSchema.index({ saleStatus: 1, primaryDiscipline: 1 });
 horseSchema.index({ "registration.isActive": 1 });
 horseSchema.index({ "registration.referralReference": 1 }, { sparse: true });
+horseSchema.index({ registryId: 1 }, { unique: true, sparse: true });
+horseSchema.index({ microchipId: 1 }, { unique: true, sparse: true });
+horseSchema.index({ passportNumber: 1 }, { unique: true, sparse: true });
 
 const Horse = mongoose.models.Horse || model("Horse", horseSchema);
 export default Horse;

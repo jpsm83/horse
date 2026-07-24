@@ -23,6 +23,8 @@ Collection: **`OwnershipTransfer`** (`models/OwnershipTransfer.ts`) — lifecycl
 | `requestedAt` / `respondedAt` | Lifecycle |
 | `historicalReference` | Snapshots (`entityName`, labels) for audit |
 
+On **create**, `createOwnershipTransfer` sends an ownership-transfer invite email (`lib/email/sendOwnershipTransferInviteEmail.ts`) describing the transfer kind and linking to `/ownership-transfers?transfer={id}` (or signup with `referralReference`). Email send failure rolls back the pending transfer.
+
 **Apply on accept (service layer, single transaction):**
 
 - `transfer_main` — require `coOwners.length === 0` at create **and** accept; set `mainOwnerUserId`; former main loses `userOwnsEntity` access; `createdByUserId` unchanged (UA-15)

@@ -17,6 +17,10 @@ export {
   buildRelationshipSignupLink,
   buildStaffInviteAcceptLink,
   buildStaffInviteSignupLink,
+  buildPedigreeConnectAcceptLink,
+  buildPedigreeConnectSignupLink,
+  buildOwnershipTransferAcceptLink,
+  buildOwnershipTransferSignupLink,
 } from "./links.ts";
 export {
   buildEmailConfirmationContent,
@@ -33,3 +37,5 @@ export {
 } from "./templates/relationshipInvite.ts";
 export { sendStaffInviteEmail } from "./sendStaffInviteEmail.ts";
 export { sendRelationshipInviteEmail } from "./sendRelationshipInviteEmail.ts";
+export { sendPedigreeConnectInviteEmail } from "./sendPedigreeConnectInviteEmail.ts";
+export { sendOwnershipTransferInviteEmail } from "./sendOwnershipTransferInviteEmail.ts";

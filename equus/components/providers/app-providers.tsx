@@ -5,6 +5,7 @@ import { SessionProvider } from "next-auth/react";
 import { useState } from "react";
 
 import { AppAuthProvider } from "@/components/providers/app-auth-provider.tsx";
+import { AppThemeSync } from "@/components/providers/app-theme-sync.tsx";
 import { AppErrorBoundary } from "@/components/errors/app-error-boundary.tsx";
 import { AuthSessionProvider } from "@/components/providers/auth-session-provider.tsx";
 import { Toaster } from "@/components/ui/sonner";
@@ -30,6 +31,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <SessionProvider>
         <AuthSessionProvider>
           <AppAuthProvider>
+            <AppThemeSync />
             <QueryClientProvider client={queryClient}>
               <TooltipProvider>
                 {children}

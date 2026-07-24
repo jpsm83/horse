@@ -2,7 +2,7 @@
 
 /**
  * Signed-in user home (`/home`) — welcome hub, add-horse quick action, owned subsection links.
- * Guests are redirected to sign-in. Settings live on `/profile`, not here.
+ * Guests are redirected to sign-in. Settings live on `/user/[id]/profile` and `/user/[id]/preferences`, not here.
  */
 
 import { ChevronRight } from "lucide-react";

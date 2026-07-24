@@ -17,6 +17,7 @@ import User from "../../models/User.ts";
 import { ApiError } from "../api/errors.ts";
 import { reassignHorseSubscriptionPayerAfterTransferMain } from "../horses/horseSubscriptionBilling.ts";
 import { guardAcceptTransfer } from "@/lib/billing/subscriptionGuard.ts";
+import { sendOwnershipTransferInviteEmail } from "../email/sendOwnershipTransferInviteEmail.ts";
 import type {
   ownershipTransferEntityTypeEnums,
   ownershipTransferKindEnums,
@@ -572,6 +573,29 @@ export async function createOwnershipTransfer(
       targetCoOwnerLabel,
     },
   });
+
+  const toEmail =
+    receiver.invitedEmail ??
+    (receiver.receiverUserId ? await getUserEmail(receiver.receiverUserId) : undefined);
+
+  if (toEmail) {
+    try {
+      await sendOwnershipTransferInviteEmail({
+        transferId: String(transfer._id),
+        invitedEmail: toEmail,
+        invitedName: receiver.invitedName,
+        referralReference: receiver.referralReference,
+        inviteeUserId: receiver.receiverUserId,
+        initiatorLabel,
+        entityName: entityName ?? input.entityType,
+        entityType: input.entityType,
+        transferKind: input.transferKind,
+      });
+    } catch (error) {
+      await OwnershipTransfer.deleteOne({ _id: transfer._id });
+      throw error;
+    }
+  }
 
   return toPublicOwnershipTransfer(
     transfer.toObject() as Record<string, unknown>,

@@ -65,9 +65,7 @@ export type OwnerHorseSummary = {
   microchipId?: string;
   passportNumber?: string;
   dateOfBirth?: string;
-  ageYears?: number;
   color?: string;
-  marksDescription?: string;
   heightHands?: number;
   primaryDiscipline?: string;
   disciplines?: string[];
@@ -82,9 +80,7 @@ export type OwnerHorseSummary = {
   pedigree?: Record<string, unknown>;
   profileImageUrl?: string;
   description?: string;
-  notes?: string;
   profileVisibility?: string;
-  contactDisplay?: Record<string, unknown>;
   isMainOwner: boolean;
   isCoOwner: boolean;
   isResponsible: boolean;

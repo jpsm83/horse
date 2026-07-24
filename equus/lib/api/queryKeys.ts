@@ -41,6 +41,10 @@ export const queryKeys = {
     all: ["ownership-transfers"] as const,
     pending: () => [...queryKeys.ownershipTransfers.all, "pending"] as const,
   },
+  pedigreeConnections: {
+    all: ["pedigree-connections"] as const,
+    pending: () => [...queryKeys.pedigreeConnections.all, "pending"] as const,
+  },
   roleProfiles: {
     staff: (roleType: string, roleProfileId: string) =>
       ["role-profiles", roleType, roleProfileId, "staff"] as const,
@@ -52,5 +56,6 @@ export const queryKeys = {
   },
   search: {
     entities: (q: string) => ["search", "entities", q] as const,
+    horses: (q: string) => ["search", "horses", q] as const,
   },
 };

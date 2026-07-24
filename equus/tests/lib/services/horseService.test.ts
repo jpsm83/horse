@@ -33,7 +33,6 @@ describe("horseService", () => {
     expect(String((horse.registration as { payerUserId?: unknown })?.payerUserId)).toBe(
       String(owner._id),
     );
-    expect((horse.contactDisplay as { useOwnerContact?: boolean })?.useOwnerContact).toBe(true);
   });
 
   it("updates discovery settings only for owner/co-owner", async () => {
@@ -57,17 +56,10 @@ describe("horseService", () => {
       String(created._id),
       {
         profileVisibility: "relationship",
-        contactDisplay: {
-          useOwnerContact: false,
-          name: "Barn Manager",
-          phone: "+351911111111",
-          email: "manager@example.com",
-        },
       },
     );
 
     expect(updated.profileVisibility).toBe("relationship");
-    expect((updated.contactDisplay as { useOwnerContact?: boolean }).useOwnerContact).toBe(false);
   });
 
   it("hides private owner contact on public horse card", async () => {
@@ -94,37 +86,6 @@ describe("horseService", () => {
     expect(card.contactDisplay.name).toBeUndefined();
     expect(card.contactDisplay.phone).toBeUndefined();
     expect(card.contactDisplay.email).toBeUndefined();
-  });
-
-  it("shows delegate contact even when owner is private", async () => {
-    const owner = await createUser("horse-delegate-owner@example.com");
-    await User.updateOne(
-      { _id: owner._id },
-      { $set: { preferences: { profileVisibility: "private" } } },
-    );
-
-    const created = await horseService.createHorse(String(owner._id), {
-      name: "Atlas",
-      breed: "Andalusian",
-      sex: "Gelding",
-      countryOfBirth: "US",
-      profileVisibility: "public",
-      contactDisplay: {
-        useOwnerContact: false,
-        name: "Stable Contact",
-        phone: "+351922222222",
-        email: "stable-contact@example.com",
-      },
-    });
-
-    const card = await horseService.getPublicHorseCard(String(created._id), {
-      isAuthenticated: false,
-    });
-
-    expect(card.contactDisplay.useOwnerContact).toBe(false);
-    expect(card.contactDisplay.name).toBe("Stable Contact");
-    expect(card.contactDisplay.phone).toBe("+351922222222");
-    expect(card.contactDisplay.email).toBe("stable-contact@example.com");
   });
 
   it("allows relationship visibility only for related users", async () => {

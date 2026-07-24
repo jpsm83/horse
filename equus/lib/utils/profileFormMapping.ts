@@ -6,7 +6,6 @@ import type { FieldNamesMarkedBoolean } from "react-hook-form";
 
 import type { ProfileFormValues } from "@/lib/validations/profileForms.ts";
 import type { UpdatePersonalDetailsInput } from "@/lib/services/userService.ts";
-import { normalizeLocale, type AppLocale } from "@/i18n/resolveLocale.ts";
 import { isValidCountryCode } from "@/lib/data/countries.ts";
 
 const ADDRESS_CORE_FIELDS = [
@@ -98,14 +97,12 @@ export function readAddressCoordinates(
 /** Map API `personalDetails` to form default values. */
 export function mapUserToProfileFormValues(
   personalDetails: Record<string, unknown> | undefined,
-  preferences?: Record<string, unknown>,
   userType?: string,
   businessDetails?: Record<string, unknown>,
 ): ProfileFormValues {
   if (!personalDetails) {
     return {
       username: "",
-      preferredLanguage: "en",
       firstName: "",
       lastName: "",
       gender: "",
@@ -115,8 +112,7 @@ export function mapUserToProfileFormValues(
       bio: "",
       idType: "",
       idNumber: "",
-      profileVisibility: "public",
-      allowDirectMessagesFrom: "everyone",
+      userType: "individual",
       address: {
         country: "",
         state: "",
@@ -136,7 +132,6 @@ export function mapUserToProfileFormValues(
 
   return {
     username: readString(personalDetails.username),
-    preferredLanguage: normalizeLocale(readString(personalDetails.preferredLanguage)),
     firstName: readString(personalDetails.firstName),
     lastName: readString(personalDetails.lastName),
     gender: readString(personalDetails.gender),
@@ -146,10 +141,6 @@ export function mapUserToProfileFormValues(
     bio: readString(personalDetails.bio),
     idType: readString(personalDetails.idType),
     idNumber: readString(personalDetails.idNumber),
-    profileVisibility:
-      (readString(preferences?.profileVisibility) || "public") as ProfileFormValues["profileVisibility"],
-    allowDirectMessagesFrom:
-      (readString(preferences?.allowDirectMessagesFrom) || "everyone") as ProfileFormValues["allowDirectMessagesFrom"],
     userType: (userType ?? "individual") as ProfileFormValues["userType"],
     businessDetails: businessDetails
       ? {
@@ -195,24 +186,6 @@ export function mapProfileFormValuesToPatch(
   const coordinatesDirty = !coordsEqual(coordinates, savedCoordinates);
 
   const patch: UpdatePersonalDetailsInput = {};
-
-  if (dirtyFields.preferredLanguage) {
-    patch.preferredLanguage = normalizeLocale(values.preferredLanguage) as AppLocale;
-  }
-
-  if (
-    dirtyFields.profileVisibility ||
-    dirtyFields.allowDirectMessagesFrom
-  ) {
-    patch.preferences = {};
-
-    if (dirtyFields.profileVisibility) {
-      patch.preferences.profileVisibility = values.profileVisibility;
-    }
-    if (dirtyFields.allowDirectMessagesFrom) {
-      patch.preferences.allowDirectMessagesFrom = values.allowDirectMessagesFrom;
-    }
-  }
 
   if (dirtyFields.userType) {
     patch.userType = values.userType;

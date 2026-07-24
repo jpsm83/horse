@@ -53,7 +53,7 @@ export function MyPlaceholderPage({ entity, mode = "owned" }: MyPlaceholderPageP
 
   return (
     <div className="mx-auto flex w-full  flex-1 flex-col gap-4 px-4 py-12">
-      <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+      <h1 className="text-3xl font-semibold tracking-tight text-foreground">{title}</h1>
       <p className="text-muted-foreground">
         {mode === "owned"
           ? t("myOwnDescription", { entity: title })

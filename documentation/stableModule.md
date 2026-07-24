@@ -5,7 +5,8 @@ Living document for planning, updating, and tracking **stable-facing** capabilit
 **Audience:** product, engineering, and GTM — use this file to add, remove, or reprioritize stable features before implementation starts on each area.
 
 **Related docs:**
-- [`equinem.md`](equinem.md) — competitor capability baseline (EquineM)
+- [`appCompetition/webapps.md`](appCompetition/webapps.md#12-equinem) — market competitive benchmark (EquineM = §12 / primary stable-ERP parity baseline)
+- [`firstDeliveryCompetitiveBacklog.md`](firstDeliveryCompetitiveBacklog.md) — first-delivery extract (user/horse social + stable SaaS)
 - [`businessPlan.md`](businessPlan.md) — vision, monetization, competitive positioning (Section 20), relationship rules
 - [`mvpScope.md`](mvpScope.md) — build phases vs production launch gate
 - [`userModule.md`](userModule.md) — identity; [`workplaceRelationship.md`](workplaceRelationship.md) — stable collaboration (User ↔ role profile)
@@ -33,7 +34,7 @@ Living document for planning, updating, and tracking **stable-facing** capabilit
 | **Status: planned** | Agreed scope, not started |
 | **Status: in progress** | Actively building |
 | **Status: done** | Shipped in production |
-| **Parity: EquineM** | Feature exists on competitor (see `equinem.md`) |
+| **Parity: EquineM** | Feature exists on competitor (see [`appCompetition/webapps.md`](appCompetition/webapps.md#12-equinem)) |
 | **Beyond** | Differentiator vs EquineM |
 
 Update status as work progresses. Add rows freely; keep IDs stable once referenced in tickets.
@@ -266,11 +267,47 @@ Cross-module production gate (all must be ready together): see [`mvpScope.md`](m
 
 ---
 
+## 12. First delivery — market backlog (stable SaaS)
+
+**Priority for first delivery:** stable SaaS capabilities that make Equus indispensable for barn operations (roster, tasks, health, feed, docs, finance, facilities) while feeding the **owner horse Hub** for social/transparency.
+
+Full extraction and competitor mapping: [`firstDeliveryCompetitiveBacklog.md`](firstDeliveryCompetitiveBacklog.md) §B. Source detail: [`appCompetition/webapps.md`](appCompetition/webapps.md) (Equicty, HippoVibe, Equestrian App StallPros). EquineM parity remains in Sections 1–9.
+
+These rows **add** market-derived gaps not already covered as named IDs above. They do **not** replace Sections 1–11.
+
+| ID | Feature | Market source | Status |
+|----|---------|---------------|--------|
+| S-FD-01 | Stall assignment UI (boxes 1–N) with horse + emergency contacts | Equestrian App StallPros | planned |
+| S-FD-02 | Multiple barns / turnouts under one stable profile | Equestrian App | planned |
+| S-FD-03 | Digital whiteboard daily board: real-time task list visible to whole team (mobile + web) | HippoVibe | planned |
+| S-FD-04 | Bulk move / copy / delete of planned tasks | Equicty interactive planning | planned |
+| S-FD-05 | Staff schedule (roster of who works when) alongside horse activities | HippoVibe staff schedule | planned |
+| S-FD-06 | Field-level access rights (restrict medical and financial fields per collaborator) | HippoVibe, Equicty | planned |
+| S-FD-07 | Collaborator admin fields: title, contracts, flight/travel docs, notes | Equicty team management | planned |
+| S-FD-08 | Sub-teams linked to horse groups | Equicty | planned |
+| S-FD-09 | Per-horse document playlists / folders (videos, X-rays, scans, invoices) | HippoVibe | planned |
+| S-FD-10 | Share horse information pack from stable roster to owner or buyer | HippoVibe | planned |
+| S-FD-11 | HorseTag QR printable for stalls → horse Hub | Equestrian App | planned |
+| S-FD-12 | Stable contact CRM (owners, prospects, providers) | Equicty CRM | planned |
+| S-FD-13 | Online invoice payment status / collection | Equicty Equclub payments | planned |
+| S-FD-14 | Peppol / UBL e-invoicing option for EU stables | Equicty Peppol | planned |
+| S-FD-15 | Embed stable calendar on external website | Equestrian App Platinum | planned |
+| S-FD-16 | Farrier / bodywork visit documentation written into hosted horse journal | Equestrian App | planned |
+| S-FD-17 | Light leasing: schedule lease days for hosted horses | Equestrian App | planned |
+| S-FD-18 | Lesson / arena booking subset when stable offers lessons (member levels, instructor assign, packages) | Equicty Equclub | planned |
+| S-FD-19 | Competition / show plan shared with team and owners (classes, times, related expenses) | Equicty Competition add-on, HippoVibe | planned |
+| S-FD-20 | Mobile finance capture: log income/expense per horse from phone | HippoVibe | planned |
+
+**Deferred from market (documented, not first delivery):** Smart Stable Board hardware (Equicty); Hoofy AI (Equicty); full breeding/stud module (Equicty/EquineM) unless ICP is stud; paid search boost ads (Equestrian App); Happie-style metabolic pasture OS.
+
+---
+
 ## Changelog
 
 | Date | Change |
 |------|--------|
+| 2026-07-24 | §12 First delivery market backlog (stable SaaS) from `appCompetition/webapps.md` / `firstDeliveryCompetitiveBacklog.md` |
 | 2026-06-30 | Removed post-launch / out-of-scope section; analytics promoted to S-FIN-16 (required for stable) |
 | 2026-06-29 | Collaborators as Users; WorkplaceRelationship + Stable.collaborators; barn staff horse access rules |
 | 2026-06-29 | Staff policy: invite/accept; multi-stable employment |
-| 2026-06-29 | Initial specification from `equinem.md` parity + business plan stable module |
+| 2026-06-29 | Initial specification from EquineM parity (now in `appCompetition/webapps.md` §12) + business plan stable module |

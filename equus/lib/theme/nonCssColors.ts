@@ -1,20 +1,21 @@
 /**
- * Hex color mirrors of `:root` tokens in `app/globals.css` for contexts that
- * cannot use CSS variables (HTML email, Excel export, browser meta theme-color).
+ * Hex color mirrors of `:root` (default theme) tokens in `app/globals.css`
+ * for contexts that cannot use CSS variables (HTML email, Excel export, meta).
  *
  * Keep in sync with `:root` — enforced by `tests/theme/nonCssColorsSync.test.ts`.
+ * User-selected themes (e.g. onyx) do not affect these values.
  */
 
 export const nonCssColors = {
-  primary: "#f97316",
+  primary: "#b8520a",
   primaryForeground: "#ffffff",
-  muted: "#fff7ed",
-  border: "#fed7aa",
-  foreground: "#431407",
-  mutedForeground: "#9a3412",
+  muted: "#2a3b42",
+  border: "#445a4d",
+  foreground: "#f3f4f6",
+  mutedForeground: "#e5e7eb",
   /** Same as primary — used for email links and browser theme-color. */
-  link: "#f97316",
-  browserThemeColor: "#f97316",
+  link: "#b8520a",
+  browserThemeColor: "#b8520a",
   /** Excel export gridlines / header fill (also defined on `:root`). */
   excelGridline: "#000000",
   excelHeaderFill: "#d1d0ce",

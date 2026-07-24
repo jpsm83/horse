@@ -53,9 +53,9 @@ export function AppShell({ children }: AppShellProps) {
         style={stickyChromeStyle}
       >
         {/* Mobile-only trigger bar */}
-        <div className="flex h-14 items-center gap-2 border-b px-4 md:hidden">
+        <div className="flex h-14 items-center gap-2 border-b border-border bg-card px-4 text-card-foreground md:hidden">
           <SidebarTrigger />
-          <span className="text-lg font-semibold">Equus</span>
+          <span className="text-lg font-semibold text-foreground">Equus</span>
         </div>
         <IncompleteProfileBanner />
         <div className="flex flex-1 flex-col">{children}</div>

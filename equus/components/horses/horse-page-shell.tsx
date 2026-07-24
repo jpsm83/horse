@@ -10,9 +10,11 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { EntityTabs } from "@/components/shared/entity-tabs.tsx";
+import { UnsavedChangesProvider } from "@/components/shared/unsaved-changes-context.tsx";
 import { HorsePageSkeleton } from "@/components/horses/horse-page-skeleton.tsx";
 import { Link } from "@/i18n/navigation.ts";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
@@ -40,6 +42,7 @@ export function HorsePageShell({
   children,
 }: HorsePageShellProps) {
   const router = useRouter();
+  const tCommon = useTranslations("common");
   const { isAuthenticated, isLoading: isAuthLoading } = useAppAuth();
   const { data: horse, isLoading: isHorseLoading, error: horseError } = useOwnerHorse(horseId);
 
@@ -76,10 +79,14 @@ export function HorsePageShell({
     (requireMainOwner && !isMainOwner) || (requireOwnership && !isAdmin);
 
   return (
-    <>
+    <UnsavedChangesProvider
+      dialogTitle={tCommon("unsavedChangesTitle")}
+      dialogDescription={tCommon("unsavedChangesDescription")}
+      stayLabel={tCommon("stayOnPage")}
+      leaveLabel={tCommon("leaveWithoutSaving")}
+    >
       <EntityTabs tabs={getHorseTabs(horseId)} isAdmin={isAdmin} isMainOwner={isMainOwner} isPending={isLoading} />
-        <div className="mx-auto flex w-full flex-1 flex-col gap-4 p-4 sm:p-6 sm:gap-6">
-
+      <div className="mx-auto flex w-full flex-1 flex-col gap-4 p-4 sm:p-6 sm:gap-6">
         {isLoading || !horse ? (
           <HorsePageSkeleton suppressHydrationWarning />
         ) : blocked ? (
@@ -98,8 +105,6 @@ export function HorsePageShell({
             : children
         )}
       </div>
-    </>
+    </UnsavedChangesProvider>
   );
 }
-
-

@@ -9,10 +9,7 @@ const messages = {
   required: "Required",
   invalidDate: "Invalid date",
   invalidEnum: "Invalid option",
-  contactNameRequired: "Contact name required",
-  contactPhoneRequired: "Contact phone required",
-  contactEmailRequired: "Contact email required",
-  contactEmailInvalid: "Invalid email",
+  invalidNumber: "Invalid number",
 };
 
 const { createHorseFormSchema } = createHorseFormSchemas(messages);
@@ -24,6 +21,7 @@ describe("createHorseFormSchema", () => {
       name: "Comet",
       breed: "Lusitano",
       sex: "Gelding",
+      countryOfBirth: "US",
     });
 
     expect(result.success).toBe(true);
@@ -35,41 +33,14 @@ describe("createHorseFormSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("requires delegate contact when not using owner contact", () => {
+  it("accepts discovery visibility without contact display", () => {
     const result = createHorseFormSchema.safeParse({
       ...emptyCreateHorseFormValues,
       name: "Comet",
       breed: "Lusitano",
       sex: "Gelding",
-      contactDisplay: {
-        useOwnerContact: "false",
-        name: "",
-        phone: "",
-        email: "",
-      },
-    });
-
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      const paths = result.error.issues.map((issue) => issue.path.join("."));
-      expect(paths).toContain("contactDisplay.name");
-      expect(paths).toContain("contactDisplay.phone");
-      expect(paths).toContain("contactDisplay.email");
-    }
-  });
-
-  it("accepts delegate contact when not using owner contact", () => {
-    const result = createHorseFormSchema.safeParse({
-      ...emptyCreateHorseFormValues,
-      name: "Comet",
-      breed: "Lusitano",
-      sex: "Gelding",
-      contactDisplay: {
-        useOwnerContact: "false",
-        name: "Manager",
-        phone: "+351911111111",
-        email: "manager@example.com",
-      },
+      countryOfBirth: "US",
+      profileVisibility: "relationship",
     });
 
     expect(result.success).toBe(true);

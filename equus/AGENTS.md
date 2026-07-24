@@ -118,7 +118,7 @@ Example from the reference implementations:
 * **Locales** — `en` (default, unprefixed URLs) and `es` (`/es/…`). See [`documentation/i18n.md`](../documentation/i18n.md).
 * **Strings** — `messages/en.json` and `messages/es.json`; use `useTranslations` / `getTranslations`. No hardcoded user-facing copy in components.
 * **Navigation** — in-app routes under `app/[locale]/` use `Link`, `useRouter`, and `redirect` from `@/i18n/navigation` (locale-aware). Do **not** use `next/link` or raw `<a href="/…">` for in-app paths. Use [`ExternalLink`](components/navigation/external-link.tsx) for `mailto:`, `tel:`, and external `https:` URLs only. Use [`AppHomeLink`](components/navigation/app-home-link.tsx) for “home” footers (`/` guest vs `/home` signed-in). Root [`app/not-found.tsx`](app/not-found.tsx) redirects to `/` (no intl provider at that layer).
-* **User preference** — `personalDetails.preferredLanguage` is always set at account creation (register `Accept-Language` or Google session bridge); sync `NEXT_LOCALE` cookie on register, login, session bridge, and profile save. Language is changed only on the profile page.
+* **User preference** — `personalDetails.preferredLanguage` is always set at account creation (register `Accept-Language` or Google session bridge); sync `NEXT_LOCALE` cookie on register, login, session bridge, and preferences save. Language and theme are changed on `/user/[userId]/preferences` (preview live; persist on Save). Account identity edits live on `/user/[userId]/profile` (legacy `/profile` redirects).
 * **API** — keep route handlers locale-agnostic; clients translate `error.code`.
 
 # Senior Next.js / React Engineer Agent
@@ -231,6 +231,12 @@ Your primary goals are:
 
 - **Definitions**: all web app colors are defined in `app/globals.css` via CSS custom properties
   mapped through Tailwind v4's `@theme inline` block. No other file defines web theme color values.
+- **Product themes** (color only): `default` (`:root`, palette from theme.md) and `onyx`
+  (`html.theme-onyx`, palette from theme2.md). Guests and missing prefs always use `default`.
+  Signed-in users store `personalDetails.preferredTheme` (`default` | `onyx`); cookie `EQUUS_THEME`
+  + root layout class avoid flash; `AppThemeSync` keeps class aligned with auth.
+  Entity tab chrome uses `bg-nav-tab-background` / `text-nav-tab-foreground` (never `text-secondary`
+  for text — that token is a background color).
 - **Usage**: components, pages, and layouts reference colors exclusively through
   semantic design tokens — `text-primary`, `bg-muted`, `text-success`, `bg-card`,
   `text-destructive`, `bg-overlay`, `text-overlay-foreground`, etc. Never use raw Tailwind
@@ -241,10 +247,10 @@ Your primary goals are:
   `[data-slot="*-overlay"]` rules in `globals.css` so they survive `npm run ui:sync`.
 - **Badge bands**: table color-range badges use `--badge-band-*` tokens and `.badge-band-*` classes.
 - **Non-CSS contexts** (HTML email, Excel ARGB, browser `theme-color`): import hex from
-  `lib/theme/nonCssColors.ts` only. That module must stay in sync with `:root` — enforced by
-  `tests/theme/nonCssColorsSync.test.ts`.
+  `lib/theme/nonCssColors.ts` only (always mirrors **default** `:root`, not the user's onyx theme).
+  Sync is enforced by `tests/theme/nonCssColorsSync.test.ts`.
 - **Adding a color**: if a needed semantic category lacks a token, add the CSS variable
-  in `app/globals.css` (to `@theme inline`, `:root`, `.theme-neutral`, and `.dark`)
+  in `app/globals.css` (to `@theme inline`, `:root`, and `.theme-onyx`)
   before using it in any component. If email/meta/export need the same value, add it to
   `nonCssColors.ts` and extend the sync test. Do NOT inline raw colors in JSX.
 - **Opacity via modifiers**: use Tailwind's opacity modifier syntax on the semantic
@@ -393,7 +399,7 @@ models/
 - **Ownership changes** on entity-owned profiles use **`OwnershipTransfer`** (consent before apply): `transfer_main`, `remove_co_owner`, `promote_co_owner` — not user-linked services. See [`documentation/ownershipTransfer.md`](../documentation/ownershipTransfer.md) and [`equus/documentation/ownershipTransfer.md`](documentation/ownershipTransfer.md).
 - **Collaborators** at host role profiles (stable, breeder, riding club, transport) are **Users** linked via `WorkplaceRelationship` + host `collaborators[]` (stable, breeder, transport) — see [`documentation/workplaceRelationship.md`](../documentation/workplaceRelationship.md). Never grant host ownership on `User` to collaborators. Barn staff may act on a hosted horse when active collaboration + accepted horse↔stable `Relationship` exist.
 - **Horse relationships** use `Relationship` (consent + lifecycle link documents, not bare refs on entities).
-- **Visibility policy** is centralized in `lib/privacy/userVisibility.ts`; public user profile reads use `lib/privacy/userPublicProfile.ts` (`getPublicUserForRequester`). Horse public cards combine horse discovery (`Horse.profileVisibility`, `Horse.contactDisplay`) with user privacy filters in `lib/services/horseService.ts`.
+- **Visibility policy** is centralized in `lib/privacy/userVisibility.ts`; public user profile reads use `lib/privacy/userPublicProfile.ts` (`getPublicUserForRequester`). Horse public cards combine horse discovery (`Horse.profileVisibility`) with owner privacy filters in `lib/services/horseService.ts` (contact always from main owner).
 - **Stable discovery:** `isPublic` (default `true`) and `acceptsNewHorses` on `Stable`; entity-level business contact; rules in `lib/stables/stableDiscoveryAccess.ts` and `lib/services/stableService.ts`.
 - **Transport discovery:** `isPublic` (default `true`) and `acceptsNewBookings` on `Transport`; entity-level business contact; rules in `lib/transports/transportDiscoveryAccess.ts` and `lib/services/transportService.ts`.
 - No `activeAccountContext`; no user-level `ownerPreferences`. Horse discovery is per-horse; stable and transport discovery are per-entity. See [`documentation/userModule.md`](../documentation/userModule.md).

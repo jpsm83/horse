@@ -19,6 +19,7 @@
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
   --color-nav-tab-background: var(--nav-tab-background);
+  --color-nav-tab-foreground: var(--nav-tab-foreground);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -78,54 +79,54 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Theme tokens:
- * :root           — Tailwind orange palette (default)
- * .theme-neutral  — previous shadcn neutral light (opt-in on html)
- * .dark           — neutral dark (unchanged)
+/* Theme tokens (color only):
+ * :root        — default (theme.md forest / warm accent)
+ * .theme-onyx  — onyx (theme2.md) when set on <html>
  */
 
 :root {
-  --background: #ffffff;
-  --foreground: #431407;
-  --card: #fff7ed;
-  --card-foreground: #7c2d12;
-  --popover: #ffffff;
-  --popover-foreground: #7c2d12;
-  --primary: #f97316;
+  --background: #212226;
+  --foreground: #f3f4f6;
+  --card: #2a3b42;
+  --card-foreground: #f3f4f6;
+  --popover: #2a3b42;
+  --popover-foreground: #f3f4f6;
+  --primary: #b8520a;
   --primary-foreground: #ffffff;
-  --secondary: #ffedd5;
-  --secondary-foreground: #7c2d12;
-  --muted: #fff7ed;
-  --muted-foreground: #9a3412;
-  --accent: #fb923c;
-  --accent-foreground: #431407;
-  --destructive: oklch(0.577 0.245 27.325);
+  --secondary: #445a4d;
+  --secondary-foreground: #e5e7eb;
+  --muted: #2a3b42;
+  --muted-foreground: #e5e7eb;
+  --accent: #779e7f;
+  --accent-foreground: #212226;
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
   --info: #3b82f6;
   --info-foreground: #ffffff;
-  --success: #22c55e;
-  --success-foreground: #ffffff;
-  --warning: #f59e0b;
-  --warning-foreground: #451a03;
-  --border: #fed7aa;
-  --input: #fed7aa;
-  --input-background: #ffffff;
-  --ring: #fb923c;
-  --chart-1: #fb923c;
-  --chart-2: #f97316;
-  --chart-3: #9a3412;
-  --chart-4: #7c2d12;
-  --chart-5: #431407;
+  --success: #779e7f;
+  --success-foreground: #212226;
+  --warning: #b8520a;
+  --warning-foreground: #ffffff;
+  --border: #445a4d;
+  --input: #445a4d;
+  --input-background: #212226;
+  --ring: #b8520a;
+  --chart-1: #b8520a;
+  --chart-2: #779e7f;
+  --chart-3: #445a4d;
+  --chart-4: #2a3b42;
+  --chart-5: #f3f4f6;
   --radius: 0.625rem;
-  --sidebar: #7c2d12;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #fb923c;
-  --sidebar-primary-foreground: #431407;
-  --sidebar-accent: #431407;
-  --sidebar-accent-foreground: #fb923c;
-  --sidebar-border: #9a3412;
-  --sidebar-ring: #fb923c;
-  --nav-tab-background: #ce5120;
+  --sidebar: #2a3b42;
+  --sidebar-foreground: #f3f4f6;
+  --sidebar-primary: #b8520a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #445a4d;
+  --sidebar-accent-foreground: #e5e7eb;
+  --sidebar-border: #445a4d;
+  --sidebar-ring: #b8520a;
+  --nav-tab-background: #445a4d;
+  --nav-tab-foreground: #e5e7eb;
   --overlay: #000000;
   --overlay-foreground: #ffffff;
   --overlay-heavy: rgb(0 0 0 / 0.95);
@@ -151,137 +152,48 @@
   --excel-header-fill: #d1d0ce;
 }
 
-.theme-neutral {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(1 0 0);
-  --info: oklch(0.546 0.245 262.881);
-  --info-foreground: oklch(1 0 0);
-  --success: oklch(0.527 0.154 150.069);
-  --success-foreground: oklch(1 0 0);
-  --warning: oklch(0.795 0.184 85.964);
-  --warning-foreground: oklch(0.145 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --input-background: #ffffff;
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --nav-tab-background: oklch(1 0 0);
-  --overlay: #000000;
-  --overlay-foreground: #ffffff;
-  --overlay-heavy: rgb(0 0 0 / 0.95);
-  --badge-band-gray: #5c5b5b;
-  --badge-band-gray-foreground: #ffffff;
-  --badge-band-yellow: #ecd6a7;
-  --badge-band-yellow-foreground: #92400e;
-  --badge-band-green: #addfc0;
-  --badge-band-green-foreground: #166534;
-  --badge-band-red: #f3cbcb;
-  --badge-band-red-foreground: #991b1b;
-  --badge-band-orange: #f8c5aa;
-  --badge-band-orange-foreground: #c2410c;
-  --badge-band-blue: #b3c8f8;
-  --badge-band-blue-foreground: #1e40af;
-  --badge-band-purple: #d9b8f8;
-  --badge-band-purple-foreground: #7e22ce;
-  --badge-band-pink: #f2b3cf;
-  --badge-band-pink-foreground: #be185d;
-  --badge-band-neutral: #e5e7eb;
-  --badge-band-neutral-foreground: #6b7280;
-  --excel-gridline: #000000;
-  --excel-header-fill: #d1d0ce;
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --info: oklch(0.623 0.214 259.815);
-  --info-foreground: oklch(0.145 0 0);
-  --success: oklch(0.623 0.214 142.495);
-  --success-foreground: oklch(0.145 0 0);
-  --warning: oklch(0.795 0.184 85.964);
-  --warning-foreground: oklch(0.145 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --input-background: oklch(0.269 0 0);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-  --nav-tab-background: oklch(0.34 0 0);
-  --overlay: #000000;
-  --overlay-foreground: #ffffff;
-  --overlay-heavy: rgb(0 0 0 / 0.95);
-  --badge-band-gray: #5c5b5b;
-  --badge-band-gray-foreground: #ffffff;
-  --badge-band-yellow: #ecd6a7;
-  --badge-band-yellow-foreground: #92400e;
-  --badge-band-green: #addfc0;
-  --badge-band-green-foreground: #166534;
-  --badge-band-red: #f3cbcb;
-  --badge-band-red-foreground: #991b1b;
-  --badge-band-orange: #f8c5aa;
-  --badge-band-orange-foreground: #c2410c;
-  --badge-band-blue: #b3c8f8;
-  --badge-band-blue-foreground: #1e40af;
-  --badge-band-purple: #d9b8f8;
-  --badge-band-purple-foreground: #7e22ce;
-  --badge-band-pink: #f2b3cf;
-  --badge-band-pink-foreground: #be185d;
-  --badge-band-neutral: #e5e7eb;
-  --badge-band-neutral-foreground: #6b7280;
-  --excel-gridline: #000000;
-  --excel-header-fill: #d1d0ce;
+.theme-onyx {
+  --background: #1d1e23;
+  --foreground: #f3f4f6;
+  --card: #33363f;
+  --card-foreground: #f3f4f6;
+  --popover: #33363f;
+  --popover-foreground: #f3f4f6;
+  --primary: #57463a;
+  --primary-foreground: #ffffff;
+  --secondary: #2e2b26;
+  --secondary-foreground: #e5e7eb;
+  --muted: #33363f;
+  --muted-foreground: #e5e7eb;
+  --accent: #656772;
+  --accent-foreground: #1d1e23;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --info: #3b82f6;
+  --info-foreground: #ffffff;
+  --success: #656772;
+  --success-foreground: #1d1e23;
+  --warning: #57463a;
+  --warning-foreground: #ffffff;
+  --border: #2e2b26;
+  --input: #2e2b26;
+  --input-background: #1d1e23;
+  --ring: #57463a;
+  --chart-1: #57463a;
+  --chart-2: #656772;
+  --chart-3: #2e2b26;
+  --chart-4: #33363f;
+  --chart-5: #f3f4f6;
+  --sidebar: #33363f;
+  --sidebar-foreground: #f3f4f6;
+  --sidebar-primary: #57463a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #2e2b26;
+  --sidebar-accent-foreground: #e5e7eb;
+  --sidebar-border: #2e2b26;
+  --sidebar-ring: #57463a;
+  --nav-tab-background: #2e2b26;
+  --nav-tab-foreground: #e5e7eb;
 }
 
 /* Table color-range badge bands — class names used by COLOR_BAND_CONFIGS */
@@ -350,6 +262,35 @@
   [data-slot="alert-dialog-overlay"] {
     background-color: color-mix(in oklab, var(--overlay) 10%, transparent);
   }
+
+  /* FullCalendar — bind chrome to semantic tokens (default package CSS is light-theme hex). */
+  .fc {
+    --fc-border-color: var(--border);
+    --fc-page-bg-color: var(--background);
+    --fc-neutral-bg-color: var(--muted);
+    --fc-neutral-text-color: var(--muted-foreground);
+    --fc-list-event-hover-bg-color: var(--accent);
+    --fc-today-bg-color: color-mix(in oklab, var(--primary) 15%, transparent);
+    --fc-button-bg-color: var(--secondary);
+    --fc-button-border-color: var(--border);
+    --fc-button-text-color: var(--secondary-foreground);
+    --fc-button-hover-bg-color: var(--primary);
+    --fc-button-hover-border-color: var(--primary);
+    --fc-button-hover-text-color: var(--primary-foreground);
+    --fc-button-active-bg-color: var(--primary);
+    --fc-button-active-border-color: var(--primary);
+    --fc-button-active-text-color: var(--primary-foreground);
+    --fc-event-bg-color: var(--primary);
+    --fc-event-border-color: var(--primary);
+    --fc-event-text-color: var(--primary-foreground);
+  }
+
+  .fc .fc-toolbar-title,
+  .fc .fc-col-header-cell-cushion,
+  .fc .fc-daygrid-day-number,
+  .fc .fc-timegrid-slot-label-cushion {
+    color: var(--foreground);
+  }
 }
 
 @layer base {
@@ -363,13 +304,13 @@
     @apply font-sans;
   }
 
-  /* Form inputs — white fill in every state (incl. browser autofill blue on focus). */
+  /* Form inputs — theme input-background in every state (incl. browser autofill). */
   :is(
     [data-slot="input"],
     [data-slot="textarea"],
     [data-slot="select-trigger"]
   ) {
-    color-scheme: light;
+    color-scheme: dark;
     background-color: var(--input-background);
   }
 

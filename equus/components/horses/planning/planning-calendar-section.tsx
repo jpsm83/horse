@@ -9,6 +9,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toSelectValue, fromSelectValue, selectItemValue } from "@/lib/ui/selectEmptyValue";
 import { useHorsePlanning, useCreatePlanningEvent } from "@/hooks/queries/useHorsePlanning.ts";
 import { useHorseProviders } from "@/hooks/queries/useHorse.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
@@ -51,12 +59,16 @@ function EventForm({ horseId, defaultDate, onSaved }: { horseId: string; default
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <div className="space-y-2">
         <Label htmlFor="ev-type">{t("type")}</Label>
-        <select id="ev-type" value={eventType} onChange={(e) => setEventType(e.target.value)}
-          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
-          {["appointment", "competition", "training", "feeding", "other"].map((et) => (
-            <option key={et} value={et}>{t("types." + et)}</option>
-          ))}
-        </select>
+        <Select value={eventType} onValueChange={(value) => setEventType(value ?? "appointment")}>
+          <SelectTrigger id="ev-type" className="h-9 w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent side="bottom" align="start" alignItemWithTrigger={false} className="max-h-60">
+            {["appointment", "competition", "training", "feeding", "other"].map((et) => (
+              <SelectItem key={et} value={et}>{t("types." + et)}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="space-y-2">
         <Label htmlFor="ev-title">{t("title")}</Label>
@@ -77,13 +89,20 @@ function EventForm({ horseId, defaultDate, onSaved }: { horseId: string; default
       {providers.length > 0 && (
         <div className="space-y-2">
           <Label htmlFor="ev-prov">{t("provider")}</Label>
-          <select id="ev-prov" value={sourceProviderId} onChange={(e) => setSourceProviderId(e.target.value)}
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
-            <option value="">{t("noProvider")}</option>
-            {providers.map((p) => (
-              <option key={p.id} value={p.id}>{p.receiverLabel ?? p.relationshipType}</option>
-            ))}
-          </select>
+          <Select
+            value={toSelectValue(sourceProviderId, [{ value: "" }], t("noProvider"))}
+            onValueChange={(value) => setSourceProviderId(fromSelectValue(value, t("noProvider")))}
+          >
+            <SelectTrigger id="ev-prov" className="h-9 w-full">
+              <SelectValue placeholder={t("noProvider")} />
+            </SelectTrigger>
+            <SelectContent side="bottom" align="start" alignItemWithTrigger={false} className="max-h-60">
+              <SelectItem value={selectItemValue("", t("noProvider"))}>{t("noProvider")}</SelectItem>
+              {providers.map((p) => (
+                <SelectItem key={p.id} value={p.id}>{p.receiverLabel ?? p.relationshipType}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
       <Button type="submit" disabled={createMutation.isPending || !title.trim() || !startDate} className="w-full">

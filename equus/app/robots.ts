@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           "/api/", "/signin", "/signup", "/forgot-password",
           "/reset-password", "/confirm-email", "/resend-confirmation",
-          "/profile", "/notifications", "/not-allowed",
+          "/profile", "/user/", "/notifications", "/not-allowed",
           "/horses/new", "/stables/new",
           "/breeders/new", "/transport/new", "/trainers/new",
           "/groomers/new", "/riders/new", "/coaches/new",

@@ -104,10 +104,11 @@ export function ConnectContent({ horseId }: Props) {
 
 Rules:
 - No raw `fetch()` — all API calls go through TanStack Query hooks
-- No mutation logic — mutations live in the section components
 - Every section uses `<Section>` — never manual `<section>` wrappers
 - No error boundary around the shell itself (shell is the chrome — it should not crash from section errors)
-- Doesn't own data fetching or state — only composes sections
+- **Two section kinds** (see §6 and §6.5):
+  - **Action sections** — own their mutations (invite, delete, transfer). `client.tsx` only composes them.
+  - **Deferred form tabs** (Profile, Admin sale settings) — parent owns one `useForm`, one Save button, and dirty → unsaved-changes wiring. Field-group sections receive `control` only.
 
 ## 4.5. The `Section` Component (`components/shared/section.tsx`)
 
@@ -188,15 +189,16 @@ if (requireOwnership && !(horse.isMainOwner === true)) {
 return <>{children}</>;
 ```
 
-## 6. Section Components — Self-Contained Data
+## 6. Section Components — Action / Query Sections
 
-Each section is a `"use client"` component that:
-- Owns its own TanStack Query hooks (`useQuery`, `useMutation`)
+Each **action or list** section is a `"use client"` component that:
+- Owns its own TanStack Query hooks (`useQuery`, `useMutation`) when it performs immediate actions (invite, delete, upload, transfer)
 - Shows inline skeleton during `isPending`
 - Destructures data with fallback: `{ data = [] }`
 - Uses `placeholderData: (prev) => prev` on all queries
 - Does NOT define its own `ErrorBoundary` — the `client.tsx` assembly wraps each section child manually in `<ErrorBoundary fallbackRender={InlineErrorFallback}>`
 - Does NOT use raw `fetch()` — always through hooks
+- Does NOT render a page-level Save for deferred edits — that belongs to the parent form (see §6.5)
 
 ### Pattern
 ```tsx
@@ -218,6 +220,49 @@ export function ConnectionsTableSection({ horseId }: { horseId: string }) {
   return <DataTable /* ... */ />;
 }
 ```
+
+## 6.5. Deferred Form Tabs — Parent-Owned Save (Profile, Admin)
+
+Tabs that edit entity fields with a single Save (not immediate CRUD) follow this pattern:
+
+1. **`client.tsx`** receives `horse` from `HorsePageShell` render props
+2. Parent creates **one** `useForm` (+ Zod resolver), resets from horse data
+3. Field-group sections receive `control` only — no `useForm`, no Save button, no mutations
+4. Parent renders **one Save** that validates, builds dirty-field patches, calls TanStack mutations, then `form.reset(values)`
+5. Parent syncs `formState.isDirty` / saving into `useUnsavedChanges()` so tab navigation + `beforeunload` warn about unsaved edits
+
+### Parent sketch
+```tsx
+function ProfileForm({ horseId, horse }: { horseId: string; horse: OwnerHorseSummary }) {
+  const form = useForm<ProfileFormValues>({ resolver: zodResolver(schema), defaultValues: empty() });
+  useEffect(() => { form.reset(toFormValues(horse)); }, [horse, form]);
+
+  const { isDirty } = useFormState({ control: form.control });
+  const { setDirty, setSaving } = useUnsavedChanges();
+  useEffect(() => { setDirty(isDirty); }, [isDirty, setDirty]);
+
+  async function onSave(values: ProfileFormValues) {
+    const patch = buildPatch(values, form.formState.dirtyFields);
+    await updateHorse.mutateAsync({ horseId, patch });
+    form.reset(values);
+  }
+
+  return (
+    <>
+      <Section title="…"><IdentitySection control={form.control} /></Section>
+      {/* more field groups */}
+      <Button onClick={form.handleSubmit(onSave)}>Save</Button>
+      {/* optional action sections below — invites, tables — keep their own mutations */}
+    </>
+  );
+}
+```
+
+### Rules
+- **One Save per deferred form surface** — never per-section Save for the same form
+- **Action sections on the same tab** (Admin history, ownership transfer, invites) keep immediate mutations; they do not join the deferred form
+- **Unsaved guard** — `HorsePageShell` wraps content in `UnsavedChangesProvider`; `EntityTabs` intercepts navigation when dirty
+- Reference implementations: `app/.../profile/client.tsx`, `app/.../admin/client.tsx`
 
 ## 7. Error Boundary Strategy — Stacked Layers
 
@@ -259,6 +304,8 @@ Rules:
 2. `onSuccess` invalidates related queries
 3. `onError` shows toast via `useAppToast()` — never silent `catch`
 4. Mutation loading state: disable the submit button, show spinner text
+5. **Deferred forms** — parent Save orchestrates one or more mutations from dirty fields; sections must not call those mutations themselves
+6. **Immediate actions** — invites, deletes, transfers, uploads stay in their section components
 
 ## 10. i18n Rules
 
@@ -281,9 +328,14 @@ Rules:
     [ ] Use `placeholderData: (prev) => prev`
     [ ] Show inline skeleton during `isPending`
     [ ] Handle errors with toast for mutations, ErrorBoundary for render errors
+[ ] If the tab is a deferred form (Profile / Admin sale settings):
+    [ ] Parent owns `useForm` + single Save + dirty → `useUnsavedChanges`
+    [ ] Field sections receive `control` only (no per-section Save)
+    [ ] Action sections on the same tab keep their own immediate mutations
 [ ] Verify: tabs survive if one section crashes (header + other sections remain)
 [ ] Verify: navigation between tabs shows no skeleton (placeholderData)
 [ ] Verify: full page load (SSR) shows skeleton immediately, not after hydration
+[ ] Verify (deferred forms): leaving with dirty fields shows unsaved-changes dialog
 ```
 
 ## 12. Page Type Variants

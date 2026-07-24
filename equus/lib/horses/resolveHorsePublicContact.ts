@@ -1,5 +1,5 @@
 /**
- * Resolve public horse contact based on horse contactDisplay + owner visibility policy.
+ * Resolve public horse contact from the main owner (subject to owner privacy).
  */
 
 import {
@@ -8,7 +8,7 @@ import {
 } from "@/lib/privacy/userVisibility.ts";
 
 export type PublicHorseContact = {
-  useOwnerContact: boolean;
+  useOwnerContact: true;
   name?: string;
   phone?: string;
   email?: string;
@@ -20,22 +20,10 @@ function joinName(firstName?: string, lastName?: string): string | undefined {
 }
 
 export function resolveHorsePublicContact(
-  horse: Record<string, unknown>,
+  _horse: Record<string, unknown>,
   ownerUser: Record<string, unknown> | null | undefined,
   audience: UserVisibilityAudience,
 ): PublicHorseContact {
-  const contactDisplay = (horse.contactDisplay ?? {}) as Record<string, unknown>;
-  const useOwnerContact = contactDisplay.useOwnerContact !== false;
-
-  if (!useOwnerContact) {
-    return {
-      useOwnerContact: false,
-      name: contactDisplay.name as string | undefined,
-      phone: contactDisplay.phone as string | undefined,
-      email: contactDisplay.email as string | undefined,
-    };
-  }
-
   const ownerIdentity = toPublicUserIdentity(ownerUser, audience);
   return {
     useOwnerContact: true,
@@ -44,4 +32,3 @@ export function resolveHorsePublicContact(
     email: ownerIdentity?.email,
   };
 }
-

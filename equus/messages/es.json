@@ -38,7 +38,8 @@
         "unsavedChangesDescription": "Tiene cambios sin guardar. Si abandona esta página, perderá los cambios.",
         "stayOnPage": "Permanecer en la página",
         "leaveWithoutSaving": "Salir sin guardar",
-        "selectPlaceholder": "Seleccionar..."
+        "selectPlaceholder": "Seleccionar...",
+        "noResults": "Sin resultados"
     },
     "toast": {
         "actionFailed": "Algo salió mal. Inténtelo de nuevo."
@@ -68,6 +69,7 @@
         },
         "account": {
             "sectionLabel": "Mi cuenta",
+            "preferences": "Preferencias",
             "workplaces": "Lugares de trabajo",
             "relationships": "Solicitudes de relación",
             "ownershipTransfers": "Transferencias de propiedad",
@@ -262,8 +264,27 @@
             "transferKinds": {
                 "transfer_main": "Transferir propiedad principal",
                 "remove_co_owner": "Eliminar copropietario",
-                "promote_co_owner": "Promover copropietario"
+                "promote_co_owner": "Promover copropietario",
+                "add_responsible": "Añadir responsable",
+                "remove_responsible": "Eliminar responsable"
             }
+        },
+        "pedigreeConnections": {
+            "title": "Solicitudes de conexión genealógica",
+            "description": "Confirma que otro caballo es cría del tuyo. Esto no cambia la propiedad.",
+            "empty": "No tienes solicitudes de conexión genealógica pendientes.",
+            "accept": "Reconocer",
+            "decline": "Rechazar",
+            "accepted": "Conexión genealógica reconocida.",
+            "declined": "Conexión genealógica rechazada.",
+            "roles": {
+                "sire": "Padre",
+                "dam": "Madre"
+            },
+            "childLine": "Solicitado para la cría: {childName}",
+            "unknownParent": "Caballo padre/madre",
+            "unknownChild": "Caballo desconocido",
+            "ackHint": "Aceptar solo confirma el vínculo genealógico en el perfil de su caballo. Conservas la propiedad completa del tuyo."
         },
         "signup": {
             "staffBanner": "Fue invitado a un lugar de trabajo en Equus. Regístrese con el email invitado.",
@@ -335,7 +356,7 @@
     },
     "profile": {
         "title": "Su perfil",
-        "description": "Actualice sus datos personales y preferencias.",
+        "description": "Actualice sus datos personales e información de la cuenta.",
         "incompleteBanner": "Su perfil está incompleto. Puede guardar cambios en cualquier momento y completar el resto más tarde.",
         "incompleteGlobalBannerLink": "Completar su perfil",
         "submit": "Guardar perfil",
@@ -356,6 +377,11 @@
         },
         "username": "Nombre de usuario",
         "preferredLanguage": "Idioma preferido",
+        "preferredTheme": "Tema",
+        "themeOptions": {
+            "default": "Predeterminado",
+            "onyx": "Onyx"
+        },
         "gender": "Género",
         "birthDate": "Fecha de nacimiento",
         "nationality": "Nacionalidad",
@@ -429,6 +455,23 @@
             "nobody": "Nadie"
         }
     },
+    "preferences": {
+        "title": "Preferencias",
+        "description": "Apariencia, idioma y privacidad.",
+        "submit": "Guardar preferencias",
+        "submitting": "Guardando...",
+        "saved": "Preferencias guardadas.",
+        "noChanges": "No hay cambios que guardar.",
+        "saveFailed": "Error al guardar las preferencias",
+        "sections": {
+            "appearance": "Apariencia",
+            "privacy": "Privacidad"
+        },
+        "sectionDescriptions": {
+            "appearance": "El tema y el idioma se previsualizan al cambiar. Guarde para conservarlos.",
+            "privacy": "Controle quién puede ver su perfil y enviarle mensajes."
+        }
+    },
     "createHorse": {
         "title": "Añadir un caballo",
         "description": "Descripción",
@@ -440,6 +483,7 @@
         "invalidDate": "Introduzca una fecha válida",
         "invalidNumber": "Introduzca un número válido",
         "invalidEnum": "Seleccione una opción válida",
+        "identityRequired": "Se requiere al menos uno de: ID de registro, microchip o pasaporte",
         "contactNameRequired": "El nombre de contacto es obligatorio si no usa el contacto del propietario",
         "contactPhoneRequired": "El teléfono de contacto es obligatorio si no usa el contacto del propietario",
         "contactEmailRequired": "El email de contacto es obligatorio si no usa el contacto del propietario",
@@ -474,9 +518,7 @@
         "acquisitionSource": "Fuente de adquisición",
         "showValuePublicly": "Mostrar valor públicamente",
         "sireName": "Nombre del padre",
-        "sireId": "ID de registro del padre",
         "damName": "Nombre de la madre",
-        "damId": "ID de registro de la madre",
         "bloodlineNotes": "Notas de linaje",
         "profileImage": "Foto de perfil",
         "choosePhoto": "Elegir foto",
@@ -487,7 +529,6 @@
         "photoInvalidType": "Solo se permiten archivos de imagen",
         "photoTooLarge": "El archivo supera el límite de 5 MB",
         "gallery": "Galería",
-        "notes": "Notas",
         "profileVisibility": "Visibilidad del perfil",
         "useOwnerContact": "Contacto público",
         "contactName": "Nombre de contacto",
@@ -758,7 +799,6 @@
         "marksDescription": "Señas",
         "countryOfBirth": "País de nacimiento",
         "description": "Descripción",
-        "notes": "Notas",
         "disciplines": "Disciplinas",
         "registeredName": "Nombre registrado",
         "registryId": "ID de registro",
@@ -767,10 +807,30 @@
         "primaryDiscipline": "Disciplina principal",
         "profileVisibility": "Visibilidad del perfil",
         "sireName": "Nombre del padre",
-        "sireId": "ID del padre",
         "damName": "Nombre de la madre",
-        "damId": "ID de la madre",
         "bloodlineNotes": "Notas de sangre",
+        "sireLabel": "Padre",
+        "sireHorseNameLabel": "Nombre del caballo padre",
+        "damLabel": "Madre",
+        "damHorseNameLabel": "Nombre del caballo madre",
+        "connectAsSire": "Conectar como Padre",
+        "connectAsDam": "Conectar como Madre",
+        "disconnect": "Desconectar",
+        "connected": "Conectado",
+        "searching": "Buscando...",
+        "searchError": "Búsqueda fallida",
+        "noResults": "No se encontraron caballos",
+        "searchPlaceholder": "Busque por ID de registro, microchip o pasaporte",
+        "emailFallbackToggle": "¿No está en Equus? Invitar por email",
+        "emailFallbackHint": "Ingrese el email del propietario y el nombre del caballo padre/madre para enviar una invitación.",
+        "emailLabel": "Email del propietario",
+        "identityRequired": "Se requiere al menos uno de: ID de registro, microchip o pasaporte",
+        "sendInvite": "Enviar invitación",
+        "cancel": "Cancelar",
+        "pedigreeConnectInvited": "Invitación enviada al propietario",
+        "pedigreeConnectFailed": "Error al enviar la invitación",
+        "pedigreeDisconnected": "Desconectado",
+        "pedigreeDisconnectFailed": "Error al desconectar",
         "noChanges": "Sin cambios para guardar",
         "saved": "Perfil del caballo guardado",
         "saveFailed": "Error al guardar el perfil del caballo",
@@ -890,6 +950,7 @@
         "invalidDate": "Introduce una fecha válida",
         "invalidEnum": "Selecciona una opción válida",
         "invalidNumber": "Introduce un número válido",
+        "identityRequired": "Se requiere al menos uno de: ID de registro, microchip o pasaporte",
         "contactNameRequired": "El nombre de contacto es obligatorio cuando no se usa el del propietario",
         "contactPhoneRequired": "El teléfono de contacto es obligatorio cuando no se usa el del propietario",
         "contactEmailRequired": "El email de contacto es obligatorio cuando no se usa el del propietario",
@@ -903,6 +964,7 @@
         "searchPlaceholder": "Buscar por nombre, email o usuario...",
         "searching": "Buscando...",
         "noResults": "No se encontraron proveedores.",
+        "searchError": "La búsqueda falló. Inténtalo de nuevo.",
         "invite": "Invitar",
         "invited": "Invitado",
         "emailFallbackToggle": "¿No está en Equus? Invitar por email",
@@ -1137,6 +1199,11 @@
             "description": "Gestiona las transferencias de propiedad de caballos en Equus.",
             "keywords": ""
         },
+        "pedigreeConnections": {
+            "title": "Conexiones Genealógicas | Equus",
+            "description": "Reconoce solicitudes de padre/madre en Equus.",
+            "keywords": ""
+        },
         "users": {
             "title": "Perfil de Usuario | Equus",
             "description": "Perfil de miembro de Equus - conectado a través de caballos y servicios.",
@@ -1174,7 +1241,12 @@
         },
         "profile": {
             "title": "Perfil | Equus",
-            "description": "Gestiona tu perfil y preferencias de Equus.",
+            "description": "Gestiona tu perfil y datos de cuenta de Equus.",
+            "keywords": ""
+        },
+        "preferences": {
+            "title": "Preferencias | Equus",
+            "description": "Gestiona apariencia, idioma y privacidad.",
             "keywords": ""
         },
         "notifications": {

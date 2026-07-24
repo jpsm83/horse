@@ -1,7 +1,9 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import { cn } from "@/lib/utils";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { useUnsavedChangesOptional } from "@/components/shared/unsaved-changes-context.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 
 export interface EntityTab {
@@ -20,15 +22,17 @@ interface EntityTabsProps {
 }
 
 const navClassName =
-  "sticky top-[var(--sticky-chrome-offset,0px)] z-20 flex h-14 w-full items-center justify-center bg-nav-tab-background";
+  "sticky top-[var(--sticky-chrome-offset,0px)] z-20 flex h-14 w-full items-center justify-center bg-nav-tab-background text-nav-tab-foreground";
 
 export function EntityTabs({ tabs, isAdmin, isMainOwner, isPending }: EntityTabsProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const unsavedChanges = useUnsavedChangesOptional();
 
   if (isPending) {
     return (
       <nav className={`${navClassName} px-4 sm:px-6 py-3`}>
-        <Skeleton className="h-full w-full rounded-lg" />
+        <Skeleton className="h-full w-full rounded-lg bg-nav-tab-foreground/15" />
       </nav>
     );
   }
@@ -41,9 +45,23 @@ export function EntityTabs({ tabs, isAdmin, isMainOwner, isPending }: EntityTabs
 
   if (visibleTabs.length <= 1) return null;
 
+  function handleTabNavigate(event: MouseEvent, href: string, isActive: boolean) {
+    if (isActive) {
+      event.preventDefault();
+      return;
+    }
+    if (unsavedChanges?.isDirty) {
+      event.preventDefault();
+      unsavedChanges.requestNavigation(href);
+      return;
+    }
+    event.preventDefault();
+    router.push(href);
+  }
+
   return (
     <nav className={navClassName}>
-      <div className="inline-flex items-center gap-4 rounded-lg bg-nav-tab-background">
+      <div className="inline-flex items-center gap-1 rounded-lg p-1">
         {visibleTabs.map((tab) => {
           const isParentOfOtherTab = visibleTabs.some(
             (t) => t.href !== tab.href && t.href.startsWith(tab.href + "/"),
@@ -58,11 +76,12 @@ export function EntityTabs({ tabs, isAdmin, isMainOwner, isPending }: EntityTabs
             <Link
               key={tab.id}
               href={tab.href}
+              onClick={(event) => handleTabNavigate(event, tab.href, isActive)}
               className={cn(
                 "relative inline-flex h-7 flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-0.5 text-sm font-medium whitespace-nowrap transition-all",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-nav-tab-background text-secondary hover:bg-primary hover:text-primary-foreground",
+                  : "text-nav-tab-foreground hover:bg-primary/20 hover:text-primary-foreground",
               )}
             >
               {tab.label}

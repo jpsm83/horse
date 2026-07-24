@@ -14,6 +14,9 @@ const PALETTE_RE =
   /\b(?:bg|text|border|ring|from|to|via|fill|stroke)-(?:orange|amber|red|green|blue|yellow|purple|pink|gray|slate|zinc|neutral|stone|rose|emerald|sky|indigo|violet|fuchsia|lime|teal|cyan)-[0-9]{2,3}\b/;
 const RAW_BW_RE =
   /\b(?:bg|text|border)-(?:black|white)(?:\/[0-9]+)?\b/;
+/** Background-role tokens used as text without `-foreground` (e.g. `text-secondary`). */
+const BG_AS_TEXT_RE =
+  /\btext-(?:secondary|muted|accent|card|popover)(?!-foreground)\b/;
 
 const HEX_ALLOWLIST = new Set([
   join("components", "icons", "google-icon.tsx"),
@@ -72,6 +75,18 @@ describe("color centralization audit", () => {
     for (const file of files) {
       const content = readFileSync(file, "utf8");
       const match = content.match(RAW_BW_RE);
+      if (match) {
+        hits.push(`${toPosixRel(file)}: ${match[0]}`);
+      }
+    }
+    expect(hits).toEqual([]);
+  });
+
+  it("forbids background-role tokens used as text without -foreground", () => {
+    const hits: string[] = [];
+    for (const file of files) {
+      const content = readFileSync(file, "utf8");
+      const match = content.match(BG_AS_TEXT_RE);
       if (match) {
         hits.push(`${toPosixRel(file)}: ${match[0]}`);
       }

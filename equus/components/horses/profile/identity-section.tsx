@@ -113,19 +113,6 @@ export function IdentitySection({ control }: IdentitySectionProps) {
           label={t("dateOfBirth")}
           type="date"
         />
-        <TextField
-          control={control}
-          name="ageYears"
-          id="profile-ageYears"
-          label={t("ageYears")}
-          type="number"
-        />
-        <TextField
-          control={control}
-          name="marksDescription"
-          id="profile-marksDescription"
-          label={t("marksDescription")}
-        />
         <Controller
           name="countryOfBirth"
           control={control}

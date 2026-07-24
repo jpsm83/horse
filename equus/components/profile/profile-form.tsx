@@ -1,8 +1,9 @@
 "use client";
 
 /**
- * Profile edit form — all editable `personalDetails` fields.
+ * Profile edit form — identity, address, photo, and security fields.
  * Submits to `PATCH /api/v1/users/me` (JSON or multipart with avatar).
+ * Theme, language, and privacy live on the Preferences page.
  */
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,9 +30,7 @@ import {
 } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePathname, useRouter } from "@/i18n/navigation.ts";
 import type { AppLocale } from "@/i18n/resolveLocale.ts";
-import { syncLocaleCookie } from "@/i18n/syncLocaleCookie.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { formatAuthProvider } from "@/lib/api/auth/session";
 import { requestPasswordResetForCurrentUser } from "@/lib/api/auth/credentials";
@@ -48,10 +47,7 @@ import {
   profileFormMessagesFromTranslations,
   type ProfileFormValues,
 } from "@/lib/validations/profileForms.ts";
-import {
-  getCountrySelectOptions,
-  getLanguageSelectOptions,
-} from "@/lib/profile/selectOptions.ts";
+import { getCountrySelectOptions } from "@/lib/profile/selectOptions.ts";
 
 import { genderEnums, idTypeEnums } from "@/utils/enums.ts";
 
@@ -81,7 +77,6 @@ const ID_TYPE_TRANSLATION_KEYS: Record<(typeof idTypeEnums)[number], string> = {
 
 type ProfileFormProps = {
   personalDetails: Record<string, unknown>;
-  preferences: Record<string, unknown>;
   email: string;
   emailVerified: boolean;
   authProvider: string;
@@ -95,7 +90,6 @@ type ProfileFormProps = {
 
 export function ProfileForm({
   personalDetails,
-  preferences,
   email,
   emailVerified,
   authProvider,
@@ -106,8 +100,6 @@ export function ProfileForm({
   onSaved,
   onSavingChange,
 }: ProfileFormProps) {
-  const router = useRouter();
-  const pathname = usePathname();
   const currentLocale = useLocale() as AppLocale;
   const t = useTranslations("profile");
   const tCommon = useTranslations("common");
@@ -141,7 +133,11 @@ export function ProfileForm({
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues: mapUserToProfileFormValues(personalDetails, preferences, initialUserType, initialBusinessDetails ?? undefined),
+    defaultValues: mapUserToProfileFormValues(
+      personalDetails,
+      initialUserType,
+      initialBusinessDetails ?? undefined,
+    ),
   });
 
   const { dirtyFields } = form.formState;
@@ -162,54 +158,16 @@ export function ProfileForm({
     label: t(`idTypeOptions.${ID_TYPE_TRANSLATION_KEYS[value]}`),
   }));
 
-  const languageOptions = useMemo(
-    () =>
-      getLanguageSelectOptions({
-        en: t("languageOptions.en"),
-        es: t("languageOptions.es"),
-      }),
-    [t],
-  );
-
   const countryOptions = useMemo(
     () => getCountrySelectOptions(currentLocale),
     [currentLocale],
   );
 
-  const profileVisibilityOptions = useMemo(
-    () => [
-      { value: "public", label: t("visibilityOptions.public") },
-      { value: "platform", label: t("visibilityOptions.platform") },
-      {
-        value: "relationships",
-        label: t("visibilityOptions.relationshipsOnly"),
-      },
-      { value: "private", label: t("visibilityOptions.private") },
-    ],
-    [t],
-  );
-
-  const directMessageAudienceOptions = useMemo(
-    () => [
-      {
-        value: "everyone",
-        label: t("directMessageAudienceOptions.everyone"),
-      },
-      {
-        value: "relationships",
-        label: t("directMessageAudienceOptions.relationships"),
-      },
-      { value: "nobody", label: t("directMessageAudienceOptions.nobody") },
-    ],
-    [t],
-  );
-
   async function onSubmit(values: ProfileFormValues) {
-    const patch = mapProfileFormValuesToPatch(
-      values,
-      dirtyFields,
-      { coordinates, savedCoordinates },
-    );
+    const patch = mapProfileFormValuesToPatch(values, dirtyFields, {
+      coordinates,
+      savedCoordinates,
+    });
 
     if (Object.keys(patch).length === 0 && !imageFile) {
       toast.info(t("noChanges"));
@@ -225,7 +183,6 @@ export function ProfileForm({
       const savedDetails = savedUser.personalDetails;
       const savedValues = mapUserToProfileFormValues(
         savedDetails,
-        savedUser.preferences as Record<string, unknown> | undefined,
         savedUser.userType,
         savedUser.businessDetails as Record<string, unknown> | undefined,
       );
@@ -242,16 +199,6 @@ export function ProfileForm({
       setImageFile(undefined);
       setPreviewUrl(undefined);
       onSaved?.(savedUser);
-
-      if (
-        patch.preferredLanguage &&
-        savedValues.preferredLanguage !== currentLocale
-      ) {
-        syncLocaleCookie(savedValues.preferredLanguage);
-        router.replace(pathname, {
-          locale: savedValues.preferredLanguage as AppLocale,
-        });
-      }
 
       toast.success(t("saved"));
     } catch (err) {
@@ -441,27 +388,12 @@ export function ProfileForm({
                 <SelectField
                   id="profile-gender"
                   label={t("gender")}
-                  placeholder={t("selectPlaceholder")}
+                  placeholder={tCommon("selectPlaceholder")}
                   value={field.value}
                   onChange={field.onChange}
                   invalid={fieldState.invalid}
                   error={fieldState.error}
                   options={genderOptions}
-                />
-              )}
-            />
-            <Controller
-              name="preferredLanguage"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <FlagSelectField
-                  id="profile-preferredLanguage"
-                  label={t("preferredLanguage")}
-                  value={field.value}
-                  onChange={field.onChange}
-                  invalid={fieldState.invalid}
-                  error={fieldState.error}
-                  options={languageOptions}
                 />
               )}
             />
@@ -479,7 +411,7 @@ export function ProfileForm({
                 <FlagSelectField
                   id="profile-nationality"
                   label={t("nationality")}
-                  placeholder={t("selectPlaceholder")}
+                  placeholder={tCommon("selectPlaceholder")}
                   value={field.value}
                   onChange={field.onChange}
                   invalid={fieldState.invalid}
@@ -504,7 +436,7 @@ export function ProfileForm({
                 <SelectField
                   id="profile-idType"
                   label={t("idType")}
-                  placeholder={t("selectPlaceholder")}
+                  placeholder={tCommon("selectPlaceholder")}
                   value={field.value}
                   onChange={field.onChange}
                   invalid={fieldState.invalid}
@@ -527,7 +459,7 @@ export function ProfileForm({
 
       <FieldSet>
         <FieldLegend className="pb-3 font-semibold">
-          {t("accountType")}
+          {tCommon("accountType")}
         </FieldLegend>
         <FieldGroup>
           <div className="grid gap-5 sm:grid-cols-2">
@@ -581,7 +513,7 @@ export function ProfileForm({
                   <FlagSelectField
                     id="profile-countryOfRegistration"
                     label={tCommon("countryOfRegistration")}
-                    placeholder={t("selectPlaceholder")}
+                    placeholder={tCommon("selectPlaceholder")}
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     invalid={fieldState.invalid}
@@ -593,48 +525,6 @@ export function ProfileForm({
             </div>
           </FieldGroup>
         )}
-      </FieldSet>
-
-      <hr className="my-4" />
-
-      <FieldSet>
-        <FieldLegend className="pb-3 font-semibold">
-          {t("sections.visibility")}
-        </FieldLegend>
-        <FieldGroup>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Controller
-              name="profileVisibility"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <SelectField
-                  id="profile-visibility"
-                  label={t("profileVisibility")}
-                  value={field.value}
-                  onChange={field.onChange}
-                  invalid={fieldState.invalid}
-                  error={fieldState.error}
-                  options={profileVisibilityOptions}
-                />
-              )}
-            />
-            <Controller
-              name="allowDirectMessagesFrom"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <SelectField
-                  id="profile-directMessages"
-                  label={t("allowDirectMessagesFrom")}
-                  value={field.value}
-                  onChange={field.onChange}
-                  invalid={fieldState.invalid}
-                  error={fieldState.error}
-                  options={directMessageAudienceOptions}
-                />
-              )}
-            />
-          </div>
-        </FieldGroup>
       </FieldSet>
 
       <hr className="my-4" />
@@ -654,7 +544,7 @@ export function ProfileForm({
                   <FlagSelectField
                     id="profile-country"
                     label={t("country")}
-                    placeholder={t("selectPlaceholder")}
+                    placeholder={tCommon("selectPlaceholder")}
                     value={field.value}
                     onChange={field.onChange}
                     invalid={fieldState.invalid}

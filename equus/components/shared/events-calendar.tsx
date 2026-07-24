@@ -29,7 +29,7 @@ export function EventsCalendar({ events, onEventClick, onDateClick }: Props) {
   );
 
   return (
-    <div className="rounded-lg border p-4">
+    <div className="rounded-lg border border-border bg-card p-4 text-card-foreground">
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"

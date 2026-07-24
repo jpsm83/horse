@@ -4,31 +4,50 @@
 
 | Tab | Route | Visibility | Purpose |
 |-----|-------|-----------|---------|
-| Hub | `/horses/[id]` | Public | View-only dashboard with basic info, pedigree, ownership summary |
+| Hub | `/horses/[id]` | Public | Dashboard + Discovery visibility control (admins) at top; overview, pedigree, ownership summary |
 | Connect | `/horses/[id]/connect` | Admin (owner, co-owner, responsible) | Invite providers + manage connections table |
 | Planning | `/horses/[id]/planning` | Public | Calendar for appointments, competitions, training, and daily activities. Shows events from connected providers. |
 | Media | `/horses/[id]/media` | Public | Upload/view photos and videos. Direct delete: owner, co-owner, responsible. Others request deletion (representatives decide when present). |
 | Documents | `/horses/[id]/documents` | Public | Horse documents and files. Same delete/request policy as Media. |
-| Edit | `/horses/[id]/edit` | Admin (owner, co-owner, responsible) | Edit basic info + contact display |
-| Admin | `/horses/[id]/admin` | Owner-only | Sale settings + ownership management + responsible persons + Hub toggle |
+| Profile | `/horses/[id]/profile` | Admin (owner, co-owner, responsible) | Edit horse identity / identification / disciplines / pedigree / about. Parent-owned form, single Save, unsaved-changes guard |
+| Admin | `/horses/[id]/admin` | Owner-only | Sale settings (parent-owned form + Save) + ownership / responsible actions (immediate mutations) |
 | History | `/horses/[id]/history` | Owner + entities | Activity/audit log |
 
 ## Removed Tabs
 
+- **Edit** — renamed to Profile (redirect from `/edit` to `/profile`)
 - **Events** — renamed to Planning (redirect from `/events` to `/planning`)
-- **Discovery** — contact display moved to Edit tab; per-section visibility replaces global discovery
+- **Discovery** — former standalone tab; `profileVisibility` now lives on Hub; contact display / ageYears / marksDescription removed from the Horse model
 - **Relations** — merged into Connect tab (invites + connections + reviews)
 - **Medical** — health records tab; removed for future rebuild. Tab entry, route, API, components, service, model, and translations deleted.
 - **Feed** — feed plans tab; removed for future rebuild. Tab entry, route, API, components, service, model, and translations deleted.
+- **Competition results** — removed from Profile tab, Horse model (`competitionResults[]`), APIs, services, hooks, and translations. Not planned.
+
+## First delivery — Hub as social surface
+
+First delivery prioritizes **user + horse details for social interaction** and **stable SaaS**. The Hub tab is the primary public social surface for a horse (utility-first; not a global Instagram feed).
+
+Market-derived Hub/profile backlog (`H-FD-*`): [`../../documentation/horseModule.md`](../../documentation/horseModule.md) §14 and [`../../documentation/firstDeliveryCompetitiveBacklog.md`](../../documentation/firstDeliveryCompetitiveBacklog.md).  
+Stable SaaS backlog (`S-FD-*`): [`../../documentation/stableModule.md`](../../documentation/stableModule.md) §12.
 
 ## Business Rules
 
 See AGENTS.md for critical business rules about entity registration requirements.
 
+## Deferred form tabs (Profile, Admin)
+
+Profile and Admin sale settings use a **parent-owned form**:
+
+- One `useForm` in `client.tsx`, one Save button, dirty → unsaved-changes dialog on tab leave
+- Field sections receive `control` only — no per-section Save
+- Immediate actions (invites, remove member, ownership transfer) stay in their section components
+
+Canonical rules: [`page-flow-blueprint.md`](./page-flow-blueprint.md) §6.5.
+
 ## Tab Order
 
 ```
-[Hub] [Connect] [Planning] [Media] [Documents] [Edit] [Admin] [History]
+[Hub] [Connect] [Planning] [Media] [Documents] [Profile] [Admin] [History]
 ```
 
-Role-based access: Hub, Planning, Media, Documents, History → public. Connect, Edit → Admin (owner/co-owner/responsible). Admin → owner-only.
+Role-based access: Hub, Planning, Media, Documents, History → public. Connect, Profile → Admin (owner/co-owner/responsible). Admin → owner-only.

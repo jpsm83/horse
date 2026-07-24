@@ -3,6 +3,7 @@
 /**
  * Profile form selects — one shadcn Select configuration for all fields.
  * `FlagSelectField` adds flags; `SelectField` is the plain variant (gender, id type).
+ * Empty (`""`) options use `common.selectPlaceholder` as the SelectItem value sentinel.
  */
 
 import { useTranslations } from "next-intl";
@@ -20,7 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { FlagSelectOption } from "@/lib/profile/selectOptions.ts";
+import {
+  fromSelectValue,
+  selectItemValue,
+  toSelectValue,
+} from "@/lib/ui/selectEmptyValue.ts";
 import { cn } from "@/lib/utils";
 
 /** Consistent popup positioning for every profile select (avoids alignItemWithTrigger jumps). */
@@ -75,30 +80,33 @@ export function SelectField({
   error,
   options,
 }: SelectFieldBaseProps & { options: PlainSelectOption[] }) {
-  const t = useTranslations("profile");
-  const resolvedPlaceholder = placeholder ?? t("selectPlaceholder");
+  const tCommon = useTranslations("common");
+  const emptySentinel = placeholder ?? tCommon("selectPlaceholder");
   const selected = options.find((option) => option.value === value);
 
   return (
     <Field data-invalid={invalid}>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <Select
-        value={value || null}
-        onValueChange={(nextValue) => onChange(nextValue ?? "")}
+        value={toSelectValue(value, options, emptySentinel)}
+        onValueChange={(nextValue) => onChange(fromSelectValue(nextValue, emptySentinel))}
       >
         <SelectTrigger id={id} className="w-full" aria-invalid={invalid}>
           {selected ? (
             <SelectOptionRow label={selected.label} inTrigger />
           ) : (
-            <SelectValue placeholder={resolvedPlaceholder} />
+            <SelectValue placeholder={emptySentinel} />
           )}
         </SelectTrigger>
         <SelectContent {...SELECT_CONTENT_PROPS}>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
+          {options.map((option) => {
+            const itemValue = selectItemValue(option.value, emptySentinel);
+            return (
+              <SelectItem key={itemValue} value={itemValue}>
+                {option.label}
+              </SelectItem>
+            );
+          })}
         </SelectContent>
       </Select>
       {invalid ? <FieldError errors={[error]} /> : null}

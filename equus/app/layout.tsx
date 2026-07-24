@@ -1,7 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import { OrganizationJsonLd, WebSiteJsonLd } from "@/lib/seo/json-ld";
 import { nonCssColors } from "@/lib/theme/nonCssColors";
+import {
+  THEME_COOKIE_NAME,
+  normalizeTheme,
+  themeHtmlClass,
+} from "@/lib/theme/appTheme";
+import { cn } from "@/lib/utils";
 
 import "./globals.css";
 
@@ -55,9 +62,19 @@ export const viewport: Viewport = {
 
 type RootLayoutProps = { children: React.ReactNode };
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const cookieStore = await cookies();
+  const theme = normalizeTheme(cookieStore.get(THEME_COOKIE_NAME)?.value);
+
   return (
-    <html className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      className={cn(
+        geistSans.variable,
+        geistMono.variable,
+        themeHtmlClass(theme),
+        "h-full antialiased",
+      )}
+    >
       <body className="min-h-full flex flex-col">
         <OrganizationJsonLd />
         <WebSiteJsonLd />
