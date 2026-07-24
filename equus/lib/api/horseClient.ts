@@ -72,7 +72,6 @@ export type OwnerHorseSummary = {
   primaryDiscipline?: string;
   disciplines?: string[];
   countryOfBirth?: string;
-  importExportStatus?: string;
   estimatedValue?: number;
   valueCurrency?: string;
   saleStatus?: string;

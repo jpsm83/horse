@@ -130,7 +130,6 @@ export type OwnerHorseHubSummary = {
   primaryDiscipline?: string;
   disciplines?: string[];
   countryOfBirth?: string;
-  importExportStatus?: string;
   estimatedValue?: number;
   valueCurrency?: string;
   saleStatus?: string;
@@ -244,8 +243,6 @@ export async function createHorse(actorUserId: string, input: CreateHorseInput) 
   if (input.primaryDiscipline) doc.primaryDiscipline = input.primaryDiscipline;
   if (input.disciplines && input.disciplines.length > 0) doc.disciplines = input.disciplines;
   if (input.countryOfBirth) doc.countryOfBirth = input.countryOfBirth;
-  if (input.importExportStatus) doc.importExportStatus = input.importExportStatus;
-
   // Commercial
   if (input.estimatedValue !== undefined) doc.estimatedValue = input.estimatedValue;
   if (input.valueCurrency) doc.valueCurrency = input.valueCurrency;
@@ -431,7 +428,6 @@ export async function updateHorseProfile(
   const updated = await Horse.findByIdAndUpdate(horseId, { $set: updates }, { new: true }).lean();
 
   return updated;
-  return horse.toObject();
 }
 
 export async function getHorseForOwner(actorUserId: string, horseId: string) {
@@ -598,7 +594,6 @@ export async function getOwnerHorseHubSummary(
     primaryDiscipline: horse.primaryDiscipline as string | undefined,
     disciplines: horse.disciplines as string[] | undefined,
     countryOfBirth: horse.countryOfBirth as string | undefined,
-    importExportStatus: horse.importExportStatus as string | undefined,
     estimatedValue: horse.estimatedValue as number | undefined,
     valueCurrency: horse.valueCurrency as string | undefined,
     saleStatus: horse.saleStatus as string | undefined,
