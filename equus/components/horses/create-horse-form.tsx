@@ -7,6 +7,8 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 
 import { SelectField } from "@/components/forms/select-field.tsx";
 import { TextField } from "@/components/forms/text-field.tsx";
+import { FlagSelectField } from "@/components/shared/flag-select-field";
+import type { FlagSelectOption } from "@/components/shared/country-options";
 import { FileUpload, type UploadedFileState } from "@/components/shared/file-upload.tsx";
 import { ProfilePhotoField } from "@/components/shared/profile-photo-field.tsx";
 import { Button } from "@/components/ui/button";
@@ -164,15 +166,9 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
     [t, tCommon],
   );
 
-  const countryOptions = useMemo(
-    () => [
-      { value: "", label: tCommon("selectPlaceholder") },
-      ...getCountrySelectOptions(locale).map((opt) => ({
-        value: opt.value,
-        label: opt.label,
-      })),
-    ],
-    [locale, tCommon],
+  const countryOptions: FlagSelectOption[] = useMemo(
+    () => getCountrySelectOptions(locale),
+    [locale],
   );
 
   async function onSubmit(values: CreateHorseFormValues) {
@@ -345,7 +341,16 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
           )} />
           <div className="grid gap-5 sm:grid-cols-2">
             <Controller name="countryOfBirth" control={form.control} render={({ field, fieldState }) => (
-              <SelectField id="create-horse-countryOfBirth" label={t("countryOfBirth")} placeholder={tCommon("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={countryOptions} />
+              <FlagSelectField
+                id="create-horse-countryOfBirth"
+                label={t("countryOfBirth")}
+                placeholder={tCommon("selectPlaceholder")}
+                value={field.value}
+                onChange={field.onChange}
+                invalid={fieldState.invalid}
+                error={fieldState.error}
+                options={countryOptions}
+              />
             )} />
           </div>
         </FieldGroup>
