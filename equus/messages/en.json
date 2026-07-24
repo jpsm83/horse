@@ -3,7 +3,7 @@
         "home": "Go home",
         "signIn": "Sign in",
         "signUp": "Sign up",
-        "loading": "Loadingâ€¦",
+        "loading": "Loading...",
         "tryAgain": "Try again",
         "signOut": "Sign out",
         "signingOut": "Signing out...",
@@ -18,7 +18,7 @@
         "horseFallback": "Horse",
         "or": "Or",
         "dropFiles": "Drop files here or click to browse",
-        "maxFilesInfo": "Up to {count} files â€” images, videos, PDFs",
+        "maxFilesInfo": "Up to {count} files - images, videos, PDFs",
         "uploadFiles": "Upload files",
         "remove": "Remove",
         "uploadFailed": "Upload failed",
@@ -33,7 +33,12 @@
         "countryCodeHint": "2-letter country code (e.g. US, GB, PT)",
         "save": "Save",
         "saving": "Saving...",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "unsavedChangesTitle": "Unsaved changes",
+        "unsavedChangesDescription": "You have unsaved changes. If you leave this page, your changes will be lost.",
+        "stayOnPage": "Stay on page",
+        "leaveWithoutSaving": "Leave without saving",
+        "selectPlaceholder": "Select..."
     },
     "toast": {
         "actionFailed": "Something went wrong. Please try again."
@@ -165,7 +170,7 @@
         },
         "confirmEmail": {
             "title": "Confirm your email",
-            "verifying": "Verifying your email addressâ€¦",
+            "verifying": "Verifying your email address...",
             "success": "Your email has been verified. You can now sign in.",
             "missingToken": "This confirmation link is missing a token.",
             "error": "This link is invalid or has expired.",
@@ -265,9 +270,9 @@
             "relationshipBanner": "You were invited to a horse relationship on Equus. Sign up with the invited email address."
         },
         "horseProviders": {
-            "searchPlaceholder": "Search and inviteâ€¦",
-            "filterPlaceholder": "Filter by name or cityâ€¦",
-            "searching": "Searchingâ€¦",
+            "searchPlaceholder": "Search and invite...",
+            "filterPlaceholder": "Filter by name or city...",
+            "searching": "Searching...",
             "noResults": "No providers found.",
             "invited": "Invitation sent.",
             "pending": "Invitation pending",
@@ -333,7 +338,7 @@
         "incompleteBanner": "Your profile is incomplete. You can save changes at any time and finish the rest later.",
         "incompleteGlobalBannerLink": "Complete your profile",
         "submit": "Save profile",
-        "submitting": "Savingâ€¦",
+        "submitting": "Saving...",
         "saved": "Profile saved.",
         "noChanges": "No changes to save.",
         "saveFailed": "Failed to save profile",
@@ -374,8 +379,8 @@
             "hintShortQuery": "Enter more of your address to locate it on the map.",
             "geoNotFound": "We could not find this address on the map. Check the fields and try again.",
             "geoFailed": "Geocoding failed. Try again in a moment.",
-            "footerNotice": "Map data Â© OpenStreetMap contributors. Geocoding uses the public Nominatim serviceâ€”use sparingly in production or host your own instance.",
-            "loading": "Locating addressâ€¦"
+            "footerNotice": "Map data OpenStreetMap contributors. Geocoding uses the public Nominatim service - use sparingly in production or host your own instance.",
+            "loading": "Locating address..."
         },
         "photoChange": "Change photo",
         "photoRemovePreview": "Remove selected photo",
@@ -392,10 +397,9 @@
         "deactivateDialogDescription": "You will be signed out and will not be able to sign in again with this account. This does not delete horses or business records linked to you.",
         "deactivateCancel": "Cancel",
         "deactivateConfirm": "Deactivate account",
-        "deactivateSubmitting": "Deactivatingâ€¦",
+        "deactivateSubmitting": "Deactivating...",
         "deactivateSuccess": "Account deactivated.",
         "deactivateFailed": "Could not deactivate account. Please try again.",
-        "selectPlaceholder": "Selectâ€¦",
         "genderOptions": {
             "Man": "Man",
             "Woman": "Woman",
@@ -410,7 +414,7 @@
         },
         "languageOptions": {
             "en": "English",
-            "es": "EspaÃ±ol"
+            "es": "Español"
         },
         "visibilityOptions": {
             "public": "Public",
@@ -428,10 +432,9 @@
         "title": "Add a horse",
         "description": "Description",
         "submit": "Create horse",
-        "submitting": "Creatingâ€¦",
+        "submitting": "Creating...",
         "success": "Horse created.",
         "saveFailed": "Failed to create horse",
-        "selectPlaceholder": "Selectâ€¦",
         "required": "This field is required",
         "invalidDate": "Please enter a valid date",
         "invalidNumber": "Please enter a valid number",
@@ -462,7 +465,6 @@
         "microchipId": "Microchip ID",
         "passportNumber": "Passport number",
         "countryOfBirth": "Country of birth",
-        "importExportStatus": "Import / export status",
         "estimatedValue": "Estimated value",
         "valueCurrency": "Currency",
         "saleStatus": "Sale status",
@@ -499,9 +501,9 @@
             "false": "No"
         },
         "visibilityOptions": {
-            "public": "Public â€” visible to everyone",
-            "relationship": "Relationships only â€” accepted provider links",
-            "owner_only": "Owner only â€” hidden from discovery"
+            "public": "Public - visible to everyone",
+            "relationship": "Relationships only - accepted provider links",
+            "owner_only": "Owner only - hidden from discovery"
         },
         "sexOptions": {
             "Stallion": "Stallion",
@@ -698,8 +700,8 @@
         "inviteFailed": "Failed to send invitation.",
         "removeFailed": "Failed to remove.",
         "cancel": "Cancel",
-        "searchPlaceholder": "Search by name or email…",
-        "searchingLabel": "Searching…",
+        "searchPlaceholder": "Search by name or email...",
+        "searchingLabel": "Searching...",
         "searchErrorLabel": "Search failed.",
         "noResultsLabel": "No users found.",
         "emailFallbackToggle": "Invite by email instead",
@@ -743,24 +745,26 @@
         "FORBIDDEN": "You do not have permission to perform this action.",
         "UNAUTHORIZED": "Invalid credentials"
     },
-    "horseEdit": {
-        "title": "Edit Horse",
+    "horseProfile": {
+        "title": "Horse Profile",
         "name": "Name",
         "breed": "Breed",
         "sex": "Sex",
         "color": "Color",
         "heightHands": "Height (hands)",
         "dateOfBirth": "Date of birth",
+        "ageYears": "Age (years)",
         "marksDescription": "Marks",
         "countryOfBirth": "Country of birth",
-        "importExportStatus": "Import/export status",
         "description": "Description",
         "notes": "Notes",
+        "disciplines": "Disciplines",
         "registeredName": "Registered name",
         "registryId": "Registry ID",
         "microchipId": "Microchip ID",
         "passportNumber": "Passport number",
         "primaryDiscipline": "Primary discipline",
+        "profileVisibility": "Profile visibility",
         "sireName": "Sire name",
         "sireId": "Sire ID",
         "damName": "Dam name",
@@ -769,7 +773,17 @@
         "noChanges": "No changes to save",
         "saved": "Horse profile saved",
         "saveFailed": "Failed to save horse profile",
-        "selectPlaceholder": "Selectâ€¦",
+        "validationFailed": "Please fix the errors before saving",
+        "discoverySaved": "Discovery settings saved",
+        "discoverySaveFailed": "Failed to save discovery settings",
+        "useOwnerContact": "Contact display",
+        "useOwnerContactYes": "Use owner contact",
+        "useOwnerContactNo": "Custom contact",
+        "visibilityOptions": {
+            "public": "Public",
+            "relationship": "Connections only",
+            "owner_only": "Owner only"
+        },
         "sexOptions": {
             "Stallion": "Stallion",
             "Mare": "Mare",
@@ -859,14 +873,26 @@
             "identity": "Identity",
             "identification": "Identification",
             "disciplines": "Disciplines",
-            "description": "Description",
-            "pedigree": "Pedigree"
+            "about": "About",
+            "pedigree": "Pedigree",
+            "discovery": "Discovery"
         },
-        "contactTitle": "Contact display",
-        "useOwnerContact": "Use owner contact",
-        "customContact": "Custom contact details",
-        "contactSaved": "Contact display saved",
-        "contactSaveFailed": "Failed to save contact display"
+        "sectionDescriptions": {
+            "identity": "Basic identity and physical details.",
+            "identification": "Registry, microchip, and passport information.",
+            "disciplines": "Primary and additional disciplines.",
+            "about": "Public description and private notes.",
+            "pedigree": "Sire, dam, and bloodline information.",
+            "discovery": "Who can discover this horse and how to contact you."
+        },
+        "required": "This field is required",
+        "invalidDate": "Please enter a valid date",
+        "invalidEnum": "Please select a valid option",
+        "invalidNumber": "Please enter a valid number",
+        "contactNameRequired": "Contact name is required when not using owner contact",
+        "contactPhoneRequired": "Contact phone is required when not using owner contact",
+        "contactEmailRequired": "Contact email is required when not using owner contact",
+        "contactEmailInvalid": "Please provide a valid email address"
     },
     "horseConnect": {
         "title": "Connect",
@@ -938,7 +964,6 @@
         "updatePayment": "Update payment method",
         "billingHistory": "Billing history"
     },
-
     "horsePlanning": {
         "title": "Planning",
         "description": "Schedule appointments, competitions, training, and daily activities.",
@@ -1033,13 +1058,13 @@
     },
     "metadata": {
         "home": {
-            "title": "Equus â€” Horse & Equestrian Network",
+            "title": "Equus - Horse & Equestrian Network",
             "description": "Connect with horse owners, stables, breeders, and equestrian professionals. Find horses, services, and build your equestrian network.",
             "keywords": "horses, equestrian, stables, breeders, horse network, equus"
         },
         "homeDashboard": {
             "title": "Home | Equus",
-            "description": "Your Equus dashboard â€” manage horses, stables, and connections.",
+            "description": "Your Equus dashboard - manage horses, stables, and connections.",
             "keywords": ""
         },
         "horses": {
@@ -1114,7 +1139,7 @@
         },
         "users": {
             "title": "User Profile | Equus",
-            "description": "Equus member profile â€” connected through horses and services.",
+            "description": "Equus member profile - connected through horses and services.",
             "keywords": ""
         },
         "signin": {
@@ -1177,7 +1202,6 @@
             "description": "Invite and manage provider connections for your horse.",
             "keywords": ""
         },
-
         "horsePlanning": {
             "title": "Planning | Equus",
             "description": "Plan and manage appointments, competitions, and daily activities for your horse.",
@@ -1193,8 +1217,8 @@
             "description": "Manage documents for your horse.",
             "keywords": ""
         },
-        "horseEdit": {
-            "title": "Edit Horse | Equus",
+        "horseProfile": {
+            "title": "Horse Profile | Equus",
             "description": "Edit your horse's profile details.",
             "keywords": ""
         },
@@ -1230,10 +1254,10 @@
         "acquisitionSource": "Acquisition source",
         "yes": "Yes",
         "no": "No",
-        "selectPlaceholder": "Selectâ€¦",
         "noChanges": "No changes to save",
         "saved": "Sale settings saved",
         "saveFailed": "Failed to save sale settings",
+        "validationFailed": "Please fix the errors before saving",
         "ownershipHistory": "Ownership history",
         "noHistory": "No ownership changes recorded yet.",
         "historyDate": "Date",

@@ -1,24 +1,24 @@
 {
     "common": {
         "home": "Ir al inicio",
-        "signIn": "Iniciar sesiÃ³n",
+        "signIn": "Iniciar sesión",
         "signUp": "Registrarse",
-        "loading": "Cargandoâ€¦",
+        "loading": "Cargando...",
         "tryAgain": "Reintentar",
-        "signOut": "Cerrar sesiÃ³n",
-        "signingOut": "Cerrando sesiÃ³n...",
+        "signOut": "Cerrar sesión",
+        "signingOut": "Cerrando sesión...",
         "email": "Email",
         "name": "Nombre",
-        "phone": "TelÃ©fono",
-        "password": "ContraseÃ±a",
+        "phone": "Teléfono",
+        "password": "Contraseña",
         "firstName": "Nombre",
         "lastName": "Apellido",
         "owner": "Propietario",
         "from": "De {label}",
         "horseFallback": "Caballo",
         "or": "O",
-        "dropFiles": "Arrastre archivos aquÃ­ o haga clic para buscar",
-        "maxFilesInfo": "Hasta {count} archivos â€” imÃ¡genes, videos, PDFs",
+        "dropFiles": "Arrastre archivos aquí o haga clic para buscar",
+        "maxFilesInfo": "Hasta {count} archivos - imágenes, videos, PDFs",
         "uploadFiles": "Subir archivos",
         "remove": "Eliminar",
         "uploadFailed": "Error al subir",
@@ -28,22 +28,27 @@
         "selectAccountType": "Seleccionar tipo de cuenta",
         "businessDetails": "Datos de la empresa",
         "businessName": "Nombre de la empresa",
-        "registrationNumber": "NÃºmero de registro",
-        "countryOfRegistration": "PaÃ­s de registro",
-        "countryCodeHint": "CÃ³digo de paÃ­s de 2 letras (ej. US, ES, PT)",
+        "registrationNumber": "Número de registro",
+        "countryOfRegistration": "País de registro",
+        "countryCodeHint": "Código de país de 2 letras (ej. US, ES, PT)",
         "save": "Guardar",
         "saving": "Guardando...",
-        "cancel": "Cancelar"
+        "cancel": "Cancelar",
+        "unsavedChangesTitle": "Cambios sin guardar",
+        "unsavedChangesDescription": "Tiene cambios sin guardar. Si abandona esta página, perderá los cambios.",
+        "stayOnPage": "Permanecer en la página",
+        "leaveWithoutSaving": "Salir sin guardar",
+        "selectPlaceholder": "Seleccionar..."
     },
     "toast": {
-        "actionFailed": "Algo saliÃ³ mal. IntÃ©ntelo de nuevo."
+        "actionFailed": "Algo salió mal. Inténtelo de nuevo."
     },
     "header": {
         "home": "Inicio",
         "profile": "Perfil",
         "notifications": "Notificaciones",
-        "openUserMenu": "Abrir menÃº de usuario",
-        "comingSoon": "PrÃ³ximamente",
+        "openUserMenu": "Abrir menú de usuario",
+        "comingSoon": "Próximamente",
         "discoverDescription": "Explorar todos los {entity} en Equus",
         "myOwnDescription": "Tus {entity}",
         "discover": {
@@ -55,7 +60,7 @@
             "breeders": "Criadores",
             "coaches": "Entrenadores",
             "horses": "Caballos",
-            "ridingClubs": "Clubes hÃ­picos",
+            "ridingClubs": "Clubes hípicos",
             "trainers": "Preparadores",
             "groomers": "Mozos",
             "farriers": "Herradores",
@@ -64,9 +69,9 @@
         "account": {
             "sectionLabel": "Mi cuenta",
             "workplaces": "Lugares de trabajo",
-            "relationships": "Solicitudes de relaciÃ³n",
+            "relationships": "Solicitudes de relación",
             "ownershipTransfers": "Transferencias de propiedad",
-            "subscription": "SuscripciÃ³n"
+            "subscription": "Suscripción"
         },
         "myOwn": {
             "sectionLabel": "Mis perfiles",
@@ -76,7 +81,7 @@
             "breeders": "Mis criadores",
             "coaches": "Mi entrenador",
             "horses": "Mis caballos",
-            "ridingClubs": "Mi club hÃ­pico",
+            "ridingClubs": "Mi club hípico",
             "trainers": "Mi preparador",
             "groomers": "Mi mozo",
             "farriers": "Mi herrador",
@@ -84,12 +89,12 @@
         },
         "create": {
             "sectionLabel": "Crear",
-            "addHorse": "AÃ±adir un caballo",
+            "addHorse": "Añadir un caballo",
             "createBusiness": "Crear un negocio",
-            "addService": "AÃ±adir servicio",
+            "addService": "Añadir servicio",
             "items": {
                 "stables": "Establo",
-                "ridingClubs": "Club hÃ­pico",
+                "ridingClubs": "Club hípico",
                 "breeders": "Criador",
                 "coaches": "Entrenador",
                 "farriers": "Herrador",
@@ -102,8 +107,8 @@
         }
     },
     "createSubsection": {
-        "descriptionPlural": "AÃ±ade {entity} a tu cuenta de Equus.",
-        "descriptionSingular": "AÃ±ade un perfil de {entity} a tu cuenta de Equus.",
+        "descriptionPlural": "Añade {entity} a tu cuenta de Equus.",
+        "descriptionSingular": "Añade un perfil de {entity} a tu cuenta de Equus.",
         "entityLabels": {
             "stables": "establos",
             "veterinaries": "veterinario",
@@ -111,19 +116,19 @@
             "breeders": "criador",
             "coaches": "entrenador",
             "horses": "caballos",
-            "ridingClubs": "clubes hÃ­picos",
+            "ridingClubs": "clubes hípicos",
             "trainers": "preparador",
             "groomers": "mozo de cuadra",
             "farriers": "herrador",
             "riders": "jinete"
         },
-        "stables": "AÃ±adir establos",
+        "stables": "Añadir establos",
         "veterinaries": "Crear perfil veterinario",
-        "transport": "AÃ±adir transportes",
+        "transport": "Añadir transportes",
         "breeders": "Crear perfil de criador",
         "coaches": "Crear perfil de entrenador",
-        "horses": "AÃ±adir caballos",
-        "ridingClubs": "AÃ±adir clubes hÃ­picos",
+        "horses": "Añadir caballos",
+        "ridingClubs": "Añadir clubes hípicos",
         "trainers": "Crear perfil de preparador",
         "groomers": "Crear perfil de mozo de cuadra",
         "farriers": "Crear perfil de herrador",
@@ -134,110 +139,110 @@
         "welcomeSubtitle": "Su panel para caballos, establos y perfiles profesionales.",
         "guestTitle": "Bienvenido a Equus",
         "guestDescription": "La plataforma para profesionales ecuestres, equipos de establos y propietarios de caballos.",
-        "addHorseEyebrow": "AcciÃ³n rÃ¡pida",
-        "addHorseDescription": "AÃ±ada un caballo a su cuenta y empiece a gestionar registros, cuidados y visibilidad.",
+        "addHorseEyebrow": "Acción rápida",
+        "addHorseDescription": "Añada un caballo a su cuenta y empiece a gestionar registros, cuidados y visibilidad.",
         "profilesHeading": "Sus perfiles",
-        "profilesDescription": "Acceda directamente a las Ã¡reas que ya gestiona en Equus.",
+        "profilesDescription": "Acceda directamente a las áreas que ya gestiona en Equus.",
         "subsectionsLabel": "Sus perfiles",
         "getStartedTitle": "Comenzar",
-        "getStartedDescription": "Inicie sesiÃ³n o cree una cuenta gratuita para aÃ±adir caballos y construir su presencia en Equus."
+        "getStartedDescription": "Inicie sesión o cree una cuenta gratuita para añadir caballos y construir su presencia en Equus."
     },
     "auth": {
         "signIn": {
-            "title": "Iniciar sesiÃ³n",
-            "description": "Use su email y contraseÃ±a o continÃºe con Google.",
-            "submit": "Iniciar sesiÃ³n",
-            "submitting": "Iniciando sesiÃ³n...",
-            "noAccount": "Â¿No tiene una cuenta?",
-            "forgotPassword": "Â¿OlvidÃ³ su contraseÃ±a?",
-            "resendConfirmation": "Reenviar email de confirmaciÃ³n",
-            "emailNotVerified": "Verifique su email antes de iniciar sesiÃ³n.",
-            "failed": "Error al iniciar sesiÃ³n"
+            "title": "Iniciar sesión",
+            "description": "Use su email y contraseña o continúe con Google.",
+            "submit": "Iniciar sesión",
+            "submitting": "Iniciando sesión...",
+            "noAccount": "¿No tiene una cuenta?",
+            "forgotPassword": "¿Olvidó su contraseña?",
+            "resendConfirmation": "Reenviar email de confirmación",
+            "emailNotVerified": "Verifique su email antes de iniciar sesión.",
+            "failed": "Error al iniciar sesión"
         },
         "signUp": {
             "title": "Crear una cuenta",
-            "description": "RegÃ­strese con email y contraseÃ±a o continÃºe con Google.",
+            "description": "Regístrese con email y contraseña o continúe con Google.",
             "submit": "Crear cuenta",
             "submitting": "Creando cuenta...",
-            "hasAccount": "Â¿Ya tiene una cuenta?",
+            "hasAccount": "¿Ya tiene una cuenta?",
             "failed": "Error al registrarse",
             "horseLabel": "Caballo: {name}"
         },
         "confirmEmail": {
             "title": "Confirmar email",
-            "verifying": "Verificando su direcciÃ³n de emailâ€¦",
-            "success": "Su email ha sido verificado. Ya puede iniciar sesiÃ³n.",
-            "missingToken": "Este enlace de confirmaciÃ³n no tiene token.",
-            "error": "Este enlace no es vÃ¡lido o ha expirado.",
-            "resend": "Solicitar nuevo email de confirmaciÃ³n"
+            "verifying": "Verificando su dirección de email...",
+            "success": "Su email ha sido verificado. Ya puede iniciar sesión.",
+            "missingToken": "Este enlace de confirmación no tiene token.",
+            "error": "Este enlace no es válido o ha expirado.",
+            "resend": "Solicitar nuevo email de confirmación"
         },
         "resetPassword": {
-            "title": "Restablecer contraseÃ±a",
-            "description": "Introduzca una nueva contraseÃ±a para su cuenta.",
-            "newPassword": "Nueva contraseÃ±a",
-            "confirmPassword": "Confirmar contraseÃ±a",
-            "submit": "Restablecer contraseÃ±a",
-            "success": "Su contraseÃ±a ha sido restablecida. Ya puede iniciar sesiÃ³n.",
+            "title": "Restablecer contraseña",
+            "description": "Introduzca una nueva contraseña para su cuenta.",
+            "newPassword": "Nueva contraseña",
+            "confirmPassword": "Confirmar contraseña",
+            "submit": "Restablecer contraseña",
+            "success": "Su contraseña ha sido restablecida. Ya puede iniciar sesión.",
             "missingToken": "Este enlace de restablecimiento no tiene token."
         },
         "forgotPassword": {
-            "title": "OlvidÃ© mi contraseÃ±a",
+            "title": "Olvidé mi contraseña",
             "description": "Introduzca su email y le enviaremos instrucciones si existe una cuenta.",
             "submit": "Enviar enlace",
-            "success": "Si existe una cuenta para este email, recibirÃ¡ instrucciones en breve.",
-            "backToSignIn": "Volver al inicio de sesiÃ³n"
+            "success": "Si existe una cuenta para este email, recibirá instrucciones en breve.",
+            "backToSignIn": "Volver al inicio de sesión"
         },
         "resendConfirmation": {
-            "title": "Reenviar confirmaciÃ³n",
+            "title": "Reenviar confirmación",
             "description": "Introduzca su email para recibir un nuevo enlace.",
-            "submit": "Enviar email de confirmaciÃ³n",
-            "success": "Si existe una cuenta para este email, recibirÃ¡ instrucciones en breve.",
-            "alreadyVerified": "Este email ya estÃ¡ verificado. Puede iniciar sesiÃ³n.",
-            "backToSignIn": "Volver al inicio de sesiÃ³n"
+            "submit": "Enviar email de confirmación",
+            "success": "Si existe una cuenta para este email, recibirá instrucciones en breve.",
+            "alreadyVerified": "Este email ya está verificado. Puede iniciar sesión.",
+            "backToSignIn": "Volver al inicio de sesión"
         },
         "google": {
             "continue": "Continuar con Google",
-            "failed": "Error al iniciar sesiÃ³n con Google"
+            "failed": "Error al iniciar sesión con Google"
         },
-        "passwordPolicy": "La contraseÃ±a debe tener al menos 8 caracteres e incluir una minÃºscula, una mayÃºscula, un nÃºmero y un sÃ­mbolo."
+        "passwordPolicy": "La contraseña debe tener al menos 8 caracteres e incluir una minúscula, una mayúscula, un número y un símbolo."
     },
     "status": {
         "notFound": {
-            "title": "PÃ¡gina no encontrada",
-            "description": "La pÃ¡gina que busca no existe o se ha movido."
+            "title": "Página no encontrada",
+            "description": "La página que busca no existe o se ha movido."
         },
         "notAllowed": {
             "title": "Acceso no permitido",
-            "description": "No tiene permiso para ver esta pÃ¡gina o realizar esta acciÃ³n.",
-            "forbidden": "No tiene permiso para realizar esta acciÃ³n.",
-            "wrongAccount": "Esta invitaciÃ³n es para otra cuenta. Inicie sesiÃ³n con el email invitado.",
-            "emailUnverified": "Verifique su email antes de iniciar sesiÃ³n."
+            "description": "No tiene permiso para ver esta página o realizar esta acción.",
+            "forbidden": "No tiene permiso para realizar esta acción.",
+            "wrongAccount": "Esta invitación es para otra cuenta. Inicie sesión con el email invitado.",
+            "emailUnverified": "Verifique su email antes de iniciar sesión."
         },
-        "requestFailed": "La solicitud fallÃ³",
+        "requestFailed": "La solicitud falló",
         "error": {
-            "title": "Algo saliÃ³ mal",
-            "description": "No se pudo cargar esta pÃ¡gina. Puede intentarlo de nuevo o volver al inicio."
+            "title": "Algo salió mal",
+            "description": "No se pudo cargar esta página. Puede intentarlo de nuevo o volver al inicio."
         }
     },
     "invites": {
         "workplaces": {
             "title": "Sus lugares de trabajo",
-            "description": "Perfiles que posee o membresÃ­as de staff, incluyendo invitaciones pendientes.",
-            "empty": "AÃºn no tiene lugares de trabajo.",
-            "invited": "InvitaciÃ³n pendiente",
+            "description": "Perfiles que posee o membresías de staff, incluyendo invitaciones pendientes.",
+            "empty": "Aún no tiene lugares de trabajo.",
+            "invited": "Invitación pendiente",
             "accept": "Aceptar",
             "decline": "Rechazar",
-            "accepted": "InvitaciÃ³n aceptada.",
-            "declined": "InvitaciÃ³n rechazada."
+            "accepted": "Invitación aceptada.",
+            "declined": "Invitación rechazada."
         },
         "relationships": {
-            "title": "Invitaciones de relaciÃ³n",
-            "description": "Solicitudes de relaciÃ³n con caballos pendientes de su respuesta.",
-            "empty": "No tiene invitaciones de relaciÃ³n pendientes.",
+            "title": "Invitaciones de relación",
+            "description": "Solicitudes de relación con caballos pendientes de su respuesta.",
+            "empty": "No tiene invitaciones de relación pendientes.",
             "accept": "Aceptar",
             "decline": "Rechazar",
-            "accepted": "RelaciÃ³n aceptada.",
-            "declined": "RelaciÃ³n rechazada."
+            "accepted": "Relación aceptada.",
+            "declined": "Relación rechazada."
         },
         "ownershipTransfers": {
             "title": "Solicitudes de transferencia de propiedad",
@@ -252,7 +257,7 @@
                 "stable": "Establo",
                 "breeder": "Criador",
                 "transport": "Transporte",
-                "ridingClub": "Club hÃ­pico"
+                "ridingClub": "Club hípico"
             },
             "transferKinds": {
                 "transfer_main": "Transferir propiedad principal",
@@ -261,25 +266,25 @@
             }
         },
         "signup": {
-            "staffBanner": "Fue invitado a un lugar de trabajo en Equus. RegÃ­strese con el email invitado.",
-            "relationshipBanner": "Fue invitado a una relaciÃ³n con caballo en Equus. RegÃ­strese con el email invitado."
+            "staffBanner": "Fue invitado a un lugar de trabajo en Equus. Regístrese con el email invitado.",
+            "relationshipBanner": "Fue invitado a una relación con caballo en Equus. Regístrese con el email invitado."
         },
         "horseProviders": {
-            "searchPlaceholder": "Buscar e invitarâ€¦",
-            "filterPlaceholder": "Filtrar por nombre o ciudadâ€¦",
-            "searching": "Buscandoâ€¦",
-        "noResults": "No se encontraron proveedores.",
-        "searchError": "La búsqueda falló. Inténtalo de nuevo.",
-            "invited": "InvitaciÃ³n enviada.",
-            "pending": "InvitaciÃ³n pendiente",
-            "emailFallbackToggle": "Â¿No estÃ¡ en Equus? Invitar por email",
+            "searchPlaceholder": "Buscar e invitar...",
+            "filterPlaceholder": "Filtrar por nombre o ciudad...",
+            "searching": "Buscando...",
+            "noResults": "No se encontraron proveedores.",
+            "searchError": "La búsqueda falló. Inténtalo de nuevo.",
+            "invited": "Invitación enviada.",
+            "pending": "Invitación pendiente",
+            "emailFallbackToggle": "¿No está en Equus? Invitar por email",
             "emailLabel": "Email",
             "nameLabel": "Nombre (opcional)",
-            "sendEmailInvite": "Enviar invitaciÃ³n por email",
+            "sendEmailInvite": "Enviar invitación por email",
             "entityOwnedHint": "Este proveedor debe tener un perfil en Equus antes de poder invitarlo.",
             "groups": {
                 "hosting": {
-                    "title": "Alojamiento y logÃ­stica",
+                    "title": "Alojamiento y logística",
                     "description": "Cuadras, transporte, clubes ecuestres y criadores vinculados a este caballo."
                 },
                 "care": {
@@ -287,7 +292,7 @@
                     "description": "Servicios veterinarios, de limpieza y herraje para este caballo."
                 },
                 "training": {
-                    "title": "Entrenamiento y equitaciÃ³n",
+                    "title": "Entrenamiento y equitación",
                     "description": "Entrenadores, coaches y jinetes conectados a este caballo."
                 }
             },
@@ -299,9 +304,9 @@
                 "ridingClub": "Club ecuestre",
                 "ridingClubHint": "Invite un club ecuestre vinculado a este caballo.",
                 "breeder": "Criador",
-                "breederHint": "Invite una operaciÃ³n de crÃ­a para este caballo.",
+                "breederHint": "Invite una operación de cría para este caballo.",
                 "veterinary": "Veterinario",
-                "veterinaryHint": "Invite una clÃ­nica veterinaria para este caballo.",
+                "veterinaryHint": "Invite una clínica veterinaria para este caballo.",
                 "groom": "Limpieza",
                 "groomHint": "Invite un groom para cuidado directo en casa (no personal de cuadra).",
                 "farrier": "Herrador",
@@ -317,86 +322,85 @@
     },
     "validation": {
         "emailRequired": "El email es obligatorio",
-        "emailInvalid": "Proporcione una direcciÃ³n de email vÃ¡lida",
-        "passwordRequired": "La contraseÃ±a es obligatoria",
-        "passwordPolicy": "La contraseÃ±a debe tener al menos 8 caracteres e incluir una minÃºscula, una mayÃºscula, un nÃºmero y un sÃ­mbolo.",
-        "confirmPasswordRequired": "Confirme su contraseÃ±a",
-        "passwordsMismatch": "Las contraseÃ±as no coinciden",
-        "fieldRequired": "Este campo no puede estar vacÃ­o si se proporciona",
-        "invalidDate": "Introduzca una fecha vÃ¡lida",
-        "invalidEnum": "Seleccione una opciÃ³n vÃ¡lida",
-        "invalidCoordinates": "Introduzca longitud y latitud vÃ¡lidas",
-        "addressFieldRequired": "Este campo de direcciÃ³n es obligatorio si se proporciona una direcciÃ³n"
+        "emailInvalid": "Proporcione una dirección de email válida",
+        "passwordRequired": "La contraseña es obligatoria",
+        "passwordPolicy": "La contraseña debe tener al menos 8 caracteres e incluir una minúscula, una mayúscula, un número y un símbolo.",
+        "confirmPasswordRequired": "Confirme su contraseña",
+        "passwordsMismatch": "Las contraseñas no coinciden",
+        "fieldRequired": "Este campo no puede estar vacío si se proporciona",
+        "invalidDate": "Introduzca una fecha válida",
+        "invalidEnum": "Seleccione una opción válida",
+        "invalidCoordinates": "Introduzca longitud y latitud válidas",
+        "addressFieldRequired": "Este campo de dirección es obligatorio si se proporciona una dirección"
     },
     "profile": {
         "title": "Su perfil",
         "description": "Actualice sus datos personales y preferencias.",
-        "incompleteBanner": "Su perfil estÃ¡ incompleto. Puede guardar cambios en cualquier momento y completar el resto mÃ¡s tarde.",
+        "incompleteBanner": "Su perfil está incompleto. Puede guardar cambios en cualquier momento y completar el resto más tarde.",
         "incompleteGlobalBannerLink": "Completar su perfil",
         "submit": "Guardar perfil",
-        "submitting": "Guardandoâ€¦",
+        "submitting": "Guardando...",
         "saved": "Perfil guardado.",
         "noChanges": "No hay cambios que guardar.",
         "saveFailed": "Error al guardar el perfil",
         "emailVerified": "Email verificado",
         "emailNotVerified": "Email no verificado",
-        "authProvider": "MÃ©todo de acceso",
+        "authProvider": "Método de acceso",
         "sections": {
             "personal": "Personal",
             "visibility": "Visibilidad y privacidad",
-            "address": "DirecciÃ³n",
+            "address": "Dirección",
             "photo": "Foto",
             "security": "Seguridad",
             "account": "Cuenta"
         },
         "username": "Nombre de usuario",
         "preferredLanguage": "Idioma preferido",
-        "gender": "GÃ©nero",
+        "gender": "Género",
         "birthDate": "Fecha de nacimiento",
         "nationality": "Nacionalidad",
-        "phoneNumber": "TelÃ©fono",
-        "bio": "BiografÃ­a",
+        "phoneNumber": "Teléfono",
+        "bio": "Biografía",
         "idType": "Tipo de documento",
-        "idNumber": "NÃºmero de documento",
+        "idNumber": "Número de documento",
         "profileVisibility": "Visibilidad del perfil",
         "allowDirectMessagesFrom": "Mensajes directos de",
-        "country": "PaÃ­s",
+        "country": "País",
         "state": "Estado / provincia",
         "city": "Ciudad",
         "street": "Calle",
-        "buildingNumber": "NÃºmero",
+        "buildingNumber": "Número",
         "doorNumber": "Puerta / unidad",
         "complement": "Complemento",
-        "postCode": "CÃ³digo postal",
-        "region": "RegiÃ³n",
+        "postCode": "Código postal",
+        "region": "Región",
         "additionalDetails": "Detalles adicionales",
         "addressMap": {
-            "title": "Vista previa de ubicaciÃ³n",
-            "hintShortQuery": "Introduzca mÃ¡s datos de su direcciÃ³n para localizarla en el mapa.",
-            "geoNotFound": "No encontramos esta direcciÃ³n en el mapa. Revise los campos e intÃ©ntelo de nuevo.",
-            "geoFailed": "FallÃ³ la geocodificaciÃ³n. IntÃ©ntelo de nuevo en un momento.",
-            "footerNotice": "Datos del mapa Â© colaboradores de OpenStreetMap. La geocodificaciÃ³n usa el servicio pÃºblico Nominatimâ€”Ãºsalo con moderaciÃ³n en producciÃ³n o aloja tu propia instancia.",
-            "loading": "Localizando direcciÃ³nâ€¦"
+            "title": "Vista previa de ubicación",
+            "hintShortQuery": "Introduzca más datos de su dirección para localizarla en el mapa.",
+            "geoNotFound": "No encontramos esta dirección en el mapa. Revise los campos e inténtelo de nuevo.",
+            "geoFailed": "Falló la geocodificación. Inténtelo de nuevo en un momento.",
+            "footerNotice": "Datos del mapa de colaboradores de OpenStreetMap. La geocodificación usa el servicio público Nominatim - úsalo con moderación en producción o aloja tu propia instancia.",
+            "loading": "Localizando dirección..."
         },
         "photoChange": "Cambiar foto",
         "photoRemovePreview": "Quitar foto seleccionada",
         "photoInvalidType": "Elija un archivo de imagen.",
         "photoTooLarge": "La imagen debe pesar 5 MB o menos.",
-        "passwordSet": "Establecer contraseÃ±a",
-        "passwordSetDescription": "Le enviaremos un enlace por email para establecer una contraseÃ±a.",
-        "passwordChange": "Cambiar contraseÃ±a",
-        "passwordChangeDescription": "Le enviaremos un enlace por email para restablecer su contraseÃ±a.",
-        "passwordEmailFailed": "No se pudo enviar el email. IntÃ©ntelo de nuevo.",
+        "passwordSet": "Establecer contraseña",
+        "passwordSetDescription": "Le enviaremos un enlace por email para establecer una contraseña.",
+        "passwordChange": "Cambiar contraseña",
+        "passwordChangeDescription": "Le enviaremos un enlace por email para restablecer su contraseña.",
+        "passwordEmailFailed": "No se pudo enviar el email. Inténtelo de nuevo.",
         "deactivateAccount": "Desactivar cuenta",
-        "deactivateDescription": "Desactive su acceso a Equus. Sus datos se conservan para caballos, relaciones y registros en los que participÃ³.",
-        "deactivateDialogTitle": "Â¿Desactivar su cuenta?",
-        "deactivateDialogDescription": "Se cerrarÃ¡ su sesiÃ³n y no podrÃ¡ volver a iniciar sesiÃ³n con esta cuenta. Esto no elimina caballos ni registros de negocio vinculados a usted.",
+        "deactivateDescription": "Desactive su acceso a Equus. Sus datos se conservan para caballos, relaciones y registros en los que participó.",
+        "deactivateDialogTitle": "¿Desactivar su cuenta?",
+        "deactivateDialogDescription": "Se cerrará su sesión y no podrá volver a iniciar sesión con esta cuenta. Esto no elimina caballos ni registros de negocio vinculados a usted.",
         "deactivateCancel": "Cancelar",
         "deactivateConfirm": "Desactivar cuenta",
-        "deactivateSubmitting": "Desactivandoâ€¦",
+        "deactivateSubmitting": "Desactivando...",
         "deactivateSuccess": "Cuenta desactivada.",
-        "deactivateFailed": "No se pudo desactivar la cuenta. IntÃ©ntelo de nuevo.",
-        "selectPlaceholder": "Seleccionarâ€¦",
+        "deactivateFailed": "No se pudo desactivar la cuenta. Inténtelo de nuevo.",
         "genderOptions": {
             "Man": "Hombre",
             "Woman": "Mujer",
@@ -411,11 +415,11 @@
         },
         "languageOptions": {
             "en": "English",
-            "es": "EspaÃ±ol"
+            "es": "Español"
         },
         "visibilityOptions": {
-            "public": "PÃºblico",
-            "platform": "Solo usuarios con sesiÃ³n iniciada",
+            "public": "Público",
+            "platform": "Solo usuarios con sesión iniciada",
             "relationshipsOnly": "Solo relaciones/colaboraciones aceptadas",
             "private": "Privado"
         },
@@ -426,25 +430,24 @@
         }
     },
     "createHorse": {
-        "title": "AÃ±adir un caballo",
-        "description": "DescripciÃ³n",
+        "title": "Añadir un caballo",
+        "description": "Descripción",
         "submit": "Crear caballo",
-        "submitting": "Creandoâ€¦",
+        "submitting": "Creando...",
         "success": "Caballo creado.",
         "saveFailed": "No se pudo crear el caballo",
-        "selectPlaceholder": "Seleccionarâ€¦",
         "required": "Este campo es obligatorio",
-        "invalidDate": "Introduzca una fecha vÃ¡lida",
-        "invalidNumber": "Introduzca un nÃºmero vÃ¡lido",
-        "invalidEnum": "Seleccione una opciÃ³n vÃ¡lida",
+        "invalidDate": "Introduzca una fecha válida",
+        "invalidNumber": "Introduzca un número válido",
+        "invalidEnum": "Seleccione una opción válida",
         "contactNameRequired": "El nombre de contacto es obligatorio si no usa el contacto del propietario",
-        "contactPhoneRequired": "El telÃ©fono de contacto es obligatorio si no usa el contacto del propietario",
+        "contactPhoneRequired": "El teléfono de contacto es obligatorio si no usa el contacto del propietario",
         "contactEmailRequired": "El email de contacto es obligatorio si no usa el contacto del propietario",
-        "contactEmailInvalid": "Introduzca un email vÃ¡lido",
+        "contactEmailInvalid": "Introduzca un email válido",
         "sections": {
             "identity": "Identidad del caballo",
             "commercial": "Detalles comerciales",
-            "pedigree": "PedigrÃ­ / crÃ­a",
+            "pedigree": "Pedigrí / cría",
             "media": "Multimedia",
             "discovery": "Descubrimiento y contacto"
         },
@@ -453,24 +456,23 @@
         "breed": "Raza",
         "sex": "Sexo",
         "dateOfBirth": "Fecha de nacimiento",
-        "ageYears": "Edad (aÃ±os)",
+        "ageYears": "Edad (años)",
         "color": "Color",
-        "marksDescription": "SeÃ±as / descripciÃ³n",
+        "marksDescription": "Señas / descripción",
         "heightHands": "Alzada (manos)",
         "primaryDiscipline": "Disciplina principal",
         "disciplines": "Otras disciplinas",
         "registryId": "ID de registro",
         "microchipId": "ID de microchip",
-        "passportNumber": "NÃºmero de pasaporte",
-        "countryOfBirth": "PaÃ­s de nacimiento",
-        "importExportStatus": "Estado de importaciÃ³n/exportaciÃ³n",
+        "passportNumber": "Número de pasaporte",
+        "countryOfBirth": "País de nacimiento",
         "estimatedValue": "Valor estimado",
         "valueCurrency": "Moneda",
         "saleStatus": "Estado de venta",
         "askingPrice": "Precio de venta",
-        "acquisitionDate": "Fecha de adquisiciÃ³n",
-        "acquisitionSource": "Fuente de adquisiciÃ³n",
-        "showValuePublicly": "Mostrar valor pÃºblicamente",
+        "acquisitionDate": "Fecha de adquisición",
+        "acquisitionSource": "Fuente de adquisición",
+        "showValuePublicly": "Mostrar valor públicamente",
         "sireName": "Nombre del padre",
         "sireId": "ID de registro del padre",
         "damName": "Nombre de la madre",
@@ -481,28 +483,28 @@
         "noPhoto": "Sin foto",
         "remove": "Eliminar",
         "photoChange": "Cambiar foto",
-        "photoRemovePreview": "Eliminar previsualizaciÃ³n",
+        "photoRemovePreview": "Eliminar previsualización",
         "photoInvalidType": "Solo se permiten archivos de imagen",
-        "photoTooLarge": "El archivo supera el lÃ­mite de 5 MB",
-        "gallery": "GalerÃ­a",
+        "photoTooLarge": "El archivo supera el límite de 5 MB",
+        "gallery": "Galería",
         "notes": "Notas",
         "profileVisibility": "Visibilidad del perfil",
-        "useOwnerContact": "Contacto pÃºblico",
+        "useOwnerContact": "Contacto público",
         "contactName": "Nombre de contacto",
-        "contactPhone": "TelÃ©fono de contacto",
+        "contactPhone": "Teléfono de contacto",
         "contactEmail": "Email de contacto",
         "useOwnerContactOptions": {
             "true": "Usar mis datos de contacto como propietario",
             "false": "Usar un contacto distinto para este caballo"
         },
         "yesNoOptions": {
-            "true": "SÃ­",
+            "true": "Sí",
             "false": "No"
         },
         "visibilityOptions": {
-            "public": "PÃºblico â€” visible para todos",
-            "relationship": "Solo relaciones â€” enlaces con proveedores aceptados",
-            "owner_only": "Solo propietario â€” oculto del descubrimiento"
+            "public": "Público - visible para todos",
+            "relationship": "Solo relaciones - enlaces con proveedores aceptados",
+            "owner_only": "Solo propietario - oculto del descubrimiento"
         },
         "sexOptions": {
             "Stallion": "Semental",
@@ -514,7 +516,7 @@
         },
         "colorOptions": {
             "Bay": "Bayo",
-            "Chestnut": "AlazÃ¡n",
+            "Chestnut": "Alazán",
             "Black": "Negro",
             "Grey": "Tordo",
             "Palomino": "Palomino",
@@ -530,7 +532,7 @@
             "American Saddlebred": "American Saddlebred",
             "Andalusian": "Andaluz",
             "Appaloosa": "Appaloosa",
-            "Arabian": "Ãrabe",
+            "Arabian": "Árabe",
             "Belgian Draft": "Belga de Tiro",
             "Belgian Warmblood": "Sangre Caliente Belga",
             "Camargue": "Camarga",
@@ -539,19 +541,19 @@
             "Clydesdale": "Clydesdale",
             "Connemara Pony": "Poni Connemara",
             "Dartmoor Pony": "Poni Dartmoor",
-            "Dutch Warmblood": "Sangre Caliente HolandÃ©s",
+            "Dutch Warmblood": "Sangre Caliente Holandés",
             "Exmoor Pony": "Poni Exmoor",
             "Fell Pony": "Poni Fell",
             "Fjord": "Fiordo",
-            "Friesian": "FrisÃ³n",
+            "Friesian": "Frisón",
             "Gypsy Vanner": "Gypsy Vanner",
             "Hackney": "Hackney",
             "Haflinger": "Haflinger",
             "Hanoverian": "Hannoveriano",
             "Highland Pony": "Poni Highland",
             "Holsteiner": "Holsteiner",
-            "Icelandic Horse": "IslandÃ©s",
-            "Irish Sport Horse": "Caballo Deporte IrlandÃ©s",
+            "Icelandic Horse": "Islandés",
+            "Irish Sport Horse": "Caballo Deporte Irlandés",
             "Kathiawari": "Kathiawari",
             "Lipizzaner": "Lipizzano",
             "Lusitano": "Lusitano",
@@ -563,7 +565,7 @@
             "New Forest Pony": "Poni New Forest",
             "Oldenburg": "Oldenburgo",
             "Paso Fino": "Paso Fino",
-            "Percheron": "PercherÃ³n",
+            "Percheron": "Percherón",
             "Peruvian Paso": "Paso Peruano",
             "Rocky Mountain Horse": "Rocky Mountain",
             "Shetland Pony": "Poni Shetland",
@@ -573,7 +575,7 @@
             "Tennessee Walking Horse": "Tennessee Walking Horse",
             "Thoroughbred": "Pura Sangre",
             "Trakehner": "Trakehner",
-            "Welsh Pony": "Poni GalÃ©s",
+            "Welsh Pony": "Poni Galés",
             "Other": "Otro"
         },
         "disciplineOptions": {
@@ -581,8 +583,8 @@
             "Dressage": "Doma",
             "Eventing": "Concurso completo",
             "Racing": "Carreras",
-            "Breeding": "CrÃ­a",
-            "Rehabilitation": "RehabilitaciÃ³n",
+            "Breeding": "Cría",
+            "Rehabilitation": "Rehabilitación",
             "Leisure": "Ocio",
             "Western": "Western",
             "Endurance": "Resistencia",
@@ -590,7 +592,7 @@
             "Other": "Otro"
         },
         "saleStatusOptions": {
-            "not_for_sale": "No estÃ¡ en venta",
+            "not_for_sale": "No está en venta",
             "for_sale": "En venta"
         },
         "currencyOptions": {
@@ -607,10 +609,10 @@
         "description": "Perfil de miembro de Equus enlazado desde caballos y otros listados. Los usuarios no son buscables.",
         "eyebrow": "Miembro de Equus",
         "about": "Acerca de",
-        "noBio": "Sin biografÃ­a.",
+        "noBio": "Sin biografía.",
         "contact": "Contacto",
         "email": "Email",
-        "phone": "TelÃ©fono",
+        "phone": "Teléfono",
         "memberFallback": "Miembro de Equus"
     },
     "horsesList": {
@@ -618,9 +620,9 @@
         "description": "Explore caballos en la red de Equus.",
         "myTitle": "Mis caballos",
         "myDescription": "Gestione sus caballos.",
-        "addHorse": "AÃ±adir un caballo",
+        "addHorse": "Añadir un caballo",
         "noResults": "No se encontraron caballos.",
-        "pagination": "PÃ¡gina {page} de {total}",
+        "pagination": "Página {page} de {total}",
         "prevPage": "Anterior",
         "nextPage": "Siguiente",
         "mineLabel": "Mis caballos",
@@ -629,14 +631,14 @@
         "anyBreed": "Cualquier raza",
         "sex": "Sexo",
         "anySex": "Cualquier sexo",
-        "location": "UbicaciÃ³n",
-        "anyCountry": "Cualquier paÃ­s",
-        "age": "Edad (aÃ±os)",
+        "location": "Ubicación",
+        "anyCountry": "Cualquier país",
+        "age": "Edad (años)",
         "value": "Valor est. ($)"
     },
     "visibility": {
-        "title": "Visibilidad de la secciÃ³n",
-        "description": "Controla quiÃ©n puede ver esta secciÃ³n.",
+        "title": "Visibilidad de la sección",
+        "description": "Controla quién puede ver esta sección.",
         "modes": {
             "owner": "Solo el propietario",
             "entities": "Propietario + entidades seleccionadas",
@@ -653,16 +655,16 @@
         "color": "Color",
         "height": "Altura",
         "discipline": "Disciplina",
-        "pedigree": "PedigrÃ­",
+        "pedigree": "Pedigrí",
         "sire": "Padre",
         "dam": "Madre",
         "ownership": {
             "title": "Propiedad",
             "description": "Transfiere este caballo o gestiona copropietarios.",
-            "soleOwner": "Eres el Ãºnico propietario de este caballo.",
+            "soleOwner": "Eres el único propietario de este caballo.",
             "withCoOwners": "Tienes {count} copropietario(s).",
             "transferTitle": "Transferir propiedad",
-            "transferDescription": "EnvÃ­a la propiedad a otra persona por email.",
+            "transferDescription": "Envía la propiedad a otra persona por email.",
             "coOwnersTitle": "Gestionar copropietarios",
             "coOwnersDescription": "Elimina o promueve copropietarios.",
             "coOwnersBlockTransfer": "Elimina todos los copropietarios antes de transferir la propiedad principal.",
@@ -674,8 +676,8 @@
             "pending": "Pendiente",
             "cancelPending": "Cancelar solicitud",
             "transferSent": "Solicitud de transferencia enviada.",
-            "removeSent": "Solicitud de eliminaciÃ³n enviada.",
-            "promoteSent": "Solicitud de promociÃ³n enviada.",
+            "removeSent": "Solicitud de eliminación enviada.",
+            "promoteSent": "Solicitud de promoción enviada.",
             "cancelled": "Solicitud cancelada.",
             "ownershipPercentage": "{percentage}% de propiedad"
         }
@@ -684,30 +686,30 @@
         "pageTitle": "Admin",
         "horseValueTitle": "Valor del Caballo",
         "horseValueDescription": "Configure el estado de venta, valor estimado y detalles de precio para este caballo.",
-        "adminHistoryTitle": "Equipo de AdministraciÃ³n",
+        "adminHistoryTitle": "Equipo de Administración",
         "adminHistoryDescription": "Vea todos los usuarios con acceso administrativo a este caballo.",
         "proactiveRepresentativesTitle": "Representantes Proactivos",
         "proactiveRepresentativesDescription": "Invite representantes proactivos que puedan ayudar a gestionar este caballo.",
-        "coOwnerManagementTitle": "GestiÃ³n de Co-propietarios",
+        "coOwnerManagementTitle": "Gestión de Co-propietarios",
         "coOwnerManagementDescription": "Añadir nuevos co-propietarios.",
-        "ownershipTitle": "GestiÃ³n de Propiedad",
+        "ownershipTitle": "Gestión de Propiedad",
         "ownershipHistory": "Historial de Propiedad",
-        "hubToggleTitle": "PÃ¡gina Hub",
-        "hubToggleDescription": "Activar o desactivar la pÃ¡gina pÃºblica Hub para este caballo.",
-        "hubToggleComingSoon": "ConfiguraciÃ³n del Hub disponible en una futura actualizaciÃ³n.",
+        "hubToggleTitle": "Página Hub",
+        "hubToggleDescription": "Activar o desactivar la página pública Hub para este caballo.",
+        "hubToggleComingSoon": "Configuración del Hub disponible en una futura actualización.",
         "remove": "Eliminar",
-        "inviteFailed": "Error al enviar la invitaciÃ³n.",
+        "inviteFailed": "Error al enviar la invitación.",
         "removeFailed": "Error al eliminar.",
         "cancel": "Cancelar",
-        "searchPlaceholder": "Buscar por nombre o correo…",
-        "searchingLabel": "Buscando…",
-        "searchErrorLabel": "BÃºsqueda fallida.",
+        "searchPlaceholder": "Buscar por nombre o correo...",
+        "searchingLabel": "Buscando...",
+        "searchErrorLabel": "Búsqueda fallida.",
         "noResultsLabel": "No se encontraron usuarios.",
-        "emailFallbackToggle": "Invitar por correo electrÃ³nico",
-        "emailFallbackHint": "Ingrese su correo electrÃ³nico y le enviaremos una invitaciÃ³n.",
-        "emailLabel": "Correo electrÃ³nico",
+        "emailFallbackToggle": "Invitar por correo electrónico",
+        "emailFallbackHint": "Ingrese su correo electrónico y le enviaremos una invitación.",
+        "emailLabel": "Correo electrónico",
         "nameLabel": "Nombre (opcional)",
-        "sendEmailInvite": "Enviar invitaciÃ³n",
+        "sendEmailInvite": "Enviar invitación",
         "inviteLabel": "Invitar",
         "adminTypes": {
             "owner": "Propietario",
@@ -717,51 +719,53 @@
         "adminHistoryType": "Tipo",
         "adminHistoryName": "Nombre",
         "adminHistoryEmail": "Correo",
-        "adminHistoryPhone": "TelÃ©fono",
-        "adminHistoryJoined": "IngresÃ³",
-        "adminHistoryAction": "AcciÃ³n",
-        "adminHistoryEmpty": "No hay miembros del equipo de administraciÃ³n registrados.",
+        "adminHistoryPhone": "Teléfono",
+        "adminHistoryJoined": "Ingresó",
+        "adminHistoryAction": "Acción",
+        "adminHistoryEmpty": "No hay miembros del equipo de administración registrados.",
         "adminHistoryRemove": "Eliminar miembro",
-        "adminHistoryRemoveConfirmTitle": "Confirmar eliminaciÃ³n",
-        "adminHistoryRemoveCoOwnerDescription": "Â¿EstÃ¡ seguro de que desea eliminar a {name} como co-propietario? DeberÃ¡ aceptar este cambio.",
-        "adminHistoryRemoveResponsibleDescription": "Â¿EstÃ¡ seguro de que desea eliminar a {name} como representante proactivo? DeberÃ¡ aceptar este cambio.",
+        "adminHistoryRemoveConfirmTitle": "Confirmar eliminación",
+        "adminHistoryRemoveCoOwnerDescription": "¿Está seguro de que desea eliminar a {name} como co-propietario? Deberá aceptar este cambio.",
+        "adminHistoryRemoveResponsibleDescription": "¿Está seguro de que desea eliminar a {name} como representante proactivo? Deberá aceptar este cambio.",
         "currentOwner": "Propietario actual",
         "proactiveInvited": "Representante invitado.",
         "proactiveRemoved": "Representante eliminado.",
-        "coOwnerInvited": "InvitaciÃ³n de co-propietario enviada.",
+        "coOwnerInvited": "Invitación de co-propietario enviada.",
         "coOwnerRemoved": "Co-propietario eliminado.",
         "ownershipEmailPlaceholder": "Correo del nuevo propietario",
         "transferOwnership": "Transferir Propiedad",
-        "ownershipTransferDescription": "Esto transferirÃ¡ permanentemente todos los derechos de propiedad. DespuÃ©s de la aceptaciÃ³n, no tendrÃ¡ control sobre este caballo.",
-        "ownershipTransferSent": "InvitaciÃ³n de transferencia de propiedad enviada.",
+        "ownershipTransferDescription": "Esto transferirá permanentemente todos los derechos de propiedad. Después de la aceptación, no tendrá control sobre este caballo.",
+        "ownershipTransferSent": "Invitación de transferencia de propiedad enviada.",
         "ownershipConfirmTitle": "Confirmar Transferencia de Propiedad",
-        "ownershipConfirmDescription": "Â¿EstÃ¡ seguro de que desea transferir la propiedad de este caballo? Esta acciÃ³n no se puede deshacer. Una vez que el destinatario acepte, perderÃ¡ permanentemente todos los derechos sobre este caballo.",
+        "ownershipConfirmDescription": "¿Está seguro de que desea transferir la propiedad de este caballo? Esta acción no se puede deshacer. Una vez que el destinatario acepte, perderá permanentemente todos los derechos sobre este caballo.",
         "confirmTransfer": "Entiendo, transferir propiedad",
         "transferring": "Transfiriendo..."
     },
     "errors": {
-        "EMAIL_NOT_VERIFIED": "Verifique su email antes de iniciar sesiÃ³n.",
-        "FORBIDDEN": "No tiene permiso para realizar esta acciÃ³n.",
-        "UNAUTHORIZED": "Credenciales invÃ¡lidas"
+        "EMAIL_NOT_VERIFIED": "Verifique su email antes de iniciar sesión.",
+        "FORBIDDEN": "No tiene permiso para realizar esta acción.",
+        "UNAUTHORIZED": "Credenciales inválidas"
     },
-    "horseEdit": {
-        "title": "Editar Caballo",
+    "horseProfile": {
+        "title": "Perfil del Caballo",
         "name": "Nombre",
         "breed": "Raza",
         "sex": "Sexo",
         "color": "Color",
         "heightHands": "Altura (manos)",
         "dateOfBirth": "Fecha de nacimiento",
-        "marksDescription": "SeÃ±as",
-        "countryOfBirth": "PaÃ­s de nacimiento",
-        "importExportStatus": "Estado de importaciÃ³n/exportaciÃ³n",
-        "description": "DescripciÃ³n",
+        "ageYears": "Edad (años)",
+        "marksDescription": "Señas",
+        "countryOfBirth": "País de nacimiento",
+        "description": "Descripción",
         "notes": "Notas",
+        "disciplines": "Disciplinas",
         "registeredName": "Nombre registrado",
         "registryId": "ID de registro",
         "microchipId": "ID de microchip",
-        "passportNumber": "NÃºmero de pasaporte",
+        "passportNumber": "Número de pasaporte",
         "primaryDiscipline": "Disciplina principal",
+        "profileVisibility": "Visibilidad del perfil",
         "sireName": "Nombre del padre",
         "sireId": "ID del padre",
         "damName": "Nombre de la madre",
@@ -770,7 +774,17 @@
         "noChanges": "Sin cambios para guardar",
         "saved": "Perfil del caballo guardado",
         "saveFailed": "Error al guardar el perfil del caballo",
-        "selectPlaceholder": "Seleccionarâ€¦",
+        "validationFailed": "Corrija los errores antes de guardar",
+        "discoverySaved": "Configuración de descubrimiento guardada",
+        "discoverySaveFailed": "Error al guardar la configuración de descubrimiento",
+        "useOwnerContact": "Contacto",
+        "useOwnerContactYes": "Usar contacto del propietario",
+        "useOwnerContactNo": "Contacto personalizado",
+        "visibilityOptions": {
+            "public": "Público",
+            "relationship": "Solo conexiones",
+            "owner_only": "Solo propietario"
+        },
         "sexOptions": {
             "Stallion": "Semental",
             "Mare": "Yegua",
@@ -786,7 +800,7 @@
             "American Saddlebred": "American Saddlebred",
             "Andalusian": "Andaluz",
             "Appaloosa": "Appaloosa",
-            "Arabian": "Ãrabe",
+            "Arabian": "Árabe",
             "Belgian Draft": "Belgian Draft",
             "Belgian Warmblood": "Belgian Warmblood",
             "Camargue": "Camarga",
@@ -799,14 +813,14 @@
             "Exmoor Pony": "Exmoor Pony",
             "Fell Pony": "Fell Pony",
             "Fjord": "Fjord",
-            "Friesian": "FrisÃ³n",
+            "Friesian": "Frisón",
             "Gypsy Vanner": "Gypsy Vanner",
             "Hackney": "Hackney",
             "Haflinger": "Haflinger",
             "Hanoverian": "Hanoveriano",
             "Highland Pony": "Highland Pony",
             "Holsteiner": "Holsteiner",
-            "Icelandic Horse": "IslandÃ©s",
+            "Icelandic Horse": "Islandés",
             "Irish Sport Horse": "Irish Sport Horse",
             "Kathiawari": "Kathiawari",
             "Lipizzaner": "Lipizzaner",
@@ -819,7 +833,7 @@
             "New Forest Pony": "New Forest Pony",
             "Oldenburg": "Oldenburg",
             "Paso Fino": "Paso Fino",
-            "Percheron": "PercherÃ³n",
+            "Percheron": "Percherón",
             "Peruvian Paso": "Peruvian Paso",
             "Rocky Mountain Horse": "Rocky Mountain Horse",
             "Shetland Pony": "Shetland Pony",
@@ -834,7 +848,7 @@
         },
         "colorOptions": {
             "Bay": "Bayo",
-            "Chestnut": "AlazÃ¡n",
+            "Chestnut": "Alazán",
             "Black": "Negro",
             "Grey": "Gris",
             "Palomino": "Palomino",
@@ -848,8 +862,8 @@
             "Dressage": "Doma",
             "Eventing": "Concurso completo",
             "Racing": "Carreras",
-            "Breeding": "CrÃ­a",
-            "Rehabilitation": "RehabilitaciÃ³n",
+            "Breeding": "Cría",
+            "Rehabilitation": "Rehabilitación",
             "Leisure": "Ocio",
             "Western": "Western",
             "Endurance": "Resistencia",
@@ -858,16 +872,28 @@
         },
         "sections": {
             "identity": "Identidad",
-            "identification": "IdentificaciÃ³n",
+            "identification": "Identificación",
             "disciplines": "Disciplinas",
-            "description": "DescripciÃ³n",
-            "pedigree": "PedigrÃ­"
+            "about": "Acerca de",
+            "pedigree": "Pedigrí",
+            "discovery": "Descubrimiento"
         },
-        "contactTitle": "Contacto",
-        "useOwnerContact": "Usar contacto del propietario",
-        "customContact": "Datos de contacto personalizados",
-        "contactSaved": "Contacto guardado",
-        "contactSaveFailed": "Error al guardar el contacto"
+        "sectionDescriptions": {
+            "identity": "Identidad básica y detalles físicos.",
+            "identification": "Registro, microchip y pasaporte.",
+            "disciplines": "Disciplina principal y adicionales.",
+            "about": "Descripción pública y notas privadas.",
+            "pedigree": "Padre, madre e información de sangre.",
+            "discovery": "Quién puede descubrir este caballo y cómo contactarte."
+        },
+        "required": "Este campo es obligatorio",
+        "invalidDate": "Introduce una fecha válida",
+        "invalidEnum": "Selecciona una opción válida",
+        "invalidNumber": "Introduce un número válido",
+        "contactNameRequired": "El nombre de contacto es obligatorio cuando no se usa el del propietario",
+        "contactPhoneRequired": "El teléfono de contacto es obligatorio cuando no se usa el del propietario",
+        "contactEmailRequired": "El email de contacto es obligatorio cuando no se usa el del propietario",
+        "contactEmailInvalid": "Introduce un email válido"
     },
     "horseConnect": {
         "title": "Conectar",
@@ -879,12 +905,12 @@
         "noResults": "No se encontraron proveedores.",
         "invite": "Invitar",
         "invited": "Invitado",
-        "emailFallbackToggle": "Â¿No estÃ¡ en Equus? Invitar por email",
-        "emailFallbackHint": "RecibirÃ¡n una invitaciÃ³n para registrarse y conectarse.",
+        "emailFallbackToggle": "¿No está en Equus? Invitar por email",
+        "emailFallbackHint": "Recibirán una invitación para registrarse y conectarse.",
         "emailLabel": "Email",
         "nameLabel": "Nombre (opcional)",
-        "sendEmailInvite": "Enviar invitaciÃ³n por email",
-        "invitationSent": "InvitaciÃ³n enviada.",
+        "sendEmailInvite": "Enviar invitación por email",
+        "invitationSent": "Invitación enviada.",
         "tableType": "Tipo",
         "tableStatus": "Estado",
         "tableName": "Nombre",
@@ -895,62 +921,61 @@
         "statusPending": "Pendiente",
         "statusRefused": "Rechazado",
         "statusEnded": "Finalizado",
-        "endConnection": "Finalizar conexiÃ³n",
-        "cancelInvitation": "Cancelar invitaciÃ³n",
-        "connectionEnded": "ConexiÃ³n finalizada.",
-        "invitationCancelled": "InvitaciÃ³n cancelada.",
+        "endConnection": "Finalizar conexión",
+        "cancelInvitation": "Cancelar invitación",
+        "connectionEnded": "Conexión finalizada.",
+        "invitationCancelled": "Invitación cancelada.",
         "typeUnknown": "Desconocido"
     },
     "horseHistory": {
         "title": "Historial",
         "date": "Fecha",
-        "action": "AcciÃ³n",
-        "description": "DescripciÃ³n",
+        "action": "Acción",
+        "description": "Descripción",
         "actor": "Actor",
         "filterPlaceholder": "Buscar en el historial...",
-        "empty": "No hay actividad registrada aÃºn.",
+        "empty": "No hay actividad registrada aún.",
         "actions": {
             "horse_created": "Caballo creado",
             "horse_updated": "Caballo actualizado",
-            "relationship_created": "ConexiÃ³n establecida",
-            "relationship_ended": "ConexiÃ³n finalizada",
+            "relationship_created": "Conexión establecida",
+            "relationship_ended": "Conexión finalizada",
             "ownership_transferred": "Propiedad transferida",
-            "ownership_co_owner_added": "Copropietario aÃ±adido",
+            "ownership_co_owner_added": "Copropietario añadido",
             "ownership_co_owner_removed": "Copropietario eliminado",
             "ownership_co_owner_promoted": "Copropietario promovido",
-            "health_created": "Registro de salud aÃ±adido",
+            "health_created": "Registro de salud añadido",
             "health_updated": "Registro de salud actualizado",
-            "feed_created": "Plan de alimentaciÃ³n aÃ±adido",
+            "feed_created": "Plan de alimentación añadido",
             "event_created": "Evento programado",
             "event_updated": "Evento actualizado",
-            "media_created": "Multimedia aÃ±adida",
-            "document_created": "Documento aÃ±adido"
+            "media_created": "Multimedia añadida",
+            "document_created": "Documento añadido"
         }
     },
     "subscription": {
-        "title": "SuscripciÃ³n",
+        "title": "Suscripción",
         "current": "Actual",
         "currentPlan": "Plan actual",
         "horsesUsed": "caballos usados",
         "manage": "Gestionar",
         "subscribe": "Suscribirse",
         "change": "Cambiar plan",
-        "updatePayment": "Actualizar mÃ©todo de pago",
-        "billingHistory": "Historial de facturaciÃ³n"
+        "updatePayment": "Actualizar método de pago",
+        "billingHistory": "Historial de facturación"
     },
-
     "horsePlanning": {
         "title": "Planificación",
         "description": "Programa citas, competiciones, entrenamiento y actividades diarias.",
-        "addEvent": "AÃ±adir evento",
+        "addEvent": "Añadir evento",
         "cancel": "Cancelar",
         "date": "Fecha",
         "type": "Tipo",
-        "location": "UbicaciÃ³n",
+        "location": "Ubicación",
         "startDate": "Fecha inicio",
         "endDate": "Fecha fin",
         "filterPlaceholder": "Filtrar eventos...",
-        "noEvents": "AÃºn no hay eventos.",
+        "noEvents": "Aún no hay eventos.",
         "eventCreated": "Evento creado.",
         "eventError": "Error al crear el evento.",
         "saving": "Guardando...",
@@ -959,9 +984,9 @@
         "tableView": "Tabla",
         "types": {
             "appointment": "Cita",
-            "competition": "CompeticiÃ³n",
+            "competition": "Competición",
             "training": "Entrenamiento",
-            "feeding": "AlimentaciÃ³n",
+            "feeding": "Alimentación",
             "other": "Otro"
         },
         "provider": "Proveedor",
@@ -1033,18 +1058,18 @@
     },
     "metadata": {
         "home": {
-            "title": "Equus â€” Red Ecuestre y de Caballos",
-            "description": "Conecta con dueÃ±os de caballos, establos, criadores y profesionales ecuestres. Encuentra caballos, servicios y construye tu red ecuestre.",
+            "title": "Equus - Red Ecuestre y de Caballos",
+            "description": "Conecta con dueños de caballos, establos, criadores y profesionales ecuestres. Encuentra caballos, servicios y construye tu red ecuestre.",
             "keywords": "caballos, ecuestre, establos, criadores, red equina, equus"
         },
         "homeDashboard": {
             "title": "Inicio | Equus",
-            "description": "Tu panel de Equus â€” gestiona caballos, establos y conexiones.",
+            "description": "Tu panel de Equus - gestiona caballos, establos y conexiones.",
             "keywords": ""
         },
         "horses": {
             "title": "Caballos | Equus",
-            "description": "Explora caballos en la red Equus. Encuentra caballos por raza, disciplina y ubicaciÃ³n.",
+            "description": "Explora caballos en la red Equus. Encuentra caballos por raza, disciplina y ubicación.",
             "keywords": "caballos en venta, listado de caballos, ecuestre, razas de caballos"
         },
         "stables": {
@@ -1054,13 +1079,13 @@
         },
         "breeders": {
             "title": "Criadores | Equus",
-            "description": "Encuentra criadores de caballos y programas de crÃ­a en la red Equus.",
-            "keywords": "criadores de caballos, crÃ­a, potros, ecuestre"
+            "description": "Encuentra criadores de caballos y programas de cría en la red Equus.",
+            "keywords": "criadores de caballos, cría, potros, ecuestre"
         },
         "transport": {
             "title": "Transporte Equino | Equus",
             "description": "Encuentra servicios de transporte de caballos en la red Equus.",
-            "keywords": "transporte de caballos, envÃ­o equino, remolques para caballos"
+            "keywords": "transporte de caballos, envío equino, remolques para caballos"
         },
         "trainers": {
             "title": "Entrenadores de Caballos | Equus",
@@ -1069,18 +1094,18 @@
         },
         "groomers": {
             "title": "Peluqueros Equinos | Equus",
-            "description": "Encuentra servicios profesionales de peluquerÃ­a equina en la red Equus.",
-            "keywords": "peluquerÃ­a equina, cuidado de caballos, servicios de aseo"
+            "description": "Encuentra servicios profesionales de peluquería equina en la red Equus.",
+            "keywords": "peluquería equina, cuidado de caballos, servicios de aseo"
         },
         "riders": {
             "title": "Jinetes | Equus",
             "description": "Conecta con jinetes en la red Equus.",
-            "keywords": "jinetes ecuestres, equitaciÃ³n, comunidad ecuestre"
+            "keywords": "jinetes ecuestres, equitación, comunidad ecuestre"
         },
         "coaches": {
             "title": "Instructores Ecuestres | Equus",
             "description": "Encuentra instructores y entrenadores ecuestres en la red Equus.",
-            "keywords": "instructor ecuestre, clases de equitaciÃ³n, lecciones de montar"
+            "keywords": "instructor ecuestre, clases de equitación, lecciones de montar"
         },
         "farriers": {
             "title": "Herradores | Equus",
@@ -1093,9 +1118,9 @@
             "keywords": "veterinario equino, veterinario de caballos, servicios veterinarios"
         },
         "ridingClubs": {
-            "title": "Clubes de EquitaciÃ³n | Equus",
-            "description": "Encuentra clubes de equitaciÃ³n y organizaciones ecuestres en la red Equus.",
-            "keywords": "club de equitaciÃ³n, club ecuestre, grupo de equitaciÃ³n"
+            "title": "Clubes de Equitación | Equus",
+            "description": "Encuentra clubes de equitación y organizaciones ecuestres en la red Equus.",
+            "keywords": "club de equitación, club ecuestre, grupo de equitación"
         },
         "workplaces": {
             "title": "Lugares de Trabajo | Equus",
@@ -1104,7 +1129,7 @@
         },
         "relationships": {
             "title": "Relaciones | Equus",
-            "description": "Gestiona tus solicitudes de relaciÃ³n y conexiones en Equus.",
+            "description": "Gestiona tus solicitudes de relación y conexiones en Equus.",
             "keywords": ""
         },
         "ownershipTransfers": {
@@ -1114,12 +1139,12 @@
         },
         "users": {
             "title": "Perfil de Usuario | Equus",
-            "description": "Perfil de miembro de Equus â€” conectado a travÃ©s de caballos y servicios.",
+            "description": "Perfil de miembro de Equus - conectado a través de caballos y servicios.",
             "keywords": ""
         },
         "signin": {
-            "title": "Iniciar SesiÃ³n | Equus",
-            "description": "Inicia sesiÃ³n en tu cuenta de Equus.",
+            "title": "Iniciar Sesión | Equus",
+            "description": "Inicia sesión en tu cuenta de Equus.",
             "keywords": ""
         },
         "signup": {
@@ -1128,23 +1153,23 @@
             "keywords": ""
         },
         "forgotPassword": {
-            "title": "OlvidÃ© mi ContraseÃ±a | Equus",
-            "description": "Restablece la contraseÃ±a de tu cuenta de Equus.",
+            "title": "Olvidé mi Contraseña | Equus",
+            "description": "Restablece la contraseña de tu cuenta de Equus.",
             "keywords": ""
         },
         "resetPassword": {
-            "title": "Restablecer ContraseÃ±a | Equus",
-            "description": "Ingresa tu nueva contraseÃ±a para Equus.",
+            "title": "Restablecer Contraseña | Equus",
+            "description": "Ingresa tu nueva contraseña para Equus.",
             "keywords": ""
         },
         "confirmEmail": {
             "title": "Confirmar Correo | Equus",
-            "description": "Confirma tu direcciÃ³n de correo electrÃ³nico para Equus.",
+            "description": "Confirma tu dirección de correo electrónico para Equus.",
             "keywords": ""
         },
         "resendConfirmation": {
-            "title": "Reenviar ConfirmaciÃ³n | Equus",
-            "description": "ReenvÃ­a tu confirmaciÃ³n de correo electrÃ³nico para Equus.",
+            "title": "Reenviar Confirmación | Equus",
+            "description": "Reenvía tu confirmación de correo electrónico para Equus.",
             "keywords": ""
         },
         "profile": {
@@ -1158,18 +1183,18 @@
             "keywords": ""
         },
         "notFound": {
-            "title": "PÃ¡gina No Encontrada | Equus",
-            "description": "La pÃ¡gina que buscas no existe o ha sido movida.",
-            "keywords": "404, pÃ¡gina no encontrada, equus"
+            "title": "Página No Encontrada | Equus",
+            "description": "La página que buscas no existe o ha sido movida.",
+            "keywords": "404, página no encontrada, equus"
         },
         "notAllowed": {
             "title": "Acceso Denegado | Equus",
-            "description": "No tienes permiso para acceder a esta pÃ¡gina.",
+            "description": "No tienes permiso para acceder a esta página.",
             "keywords": ""
         },
         "subscription": {
-            "title": "SuscripciÃ³n | Equus",
-            "description": "Gestiona tu plan de suscripciÃ³n y facturaciÃ³n de Equus.",
+            "title": "Suscripción | Equus",
+            "description": "Gestiona tu plan de suscripción y facturación de Equus.",
             "keywords": ""
         },
         "horseConnect": {
@@ -1177,7 +1202,6 @@
             "description": "Invita y gestiona conexiones de proveedores para tu caballo.",
             "keywords": ""
         },
-
         "horsePlanning": {
             "title": "Planificación | Equus",
             "description": "Planifica y gestiona citas, competiciones y actividades diarias de tu caballo.",
@@ -1193,49 +1217,49 @@
             "description": "Gestiona los documentos de tu caballo.",
             "keywords": ""
         },
-        "horseEdit": {
-            "title": "Editar Caballo | Equus",
+        "horseProfile": {
+            "title": "Perfil del Caballo | Equus",
             "description": "Edita los detalles del perfil de tu caballo.",
             "keywords": ""
         },
         "horseHistory": {
             "title": "Historial del Caballo | Equus",
-            "description": "Ve el historial y la lÃ­nea de tiempo de tu caballo.",
+            "description": "Ve el historial y la línea de tiempo de tu caballo.",
             "keywords": ""
         },
         "horseSale": {
             "title": "Venta | Equus",
-            "description": "Gestiona la configuraciÃ³n de venta y precios de tu caballo.",
+            "description": "Gestiona la configuración de venta y precios de tu caballo.",
             "keywords": ""
         },
         "horseAdmin": {
             "title": "Admin | Equus",
-            "description": "Gestiona configuraciÃ³n de venta, propiedad y hub de tu caballo.",
+            "description": "Gestiona configuración de venta, propiedad y hub de tu caballo.",
             "keywords": ""
         }
     },
     "horseSale": {
-        "pageTitle": "ConfiguraciÃ³n de venta",
+        "pageTitle": "Configuración de venta",
         "title": "Venta y precio",
         "saleStatus": "Estado de venta",
         "saleStatusOptions": {
-            "not_for_sale": "No estÃ¡ en venta",
+            "not_for_sale": "No está en venta",
             "for_sale": "En venta"
         },
         "estimatedValue": "Valor estimado",
         "valueCurrency": "Moneda",
         "askingPrice": "Precio de venta",
-        "showValuePublicly": "Mostrar valor pÃºblicamente",
-        "acquisitionDate": "Fecha de adquisiciÃ³n",
-        "acquisitionSource": "Fuente de adquisiciÃ³n",
-        "yes": "SÃ­",
+        "showValuePublicly": "Mostrar valor públicamente",
+        "acquisitionDate": "Fecha de adquisición",
+        "acquisitionSource": "Fuente de adquisición",
+        "yes": "Sí",
         "no": "No",
-        "selectPlaceholder": "Seleccionarâ€¦",
         "noChanges": "Sin cambios para guardar",
-        "saved": "ConfiguraciÃ³n de venta guardada",
-        "saveFailed": "Error al guardar la configuraciÃ³n de venta",
+        "saved": "Configuración de venta guardada",
+        "saveFailed": "Error al guardar la configuración de venta",
+        "validationFailed": "Corrija los errores antes de guardar",
         "ownershipHistory": "Historial de propiedad",
-        "noHistory": "AÃºn no hay cambios de propiedad registrados.",
+        "noHistory": "Aún no hay cambios de propiedad registrados.",
         "historyDate": "Fecha",
         "historyType": "Tipo",
         "historyFrom": "De",
@@ -1246,13 +1270,13 @@
             "remove_co_owner": "Eliminado"
         },
         "required": "Este campo es obligatorio",
-        "invalidDate": "Introduzca una fecha vÃ¡lida",
-        "invalidEnum": "Seleccione una opciÃ³n vÃ¡lida",
-        "invalidNumber": "Introduzca un nÃºmero vÃ¡lido",
+        "invalidDate": "Introduzca una fecha válida",
+        "invalidEnum": "Seleccione una opción válida",
+        "invalidNumber": "Introduzca un número válido",
         "contactNameRequired": "El nombre de contacto es obligatorio cuando no se usa el contacto del propietario",
-        "contactPhoneRequired": "El telÃ©fono de contacto es obligatorio cuando no se usa el contacto del propietario",
+        "contactPhoneRequired": "El teléfono de contacto es obligatorio cuando no se usa el contacto del propietario",
         "contactEmailRequired": "El correo de contacto es obligatorio cuando no se usa el contacto del propietario",
-        "contactEmailInvalid": "Proporcione una direcciÃ³n de correo vÃ¡lida"
+        "contactEmailInvalid": "Proporcione una dirección de correo válida"
     },
     "table": {
         "resetColumnsSuccess": "Columnas restablecidas correctamente",
@@ -1271,7 +1295,7 @@
             "resetOrderVisibility": "Restablecer orden y visibilidad",
             "exportFilteredData": "Exportar Datos Filtrados",
             "exporting": "Exportando...",
-            "exportSuccess": "¡Exportación completada correctamente!",
+            "exportSuccess": "!Exportación completada correctamente!",
             "exportError": "Error al exportar datos. Por favor, inténtelo de nuevo."
         },
         "filter": {
@@ -1285,7 +1309,7 @@
             "filtersCleared": "Todos los filtros eliminados"
         },
         "body": {
-            "noDataFound": "¡No se encontraron datos!",
+            "noDataFound": "!No se encontraron datos!",
             "tryAdjustingFilters": "Intente ajustar sus criterios de búsqueda o filtro."
         },
         "export": {
