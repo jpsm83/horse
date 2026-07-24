@@ -229,17 +229,29 @@ Your primary goals are:
 
 #### Color convention — semantic tokens only
 
-- **Definitions**: all app colors are defined in `app/globals.css` via CSS custom properties
-  mapped through Tailwind v4's `@theme inline` block. No other file defines color values.
+- **Definitions**: all web app colors are defined in `app/globals.css` via CSS custom properties
+  mapped through Tailwind v4's `@theme inline` block. No other file defines web theme color values.
 - **Usage**: components, pages, and layouts reference colors exclusively through
   semantic design tokens — `text-primary`, `bg-muted`, `text-success`, `bg-card`,
-  `text-destructive`, etc. Never use raw Tailwind color names (`text-orange-500`,
-  `bg-gray-200`, `text-red-600`) or inline hex values (`#ff0000`, `"#3b82f6"`).
+  `text-destructive`, `bg-overlay`, `text-overlay-foreground`, etc. Never use raw Tailwind
+  color names (`text-orange-500`, `bg-gray-200`, `text-red-600`), raw `bg-black` / `text-white` /
+  `bg-white`, or inline hex values (`#ff0000`, `"#3b82f6"`).
+- **Overlays / scrims**: use `bg-overlay` (with opacity modifiers), `bg-overlay-heavy`, and
+  `text-overlay-foreground`. Dialog/sheet/alert-dialog backdrops are also forced via
+  `[data-slot="*-overlay"]` rules in `globals.css` so they survive `npm run ui:sync`.
+- **Badge bands**: table color-range badges use `--badge-band-*` tokens and `.badge-band-*` classes.
+- **Non-CSS contexts** (HTML email, Excel ARGB, browser `theme-color`): import hex from
+  `lib/theme/nonCssColors.ts` only. That module must stay in sync with `:root` — enforced by
+  `tests/theme/nonCssColorsSync.test.ts`.
 - **Adding a color**: if a needed semantic category lacks a token, add the CSS variable
   in `app/globals.css` (to `@theme inline`, `:root`, `.theme-neutral`, and `.dark`)
-  before using it in any component. Do NOT inline raw colors in JSX.
+  before using it in any component. If email/meta/export need the same value, add it to
+  `nonCssColors.ts` and extend the sync test. Do NOT inline raw colors in JSX.
 - **Opacity via modifiers**: use Tailwind's opacity modifier syntax on the semantic
-  class (`bg-primary/5`, `text-muted-foreground/70`) — not on the variable definition.
+  class (`bg-primary/5`, `text-muted-foreground/70`, `bg-overlay/50`) — not on the variable definition.
+- **Allowlist**: Google brand fills in `components/icons/google-icon.tsx` only.
+- **Enforcement**: `tests/theme/colorCentralization.test.ts` + ESLint `no-restricted-syntax` on hex
+  in `components/` / `app/` (except the Google icon).
 
 #### Toasts (mutation feedback)
 

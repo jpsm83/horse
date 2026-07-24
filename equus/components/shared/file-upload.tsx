@@ -234,7 +234,7 @@ export function FileUpload({
                   variant="ghost"
                   size="icon-xs"
                   onClick={() => onRemoveExisting(url)}
-                  className="absolute top-1 right-1 size-6 rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/50 hover:text-white"
+                  className="absolute top-1 right-1 size-6 rounded-full bg-overlay/50 text-overlay-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-overlay/50 hover:text-overlay-foreground"
                   aria-label={t("remove")}
                 >
                   <X className="size-3" />
@@ -272,8 +272,8 @@ export function FileUpload({
                 )}
 
                 {entry.status === "uploading" ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <Loader2 className="size-6 animate-spin text-white" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-overlay/30">
+                    <Loader2 className="size-6 animate-spin text-overlay-foreground" />
                   </div>
                 ) : null}
 
@@ -286,7 +286,7 @@ export function FileUpload({
                 {entry.status === "uploaded" ? (
                   <div className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-success/80">
                     <svg
-                      className="size-3 text-white"
+                      className="size-3 text-overlay-foreground"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -307,7 +307,7 @@ export function FileUpload({
                   size="icon-xs"
                   onClick={() => removeFile(entry.id)}
                   disabled={disabled || entry.status === "uploading"}
-                  className="absolute top-1 left-1 size-6 rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/50 hover:text-white disabled:opacity-30"
+                  className="absolute top-1 left-1 size-6 rounded-full bg-overlay/50 text-overlay-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-overlay/50 hover:text-overlay-foreground disabled:opacity-30"
                   aria-label={t("remove")}
                 >
                   <Trash2 className="size-3" />

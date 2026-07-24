@@ -13,6 +13,25 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    files: ["components/**/*.{ts,tsx}", "app/**/*.{ts,tsx}"],
+    ignores: ["components/icons/google-icon.tsx"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "Literal[value=/^#[0-9A-Fa-f]{3,8}$/]",
+          message:
+            "Do not use hex color literals in components/app. Use semantic tokens from globals.css (or nonCssColors for non-CSS contexts).",
+        },
+        {
+          selector: "TemplateElement[value.raw=/#[0-9A-Fa-f]{3,8}/]",
+          message:
+            "Do not embed hex colors in template strings in components/app. Use semantic tokens from globals.css.",
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

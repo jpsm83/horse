@@ -34,7 +34,7 @@ export function IncompleteProfileBanner() {
           {t("incompleteBanner")}{" "}
           <Link
             href="/profile"
-            className="font-medium text-white underline-offset-4 hover:underline"
+            className="font-medium text-primary-foreground underline-offset-4 hover:underline"
           >
             {t("incompleteGlobalBannerLink")}
           </Link>

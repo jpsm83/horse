@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { OrganizationJsonLd, WebSiteJsonLd } from "@/lib/seo/json-ld";
+import { nonCssColors } from "@/lib/theme/nonCssColors";
 
 import "./globals.css";
 
@@ -40,8 +41,8 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   other: {
-    "theme-color": "#8B5CF6",
-    "msapplication-TileColor": "#8B5CF6",
+    "theme-color": nonCssColors.browserThemeColor,
+    "msapplication-TileColor": nonCssColors.browserThemeColor,
     "format-detection": "telephone=no",
   },
 };

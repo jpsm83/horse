@@ -42,7 +42,7 @@ export function LightboxDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-none sm:max-w-none w-[90vw] h-[90vh] p-0 gap-0 bg-black/95 border-0 overflow-hidden">
+      <DialogContent className="max-w-none sm:max-w-none w-[90vw] h-[90vh] p-0 gap-0 bg-overlay-heavy border-0 overflow-hidden">
         <DialogTitle className="sr-only">
           {item.title ?? t("addMedia")}
         </DialogTitle>
@@ -55,7 +55,7 @@ export function LightboxDialog({
             <Button
               variant="ghost"
               size="icon"
-              className="absolute left-2 z-10 text-white hover:bg-white/20 rounded-full"
+              className="absolute left-2 z-10 text-overlay-foreground hover:bg-overlay-foreground/20 rounded-full"
               onClick={onPrevious}
             >
               <ChevronLeft className="size-8" />
@@ -81,7 +81,7 @@ export function LightboxDialog({
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-2 z-10 text-white hover:bg-white/20 rounded-full"
+              className="absolute right-2 z-10 text-overlay-foreground hover:bg-overlay-foreground/20 rounded-full"
               onClick={onNext}
             >
               <ChevronRight className="size-8" />
@@ -92,7 +92,7 @@ export function LightboxDialog({
             <Button
               variant="ghost"
               size="icon"
-              className="text-white hover:bg-white/20 rounded-full"
+              className="text-overlay-foreground hover:bg-overlay-foreground/20 rounded-full"
               onClick={(e) => {
                 e.stopPropagation();
                 onToggleVisibility();
@@ -107,7 +107,7 @@ export function LightboxDialog({
             <Button
               variant="ghost"
               size="icon"
-              className="text-white hover:bg-white/20 rounded-full"
+              className="text-overlay-foreground hover:bg-overlay-foreground/20 rounded-full"
               onClick={(e) => {
                 e.stopPropagation();
                 onRequestDelete();
@@ -118,7 +118,7 @@ export function LightboxDialog({
             <Button
               variant="ghost"
               size="icon"
-              className="text-white hover:bg-white/20 rounded-full"
+              className="text-overlay-foreground hover:bg-overlay-foreground/20 rounded-full"
               onClick={(e) => {e.stopPropagation(); onOpenChange(false)}}
             >
               <X className="size-5" />

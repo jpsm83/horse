@@ -29,6 +29,7 @@
   --color-input-background: var(--input-background);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
   --color-success: var(--success);
@@ -47,6 +48,27 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-overlay: var(--overlay);
+  --color-overlay-foreground: var(--overlay-foreground);
+  --color-overlay-heavy: var(--overlay-heavy);
+  --color-badge-band-gray: var(--badge-band-gray);
+  --color-badge-band-gray-foreground: var(--badge-band-gray-foreground);
+  --color-badge-band-yellow: var(--badge-band-yellow);
+  --color-badge-band-yellow-foreground: var(--badge-band-yellow-foreground);
+  --color-badge-band-green: var(--badge-band-green);
+  --color-badge-band-green-foreground: var(--badge-band-green-foreground);
+  --color-badge-band-red: var(--badge-band-red);
+  --color-badge-band-red-foreground: var(--badge-band-red-foreground);
+  --color-badge-band-orange: var(--badge-band-orange);
+  --color-badge-band-orange-foreground: var(--badge-band-orange-foreground);
+  --color-badge-band-blue: var(--badge-band-blue);
+  --color-badge-band-blue-foreground: var(--badge-band-blue-foreground);
+  --color-badge-band-purple: var(--badge-band-purple);
+  --color-badge-band-purple-foreground: var(--badge-band-purple-foreground);
+  --color-badge-band-pink: var(--badge-band-pink);
+  --color-badge-band-pink-foreground: var(--badge-band-pink-foreground);
+  --color-badge-band-neutral: var(--badge-band-neutral);
+  --color-badge-band-neutral-foreground: var(--badge-band-neutral-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -78,6 +100,7 @@
   --accent: #fb923c;
   --accent-foreground: #431407;
   --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: #ffffff;
   --info: #3b82f6;
   --info-foreground: #ffffff;
   --success: #22c55e;
@@ -103,6 +126,29 @@
   --sidebar-border: #9a3412;
   --sidebar-ring: #fb923c;
   --nav-tab-background: #ce5120;
+  --overlay: #000000;
+  --overlay-foreground: #ffffff;
+  --overlay-heavy: rgb(0 0 0 / 0.95);
+  --badge-band-gray: #5c5b5b;
+  --badge-band-gray-foreground: #ffffff;
+  --badge-band-yellow: #ecd6a7;
+  --badge-band-yellow-foreground: #92400e;
+  --badge-band-green: #addfc0;
+  --badge-band-green-foreground: #166534;
+  --badge-band-red: #f3cbcb;
+  --badge-band-red-foreground: #991b1b;
+  --badge-band-orange: #f8c5aa;
+  --badge-band-orange-foreground: #c2410c;
+  --badge-band-blue: #b3c8f8;
+  --badge-band-blue-foreground: #1e40af;
+  --badge-band-purple: #d9b8f8;
+  --badge-band-purple-foreground: #7e22ce;
+  --badge-band-pink: #f2b3cf;
+  --badge-band-pink-foreground: #be185d;
+  --badge-band-neutral: #e5e7eb;
+  --badge-band-neutral-foreground: #6b7280;
+  --excel-gridline: #000000;
+  --excel-header-fill: #d1d0ce;
 }
 
 .theme-neutral {
@@ -121,6 +167,7 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(1 0 0);
   --info: oklch(0.546 0.245 262.881);
   --info-foreground: oklch(1 0 0);
   --success: oklch(0.527 0.154 150.069);
@@ -146,6 +193,29 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --nav-tab-background: oklch(1 0 0);
+  --overlay: #000000;
+  --overlay-foreground: #ffffff;
+  --overlay-heavy: rgb(0 0 0 / 0.95);
+  --badge-band-gray: #5c5b5b;
+  --badge-band-gray-foreground: #ffffff;
+  --badge-band-yellow: #ecd6a7;
+  --badge-band-yellow-foreground: #92400e;
+  --badge-band-green: #addfc0;
+  --badge-band-green-foreground: #166534;
+  --badge-band-red: #f3cbcb;
+  --badge-band-red-foreground: #991b1b;
+  --badge-band-orange: #f8c5aa;
+  --badge-band-orange-foreground: #c2410c;
+  --badge-band-blue: #b3c8f8;
+  --badge-band-blue-foreground: #1e40af;
+  --badge-band-purple: #d9b8f8;
+  --badge-band-purple-foreground: #7e22ce;
+  --badge-band-pink: #f2b3cf;
+  --badge-band-pink-foreground: #be185d;
+  --badge-band-neutral: #e5e7eb;
+  --badge-band-neutral-foreground: #6b7280;
+  --excel-gridline: #000000;
+  --excel-header-fill: #d1d0ce;
 }
 
 .dark {
@@ -164,6 +234,13 @@
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
+  --info: oklch(0.623 0.214 259.815);
+  --info-foreground: oklch(0.145 0 0);
+  --success: oklch(0.623 0.214 142.495);
+  --success-foreground: oklch(0.145 0 0);
+  --warning: oklch(0.795 0.184 85.964);
+  --warning-foreground: oklch(0.145 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --input-background: oklch(0.269 0 0);
@@ -182,6 +259,97 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
   --nav-tab-background: oklch(0.34 0 0);
+  --overlay: #000000;
+  --overlay-foreground: #ffffff;
+  --overlay-heavy: rgb(0 0 0 / 0.95);
+  --badge-band-gray: #5c5b5b;
+  --badge-band-gray-foreground: #ffffff;
+  --badge-band-yellow: #ecd6a7;
+  --badge-band-yellow-foreground: #92400e;
+  --badge-band-green: #addfc0;
+  --badge-band-green-foreground: #166534;
+  --badge-band-red: #f3cbcb;
+  --badge-band-red-foreground: #991b1b;
+  --badge-band-orange: #f8c5aa;
+  --badge-band-orange-foreground: #c2410c;
+  --badge-band-blue: #b3c8f8;
+  --badge-band-blue-foreground: #1e40af;
+  --badge-band-purple: #d9b8f8;
+  --badge-band-purple-foreground: #7e22ce;
+  --badge-band-pink: #f2b3cf;
+  --badge-band-pink-foreground: #be185d;
+  --badge-band-neutral: #e5e7eb;
+  --badge-band-neutral-foreground: #6b7280;
+  --excel-gridline: #000000;
+  --excel-header-fill: #d1d0ce;
+}
+
+/* Table color-range badge bands — class names used by COLOR_BAND_CONFIGS */
+@layer components {
+  .badge-band-gray {
+    background-color: var(--badge-band-gray);
+    color: var(--badge-band-gray-foreground);
+    border-color: var(--badge-band-gray);
+  }
+  .badge-band-yellow {
+    background-color: var(--badge-band-yellow);
+    color: var(--badge-band-yellow-foreground);
+    border-color: var(--badge-band-yellow);
+  }
+  .badge-band-green {
+    background-color: var(--badge-band-green);
+    color: var(--badge-band-green-foreground);
+    border-color: var(--badge-band-green);
+  }
+  .badge-band-red {
+    background-color: var(--badge-band-red);
+    color: var(--badge-band-red-foreground);
+    border-color: var(--badge-band-red);
+  }
+  .badge-band-orange {
+    background-color: var(--badge-band-orange);
+    color: var(--badge-band-orange-foreground);
+    border-color: var(--badge-band-orange);
+  }
+  .badge-band-blue {
+    background-color: var(--badge-band-blue);
+    color: var(--badge-band-blue-foreground);
+    border-color: var(--badge-band-blue);
+  }
+  .badge-band-purple {
+    background-color: var(--badge-band-purple);
+    color: var(--badge-band-purple-foreground);
+    border-color: var(--badge-band-purple);
+  }
+  .badge-band-pink {
+    background-color: var(--badge-band-pink);
+    color: var(--badge-band-pink-foreground);
+    border-color: var(--badge-band-pink);
+  }
+  .badge-band-neutral {
+    background-color: var(--badge-band-neutral);
+    color: var(--badge-band-neutral-foreground);
+    border-color: var(--badge-band-neutral);
+  }
+
+  .badge-band-swatch-gray { background-color: var(--badge-band-gray); }
+  .badge-band-swatch-yellow { background-color: var(--badge-band-yellow); }
+  .badge-band-swatch-green { background-color: var(--badge-band-green); }
+  .badge-band-swatch-red { background-color: var(--badge-band-red); }
+  .badge-band-swatch-orange { background-color: var(--badge-band-orange); }
+  .badge-band-swatch-blue { background-color: var(--badge-band-blue); }
+  .badge-band-swatch-purple { background-color: var(--badge-band-purple); }
+  .badge-band-swatch-pink { background-color: var(--badge-band-pink); }
+
+  /*
+   * Durable overlay for shadcn dialog/sheet/alert-dialog.
+   * Survives `ui:sync` reintroducing bg-black/10 on the slot.
+   */
+  [data-slot="dialog-overlay"],
+  [data-slot="sheet-overlay"],
+  [data-slot="alert-dialog-overlay"] {
+    background-color: color-mix(in oklab, var(--overlay) 10%, transparent);
+  }
 }
 
 @layer base {

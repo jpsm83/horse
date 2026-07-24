@@ -2,7 +2,13 @@
  * Password reset email template — en/es locales.
  */
 
-import { buildCtaButton, buildPlainTextEmail, wrapBrandedEmail } from "../layout.ts";
+import {
+  buildCtaButton,
+  buildPlainTextEmail,
+  emailBodyStyle,
+  emailHeadingStyle,
+  wrapBrandedEmail,
+} from "../layout.ts";
 import { fallbackDisplayName, resolveEmailLocale } from "../locales.ts";
 import type { EmailLocale, EmailTemplateContent } from "../types.ts";
 
@@ -44,11 +50,11 @@ export function passwordResetTemplate(
   const displayName = fallbackDisplayName(username);
 
   const bodyHtml = `
-    <h2 style="color: #374151; margin-bottom: 20px;">${t.greeting} ${displayName}!</h2>
-    <p style="color: #6b7280; line-height: 1.6; margin-bottom: 20px;">${t.message}</p>
+    <h2 style="${emailHeadingStyle()}">${t.greeting} ${displayName}!</h2>
+    <p style="${emailBodyStyle()}">${t.message}</p>
     ${buildCtaButton(resetLink, t.resetButton)}
-    <p style="color: #6b7280; line-height: 1.6; margin-bottom: 20px;">${t.ignoreMessage}</p>
-    <p style="color: #6b7280; line-height: 1.6; margin-bottom: 20px;">${t.expiryMessage}</p>
+    <p style="${emailBodyStyle()}">${t.ignoreMessage}</p>
+    <p style="${emailBodyStyle()}">${t.expiryMessage}</p>
   `;
 
   return {

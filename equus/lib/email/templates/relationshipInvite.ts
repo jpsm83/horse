@@ -2,7 +2,13 @@
  * Relationship invite email — en/es locales.
  */
 
-import { buildCtaButton, buildPlainTextEmail, wrapBrandedEmail } from "../layout.ts";
+import {
+  buildCtaButton,
+  buildPlainTextEmail,
+  emailBodyStyle,
+  emailHeadingStyle,
+  wrapBrandedEmail,
+} from "../layout.ts";
 import { fallbackDisplayName, resolveEmailLocale } from "../locales.ts";
 import type { EmailLocale, EmailTemplateContent } from "../types.ts";
 
@@ -149,11 +155,11 @@ export function relationshipInviteTemplate(
   const referralLine = includeReferralLine ? interpolate(t.referralLine, values) : "";
 
   const bodyHtml = `
-    <h2 style="color: #374151; margin-bottom: 20px;">${t.greeting} ${displayName}!</h2>
-    <p style="color: #6b7280; line-height: 1.6; margin-bottom: 20px;">${message}</p>
-    ${referralLine ? `<p style="color: #6b7280; line-height: 1.6; margin-bottom: 20px;">${referralLine}</p>` : ""}
+    <h2 style="${emailHeadingStyle()}">${t.greeting} ${displayName}!</h2>
+    <p style="${emailBodyStyle()}">${message}</p>
+    ${referralLine ? `<p style="${emailBodyStyle()}">${referralLine}</p>` : ""}
     ${buildCtaButton(input.acceptUrl, acceptButton)}
-    <p style="color: #6b7280; line-height: 1.6; margin-bottom: 20px;">${t.ignoreMessage}</p>
+    <p style="${emailBodyStyle()}">${t.ignoreMessage}</p>
   `;
 
   const textParts = [

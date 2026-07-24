@@ -184,7 +184,7 @@ export function OwnershipManagementSection({
             <AlertDialogAction
               onClick={handleConfirmTransfer}
               disabled={createTransfer.isPending}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {createTransfer.isPending ? (
                 <span className="flex items-center gap-1">

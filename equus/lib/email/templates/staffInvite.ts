@@ -2,7 +2,13 @@
  * Staff invite email template — en/es locales.
  */
 
-import { buildCtaButton, buildPlainTextEmail, wrapBrandedEmail } from "../layout.ts";
+import {
+  buildCtaButton,
+  buildPlainTextEmail,
+  emailBodyStyle,
+  emailHeadingStyle,
+  wrapBrandedEmail,
+} from "../layout.ts";
 import { fallbackDisplayName, resolveEmailLocale } from "../locales.ts";
 import type { EmailLocale, EmailTemplateContent } from "../types.ts";
 
@@ -71,10 +77,10 @@ export function staffInviteTemplate(input: StaffInviteTemplateInput): EmailTempl
   const subject = interpolate(t.subject, values);
 
   const bodyHtml = `
-    <h2 style="color: #374151; margin-bottom: 20px;">${t.greeting} ${displayName}!</h2>
-    <p style="color: #6b7280; line-height: 1.6; margin-bottom: 20px;">${message}</p>
+    <h2 style="${emailHeadingStyle()}">${t.greeting} ${displayName}!</h2>
+    <p style="${emailBodyStyle()}">${message}</p>
     ${buildCtaButton(input.acceptUrl, t.acceptButton)}
-    <p style="color: #6b7280; line-height: 1.6; margin-bottom: 20px;">${t.ignoreMessage}</p>
+    <p style="${emailBodyStyle()}">${t.ignoreMessage}</p>
   `;
 
   return {

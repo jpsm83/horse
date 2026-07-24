@@ -115,7 +115,7 @@ export function ProfilePhotoField({
 
         <div
           className={cn(
-            "absolute inset-0 flex flex-col items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity",
+            "absolute inset-0 flex flex-col items-center justify-center rounded-full bg-overlay/40 text-overlay-foreground opacity-0 transition-opacity",
             !disabled && "sm:hover:opacity-100",
           )}
         >

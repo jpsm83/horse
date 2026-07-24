@@ -13,6 +13,7 @@ import {
   generateCanonicalUrl,
   generateLanguageAlternates,
 } from "./canonical.ts";
+import { nonCssColors } from "@/lib/theme/nonCssColors";
 
 type MetadataInput = {
   title: string;
@@ -81,7 +82,7 @@ function buildMetadata(
       images: [ogImage],
     },
     other: {
-      "theme-color": "#8B5CF6",
+      "theme-color": nonCssColors.browserThemeColor,
       "format-detection": "telephone=no",
     },
   };

@@ -87,8 +87,8 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
           >
             {item.type === "video" && (
               <div className="absolute inset-0 z-10 flex items-center justify-center">
-                <div className="flex items-center justify-center size-12 rounded-full bg-black/50">
-                  <Play className="size-6 text-white ml-0.5" />
+                <div className="flex items-center justify-center size-12 rounded-full bg-overlay/50">
+                  <Play className="size-6 text-overlay-foreground ml-0.5" />
                 </div>
               </div>
             )}
@@ -110,7 +110,7 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-7 rounded-full bg-black/70 text-white hover:bg-black/90 hover:text-white border-white"
+                className="size-7 rounded-full bg-overlay/70 text-overlay-foreground hover:bg-overlay/90 hover:text-overlay-foreground border-overlay-foreground"
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleVisibilityMutation.mutate(
@@ -134,7 +134,7 @@ export function MediaGallerySection({ horseId }: MediaGallerySectionProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-7 rounded-full bg-destructive/70 text-white hover:bg-destructive/90 hover:text-white border-white"
+                className="size-7 rounded-full bg-destructive/70 text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground border-overlay-foreground"
                 onClick={(e) => {
                   e.stopPropagation();
                   setDeleteTarget(item.id);

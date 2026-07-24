@@ -3,6 +3,11 @@
 import type { FilterFn, Table } from "@tanstack/react-table";
 import { Workbook } from "exceljs";
 
+import {
+  hexToExcelArgb,
+  nonCssColors,
+  type BadgeBandKey,
+} from "@/lib/theme/nonCssColors";
 import type {
   ColorBandConfig,
   ColorRangeBadgeView,
@@ -239,16 +244,24 @@ export function validateColorRangeEnds(
   return { valid: errors.length === 0, errors };
 }
 
+function badgeBandStyle(key: BadgeBandKey): ColorBandConfig["style"] {
+  return {
+    backgroundColor: `var(--badge-band-${key})`,
+    color: `var(--badge-band-${key}-foreground)`,
+    borderColor: `var(--badge-band-${key})`,
+  };
+}
+
 export const COLOR_BAND_CONFIGS: Record<string, ColorBandConfig> = {
-  gray:   { className: "badge-band-gray",   style: { backgroundColor: "#5c5b5b", color: "#ffffff", borderColor: "#5c5b5b" } },
-  yellow: { className: "badge-band-yellow",  style: { backgroundColor: "#ecd6a7", color: "#92400e", borderColor: "#ecd6a7" } },
-  green:  { className: "badge-band-green",   style: { backgroundColor: "#addfc0", color: "#166534", borderColor: "#addfc0" } },
-  red:    { className: "badge-band-red",     style: { backgroundColor: "#f3cbcb", color: "#991b1b", borderColor: "#f3cbcb" } },
-  orange: { className: "badge-band-orange",  style: { backgroundColor: "#f8c5aa", color: "#c2410c", borderColor: "#f8c5aa" } },
-  blue:   { className: "badge-band-blue",    style: { backgroundColor: "#b3c8f8", color: "#1e40af", borderColor: "#b3c8f8" } },
-  purple: { className: "badge-band-purple",  style: { backgroundColor: "#d9b8f8", color: "#7e22ce", borderColor: "#d9b8f8" } },
-  pink:   { className: "badge-band-pink",    style: { backgroundColor: "#f2b3cf", color: "#be185d", borderColor: "#f2b3cf" } },
-  neutral: { className: "badge-band-neutral", style: { backgroundColor: "#e5e7eb", color: "#6b7280", borderColor: "#e5e7eb" } },
+  gray: { className: "badge-band-gray", style: badgeBandStyle("gray") },
+  yellow: { className: "badge-band-yellow", style: badgeBandStyle("yellow") },
+  green: { className: "badge-band-green", style: badgeBandStyle("green") },
+  red: { className: "badge-band-red", style: badgeBandStyle("red") },
+  orange: { className: "badge-band-orange", style: badgeBandStyle("orange") },
+  blue: { className: "badge-band-blue", style: badgeBandStyle("blue") },
+  purple: { className: "badge-band-purple", style: badgeBandStyle("purple") },
+  pink: { className: "badge-band-pink", style: badgeBandStyle("pink") },
+  neutral: { className: "badge-band-neutral", style: badgeBandStyle("neutral") },
 };
 
 export const NEUTRAL_BADGE_CLASS = "badge-band-neutral";
@@ -572,11 +585,14 @@ const formatCellValue = (value: unknown, formatter?: (val: unknown) => unknown):
   return formatter ? formatter(value) : (value ?? "-");
 };
 
+const EXCEL_GRIDLINE_ARGB = hexToExcelArgb(nonCssColors.excelGridline);
+const EXCEL_HEADER_FILL_ARGB = hexToExcelArgb(nonCssColors.excelHeaderFill);
+
 const BORDER_STYLE = {
-  top: { style: "thin" as const, color: { argb: "000000" } },
-  left: { style: "thin" as const, color: { argb: "000000" } },
-  bottom: { style: "thin" as const, color: { argb: "000000" } },
-  right: { style: "thin" as const, color: { argb: "000000" } },
+  top: { style: "thin" as const, color: { argb: EXCEL_GRIDLINE_ARGB } },
+  left: { style: "thin" as const, color: { argb: EXCEL_GRIDLINE_ARGB } },
+  bottom: { style: "thin" as const, color: { argb: EXCEL_GRIDLINE_ARGB } },
+  right: { style: "thin" as const, color: { argb: EXCEL_GRIDLINE_ARGB } },
 };
 
 const updateProgress = (onProgress: ((progress: number) => void) | undefined, progress: number) => {
@@ -611,7 +627,7 @@ export async function exportToExcel<TData = Record<string, unknown>>(
   headerRow.fill = {
     type: "pattern",
     pattern: "solid",
-    fgColor: { argb: "D1D0CE" },
+    fgColor: { argb: EXCEL_HEADER_FILL_ARGB },
   };
 
   const totalRows = dataRows.length;
