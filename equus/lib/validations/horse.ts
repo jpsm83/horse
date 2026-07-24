@@ -80,7 +80,6 @@ export const createHorseSchema = z.object({
   primaryDiscipline: z.enum(horseDisciplineEnums).optional(),
   disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
   countryOfBirth: z.string().trim().max(100).optional(),
-  importExportStatus: z.string().trim().max(100).optional(),
 
   // Commercial
   estimatedValue: z.coerce.number().min(0).optional(),
@@ -121,7 +120,6 @@ export const updateHorseProfileSchema = z.object({
   primaryDiscipline: z.enum(horseDisciplineEnums).optional(),
   disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
   countryOfBirth: z.string().trim().max(100).optional(),
-  importExportStatus: z.string().trim().max(100).optional(),
   estimatedValue: z.coerce.number().min(0).optional(),
   valueCurrency: z.enum(currencyEnums).optional(),
   saleStatus: z.enum(saleStatusEnums).optional(),

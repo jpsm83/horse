@@ -164,8 +164,6 @@ export function createHorseFormSchemas(messages: HorseFormMessages) {
     primaryDiscipline: optionalEnum(horseDisciplineEnums, messages),
     disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
     countryOfBirth: optionalTrimmedString(100),
-    importExportStatus: optionalTrimmedString(100),
-
     // Commercial
     estimatedValue: optionalNumber(messages),
     valueCurrency: optionalCurrency(messages),
@@ -233,17 +231,21 @@ export const createHorseFormSchema = defaultSchemas.createHorseFormSchema;
 
 export type CreateHorseFormValues = z.infer<typeof createHorseFormSchema>;
 
-// --- Edit Horse Form Schema ---
+// --- Profile Horse Form Schemas ---
 
-export function editHorseFormSchemas(messages: HorseFormMessages) {
-  const editHorseFormSchema = z.object({
+export function profileFormSchemas(messages: HorseFormMessages) {
+  const pedigreeFormSchema = z.object({
+    sireName: optionalTrimmedString(120),
+    sireId: optionalTrimmedString(120),
+    damName: optionalTrimmedString(120),
+    damId: optionalTrimmedString(120),
+    bloodlineNotes: optionalTrimmedString(1000),
+  });
+
+  const identityFormSchema = z.object({
     name: requiredTrimmedString(messages),
     breed: requiredEnum(horseBreedEnums, messages),
     sex: requiredEnum(horseSexEnums, messages),
-    registeredName: optionalTrimmedString(120),
-    registryId: optionalTrimmedString(120),
-    microchipId: optionalTrimmedString(120),
-    passportNumber: optionalTrimmedString(120),
     color: optionalEnum(horseColorEnums, messages),
     marksDescription: optionalTrimmedString(500),
     heightHands: optionalNumber(messages),
@@ -255,20 +257,107 @@ export function editHorseFormSchemas(messages: HorseFormMessages) {
       },
       { message: messages.invalidDate },
     ),
+    ageYears: optionalNumber(messages),
     countryOfBirth: optionalTrimmedString(100),
-    importExportStatus: optionalTrimmedString(100),
+  });
+
+  const identificationFormSchema = z.object({
+    registeredName: optionalTrimmedString(120),
+    registryId: optionalTrimmedString(120),
+    microchipId: optionalTrimmedString(120),
+    passportNumber: optionalTrimmedString(120),
+  });
+
+  const disciplinesFormSchema = z.object({
     primaryDiscipline: optionalEnum(horseDisciplineEnums, messages),
     disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
+  });
+
+  const aboutFormSchema = z.object({
     description: optionalTrimmedString(2000),
     notes: optionalTrimmedString(5000),
-    pedigree: z.object({
-      sireName: optionalTrimmedString(120),
-      sireId: optionalTrimmedString(120),
-      damName: optionalTrimmedString(120),
-      damId: optionalTrimmedString(120),
-      bloodlineNotes: optionalTrimmedString(1000),
-    }),
   });
+
+  const pedigreeSectionFormSchema = z.object({
+    pedigree: pedigreeFormSchema,
+  });
+
+  const contactDisplayFormSchema = z
+    .object({
+      useOwnerContact: z.enum(["true", "false"], {
+        message: messages.invalidEnum,
+      }),
+      name: optionalTrimmedString(120),
+      phone: optionalTrimmedString(40),
+      email: z.string().trim(),
+    })
+    .superRefine((value, ctx) => {
+      if (value.useOwnerContact === "false") {
+        if (!value.name.trim()) {
+          ctx.addIssue({
+            code: "custom",
+            message: messages.contactNameRequired,
+            path: ["name"],
+          });
+        }
+        if (!value.phone.trim()) {
+          ctx.addIssue({
+            code: "custom",
+            message: messages.contactPhoneRequired,
+            path: ["phone"],
+          });
+        }
+        if (!value.email.trim()) {
+          ctx.addIssue({
+            code: "custom",
+            message: messages.contactEmailRequired,
+            path: ["email"],
+          });
+        } else if (!z.string().email().safeParse(value.email).success) {
+          ctx.addIssue({
+            code: "custom",
+            message: messages.contactEmailInvalid,
+            path: ["email"],
+          });
+        }
+      }
+    });
+
+  const discoveryFormSchema = z.object({
+    profileVisibility: z.enum(visibilityEnums, {
+      message: messages.invalidEnum,
+    }),
+    contactDisplay: contactDisplayFormSchema,
+  });
+
+  const profileFormSchema = identityFormSchema
+    .merge(identificationFormSchema)
+    .merge(disciplinesFormSchema)
+    .merge(aboutFormSchema)
+    .merge(pedigreeSectionFormSchema)
+    .merge(discoveryFormSchema);
+
+  return {
+    identityFormSchema,
+    identificationFormSchema,
+    disciplinesFormSchema,
+    aboutFormSchema,
+    pedigreeSectionFormSchema,
+    discoveryFormSchema,
+    profileFormSchema,
+  };
+}
+
+/** @deprecated Use profileFormSchemas */
+export function editHorseFormSchemas(messages: HorseFormMessages) {
+  const { identityFormSchema, identificationFormSchema, disciplinesFormSchema, aboutFormSchema, pedigreeSectionFormSchema } =
+    profileFormSchemas(messages);
+
+  const editHorseFormSchema = identityFormSchema
+    .merge(identificationFormSchema)
+    .merge(disciplinesFormSchema)
+    .merge(aboutFormSchema)
+    .merge(pedigreeSectionFormSchema);
 
   return { editHorseFormSchema };
 }
@@ -305,6 +394,33 @@ export function saleFormSchemas(messages: HorseFormMessages) {
 
   return { saleFormSchema };
 }
+
+const defaultProfileSchemas = profileFormSchemas({
+  required: "This field is required",
+  invalidDate: "Please enter a valid date",
+  invalidEnum: "Please select a valid option",
+  invalidNumber: "Please enter a valid number",
+  contactNameRequired: "Contact name is required when not using owner contact",
+  contactPhoneRequired: "Contact phone is required when not using owner contact",
+  contactEmailRequired: "Contact email is required when not using owner contact",
+  contactEmailInvalid: "Please provide a valid email address",
+});
+
+export const identityFormSchema = defaultProfileSchemas.identityFormSchema;
+export const identificationFormSchema = defaultProfileSchemas.identificationFormSchema;
+export const disciplinesFormSchema = defaultProfileSchemas.disciplinesFormSchema;
+export const aboutFormSchema = defaultProfileSchemas.aboutFormSchema;
+export const pedigreeSectionFormSchema = defaultProfileSchemas.pedigreeSectionFormSchema;
+export const discoveryFormSchema = defaultProfileSchemas.discoveryFormSchema;
+export const profileFormSchema = defaultProfileSchemas.profileFormSchema;
+
+export type IdentityFormValues = z.infer<typeof identityFormSchema>;
+export type IdentificationFormValues = z.infer<typeof identificationFormSchema>;
+export type DisciplinesFormValues = z.infer<typeof disciplinesFormSchema>;
+export type AboutFormValues = z.infer<typeof aboutFormSchema>;
+export type PedigreeSectionFormValues = z.infer<typeof pedigreeSectionFormSchema>;
+export type DiscoveryFormValues = z.infer<typeof discoveryFormSchema>;
+export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const defaultEditSchemas = editHorseFormSchemas({
   required: "This field is required",
@@ -350,7 +466,6 @@ export const emptyCreateHorseFormValues: CreateHorseFormValues = {
   primaryDiscipline: "",
   disciplines: [],
   countryOfBirth: "",
-  importExportStatus: "",
   estimatedValue: "",
   valueCurrency: "",
   saleStatus: "",

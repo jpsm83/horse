@@ -78,9 +78,6 @@ export function mapHorseFormValuesToCreatePayload(
   const countryOfBirth = nonEmpty(values.countryOfBirth);
   if (countryOfBirth) payload.countryOfBirth = countryOfBirth;
 
-  const importExportStatus = nonEmpty(values.importExportStatus);
-  if (importExportStatus) payload.importExportStatus = importExportStatus;
-
   // Commercial
   const estimatedValue = parseOptionalNumber(values.estimatedValue);
   if (estimatedValue !== undefined) payload.estimatedValue = estimatedValue;

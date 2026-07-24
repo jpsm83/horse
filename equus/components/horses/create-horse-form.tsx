@@ -50,6 +50,7 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
   const router = useRouter();
   const locale = useLocale() as AppLocale;
   const t = useTranslations("createHorse");
+  const tCommon = useTranslations("common");
   const toast = useAppToast();
   const createHorseMutation = useCreateHorse();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -107,18 +108,18 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
 
   const colorOptions = useMemo(
     () => [
-      { value: "", label: t("selectPlaceholder") },
+      { value: "", label: tCommon("selectPlaceholder") },
       ...horseColorEnums.map((v) => ({ value: v, label: t(`colorOptions.${v}`) })),
     ],
-    [t],
+    [t, tCommon],
   );
 
   const disciplineOptions = useMemo(
     () => [
-      { value: "", label: t("selectPlaceholder") },
+      { value: "", label: tCommon("selectPlaceholder") },
       ...horseDisciplineEnums.map((v) => ({ value: v, label: t(`disciplineOptions.${v}`) })),
     ],
-    [t],
+    [t, tCommon],
   );
 
   const multiDisciplineOptions = useMemo(
@@ -149,29 +150,29 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
 
   const saleStatusOptions = useMemo(
     () => [
-      { value: "", label: t("selectPlaceholder") },
+      { value: "", label: tCommon("selectPlaceholder") },
       ...saleStatusEnums.map((v) => ({ value: v, label: t(`saleStatusOptions.${v}`) })),
     ],
-    [t],
+    [t, tCommon],
   );
 
   const currencyOptions = useMemo(
     () => [
-      { value: "", label: t("selectPlaceholder") },
+      { value: "", label: tCommon("selectPlaceholder") },
       ...currencyEnums.map((v) => ({ value: v, label: t(`currencyOptions.${v}`) })),
     ],
-    [t],
+    [t, tCommon],
   );
 
   const countryOptions = useMemo(
     () => [
-      { value: "", label: t("selectPlaceholder") },
+      { value: "", label: tCommon("selectPlaceholder") },
       ...getCountrySelectOptions(locale).map((opt) => ({
         value: opt.value,
         label: opt.label,
       })),
     ],
-    [locale, t],
+    [locale, tCommon],
   );
 
   async function onSubmit(values: CreateHorseFormValues) {
@@ -314,22 +315,22 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
             <TextField control={form.control} name="name" id="create-horse-name" label={t("name")} />
             <TextField control={form.control} name="registeredName" id="create-horse-registeredName" label={t("registeredName")} />
             <Controller name="breed" control={form.control} render={({ field, fieldState }) => (
-              <SelectField id="create-horse-breed" label={t("breed")} placeholder={t("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={breedOptions} />
+              <SelectField id="create-horse-breed" label={t("breed")} placeholder={tCommon("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={breedOptions} />
             )} />
             <Controller name="sex" control={form.control} render={({ field, fieldState }) => (
-              <SelectField id="create-horse-sex" label={t("sex")} placeholder={t("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={sexOptions} />
+              <SelectField id="create-horse-sex" label={t("sex")} placeholder={tCommon("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={sexOptions} />
             )} />
             <TextField control={form.control} name="dateOfBirth" id="create-horse-dateOfBirth" label={t("dateOfBirth")} type="date" />
             <TextField control={form.control} name="ageYears" id="create-horse-ageYears" label={t("ageYears")} type="number" />
             <Controller name="color" control={form.control} render={({ field, fieldState }) => (
-              <SelectField id="create-horse-color" label={t("color")} placeholder={t("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={colorOptions} />
+              <SelectField id="create-horse-color" label={t("color")} placeholder={tCommon("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={colorOptions} />
             )} />
             <TextField control={form.control} name="heightHands" id="create-horse-heightHands" label={t("heightHands")} type="number" />
             <Controller name="primaryDiscipline" control={form.control} render={({ field, fieldState }) => (
-              <SelectField id="create-horse-primaryDiscipline" label={t("primaryDiscipline")} placeholder={t("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={disciplineOptions} />
+              <SelectField id="create-horse-primaryDiscipline" label={t("primaryDiscipline")} placeholder={tCommon("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={disciplineOptions} />
             )} />
             <Controller name="disciplines" control={form.control} render={({ field, fieldState }) => (
-              <MultiSelectField id="create-horse-disciplines" label={t("disciplines")} value={field.value ?? []} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={multiDisciplineOptions} placeholder={t("selectPlaceholder")} />
+              <MultiSelectField id="create-horse-disciplines" label={t("disciplines")} value={field.value ?? []} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={multiDisciplineOptions} placeholder={tCommon("selectPlaceholder")} />
             )} />
             <TextField control={form.control} name="registryId" id="create-horse-registryId" label={t("registryId")} />
             <TextField control={form.control} name="microchipId" id="create-horse-microchipId" label={t("microchipId")} />
@@ -344,9 +345,8 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
           )} />
           <div className="grid gap-5 sm:grid-cols-2">
             <Controller name="countryOfBirth" control={form.control} render={({ field, fieldState }) => (
-              <SelectField id="create-horse-countryOfBirth" label={t("countryOfBirth")} placeholder={t("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={countryOptions} />
+              <SelectField id="create-horse-countryOfBirth" label={t("countryOfBirth")} placeholder={tCommon("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={countryOptions} />
             )} />
-            <TextField control={form.control} name="importExportStatus" id="create-horse-importExport" label={t("importExportStatus")} />
           </div>
         </FieldGroup>
       </FieldSet>
@@ -362,10 +362,10 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
           <div className="grid gap-5 sm:grid-cols-2">
             <TextField control={form.control} name="estimatedValue" id="create-horse-estimatedValue" label={t("estimatedValue")} type="number" />
             <Controller name="valueCurrency" control={form.control} render={({ field, fieldState }) => (
-              <SelectField id="create-horse-valueCurrency" label={t("valueCurrency")} placeholder={t("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={currencyOptions} />
+              <SelectField id="create-horse-valueCurrency" label={t("valueCurrency")} placeholder={tCommon("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={currencyOptions} />
             )} />
             <Controller name="saleStatus" control={form.control} render={({ field, fieldState }) => (
-              <SelectField id="create-horse-saleStatus" label={t("saleStatus")} placeholder={t("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={saleStatusOptions} />
+              <SelectField id="create-horse-saleStatus" label={t("saleStatus")} placeholder={tCommon("selectPlaceholder")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={saleStatusOptions} />
             )} />
             <TextField control={form.control} name="askingPrice" id="create-horse-askingPrice" label={t("askingPrice")} type="number" />
             <TextField control={form.control} name="acquisitionDate" id="create-horse-acquisitionDate" label={t("acquisitionDate")} type="date" />
@@ -463,6 +463,8 @@ function MultiSelectField({
   options,
   placeholder,
 }: MultiSelectFieldProps) {
+  const tCommon = useTranslations("common");
+  const resolvedPlaceholder = placeholder ?? tCommon("selectPlaceholder");
   const [open, setOpen] = useState(false);
 
   function toggle(optionValue: string) {
@@ -493,7 +495,7 @@ function MultiSelectField({
           <span className="flex-1 truncate text-left">
             {selectedLabels.length > 0
               ? selectedLabels.join(", ")
-              : placeholder ?? "Select\u2026"}
+              : resolvedPlaceholder}
           </span>
           <svg className="size-4 shrink-0 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
             <path d="m6 9 6 6 6-6" />
