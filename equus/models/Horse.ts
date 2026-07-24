@@ -84,7 +84,6 @@ const horseSchema = new Schema(
     primaryDiscipline: { type: String, enum: horseDisciplineEnums },
     disciplines: { type: [String], enum: horseDisciplineEnums, default: undefined },
     countryOfBirth: { type: String },
-    importExportStatus: { type: String },
 
     /** Ownership */
     mainOwnerUserId: {
