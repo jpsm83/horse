@@ -129,6 +129,7 @@ describe("trainerService", () => {
       name: "Comet",
       breed: "Lusitano",
       sex: "Gelding",
+      countryOfBirth: "US",
     });
 
     await Relationship.create({

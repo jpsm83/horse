@@ -172,7 +172,7 @@ export function buildProfileSavePatches(
     heightHands: buildNumberPatch(dirty, "heightHands", values.heightHands),
     dateOfBirth: buildDatePatch(dirty, "dateOfBirth", values.dateOfBirth),
     ageYears: buildNumberPatch(dirty, "ageYears", values.ageYears),
-    countryOfBirth: buildOptionalStringPatch(dirty, "countryOfBirth", values.countryOfBirth),
+    countryOfBirth: buildStringPatch(dirty, "countryOfBirth", values.countryOfBirth),
     registeredName: buildOptionalStringPatch(dirty, "registeredName", values.registeredName),
     registryId: buildOptionalStringPatch(dirty, "registryId", values.registryId),
     microchipId: buildOptionalStringPatch(dirty, "microchipId", values.microchipId),

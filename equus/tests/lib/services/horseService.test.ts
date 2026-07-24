@@ -24,6 +24,7 @@ describe("horseService", () => {
       name: "Comet",
       breed: "Lusitano",
       sex: "Gelding",
+      countryOfBirth: "US",
     });
 
     expect(String(horse.mainOwnerUserId)).toBe(String(owner._id));
@@ -42,6 +43,7 @@ describe("horseService", () => {
       name: "Nova",
       breed: "Arabian",
       sex: "Mare",
+      countryOfBirth: "US",
     });
 
     await expect(
@@ -79,6 +81,7 @@ describe("horseService", () => {
       name: "Shadow",
       breed: "Dutch Warmblood",
       sex: "Stallion",
+      countryOfBirth: "US",
       profileVisibility: "public",
     });
 
@@ -104,6 +107,7 @@ describe("horseService", () => {
       name: "Atlas",
       breed: "Andalusian",
       sex: "Gelding",
+      countryOfBirth: "US",
       profileVisibility: "public",
       contactDisplay: {
         useOwnerContact: false,
@@ -130,6 +134,7 @@ describe("horseService", () => {
       name: "Rex",
       breed: "American Quarter Horse",
       sex: "Gelding",
+      countryOfBirth: "US",
       profileVisibility: "relationship",
     });
 
@@ -164,6 +169,7 @@ describe("horseService", () => {
       name: "Bolt",
       breed: "Thoroughbred",
       sex: "Colt",
+      countryOfBirth: "US",
       profileVisibility: "relationship",
     });
 
@@ -202,6 +208,7 @@ describe("horseService", () => {
       name: "Retired",
       breed: "Dutch Warmblood",
       sex: "Mare",
+      countryOfBirth: "US",
       profileVisibility: "public",
     });
 
@@ -218,6 +225,7 @@ describe("horseService", () => {
       name: "Orphan Card",
       breed: "Dutch Warmblood",
       sex: "Gelding",
+      countryOfBirth: "US",
       profileVisibility: "public",
     });
 
@@ -239,6 +247,7 @@ describe("horseService", () => {
       name: "Summary Horse",
       breed: "Lusitano",
       sex: "Gelding",
+      countryOfBirth: "US",
     });
 
     await Horse.updateOne(

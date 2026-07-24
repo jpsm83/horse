@@ -34,11 +34,11 @@ export function mapHorseFormValuesToCreatePayload(
   values: CreateHorseFormValues,
   mediaUrls?: { profileImageUrl?: string; gallery?: string[] },
 ): CreateHorsePayload {
-  const payload: CreateHorsePayload = {
+  const payload = {
     name: values.name.trim(),
     breed: values.breed.trim() as CreateHorsePayload["breed"],
     sex: values.sex as CreateHorsePayload["sex"],
-  };
+  } as CreateHorsePayload;
 
   // Identity extras
   const registeredName = nonEmpty(values.registeredName);

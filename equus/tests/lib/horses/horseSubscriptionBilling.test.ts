@@ -74,6 +74,7 @@ describe("horseSubscriptionBilling", () => {
       name: "New Bill Horse",
       breed: "Arabian",
       sex: "Mare",
+      countryOfBirth: "US",
     });
 
     expect(String((horse.registration as { payerUserId?: unknown })?.payerUserId)).toBe(
@@ -88,6 +89,7 @@ describe("horseSubscriptionBilling", () => {
       name: "Transfer Bill Horse",
       breed: "Dutch Warmblood",
       sex: "Gelding",
+      countryOfBirth: "US",
     });
 
     const pending = await ownershipTransferService.createOwnershipTransfer(String(main._id), {

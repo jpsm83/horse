@@ -15,6 +15,7 @@ import {
   visibilityEnums,
 } from "../../utils/enums.ts";
 import { emailSchema } from "./common.ts";
+import { isValidCountryCode } from "../data/countries.ts";
 
 const horsePedigreeSchema = z.object({
   sireName: z.string().trim().max(120).optional(),
@@ -79,7 +80,7 @@ export const createHorseSchema = z.object({
   heightHands: z.coerce.number().min(0).max(30).optional(),
   primaryDiscipline: z.enum(horseDisciplineEnums).optional(),
   disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
-  countryOfBirth: z.string().trim().max(100).optional(),
+  countryOfBirth: z.string().refine((v): boolean => isValidCountryCode(v), { message: "Invalid country code" }),
 
   // Commercial
   estimatedValue: z.coerce.number().min(0).optional(),
@@ -119,7 +120,7 @@ export const updateHorseProfileSchema = z.object({
   heightHands: z.coerce.number().min(0).max(30).optional(),
   primaryDiscipline: z.enum(horseDisciplineEnums).optional(),
   disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
-  countryOfBirth: z.string().trim().max(100).optional(),
+  countryOfBirth: z.string().refine((v): boolean => isValidCountryCode(v), { message: "Invalid country code" }).optional(),
   estimatedValue: z.coerce.number().min(0).optional(),
   valueCurrency: z.enum(currencyEnums).optional(),
   saleStatus: z.enum(saleStatusEnums).optional(),

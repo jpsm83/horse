@@ -13,6 +13,7 @@ import {
   saleStatusEnums,
   visibilityEnums,
 } from "../../utils/enums.ts";
+import { isValidCountryCode } from "../data/countries.ts";
 
 export type HorseFormMessages = {
   required: string;
@@ -163,7 +164,7 @@ export function createHorseFormSchemas(messages: HorseFormMessages) {
     heightHands: optionalNumber(messages),
     primaryDiscipline: optionalEnum(horseDisciplineEnums, messages),
     disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
-    countryOfBirth: optionalTrimmedString(100),
+    countryOfBirth: z.string().refine((v): boolean => isValidCountryCode(v), { message: "Invalid country code" }),
     // Commercial
     estimatedValue: optionalNumber(messages),
     valueCurrency: optionalCurrency(messages),
@@ -258,7 +259,7 @@ export function profileFormSchemas(messages: HorseFormMessages) {
       { message: messages.invalidDate },
     ),
     ageYears: optionalNumber(messages),
-    countryOfBirth: optionalTrimmedString(100),
+    countryOfBirth: z.string().refine((v): boolean => isValidCountryCode(v), { message: "Invalid country code" }),
   });
 
   const identificationFormSchema = z.object({
