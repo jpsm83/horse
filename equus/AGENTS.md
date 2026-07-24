@@ -51,6 +51,17 @@ tests/         → Vitest tests mirroring lib/
 * **Env vars** — auth secrets and URLs are read in `lib/auth/config.ts` (`AUTH_SECRET`, `REFRESH_SECRET`, `AUTH_URL`, Google OAuth). Other server-only vars are read in route handlers or `lib/`. Never expose secrets to client components.
 * **Docs** — when unsure about a Next.js API for this version, check `node_modules/next/dist/docs/` before guessing.
 
+#### Horse UI layout and naming
+
+* **Tab folders** — section components for a horse tab live under `components/horses/<tab>/` (`admin/`, `profile/`, `connect/`, `media/`, `documents/`, `planning/`, `hub/`, `create/`, `list/`, `history/`). Chrome shared by all horseId tabs stays at `components/horses/horse-page-shell.tsx` / `horse-page-skeleton.tsx`.
+* **`horse-` filename prefix** — every horse-specific component file starts with `horse-`; export name matches (e.g. `horse-visibility-section.tsx` → `HorseVisibilitySection`).
+* **`components/horses/shared/`** — helpers used by two or more horse tabs only (e.g. select field adapters).
+* **`components/shared/`** — only multi-module primitives (`Section`, `FileUpload`, …). Do not put horse-only UI there.
+* **Visibility UI vs discovery API** — Admin **Visibility** section edits Layer-1 `profileVisibility` via `useUpdateHorseVisibility` → `PATCH /api/v1/horses/:id/discovery` (same discovery contract as other entities). Do not rename the REST discovery path or Mongo field names in a horse-only UI cleanup.
+* **Section visibility (Layer 2)** — shared `SectionVisibilityControl` + `Section` `visibilityControl` slot; entity adapters own PATCH. Horse: `HorseSectionVisibility` → `PATCH /api/v1/horses/:id/hub-sections` (Profile, Admin, Media Gallery, Planning, Connect Connections). Modes `public` | `relationship` | `owner`. Never parent form dirty/Save for section modes. New entity: add `*SectionVisibility` adapter + entity PATCH; reuse control unchanged. Types: `lib/visibility/sectionVisibility.ts`.
+* **Horse visibility policy** — owner audience = ownership team (`userOwnsEntity`). Relationship audience = team + accepted `Relationship` + active host-entity workplace collaborators (stable/breeder/transport/ridingClub). Section keys include Hub (`identity` | `identification` | `pedigree` | `about` | `ownership`), Admin-only (`value` | `proactiveRepresentatives` | `coOwnerManagement`), Media (`gallery`), Planning (`planning`), and Connect (`connections`). No section `entityIds`. Enforce in `lib/horses/horseVisibilityAccess.ts`; Hub uses filtered `GET …/hub`.
+* Canonical detail: [`documentation/page-flow-blueprint.md`](documentation/page-flow-blueprint.md) §1 and [`documentation/horseTabs.md`](documentation/horseTabs.md).
+
 ### Critical Business Rules
 
 - **Entity must be Equus user:** No external entity (vet, stable, groomer, trainer, etc.) can interact with a horse through the app unless they are a registered Equus user with an account and claimed entity profile. Email invitations to non-users create pending relationships that only activate upon signup + entity profile creation.
@@ -94,8 +105,8 @@ Page / Layout (Server Component)
 - [ ] No full-page skeletons — only content-area skeletons via `HorsePageContentSkeleton`
 
 Example from the reference implementations:
-- `ConnectionsTableSection` in the Connect tab — owns data, skeleton, and mutations
-- `PlanningCalendarSection` in the Planning tab — owns calendar/table data and loading state
+- `HorseConnectionsTableSection` in the Connect tab — owns data, skeleton, and mutations
+- `HorsePlanningCalendarSection` in the Planning tab — owns calendar/table data and loading state
 
 * **Shell renders immediately** — the page chrome (tabs, title, back button) never blocks on data. See [`documentation/component-resilience.md`](documentation/component-resilience.md).
 * **Component-level skeletons** — each data-dependent section shows its own inline skeleton during `isPending`. No full-page skeletons.
@@ -399,11 +410,11 @@ models/
 - **Ownership changes** on entity-owned profiles use **`OwnershipTransfer`** (consent before apply): `transfer_main`, `remove_co_owner`, `promote_co_owner` — not user-linked services. See [`documentation/ownershipTransfer.md`](../documentation/ownershipTransfer.md) and [`equus/documentation/ownershipTransfer.md`](documentation/ownershipTransfer.md).
 - **Collaborators** at host role profiles (stable, breeder, riding club, transport) are **Users** linked via `WorkplaceRelationship` + host `collaborators[]` (stable, breeder, transport) — see [`documentation/workplaceRelationship.md`](../documentation/workplaceRelationship.md). Never grant host ownership on `User` to collaborators. Barn staff may act on a hosted horse when active collaboration + accepted horse↔stable `Relationship` exist.
 - **Horse relationships** use `Relationship` (consent + lifecycle link documents, not bare refs on entities).
-- **Visibility policy** is centralized in `lib/privacy/userVisibility.ts`; public user profile reads use `lib/privacy/userPublicProfile.ts` (`getPublicUserForRequester`). Horse public cards combine horse discovery (`Horse.profileVisibility`) with owner privacy filters in `lib/services/horseService.ts` (contact always from main owner).
+- **Visibility policy** is centralized in `lib/privacy/userVisibility.ts`; public user profile reads use `lib/privacy/userPublicProfile.ts` (`getPublicUserForRequester`). Horse visibility (Layer 1 + Hub Layer 2) is in `lib/horses/horseVisibilityAccess.ts`; public cards and Hub DTOs are built in `lib/services/horseService.ts` (contact always from main owner).
 - **Stable discovery:** `isPublic` (default `true`) and `acceptsNewHorses` on `Stable`; entity-level business contact; rules in `lib/stables/stableDiscoveryAccess.ts` and `lib/services/stableService.ts`.
 - **Transport discovery:** `isPublic` (default `true`) and `acceptsNewBookings` on `Transport`; entity-level business contact; rules in `lib/transports/transportDiscoveryAccess.ts` and `lib/services/transportService.ts`.
 - No `activeAccountContext`; no user-level `ownerPreferences`. Horse discovery is per-horse; stable and transport discovery are per-entity. See [`documentation/userModule.md`](../documentation/userModule.md).
-- **Horse API:** `GET /api/v1/horses` (list), `POST /api/v1/horses` (create), `PATCH /api/v1/horses/:id/discovery`, `GET /api/v1/horses/:id` — see [`documentation/horses.md`](documentation/horses.md).
+- **Horse API:** `GET /api/v1/horses` (list), `POST /api/v1/horses` (create), `PATCH /api/v1/horses/:id/discovery`, `PATCH /api/v1/horses/:id/hub-sections`, `GET /api/v1/horses/:id`, `GET /api/v1/horses/:id/hub` — see [`documentation/horses.md`](documentation/horses.md).
 - **Stable API:** `POST /api/v1/stables`, `PATCH /api/v1/stables/:id/discovery`, `GET /api/v1/stables/:id` — see [`documentation/stables.md`](documentation/stables.md).
 - **Breeder API:** `POST /api/v1/breeders`, `PATCH /api/v1/breeders/:id/discovery`, `GET /api/v1/breeders/:id` — see [`documentation/breeders.md`](documentation/breeders.md).
 - **Transport API:** `POST /api/v1/transports`, `PATCH /api/v1/transports/:id/discovery`, `GET /api/v1/transports/:id` — see [`documentation/transports.md`](documentation/transports.md).

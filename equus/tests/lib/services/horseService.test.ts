@@ -47,7 +47,7 @@ describe("horseService", () => {
 
     await expect(
       horseService.updateHorseDiscovery(String(outsider._id), String(created._id), {
-        profileVisibility: "owner_only",
+        profileVisibility: "owner",
       }),
     ).rejects.toMatchObject({ statusCode: 404 });
 
@@ -60,6 +60,32 @@ describe("horseService", () => {
     );
 
     expect(updated.profileVisibility).toBe("relationship");
+  });
+
+  it("updates hub section visibility without full-document save validation", async () => {
+    const owner = await createUser("horse-hub-section-owner@example.com");
+    const created = await horseService.createHorse(String(owner._id), {
+      name: "Pixel",
+      breed: "Arabian",
+      sex: "Gelding",
+      countryOfBirth: "US",
+    });
+
+    // Legacy invalid breed must not block targeted hubSections updates
+    await Horse.collection.updateOne(
+      { _id: created._id },
+      { $set: { breed: "asdf" } },
+    );
+
+    const updated = await horseService.updateHorseHubSections(
+      String(owner._id),
+      String(created._id),
+      { hubSections: { identity: { mode: "owner" } } },
+    );
+
+    expect((updated.hubSections as { identity?: { mode?: string } })?.identity?.mode).toBe(
+      "owner",
+    );
   });
 
   it("hides private owner contact on public horse card", async () => {

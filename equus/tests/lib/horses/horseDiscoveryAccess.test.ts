@@ -20,7 +20,7 @@ describe("horseDiscoveryAccess", () => {
 
   it("allows owners regardless of visibility", () => {
     const horse = {
-      profileVisibility: "owner_only",
+      profileVisibility: "owner",
       mainOwnerUserId: mainOwnerId,
       coOwners: [{ userId: coOwnerId, ownershipPercentage: 30 }],
     };
@@ -35,4 +35,3 @@ describe("horseDiscoveryAccess", () => {
     ).toBe(false);
   });
 });
-

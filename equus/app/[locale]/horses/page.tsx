@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { generatePublicMetadata } from "@/lib/seo/metadata-factory.ts";
-import { HorseListPage } from "@/components/horses/horse-list-page.tsx";
+import { HorseListPage } from "@/components/horses/list/horse-list-page.tsx";
 
 type PageProps = { params: Promise<{ locale: string }> };
 

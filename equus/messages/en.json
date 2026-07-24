@@ -493,7 +493,7 @@
             "commercial": "Commercial details",
             "pedigree": "Pedigree / breeding",
             "media": "Media",
-            "discovery": "Discovery and contact"
+            "visibility": "Visibility"
         },
         "name": "Name",
         "registeredName": "Registered name",
@@ -504,8 +504,7 @@
         "color": "Color",
         "marksDescription": "Marks / description",
         "heightHands": "Height (hands)",
-        "primaryDiscipline": "Primary discipline",
-        "disciplines": "Other disciplines",
+        "disciplines": "Disciplines",
         "registryId": "Registry ID",
         "microchipId": "Microchip ID",
         "passportNumber": "Passport number",
@@ -545,7 +544,7 @@
         "visibilityOptions": {
             "public": "Public - visible to everyone",
             "relationship": "Relationships only - accepted provider links",
-            "owner_only": "Owner only - hidden from discovery"
+            "owner": "Owner team only - hidden from discovery"
         },
         "sexOptions": {
             "Stallion": "Stallion",
@@ -679,31 +678,42 @@
     },
     "visibility": {
         "title": "Section visibility",
-        "description": "Control who can see this section.",
+        "description": "Control who can see this section on the Hub.",
         "modes": {
-            "owner": "Only the owner",
-            "entities": "Owner + selected entities",
+            "owner": "Ownership team only",
+            "relationship": "Relationships and collaborators",
             "public": "Everyone"
         },
         "cancel": "Cancel",
-        "save": "Save"
+        "save": "Save",
+        "saved": "Section visibility saved",
+        "saveFailed": "Could not save section visibility"
     },
     "horseHub": {
         "backToHorses": "Back to my horses",
         "subtitle": "Horse overview",
+        "identity": "Identity",
+        "identification": "Identification",
+        "registryId": "Registry ID",
+        "microchipId": "Microchip ID",
+        "passportNumber": "Passport number",
         "overview": "Overview",
         "age": "Age",
         "color": "Color",
         "height": "Height",
-        "discipline": "Discipline",
+        "disciplines": "Disciplines",
         "pedigree": "Pedigree",
         "sire": "Sire",
         "dam": "Dam",
+        "about": "About",
+        "aboutEmpty": "No description yet.",
+        "notFound": "This horse is not available.",
+        "loadFailed": "Could not load this horse.",
         "ownership": {
             "title": "Ownership",
             "description": "Transfer this horse or manage co-owners.",
-            "soleOwner": "You are the sole owner of this horse.",
-            "withCoOwners": "You have {count} co-owner(s).",
+            "soleOwner": "Sole ownership.",
+            "withCoOwners": "Shared with {count} co-owner(s).",
             "transferTitle": "Transfer ownership",
             "transferDescription": "Send ownership to another person by email.",
             "coOwnersTitle": "Manage co-owners",
@@ -742,7 +752,7 @@
         "inviteFailed": "Failed to send invitation.",
         "removeFailed": "Failed to remove.",
         "cancel": "Cancel",
-        "searchPlaceholder": "Search by name or email...",
+        "searchPlaceholder": "Search by username, email, or name...",
         "searchingLabel": "Searching...",
         "searchErrorLabel": "Search failed.",
         "noResultsLabel": "No users found.",
@@ -775,7 +785,7 @@
         "coOwnerRemoved": "Co-owner removed.",
         "ownershipEmailPlaceholder": "New owner email",
         "transferOwnership": "Transfer Ownership",
-        "ownershipTransferDescription": "This will permanently transfer all ownership rights. After acceptance, you will have no control over this horse.",
+        "ownershipTransferDescription": "Transfer all ownership rights to the new owner.",
         "ownershipTransferSent": "Ownership transfer invitation sent.",
         "ownershipConfirmTitle": "Confirm Ownership Transfer",
         "ownershipConfirmDescription": "Are you sure you want to transfer ownership of this horse? This action cannot be undone. Once the recipient accepts, you will permanently lose all rights to this horse.",
@@ -804,7 +814,6 @@
         "registryId": "Registry ID",
         "microchipId": "Microchip ID",
         "passportNumber": "Passport number",
-        "primaryDiscipline": "Primary discipline",
         "profileVisibility": "Profile visibility",
         "sireName": "Sire name",
         "damName": "Dam name",
@@ -835,15 +844,15 @@
         "saved": "Horse profile saved",
         "saveFailed": "Failed to save horse profile",
         "validationFailed": "Please fix the errors before saving",
-        "discoverySaved": "Discovery settings saved",
-        "discoverySaveFailed": "Failed to save discovery settings",
+        "visibilitySaved": "Visibility settings saved",
+        "visibilitySaveFailed": "Failed to save visibility settings",
         "useOwnerContact": "Contact display",
         "useOwnerContactYes": "Use owner contact",
         "useOwnerContactNo": "Custom contact",
         "visibilityOptions": {
             "public": "Public",
             "relationship": "Connections only",
-            "owner_only": "Owner only"
+            "owner": "Owner team only"
         },
         "sexOptions": {
             "Stallion": "Stallion",
@@ -933,18 +942,16 @@
         "sections": {
             "identity": "Identity",
             "identification": "Identification",
-            "disciplines": "Disciplines",
             "about": "About",
             "pedigree": "Pedigree",
-            "discovery": "Discovery"
+            "visibility": "Visibility"
         },
         "sectionDescriptions": {
             "identity": "Basic identity and physical details.",
             "identification": "Registry, microchip, and passport information.",
-            "disciplines": "Primary and additional disciplines.",
-            "about": "Public description and private notes.",
+            "about": "Disciplines, description, and notes.",
             "pedigree": "Sire, dam, and bloodline information.",
-            "discovery": "Who can discover this horse and how to contact you."
+            "visibility": "Global visibility of this horse profile."
         },
         "required": "This field is required",
         "invalidDate": "Please enter a valid date",
@@ -986,17 +993,29 @@
         "endConnection": "End connection",
         "cancelInvitation": "Cancel invitation",
         "connectionEnded": "Connection ended.",
+        "connectionEndFailed": "Failed to end connection.",
         "invitationCancelled": "Invitation cancelled.",
+        "invitationCancelFailed": "Failed to cancel invitation.",
         "typeUnknown": "Unknown"
     },
     "horseHistory": {
         "title": "History",
+        "description": "Activity and audit log for this horse.",
+        "user": "User",
+        "username": "Username",
+        "userEmail": "Email",
         "date": "Date",
         "action": "Action",
-        "description": "Description",
-        "actor": "Actor",
+        "type": "Type",
         "filterPlaceholder": "Search history...",
         "empty": "No activity recorded yet.",
+        "types": {
+            "owner": "Owner",
+            "co_owner": "Co-owner",
+            "responsible": "Responsible",
+            "system": "System",
+            "unknown": "Unknown"
+        },
         "actions": {
             "horse_created": "Horse created",
             "horse_updated": "Horse updated",
@@ -1008,11 +1027,18 @@
             "ownership_co_owner_promoted": "Co-owner promoted",
             "health_created": "Health record added",
             "health_updated": "Health record updated",
+            "health_deleted": "Health record deleted",
             "feed_created": "Feed plan added",
+            "feed_updated": "Feed plan updated",
+            "feed_deleted": "Feed plan deleted",
             "event_created": "Event scheduled",
             "event_updated": "Event updated",
+            "event_deleted": "Event deleted",
             "media_created": "Media added",
-            "document_created": "Document added"
+            "media_deleted": "Media deleted",
+            "document_created": "Document added",
+            "document_updated": "Document updated",
+            "document_deleted": "Document deleted"
         }
     },
     "subscription": {
@@ -1033,6 +1059,9 @@
         "cancel": "Cancel",
         "date": "Date",
         "type": "Type",
+        "eventTitle": "Event title",
+        "eventTitleRequired": "Event title is required",
+        "startDateRequired": "Start date is required",
         "location": "Location",
         "startDate": "Start date",
         "endDate": "End date",

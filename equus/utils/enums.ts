@@ -224,7 +224,22 @@ export const idTypeEnums = [
   "Other",
 ] as const;
 
-export const visibilityEnums = ["public", "relationship", "owner_only"] as const;
+export const visibilityEnums = ["public", "relationship", "owner"] as const;
+
+/** Per-section Layer-2 visibility keys (Hub + Admin section popovers). */
+export const horseHubSectionKeys = [
+  "identity",
+  "identification",
+  "pedigree",
+  "about",
+  "ownership",
+  "value",
+  "proactiveRepresentatives",
+  "coOwnerManagement",
+  "gallery",
+  "planning",
+  "connections",
+] as const;
 
 export const transportSpecialtyEnums = [
   "local",

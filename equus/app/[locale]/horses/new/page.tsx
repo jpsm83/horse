@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 const CreateHorsePage = dynamic(
   () =>
-    import("@/components/horses/create-horse-page.tsx").then((m) => ({
+    import("@/components/horses/create/horse-create-page.tsx").then((m) => ({
       default: m.CreateHorsePage,
     })),
   { loading: () => <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" /> },

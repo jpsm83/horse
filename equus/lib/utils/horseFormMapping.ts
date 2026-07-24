@@ -58,9 +58,6 @@ export function mapHorseFormValuesToCreatePayload(
   const heightHands = parseOptionalNumber(values.heightHands);
   if (heightHands !== undefined) payload.heightHands = heightHands;
 
-  const primaryDiscipline = nonEmpty(values.primaryDiscipline);
-  if (primaryDiscipline) payload.primaryDiscipline = primaryDiscipline as CreateHorsePayload["primaryDiscipline"];
-
   if (values.disciplines && values.disciplines.length > 0) {
     payload.disciplines = values.disciplines;
   }

@@ -14,7 +14,7 @@ export async function GET(request: Request, context: RouteContext) {
     const actionType = searchParams.get("actionType") ?? undefined;
     const from = searchParams.get("from") ?? undefined;
     const to = searchParams.get("to") ?? undefined;
-    const logs = await auditService.listAuditLogs(id, { actionType, from, to });
+    const logs = await auditService.listAuditLogs(session.id, id, { actionType, from, to });
     return ok({ logs });
   });
 }

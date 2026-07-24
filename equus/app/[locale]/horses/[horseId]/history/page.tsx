@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
-import { HorseHistoryPageContent } from "@/components/horses/horse-history-page-content.tsx";
+import { HistoryContent } from "./client";
 
 type PageProps = { params: Promise<{ horseId: string; locale: string }> };
 
@@ -11,5 +11,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function HorseHistoryPage({ params }: PageProps) {
   const { horseId } = await params;
-  return <HorseHistoryPageContent horseId={horseId} />;
+  return <HistoryContent horseId={horseId} />;
 }

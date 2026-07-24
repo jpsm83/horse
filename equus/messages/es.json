@@ -493,7 +493,7 @@
             "commercial": "Detalles comerciales",
             "pedigree": "Pedigrí / cría",
             "media": "Multimedia",
-            "discovery": "Descubrimiento y contacto"
+            "visibility": "Visibilidad"
         },
         "name": "Nombre",
         "registeredName": "Nombre registrado",
@@ -504,8 +504,7 @@
         "color": "Color",
         "marksDescription": "Señas / descripción",
         "heightHands": "Alzada (manos)",
-        "primaryDiscipline": "Disciplina principal",
-        "disciplines": "Otras disciplinas",
+        "disciplines": "Disciplinas",
         "registryId": "ID de registro",
         "microchipId": "ID de microchip",
         "passportNumber": "Número de pasaporte",
@@ -545,7 +544,7 @@
         "visibilityOptions": {
             "public": "Público - visible para todos",
             "relationship": "Solo relaciones - enlaces con proveedores aceptados",
-            "owner_only": "Solo propietario - oculto del descubrimiento"
+            "owner": "Solo equipo propietario - oculto del descubrimiento"
         },
         "sexOptions": {
             "Stallion": "Semental",
@@ -679,31 +678,42 @@
     },
     "visibility": {
         "title": "Visibilidad de la sección",
-        "description": "Controla quién puede ver esta sección.",
+        "description": "Controla quién puede ver esta sección en el Hub.",
         "modes": {
-            "owner": "Solo el propietario",
-            "entities": "Propietario + entidades seleccionadas",
+            "owner": "Solo el equipo propietario",
+            "relationship": "Relaciones y colaboradores",
             "public": "Todos"
         },
         "cancel": "Cancelar",
-        "save": "Guardar"
+        "save": "Guardar",
+        "saved": "Visibilidad de la sección guardada",
+        "saveFailed": "No se pudo guardar la visibilidad de la sección"
     },
     "horseHub": {
         "backToHorses": "Volver a mis caballos",
         "subtitle": "Resumen del caballo",
+        "identity": "Identidad",
+        "identification": "Identificación",
+        "registryId": "ID de registro",
+        "microchipId": "ID de microchip",
+        "passportNumber": "Número de pasaporte",
         "overview": "Resumen",
         "age": "Edad",
         "color": "Color",
         "height": "Altura",
-        "discipline": "Disciplina",
+        "disciplines": "Disciplinas",
         "pedigree": "Pedigrí",
         "sire": "Padre",
         "dam": "Madre",
+        "about": "Acerca de",
+        "aboutEmpty": "Sin descripción todavía.",
+        "notFound": "Este caballo no está disponible.",
+        "loadFailed": "No se pudo cargar este caballo.",
         "ownership": {
             "title": "Propiedad",
             "description": "Transfiere este caballo o gestiona copropietarios.",
-            "soleOwner": "Eres el único propietario de este caballo.",
-            "withCoOwners": "Tienes {count} copropietario(s).",
+            "soleOwner": "Propiedad única.",
+            "withCoOwners": "Compartido con {count} copropietario(s).",
             "transferTitle": "Transferir propiedad",
             "transferDescription": "Envía la propiedad a otra persona por email.",
             "coOwnersTitle": "Gestionar copropietarios",
@@ -742,7 +752,7 @@
         "inviteFailed": "Error al enviar la invitación.",
         "removeFailed": "Error al eliminar.",
         "cancel": "Cancelar",
-        "searchPlaceholder": "Buscar por nombre o correo...",
+        "searchPlaceholder": "Buscar por usuario, correo o nombre...",
         "searchingLabel": "Buscando...",
         "searchErrorLabel": "Búsqueda fallida.",
         "noResultsLabel": "No se encontraron usuarios.",
@@ -775,7 +785,7 @@
         "coOwnerRemoved": "Co-propietario eliminado.",
         "ownershipEmailPlaceholder": "Correo del nuevo propietario",
         "transferOwnership": "Transferir Propiedad",
-        "ownershipTransferDescription": "Esto transferirá permanentemente todos los derechos de propiedad. Después de la aceptación, no tendrá control sobre este caballo.",
+        "ownershipTransferDescription": "Transferir todos los derechos de propiedad al nuevo propietario.",
         "ownershipTransferSent": "Invitación de transferencia de propiedad enviada.",
         "ownershipConfirmTitle": "Confirmar Transferencia de Propiedad",
         "ownershipConfirmDescription": "¿Está seguro de que desea transferir la propiedad de este caballo? Esta acción no se puede deshacer. Una vez que el destinatario acepte, perderá permanentemente todos los derechos sobre este caballo.",
@@ -804,7 +814,6 @@
         "registryId": "ID de registro",
         "microchipId": "ID de microchip",
         "passportNumber": "Número de pasaporte",
-        "primaryDiscipline": "Disciplina principal",
         "profileVisibility": "Visibilidad del perfil",
         "sireName": "Nombre del padre",
         "damName": "Nombre de la madre",
@@ -835,15 +844,15 @@
         "saved": "Perfil del caballo guardado",
         "saveFailed": "Error al guardar el perfil del caballo",
         "validationFailed": "Corrija los errores antes de guardar",
-        "discoverySaved": "Configuración de descubrimiento guardada",
-        "discoverySaveFailed": "Error al guardar la configuración de descubrimiento",
+        "visibilitySaved": "Configuración de visibilidad guardada",
+        "visibilitySaveFailed": "Error al guardar la configuración de visibilidad",
         "useOwnerContact": "Contacto",
         "useOwnerContactYes": "Usar contacto del propietario",
         "useOwnerContactNo": "Contacto personalizado",
         "visibilityOptions": {
             "public": "Público",
             "relationship": "Solo conexiones",
-            "owner_only": "Solo propietario"
+            "owner": "Solo equipo propietario"
         },
         "sexOptions": {
             "Stallion": "Semental",
@@ -933,18 +942,16 @@
         "sections": {
             "identity": "Identidad",
             "identification": "Identificación",
-            "disciplines": "Disciplinas",
             "about": "Acerca de",
             "pedigree": "Pedigrí",
-            "discovery": "Descubrimiento"
+            "visibility": "Visibilidad"
         },
         "sectionDescriptions": {
             "identity": "Identidad básica y detalles físicos.",
             "identification": "Registro, microchip y pasaporte.",
-            "disciplines": "Disciplina principal y adicionales.",
-            "about": "Descripción pública y notas privadas.",
+            "about": "Disciplinas, descripción y notas.",
             "pedigree": "Padre, madre e información de sangre.",
-            "discovery": "Quién puede descubrir este caballo y cómo contactarte."
+            "visibility": "Visibilidad global del perfil del caballo."
         },
         "required": "Este campo es obligatorio",
         "invalidDate": "Introduce una fecha válida",
@@ -986,17 +993,29 @@
         "endConnection": "Finalizar conexión",
         "cancelInvitation": "Cancelar invitación",
         "connectionEnded": "Conexión finalizada.",
+        "connectionEndFailed": "No se pudo finalizar la conexión.",
         "invitationCancelled": "Invitación cancelada.",
+        "invitationCancelFailed": "No se pudo cancelar la invitación.",
         "typeUnknown": "Desconocido"
     },
     "horseHistory": {
         "title": "Historial",
+        "description": "Registro de actividad y auditoría de este caballo.",
+        "user": "Usuario",
+        "username": "Nombre de usuario",
+        "userEmail": "Email",
         "date": "Fecha",
         "action": "Acción",
-        "description": "Descripción",
-        "actor": "Actor",
+        "type": "Tipo",
         "filterPlaceholder": "Buscar en el historial...",
         "empty": "No hay actividad registrada aún.",
+        "types": {
+            "owner": "Propietario",
+            "co_owner": "Copropietario",
+            "responsible": "Responsable",
+            "system": "Sistema",
+            "unknown": "Desconocido"
+        },
         "actions": {
             "horse_created": "Caballo creado",
             "horse_updated": "Caballo actualizado",
@@ -1008,11 +1027,18 @@
             "ownership_co_owner_promoted": "Copropietario promovido",
             "health_created": "Registro de salud añadido",
             "health_updated": "Registro de salud actualizado",
+            "health_deleted": "Registro de salud eliminado",
             "feed_created": "Plan de alimentación añadido",
+            "feed_updated": "Plan de alimentación actualizado",
+            "feed_deleted": "Plan de alimentación eliminado",
             "event_created": "Evento programado",
             "event_updated": "Evento actualizado",
+            "event_deleted": "Evento eliminado",
             "media_created": "Multimedia añadida",
-            "document_created": "Documento añadido"
+            "media_deleted": "Multimedia eliminada",
+            "document_created": "Documento añadido",
+            "document_updated": "Documento actualizado",
+            "document_deleted": "Documento eliminado"
         }
     },
     "subscription": {
@@ -1033,6 +1059,9 @@
         "cancel": "Cancelar",
         "date": "Fecha",
         "type": "Tipo",
+        "eventTitle": "Título del evento",
+        "eventTitleRequired": "El título del evento es obligatorio",
+        "startDateRequired": "La fecha de inicio es obligatoria",
         "location": "Ubicación",
         "startDate": "Fecha inicio",
         "endDate": "Fecha fin",

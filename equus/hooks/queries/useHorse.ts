@@ -7,13 +7,19 @@ import { queryKeys } from "@/lib/api/queryKeys";
 import type { PublicRelationship } from "@/lib/services/relationshipService";
 import type { CreateHorsePayload } from "@/lib/utils/horseFormMapping";
 import type { PublicOwnershipTransfer } from "@/lib/services/ownershipTransferService";
-import type { OwnerHorseSummary } from "@/lib/api/horseClient";
+import type { OwnerHorseSummary, HorseHubDto } from "@/lib/api/horseClient";
 import type { HorseListResult, HorseListFilters } from "@/lib/services/horseService.ts";
 
 async function fetchOwnerHorse(horseId: string): Promise<OwnerHorseSummary> {
   const response = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(horseId)}/owner`);
   const data = await parseApiResponse<{ horse: OwnerHorseSummary }>(response);
   return data.horse;
+}
+
+async function fetchHorseHub(horseId: string): Promise<HorseHubDto> {
+  const response = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(horseId)}/hub`);
+  const data = await parseApiResponse<{ hub: HorseHubDto }>(response);
+  return data.hub;
 }
 
 export type CreatedHorseResponse = {
@@ -76,6 +82,15 @@ export function useOwnerHorse(horseId: string | undefined) {
     queryFn: () => fetchOwnerHorse(horseId!),
     enabled: !!horseId,
     placeholderData: (previousData) => previousData,
+    retry: false,
+  });
+}
+
+export function useHorseHub(horseId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.horses.hub(horseId!),
+    queryFn: () => fetchHorseHub(horseId!),
+    enabled: !!horseId,
   });
 }
 
@@ -157,6 +172,7 @@ export function useUpdateHorse() {
     mutationFn: updateHorseApi,
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.horses.owner(variables.horseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.hub(variables.horseId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.horses.lists() });
     },
   });
@@ -182,19 +198,20 @@ export function useUpdateHorseSale() {
     mutationFn: updateHorseSaleApi,
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.horses.owner(variables.horseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.hub(variables.horseId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.horses.lists() });
     },
   });
 }
 
-// --- Update Horse Discovery ---
+// --- Update Horse Visibility Layer-1 (API: PATCH …/discovery) ---
 
-type UpdateHorseDiscoveryInput = {
+type UpdateHorseVisibilityInput = {
   horseId: string;
   patch: Record<string, unknown>;
 };
 
-async function updateHorseDiscoveryApi(input: UpdateHorseDiscoveryInput): Promise<void> {
+async function updateHorseVisibilityApi(input: UpdateHorseVisibilityInput): Promise<void> {
   const response = await fetchWithAuth(
     `/api/v1/horses/${encodeURIComponent(input.horseId)}/discovery`,
     {
@@ -206,14 +223,51 @@ async function updateHorseDiscoveryApi(input: UpdateHorseDiscoveryInput): Promis
   await parseApiResponse<{ horse: Record<string, unknown> }>(response);
 }
 
-export function useUpdateHorseDiscovery() {
+export function useUpdateHorseVisibility() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: updateHorseDiscoveryApi,
+    mutationFn: updateHorseVisibilityApi,
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.horses.owner(variables.horseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.hub(variables.horseId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.horses.lists() });
+    },
+  });
+}
+
+import type { HubSectionKey } from "@/lib/horses/hubSections.ts";
+
+// --- Update Hub section visibility Layer-2 (API: PATCH …/hub-sections) ---
+
+type UpdateHorseHubSectionInput = {
+  horseId: string;
+  sectionKey: HubSectionKey;
+  mode: "public" | "relationship" | "owner";
+};
+
+async function updateHorseHubSectionApi(input: UpdateHorseHubSectionInput): Promise<void> {
+  const response = await fetchWithAuth(
+    `/api/v1/horses/${encodeURIComponent(input.horseId)}/hub-sections`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hubSections: { [input.sectionKey]: { mode: input.mode } },
+      }),
+    },
+  );
+  await parseApiResponse<{ horse: Record<string, unknown> }>(response);
+}
+
+export function useUpdateHorseHubSection() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateHorseHubSectionApi,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.owner(variables.horseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.hub(variables.horseId) });
     },
   });
 }

@@ -13,7 +13,7 @@ async function fetchMedia(horseId: string): Promise<PublicMedia[]> {
 
 export function useMedia(horseId: string) {
   return useQuery({
-    queryKey: [...queryKeys.horses.all, horseId, "media"],
+    queryKey: queryKeys.horses.media(horseId),
     queryFn: () => fetchMedia(horseId),
     enabled: !!horseId,
     placeholderData: (previousData) => previousData,
@@ -53,7 +53,7 @@ export function useUploadMedia(horseId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [...queryKeys.horses.all, horseId, "media"],
+        queryKey: queryKeys.horses.media(horseId),
       });
     },
   });
@@ -72,7 +72,7 @@ export function useDeleteMedia(horseId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [...queryKeys.horses.all, horseId, "media"],
+        queryKey: queryKeys.horses.media(horseId),
       });
     },
   });
@@ -95,7 +95,7 @@ export function useToggleMediaVisibility(horseId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [...queryKeys.horses.all, horseId, "media"],
+        queryKey: queryKeys.horses.media(horseId),
       });
     },
   });

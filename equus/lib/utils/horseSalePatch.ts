@@ -22,6 +22,7 @@ export function emptySaleFormValues(): SaleFormValues {
     showValuePublicly: "false",
     acquisitionDate: "",
     acquisitionSource: "",
+    profileVisibility: "public",
   };
 }
 
@@ -34,6 +35,7 @@ export function toSaleFormValues(horse: OwnerHorseSummary): SaleFormValues {
     showValuePublicly: horse.showValuePublicly === true ? "true" : "false",
     acquisitionDate: horse.acquisitionDate ? horse.acquisitionDate.slice(0, 10) : "",
     acquisitionSource: horse.acquisitionSource ?? "",
+    profileVisibility: (horse.profileVisibility ?? "public") as SaleFormValues["profileVisibility"],
   };
 }
 
@@ -55,5 +57,15 @@ export function buildSaleSavePatch(
       "acquisitionSource",
       values.acquisitionSource,
     ),
+  });
+}
+
+/** Dirty-only Layer-1 discovery patch (`PATCH …/discovery`). Hub sections autosave separately. */
+export function buildVisibilitySavePatch(
+  values: SaleFormValues,
+  dirty: DirtyFields,
+): Record<string, unknown> {
+  return collectPatch({
+    profileVisibility: dirty.profileVisibility ? values.profileVisibility : undefined,
   });
 }

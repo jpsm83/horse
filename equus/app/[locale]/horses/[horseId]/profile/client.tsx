@@ -2,22 +2,22 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useForm, useFormState } from "react-hook-form";
 
 import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
-import { AboutSection } from "@/components/horses/profile/about-section.tsx";
-import { DisciplinesSection } from "@/components/horses/profile/disciplines-section.tsx";
-import { IdentificationSection } from "@/components/horses/profile/identification-section.tsx";
-import { IdentitySection } from "@/components/horses/profile/identity-section.tsx";
-import { PedigreeSection } from "@/components/horses/profile/pedigree-section.tsx";
+import { HorseAboutSection } from "@/components/horses/profile/horse-about-section.tsx";
+import { HorseIdentificationSection } from "@/components/horses/profile/horse-identification-section.tsx";
+import { HorseIdentitySection } from "@/components/horses/profile/horse-identity-section.tsx";
+import { HorsePedigreeSection } from "@/components/horses/profile/horse-pedigree-section.tsx";
+import { HorseSectionVisibility } from "@/components/horses/shared/horse-section-visibility.tsx";
 import { Section } from "@/components/shared/section.tsx";
-import type { SectionVisibility } from "@/components/shared/section-visibility-popover.tsx";
 import { useUnsavedChanges } from "@/components/shared/unsaved-changes-context.tsx";
 import { Button } from "@/components/ui/button";
 import type { OwnerHorseSummary } from "@/lib/api/horseClient.ts";
+import { normalizeHubSections } from "@/lib/horses/hubSections.ts";
 import {
   buildProfileSavePatches,
   emptyProfileFormValues,
@@ -55,21 +55,7 @@ function ProfileForm({ horseId, horse }: ProfileFormProps) {
   const updateHorse = useUpdateHorse();
   const { setDirty, setSaving } = useUnsavedChanges();
 
-  const [identityVisibility, setIdentityVisibility] = useState<SectionVisibility>({
-    mode: "owner",
-  });
-  const [identificationVisibility, setIdentificationVisibility] = useState<SectionVisibility>({
-    mode: "owner",
-  });
-  const [disciplinesVisibility, setDisciplinesVisibility] = useState<SectionVisibility>({
-    mode: "owner",
-  });
-  const [pedigreeVisibility, setPedigreeVisibility] = useState<SectionVisibility>({
-    mode: "owner",
-  });
-  const [aboutVisibility, setAboutVisibility] = useState<SectionVisibility>({
-    mode: "owner",
-  });
+  const hubSections = normalizeHubSections(horse.hubSections);
 
   const formMessages = useMemo(() => horseFormMessagesFromTranslations(t), [t]);
   const { profileFormSchema } = useMemo(
@@ -122,65 +108,72 @@ function ProfileForm({ horseId, horse }: ProfileFormProps) {
       <Section
         title={t("sections.identity")}
         description={t("sectionDescriptions.identity")}
-        sectionKey="profile-identity"
-        visibility={identityVisibility}
-        onVisibilityChange={setIdentityVisibility}
+        visibilityControl={
+          <HorseSectionVisibility
+            horseId={horseId}
+            sectionKey="identity"
+            mode={hubSections.identity.mode}
+            uiSectionKey="profile-identity"
+          />
+        }
         className="w-full"
       >
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <IdentitySection control={form.control} />
+          <HorseIdentitySection control={form.control} />
         </ErrorBoundary>
       </Section>
 
       <Section
         title={t("sections.identification")}
         description={t("sectionDescriptions.identification")}
-        sectionKey="profile-identification"
-        visibility={identificationVisibility}
-        onVisibilityChange={setIdentificationVisibility}
+        visibilityControl={
+          <HorseSectionVisibility
+            horseId={horseId}
+            sectionKey="identification"
+            mode={hubSections.identification.mode}
+            uiSectionKey="profile-identification"
+          />
+        }
         className="w-full"
       >
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <IdentificationSection control={form.control} />
-        </ErrorBoundary>
-      </Section>
-
-      <Section
-        title={t("sections.disciplines")}
-        description={t("sectionDescriptions.disciplines")}
-        sectionKey="profile-disciplines"
-        visibility={disciplinesVisibility}
-        onVisibilityChange={setDisciplinesVisibility}
-        className="w-full"
-      >
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <DisciplinesSection control={form.control} />
+          <HorseIdentificationSection control={form.control} />
         </ErrorBoundary>
       </Section>
 
       <Section
         title={t("sections.pedigree")}
         description={t("sectionDescriptions.pedigree")}
-        sectionKey="profile-pedigree"
-        visibility={pedigreeVisibility}
-        onVisibilityChange={setPedigreeVisibility}
+        visibilityControl={
+          <HorseSectionVisibility
+            horseId={horseId}
+            sectionKey="pedigree"
+            mode={hubSections.pedigree.mode}
+            uiSectionKey="profile-pedigree"
+          />
+        }
         className="w-full"
       >
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <PedigreeSection horseId={horseId} control={form.control} />
+          <HorsePedigreeSection horseId={horseId} control={form.control} />
         </ErrorBoundary>
       </Section>
 
       <Section
         title={t("sections.about")}
         description={t("sectionDescriptions.about")}
-        sectionKey="profile-about"
-        visibility={aboutVisibility}
-        onVisibilityChange={setAboutVisibility}
+        visibilityControl={
+          <HorseSectionVisibility
+            horseId={horseId}
+            sectionKey="about"
+            mode={hubSections.about.mode}
+            uiSectionKey="profile-about"
+          />
+        }
         className="w-full"
       >
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <AboutSection control={form.control} />
+          <HorseAboutSection control={form.control} />
         </ErrorBoundary>
       </Section>
 

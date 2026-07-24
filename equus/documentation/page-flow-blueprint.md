@@ -11,15 +11,32 @@ app/[locale]/horses/[horseId]/<tab>/
   loading.tsx           ← SSR skeleton (mandatory)
 ```
 
-Route-specific section components (only used by one tab) live next to the route:
+### Horse UI layout (`components/horses/`)
 
 ```
-components/horses/<tab>/
-  <tab>-section-a.tsx   ← Self-contained data section (reusable)
-  <tab>-section-b.tsx   ← Self-contained data section (reusable)
+components/horses/
+  shared/                 ← horse-only helpers used by 2+ tabs (not app-wide)
+  admin/ | profile/ | connect/ | media/ | documents/ | planning/ | hub/ | create/ | list/ | history/
+  horse-page-shell.tsx    ← chrome used by all horseId tabs
+  horse-page-skeleton.tsx
+components/shared/        ← ONLY multi-module primitives (Section, FileUpload, …)
 ```
 
-Simple tabs with a single section can keep it at `components/horses/<tab>-page-content.tsx`.
+**Tab rule:** a component rendered only on one tab lives under `components/horses/<tab>/`.
+
+**Filename rule:** every horse-specific component file starts with `horse-` (e.g. `horse-visibility-section.tsx`). Export name matches (`HorseVisibilitySection`).
+
+**Shared rule:** put UI in `components/shared/` only when used by multiple product modules. Cross-tab but horse-only helpers go in `components/horses/shared/`.
+
+**Visibility vs discovery:** the Admin UI section is named **Visibility** (`HorseVisibilitySection`). It still calls `PATCH /api/v1/horses/:id/discovery` and persists `Horse.profileVisibility` (same discovery contract as other entities). Do not rename the REST path or Mongo field in horse-only UI cleanups.
+
+#### Naming checklist (new horse sections)
+
+- [ ] File under the correct `components/horses/<tab>/` (or `shared/` if 2+ tabs)
+- [ ] Filename starts with `horse-`
+- [ ] Exported component name is PascalCase matching the file (`HorseFooSection`)
+- [ ] Not placed in `components/shared/` unless another module will import it
+- [ ] Docs (`horses.md`, this blueprint) updated if the tab layout changes
 
 ## 2. Server Component (`page.tsx`) — Thin
 
@@ -72,8 +89,8 @@ import { useTranslations } from "next-intl";
 
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { Section } from "@/components/shared/section.tsx";
-import { InviteSection } from "@/components/horses/connect/invite-section.tsx";
-import { ConnectionsTableSection } from "@/components/horses/connections-table-section.tsx";
+import { HorseConnectInviteSection } from "@/components/horses/connect/horse-invite-section.tsx";
+import { HorseConnectionsTableSection } from "@/components/horses/connect/horse-connections-table-section.tsx";
 
 type Props = { horseId: string };
 
@@ -86,16 +103,13 @@ export function ConnectContent({ horseId }: Props) {
         title={t("inviteSection")}
         description={t("description")}
       >
-        <InviteSection horseId={horseId} />
+        <HorseConnectInviteSection horseId={horseId} />
       </Section>
 
       <Section
         title={t("connectionsSection")}
-        sectionKey="connect-connections"
-        visibility={{ mode: "owner" }}
-        onVisibilityChange={() => {}}
       >
-        <ConnectionsTableSection horseId={horseId} />
+        <HorseConnectionsTableSection horseId={horseId} />
       </Section>
     </HorsePageShell>
   );
@@ -112,7 +126,7 @@ Rules:
 
 ## 4.5. The `Section` Component (`components/shared/section.tsx`)
 
-Reusable layout wrapper that standardizes section headers across all pages. Pure layout — no data fetching, no error handling.
+Reusable layout wrapper that standardizes section headers across all pages. Pure layout — no data fetching, no visibility PATCH, no error handling.
 
 ```tsx
 "use client";
@@ -120,15 +134,13 @@ Reusable layout wrapper that standardizes section headers across all pages. Pure
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
-import { SectionVisibilityPopover, type SectionVisibility } from "@/components/shared/section-visibility-popover.tsx";
 
 type SectionProps = {
   title: string;
   description?: string;
-  sectionKey?: string;
-  visibility?: SectionVisibility;
-  onVisibilityChange?: (visibility: SectionVisibility) => void;
-  className?: string;      // parent controls sizing (flex-1, shrink-0, etc.)
+  /** Slot for SectionVisibilityControl / entity adapters (e.g. HorseSectionVisibility). */
+  visibilityControl?: ReactNode;
+  className?: string;
   children: ReactNode;
 };
 ```
@@ -138,15 +150,32 @@ type SectionProps = {
 <section className={cn("flex min-h-0 flex-col gap-4", className)}>
   ├── <header> shrink-0
   │   ├── title + description
-  │   └── SectionVisibilityPopover (if sectionKey + visibility + onVisibilityChange provided)
+  │   └── visibilityControl? (entity adapter → SectionVisibilityControl → popover)
   └── children (rendered as-is — ErrorBoundary lives in client.tsx)
 ```
+
+### Section visibility architecture (reuse across entities)
+
+```
+Section (layout slot)
+  └── HorseSectionVisibility (entity adapter)     // or StableSectionVisibility later
+        └── SectionVisibilityControl (shared behavior: toast, pending, persistMode)
+              └── SectionVisibilityPopover (dumb UI)
+```
+
+- **Shared types:** `lib/visibility/sectionVisibility.ts` (`VisibilityMode`, `SectionVisibility`)
+- **Shared control:** `components/shared/section-visibility-control.tsx` — identical behavior for every consumer
+- **Shared popover:** `components/shared/section-visibility-popover.tsx` — UI only
+- **Horse adapter:** `components/horses/shared/horse-section-visibility.tsx` → `PATCH …/horses/:id/hub-sections`
+- **New entity:** add `*SectionVisibility` adapter + entity PATCH; reuse control unchanged. Do **not** wire `persistMode` / PATCH in page `client.tsx`.
 
 ### Rules
 - **Always** use `<Section>` for page sections — never raw `<section>` elements
 - Section is **pure layout** — it does NOT wrap children in ErrorBoundary. Wrap children in `ErrorBoundary` at the `client.tsx` level (see section 7)
-- **Toggle is optional** — omit `sectionKey`, `visibility`, and `onVisibilityChange` to render a section without visibility control
-- **Toggle requires all three props** — if one is missing, no toggle button renders
+- **Toggle is optional** — omit `visibilityControl` to render a section without visibility control
+- **Section visibility is section-owned via adapter** — modes are `owner` | `relationship` | `public`. Autosave through the shared control; never parent form dirty/Save for Layer-2; never `PATCH …/discovery` for section modes
+- **Hub-facing keys only on Hub** — Hub DTO filters `identity` | `identification` | `pedigree` | `about` | `ownership`. Non-Hub keys (`value`, `proactiveRepresentatives`, `coOwnerManagement`, `gallery`, `planning`, `connections`) still persist via `HorseSectionVisibility` (Media / Planning / Connect Connections)
+- **Hub consumer** — Hub page fetches `GET /api/v1/horses/:id/hub` and renders only keys present in `sections` (server-filtered). Do not load full owner horse and hide sections in React.
 - **Parent controls sizing** via `className` — use `className="flex-1"` for sections that should fill remaining space, `className="shrink-0"` for sections that take natural height
 
 ## 5. Shell Component (`HorsePageShell`, `*PageShell`)
@@ -207,7 +236,7 @@ import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { useHorseProviders } from "@/hooks/queries/useHorse.ts";
 
-export function ConnectionsTableSection({ horseId }: { horseId: string }) {
+export function HorseConnectionsTableSection({ horseId }: { horseId: string }) {
   const t = useTranslations("horseConnect");
   const { data: providers = [], isPending } = useHorseProviders(horseId, "accepted", {
     placeholderData: (prev) => prev,
@@ -249,10 +278,10 @@ function ProfileForm({ horseId, horse }: { horseId: string; horse: OwnerHorseSum
 
   return (
     <>
-      <Section title="…"><IdentitySection control={form.control} /></Section>
-      {/* more field groups */}
+      <Section title="…"><HorseIdentitySection control={form.control} /></Section>
+      {/* more field groups under components/horses/profile/ */}
       <Button onClick={form.handleSubmit(onSave)}>Save</Button>
-      {/* optional action sections below — invites, tables — keep their own mutations */}
+      {/* Admin: HorseVisibilitySection uses visibilityFormSchema; still PATCH …/discovery */}
     </>
   );
 }
@@ -274,11 +303,11 @@ global-error.tsx              ← Root layout crash (unrecoverable)
               │                 (falls back to AppErrorBoundary if chrome itself crashes)
               ├─ <Section>    ← pure layout (header only)
               │   ├─ header (title + toggle) — survives crashes
-              │   └─ ErrorBoundary → InviteSection  ← from client.tsx
+              │   └─ ErrorBoundary → HorseConnectInviteSection  ← from client.tsx
               │                   (fails → inline card, header + tabs survive)
               └─ <Section>    ← pure layout (header only)
                   ├─ header (title + toggle) — survives crashes
-                  └─ ErrorBoundary → ConnectionsTableSection  ← from client.tsx
+                  └─ ErrorBoundary → HorseConnectionsTableSection  ← from client.tsx
                                   (fails → inline card, header + tabs survive)
 ```
 
@@ -323,7 +352,7 @@ Rules:
     [ ] Extract into a dedicated `"use client"` section component
     [ ] Wrap it in `<Section title={...} className="flex-1">` (never raw `<section>`)
     [ ] Wrap children inside `<Section>` with `<ErrorBoundary fallbackRender={InlineErrorFallback}>`
-    [ ] Add `sectionKey` + `visibility` + `onVisibilityChange` for toggleable visibility
+    [ ] Add `visibilityControl={<HorseSectionVisibility … />}` (or other entity adapter) when the section needs Layer-2 visibility — never page-local PATCH helpers
     [ ] Use TanStack Query hooks (no raw fetch)
     [ ] Use `placeholderData: (prev) => prev`
     [ ] Show inline skeleton during `isPending`

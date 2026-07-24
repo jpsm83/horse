@@ -6,6 +6,12 @@ const horseAuditLogSchema = new Schema(
     actorId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     actorLabel: { type: String },
 
+    /**
+     * Context the action came from: owner team roles, provider relationship types,
+     * or system/unknown.
+     */
+    sourceType: { type: String, index: true, default: "unknown" },
+
     actionType: {
       type: String,
       enum: [

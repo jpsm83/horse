@@ -1,18 +1,14 @@
 /**
- * SectionVisibilityPopover — reusable popover for per-section visibility control.
+ * SectionVisibilityPopover — dumb UI for per-section visibility modes.
  *
- * Attached to section headers across all tabs. Controls who can see the section
- * and (in the future) whether it appears on the Hub feed.
- *
- * Only registered Equus users with claimed entity profiles can be selected
- * as individual viewers — see AGENTS.md business rules.
+ * Does not persist. Parent (`SectionVisibilityControl`) owns onChange behavior.
  */
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Eye, EyeOff, Users, Globe, Lock } from "lucide-react";
+import { Eye, Users, Globe, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,23 +18,23 @@ import {
 } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import type {
+  SectionVisibility,
+  VisibilityMode,
+} from "@/lib/visibility/sectionVisibility.ts";
 
-export type VisibilityMode = "owner" | "entities" | "public";
-
-export type SectionVisibility = {
-  mode: VisibilityMode;
-  entityIds?: string[];
-};
+export type { SectionVisibility, VisibilityMode };
 
 type SectionVisibilityPopoverProps = {
   sectionKey: string;
   current: SectionVisibility;
   onChange: (visibility: SectionVisibility) => void;
+  isPending?: boolean;
 };
 
 const MODE_ICONS: Record<VisibilityMode, typeof Lock> = {
   owner: Lock,
-  entities: Users,
+  relationship: Users,
   public: Globe,
 };
 
@@ -46,15 +42,27 @@ export function SectionVisibilityPopover({
   sectionKey,
   current,
   onChange,
+  isPending = false,
 }: SectionVisibilityPopoverProps) {
   const t = useTranslations("visibility");
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<VisibilityMode>(current.mode);
 
-  const Icon = MODE_ICONS[current.mode];
+  useEffect(() => {
+    if (open) {
+      setMode(current.mode);
+    }
+  }, [open, current.mode]);
 
-  function handleSave() {
-    onChange({ mode, entityIds: current.entityIds });
+  const Icon = MODE_ICONS[current.mode] ?? Eye;
+
+  function handleModeChange(next: VisibilityMode) {
+    setMode(next);
+    if (next === current.mode) {
+      setOpen(false);
+      return;
+    }
+    onChange({ mode: next });
     setOpen(false);
   }
 
@@ -62,7 +70,10 @@ export function SectionVisibilityPopover({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger className="inline-flex items-center gap-1 text-xs text-muted-foreground h-auto px-1 py-0.5 hover:bg-accent hover:text-accent-foreground rounded-md transition-colors">
+      <PopoverTrigger
+        disabled={isPending}
+        className="inline-flex items-center gap-1 text-xs text-muted-foreground h-auto px-1 py-0.5 hover:bg-accent hover:text-accent-foreground rounded-md transition-colors disabled:opacity-50"
+      >
         <Icon className="h-3 w-3" />
         <span className="sr-only sm:not-sr-only">{modeLabel}</span>
       </PopoverTrigger>
@@ -73,14 +84,20 @@ export function SectionVisibilityPopover({
             <p className="text-xs text-muted-foreground">{t("description")}</p>
           </div>
 
-          <RadioGroup value={mode} onValueChange={(v) => setMode(v as VisibilityMode)}>
+          <RadioGroup
+            value={mode}
+            onValueChange={(v) => handleModeChange(v as VisibilityMode)}
+            disabled={isPending}
+          >
             <div className="flex items-center gap-2">
               <RadioGroupItem value="owner" id={`${sectionKey}-owner`} />
               <Label htmlFor={`${sectionKey}-owner`} className="text-sm">{t("modes.owner")}</Label>
             </div>
             <div className="flex items-center gap-2">
-              <RadioGroupItem value="entities" id={`${sectionKey}-entities`} />
-              <Label htmlFor={`${sectionKey}-entities`} className="text-sm">{t("modes.entities")}</Label>
+              <RadioGroupItem value="relationship" id={`${sectionKey}-relationship`} />
+              <Label htmlFor={`${sectionKey}-relationship`} className="text-sm">
+                {t("modes.relationship")}
+              </Label>
             </div>
             <div className="flex items-center gap-2">
               <RadioGroupItem value="public" id={`${sectionKey}-public`} />
@@ -88,12 +105,9 @@ export function SectionVisibilityPopover({
             </div>
           </RadioGroup>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end">
             <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
               {t("cancel")}
-            </Button>
-            <Button type="button" size="sm" onClick={handleSave}>
-              {t("save")}
             </Button>
           </div>
         </div>

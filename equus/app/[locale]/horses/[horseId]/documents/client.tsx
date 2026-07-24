@@ -6,8 +6,8 @@ import { ErrorBoundary } from "react-error-boundary";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { Section } from "@/components/shared/section.tsx";
 import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
-import { UploadSection } from "@/components/horses/documents/upload-section.tsx";
-import { DocumentsTableSection } from "@/components/horses/documents/documents-table-section.tsx";
+import { HorseDocumentsUploadSection } from "@/components/horses/documents/horse-documents-upload-section.tsx";
+import { HorseDocumentsTableSection } from "@/components/horses/documents/horse-documents-table-section.tsx";
 
 type DocumentsContentProps = {
   horseId: string;
@@ -24,7 +24,7 @@ export function DocumentsContent({ horseId }: DocumentsContentProps) {
         className="shrink-0"
       >
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <UploadSection horseId={horseId} />
+          <HorseDocumentsUploadSection horseId={horseId} />
         </ErrorBoundary>
       </Section>
 
@@ -33,7 +33,7 @@ export function DocumentsContent({ horseId }: DocumentsContentProps) {
         className="flex-1"
       >
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <DocumentsTableSection horseId={horseId} />
+          <HorseDocumentsTableSection horseId={horseId} />
         </ErrorBoundary>
       </Section>
     </HorsePageShell>

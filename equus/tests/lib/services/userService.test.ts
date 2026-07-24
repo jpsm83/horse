@@ -74,6 +74,43 @@ describe("userService", () => {
     expect(publicUser.profileComplete).toBe(false);
   });
 
+  it("searchUsers matches username, email, first name, and last name", async () => {
+    const alice = await userService.createCredentialsUser({
+      email: "alice.owner@example.com",
+      password: "TestPass1!",
+      firstName: "Alice",
+      lastName: "Rider",
+    });
+    await User.updateOne(
+      { _id: alice._id },
+      { $set: { "personalDetails.username": "alice_r" } },
+    );
+
+    await userService.createCredentialsUser({
+      email: "bob.stable@example.com",
+      password: "TestPass1!",
+      firstName: "Bob",
+      lastName: "Smith",
+    });
+
+    const byUsername = await userService.searchUsers("alice_r");
+    expect(byUsername.map((r) => r.email)).toEqual(["alice.owner@example.com"]);
+
+    const byEmail = await userService.searchUsers("bob.stable");
+    expect(byEmail.map((r) => r.email)).toEqual(["bob.stable@example.com"]);
+
+    const byFirst = await userService.searchUsers("Alice");
+    expect(byFirst.some((r) => r.email === "alice.owner@example.com")).toBe(true);
+
+    const byLast = await userService.searchUsers("Smith");
+    expect(byLast.map((r) => r.email)).toEqual(["bob.stable@example.com"]);
+
+    const excluded = await userService.searchUsers("Alice", {
+      excludeUserId: String(alice._id),
+    });
+    expect(excluded).toEqual([]);
+  });
+
   it("updatePersonalDetails marks profile complete when all personalDetails and address fields are set", async () => {
     const created = await userService.createCredentialsUser({
       email: "patch@example.com",

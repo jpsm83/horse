@@ -91,7 +91,6 @@ export function emptyProfileFormValues(): ProfileFormValues {
     registryId: "",
     microchipId: "",
     passportNumber: "",
-    primaryDiscipline: "",
     disciplines: [],
     description: "",
     pedigree: {
@@ -117,7 +116,6 @@ export function toProfileFormValues(horse: OwnerHorseSummary): ProfileFormValues
     registryId: horse.registryId ?? "",
     microchipId: horse.microchipId ?? "",
     passportNumber: horse.passportNumber ?? "",
-    primaryDiscipline: horse.primaryDiscipline ?? "",
     disciplines: (horse.disciplines ?? []) as ProfileFormValues["disciplines"],
     description: horse.description ?? "",
     pedigree: {
@@ -148,9 +146,6 @@ export function buildProfileSavePatches(
     registryId: buildOptionalStringPatch(dirty, "registryId", values.registryId),
     microchipId: buildOptionalStringPatch(dirty, "microchipId", values.microchipId),
     passportNumber: buildOptionalStringPatch(dirty, "passportNumber", values.passportNumber),
-    primaryDiscipline: dirty.primaryDiscipline
-      ? values.primaryDiscipline.trim() || ""
-      : undefined,
     disciplines: dirty.disciplines
       ? Array.isArray(values.disciplines)
         ? values.disciplines

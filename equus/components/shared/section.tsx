@@ -1,16 +1,21 @@
+/**
+ * Section — reusable layout wrapper for page sections.
+ *
+ * Pure layout: no data fetching, no visibility PATCH. Pass an entity adapter
+ * (e.g. HorseSectionVisibility) via `visibilityControl` when needed.
+ */
+
 "use client";
 
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
-import { SectionVisibilityPopover, type SectionVisibility } from "@/components/shared/section-visibility-popover.tsx";
 
 type SectionProps = {
   title: string;
   description?: string;
-  sectionKey?: string;
-  visibility?: SectionVisibility;
-  onVisibilityChange?: (visibility: SectionVisibility) => void;
+  /** Slot for SectionVisibilityControl / entity adapters. */
+  visibilityControl?: ReactNode;
   className?: string;
   children: ReactNode;
 };
@@ -18,30 +23,27 @@ type SectionProps = {
 export function Section({
   title,
   description,
-  sectionKey,
-  visibility,
-  onVisibilityChange,
+  visibilityControl,
   className,
   children,
 }: SectionProps) {
-  const showToggle = !!(sectionKey && visibility && onVisibilityChange);
-
   return (
-    <section className={cn("flex min-h-0 flex-col gap-4 border border-border rounded-lg p-4 bg-card text-card-foreground", className)}>
+    <section
+      className={cn(
+        "flex min-h-0 flex-col gap-4 border border-border rounded-lg p-4 bg-card text-card-foreground",
+        className,
+      )}
+    >
       <div className="flex items-start justify-between gap-4 shrink-0">
-        <div className="min-w-0 flex flex-col sm:flex-row sm:items-baseline sm:gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-4">
           <h2 className="text-xl font-semibold text-foreground">{title}</h2>
           {description && (
-            <p className="text-sm text-muted-foreground sm:border-l sm:border-border sm:pl-4">{description}</p>
+            <p className="text-sm text-muted-foreground sm:border-l sm:border-border sm:pl-4">
+              {description}
+            </p>
           )}
         </div>
-      {showToggle && (
-        <SectionVisibilityPopover
-          sectionKey={sectionKey}
-          current={visibility}
-          onChange={onVisibilityChange}
-        />
-      )}
+        {visibilityControl}
       </div>
       {children}
     </section>

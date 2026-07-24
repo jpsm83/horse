@@ -528,4 +528,80 @@ export async function anonymizeUserPii(
   return toPublicUser(updated);
 }
 
+// --- User search (ownership / admin invites) ---
+
+export type UserSearchResult = {
+  id: string;
+  name: string;
+  email: string;
+  username?: string;
+};
+
+function userSearchDisplayName(personalDetails: Record<string, unknown>): string {
+  const first =
+    typeof personalDetails.firstName === "string" ? personalDetails.firstName.trim() : "";
+  const last =
+    typeof personalDetails.lastName === "string" ? personalDetails.lastName.trim() : "";
+  const joined = [first, last].filter(Boolean).join(" ").trim();
+  if (joined) return joined;
+  if (typeof personalDetails.username === "string" && personalDetails.username.trim()) {
+    return personalDetails.username.trim();
+  }
+  if (typeof personalDetails.email === "string" && personalDetails.email.trim()) {
+    return personalDetails.email.trim();
+  }
+  return "Unknown";
+}
+
+/**
+ * Search active users by username, email, first name, or last name (case-insensitive substring).
+ * Used by Admin ownership / co-owner / responsible invite UI.
+ */
+export async function searchUsers(
+  query: string,
+  options?: { excludeUserId?: string; limit?: number },
+): Promise<UserSearchResult[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+
+  const limit = Math.min(20, Math.max(1, options?.limit ?? 10));
+  const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+
+  const filter: Record<string, unknown> = {
+    isActive: true,
+    $or: [
+      { "personalDetails.username": regex },
+      { "personalDetails.email": regex },
+      { "personalDetails.firstName": regex },
+      { "personalDetails.lastName": regex },
+    ],
+  };
+
+  if (options?.excludeUserId) {
+    filter._id = { $ne: options.excludeUserId };
+  }
+
+  const docs = await User.find(filter)
+    .select(
+      "personalDetails.username personalDetails.email personalDetails.firstName personalDetails.lastName",
+    )
+    .limit(limit)
+    .lean();
+
+  return docs.map((doc) => {
+    const personalDetails = (doc.personalDetails ?? {}) as Record<string, unknown>;
+    const username =
+      typeof personalDetails.username === "string" && personalDetails.username.trim()
+        ? personalDetails.username.trim()
+        : undefined;
+    return {
+      id: String(doc._id),
+      name: userSearchDisplayName(personalDetails),
+      email:
+        typeof personalDetails.email === "string" ? personalDetails.email.trim() : "",
+      ...(username ? { username } : {}),
+    };
+  });
+}
+
 export { isUserPiiAnonymized };

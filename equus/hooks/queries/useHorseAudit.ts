@@ -13,8 +13,9 @@ async function fetchAuditLogs(horseId: string): Promise<PublicAuditLog[]> {
 
 export function useHorseAuditLogs(horseId: string) {
   return useQuery({
-    queryKey: [...queryKeys.horses.all, horseId, "audit"],
+    queryKey: queryKeys.horses.audit(horseId),
     queryFn: () => fetchAuditLogs(horseId),
     enabled: !!horseId,
+    placeholderData: (previousData) => previousData,
   });
 }

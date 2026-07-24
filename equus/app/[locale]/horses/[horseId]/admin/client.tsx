@@ -2,37 +2,37 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useForm, useFormState } from "react-hook-form";
 
 import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
+import { HorseAdminHistorySection } from "@/components/horses/admin/horse-admin-history-section.tsx";
+import { HorseCoOwnerManagementSection } from "@/components/horses/admin/horse-co-owner-management-section.tsx";
+import { HorseOwnershipManagementSection } from "@/components/horses/admin/horse-ownership-management-section.tsx";
+import { HorseProactiveRepresentativesSection } from "@/components/horses/admin/horse-proactive-representatives-section.tsx";
+import { HorseValueSection } from "@/components/horses/admin/horse-value-section.tsx";
+import { HorseVisibilitySection } from "@/components/horses/admin/horse-visibility-section.tsx";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
-import { AdminHistorySection } from "@/components/horses/ownership/admin-history-section.tsx";
-import { CoOwnerManagementSection } from "@/components/horses/ownership/co-owner-management-section.tsx";
-import { HorseValueSection } from "@/components/horses/ownership/horse-value-section.tsx";
-import { OwnershipManagementSection } from "@/components/horses/ownership/ownership-management-section.tsx";
-import { ProactiveRepresentativesSection } from "@/components/horses/ownership/proactive-representatives-section.tsx";
-import { DiscoverySection } from "@/components/horses/profile/discovery-section.tsx";
+import { HorseSectionVisibility } from "@/components/horses/shared/horse-section-visibility.tsx";
 import { Section } from "@/components/shared/section.tsx";
-import type { SectionVisibility } from "@/components/shared/section-visibility-popover.tsx";
 import { useUnsavedChanges } from "@/components/shared/unsaved-changes-context.tsx";
 import { Button } from "@/components/ui/button";
 import type { OwnerHorseSummary } from "@/lib/api/horseClient.ts";
+import { normalizeHubSections } from "@/lib/horses/hubSections.ts";
 import {
   buildSaleSavePatch,
+  buildVisibilitySavePatch,
   emptySaleFormValues,
   toSaleFormValues,
 } from "@/lib/utils/horseSalePatch.ts";
 import {
   horseFormMessagesFromTranslations,
-  profileFormSchemas,
   saleFormSchemas,
-  type DiscoveryFormValues,
   type SaleFormValues,
 } from "@/lib/validations/horseForms.ts";
 import {
-  useUpdateHorseDiscovery,
+  useUpdateHorseVisibility,
   useUpdateHorseSale,
 } from "@/hooks/queries/useHorse.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
@@ -57,29 +57,14 @@ type AdminFormProps = {
 function AdminForm({ horseId, horse }: AdminFormProps) {
   const t = useTranslations("horseAdmin");
   const tSale = useTranslations("horseSale");
+  const tProfile = useTranslations("horseProfile");
   const tCommon = useTranslations("common");
   const toast = useAppToast();
   const updateHorseSale = useUpdateHorseSale();
-  const updateDiscovery = useUpdateHorseDiscovery();
+  const updateVisibility = useUpdateHorseVisibility();
   const { setDirty, setSaving } = useUnsavedChanges();
 
-  const [valueVisibility, setValueVisibility] = useState<SectionVisibility>({
-    mode: "owner",
-  });
-  const [ownershipVisibility, setOwnershipVisibility] =
-    useState<SectionVisibility>({
-      mode: "owner",
-    });
-  const [
-    proactiveRepresentativesVisibility,
-    setProactiveRepresentativesVisibility,
-  ] = useState<SectionVisibility>({
-    mode: "owner",
-  });
-  const [coOwnerManagementVisibility, setCoOwnerManagementVisibility] =
-    useState<SectionVisibility>({
-      mode: "owner",
-    });
+  const hubSections = normalizeHubSections(horse.hubSections);
 
   const formMessages = useMemo(
     () => horseFormMessagesFromTranslations(tSale),
@@ -100,7 +85,7 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
   }, [horse, form]);
 
   const { isDirty } = useFormState({ control: form.control });
-  const isSaving = updateHorseSale.isPending || updateDiscovery.isPending;
+  const isSaving = updateHorseSale.isPending || updateVisibility.isPending;
 
   useEffect(() => {
     setDirty(isDirty);
@@ -111,62 +96,28 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
   }, [isSaving, setSaving]);
 
   async function onSave(values: SaleFormValues) {
-    const patch = buildSaleSavePatch(
-      values,
-      form.formState.dirtyFields as Record<string, boolean | object>,
-    );
+    const dirty = form.formState.dirtyFields as Record<string, boolean | object>;
+    const salePatch = buildSaleSavePatch(values, dirty);
+    const visibilityPatch = buildVisibilitySavePatch(values, dirty);
 
-    if (Object.keys(patch).length === 0) {
+    if (Object.keys(salePatch).length === 0 && Object.keys(visibilityPatch).length === 0) {
       toast.info(tSale("noChanges"));
       return;
     }
 
     try {
-      await updateHorseSale.mutateAsync({ horseId, patch });
+      if (Object.keys(salePatch).length > 0) {
+        await updateHorseSale.mutateAsync({ horseId, patch: salePatch });
+      }
+      if (Object.keys(visibilityPatch).length > 0) {
+        await updateVisibility.mutateAsync({ horseId, patch: visibilityPatch });
+      }
       form.reset(values);
       toast.success(tSale("saved"));
     } catch {
       toast.error(tSale("saveFailed"));
     }
   }
-
-  const tProfile = useTranslations("horseProfile");
-  const profileFormMessages = useMemo(
-    () => horseFormMessagesFromTranslations(tProfile),
-    [tProfile],
-  );
-  const { discoveryFormSchema } = useMemo(
-    () => profileFormSchemas(profileFormMessages),
-    [profileFormMessages],
-  );
-
-  const discoveryForm = useForm<DiscoveryFormValues>({
-    resolver: zodResolver(discoveryFormSchema),
-    defaultValues: { profileVisibility: "public" },
-  });
-
-  useEffect(() => {
-    discoveryForm.reset({
-      profileVisibility: (horse.profileVisibility ??
-        "public") as DiscoveryFormValues["profileVisibility"],
-    });
-  }, [horse, discoveryForm]);
-
-  async function onDiscoverySave(values: DiscoveryFormValues) {
-    try {
-      await updateDiscovery.mutateAsync({
-        horseId,
-        patch: { profileVisibility: values.profileVisibility },
-      });
-      discoveryForm.reset(values);
-      toast.success(tProfile("saved"));
-    } catch {
-      toast.error(tProfile("saveFailed"));
-    }
-  }
-
-  const [discoveryVisibility, setDiscoveryVisibility] =
-    useState<SectionVisibility>({ mode: "owner" });
 
   return (
     <>
@@ -176,84 +127,108 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
         className="flex-1"
       >
         <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <AdminHistorySection horseId={horseId} />
+          <HorseAdminHistorySection horseId={horseId} />
         </ErrorBoundary>
       </Section>
 
-      <div className="flex gap-4 justify-between">
-        <div className="flex flex-col gap-4 w-full">
-        <Section
+      <div className="flex items-stretch gap-4">
+        <div className="flex w-full min-h-0 flex-col gap-4">
+          <Section
             title={t("ownershipTitle")}
             description={t("ownershipTransferDescription")}
-            sectionKey="admin-ownership"
-            visibility={ownershipVisibility}
-            onVisibilityChange={setOwnershipVisibility}
-            className="w-full"
+            visibilityControl={
+              <HorseSectionVisibility
+                horseId={horseId}
+                sectionKey="ownership"
+                mode={hubSections.ownership.mode}
+                uiSectionKey="admin-ownership"
+              />
+            }
+            className="min-h-0 flex-1"
           >
-            <ErrorBoundary
-              fallbackRender={(p) => <InlineErrorFallback {...p} />}
-            >
-              <OwnershipManagementSection horseId={horseId} />
-            </ErrorBoundary>
+            <div className="min-h-0 flex-1 overflow-auto">
+              <ErrorBoundary
+                fallbackRender={(p) => <InlineErrorFallback {...p} />}
+              >
+                <HorseOwnershipManagementSection horseId={horseId} />
+              </ErrorBoundary>
+            </div>
           </Section>
 
           <Section
             title={t("proactiveRepresentativesTitle")}
             description={t("proactiveRepresentativesDescription")}
-            sectionKey="admin-proactive-representatives"
-            visibility={proactiveRepresentativesVisibility}
-            onVisibilityChange={setProactiveRepresentativesVisibility}
-            className="w-full"
+            visibilityControl={
+              <HorseSectionVisibility
+                horseId={horseId}
+                sectionKey="proactiveRepresentatives"
+                mode={hubSections.proactiveRepresentatives.mode}
+                uiSectionKey="admin-proactive-representatives"
+              />
+            }
+            className="shrink-0"
           >
             <ErrorBoundary
               fallbackRender={(p) => <InlineErrorFallback {...p} />}
             >
-              <ProactiveRepresentativesSection horseId={horseId} />
+              <HorseProactiveRepresentativesSection horseId={horseId} />
             </ErrorBoundary>
           </Section>
 
           <Section
             title={t("coOwnerManagementTitle")}
             description={t("coOwnerManagementDescription")}
-            sectionKey="admin-co-owner-management"
-            visibility={coOwnerManagementVisibility}
-            onVisibilityChange={setCoOwnerManagementVisibility}
-            className="w-full"
+            visibilityControl={
+              <HorseSectionVisibility
+                horseId={horseId}
+                sectionKey="coOwnerManagement"
+                mode={hubSections.coOwnerManagement.mode}
+                uiSectionKey="admin-co-owner-management"
+              />
+            }
+            className="shrink-0"
           >
             <ErrorBoundary
               fallbackRender={(p) => <InlineErrorFallback {...p} />}
             >
-              <CoOwnerManagementSection horseId={horseId} />
+              <HorseCoOwnerManagementSection horseId={horseId} />
             </ErrorBoundary>
           </Section>
         </div>
 
-        <div className="flex flex-col gap-4 w-full">
-        <Section
-            title={tProfile("sections.discovery")}
-            description={tProfile("sectionDescriptions.discovery")}
-            className="w-full"
+        <div className="flex w-full min-h-0 flex-col gap-4">
+          <Section
+            title={tProfile("sections.visibility")}
+            description={tProfile("sectionDescriptions.visibility")}
+            className="w-full shrink-0"
           >
             <ErrorBoundary
               fallbackRender={(p) => <InlineErrorFallback {...p} />}
             >
-              <DiscoverySection control={discoveryForm.control} />
+              <HorseVisibilitySection control={form.control} />
             </ErrorBoundary>
           </Section>
 
           <Section
             title={t("horseValueTitle")}
             description={t("horseValueDescription")}
-            sectionKey="admin-value"
-            visibility={valueVisibility}
-            onVisibilityChange={setValueVisibility}
-            className="w-full h-full flex-1"
+            visibilityControl={
+              <HorseSectionVisibility
+                horseId={horseId}
+                sectionKey="value"
+                mode={hubSections.value.mode}
+                uiSectionKey="admin-value"
+              />
+            }
+            className="min-h-0 w-full flex-1"
           >
-            <ErrorBoundary
-              fallbackRender={(p) => <InlineErrorFallback {...p} />}
-            >
-              <HorseValueSection control={form.control} />
-            </ErrorBoundary>
+            <div className="min-h-0 flex-1 overflow-auto">
+              <ErrorBoundary
+                fallbackRender={(p) => <InlineErrorFallback {...p} />}
+              >
+                <HorseValueSection control={form.control} />
+              </ErrorBoundary>
+            </div>
           </Section>
         </div>
       </div>

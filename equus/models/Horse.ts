@@ -53,7 +53,6 @@ const horseSchema = new Schema(
     dateOfBirth: { type: Date },
     color: { type: String, enum: horseColorEnums },
     heightHands: { type: Number, min: 0 },
-    primaryDiscipline: { type: String, enum: horseDisciplineEnums },
     disciplines: { type: [String], enum: horseDisciplineEnums, default: undefined },
     countryOfBirth: { type: String },
 
@@ -100,6 +99,41 @@ const horseSchema = new Schema(
     profileVisibility: { type: String, enum: visibilityEnums, default: "public" },
     showValuePublicly: { type: Boolean, default: false },
 
+    /**
+     * Hub Layer-2 visibility per social section (`public` | `relationship` | `owner`).
+     * No per-section entity allowlists — audiences are team / relationships+collaborators / public.
+     */
+    hubSections: {
+      type: {
+        identity: { mode: { type: String, enum: visibilityEnums, default: "public" } },
+        identification: { mode: { type: String, enum: visibilityEnums, default: "public" } },
+        pedigree: { mode: { type: String, enum: visibilityEnums, default: "public" } },
+        about: { mode: { type: String, enum: visibilityEnums, default: "public" } },
+        ownership: { mode: { type: String, enum: visibilityEnums, default: "relationship" } },
+        value: { mode: { type: String, enum: visibilityEnums, default: "owner" } },
+        proactiveRepresentatives: {
+          mode: { type: String, enum: visibilityEnums, default: "owner" },
+        },
+        coOwnerManagement: { mode: { type: String, enum: visibilityEnums, default: "owner" } },
+        gallery: { mode: { type: String, enum: visibilityEnums, default: "public" } },
+        planning: { mode: { type: String, enum: visibilityEnums, default: "public" } },
+        connections: { mode: { type: String, enum: visibilityEnums, default: "relationship" } },
+      },
+      default: () => ({
+        identity: { mode: "public" },
+        identification: { mode: "public" },
+        pedigree: { mode: "public" },
+        about: { mode: "public" },
+        ownership: { mode: "relationship" },
+        value: { mode: "owner" },
+        proactiveRepresentatives: { mode: "owner" },
+        coOwnerManagement: { mode: "owner" },
+        gallery: { mode: "public" },
+        planning: { mode: "public" },
+        connections: { mode: "relationship" },
+      }),
+    },
+
     /** Operational flags */
     ...deactivationAuditFields,
     createdByUserId: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -112,7 +146,7 @@ const horseSchema = new Schema(
 
 horseSchema.index({ name: 1, mainOwnerUserId: 1 });
 horseSchema.index({ "coOwners.userId": 1 }, { sparse: true });
-horseSchema.index({ saleStatus: 1, primaryDiscipline: 1 });
+horseSchema.index({ saleStatus: 1, disciplines: 1 });
 horseSchema.index({ "registration.isActive": 1 });
 horseSchema.index({ "registration.referralReference": 1 }, { sparse: true });
 horseSchema.index({ registryId: 1 }, { unique: true, sparse: true });

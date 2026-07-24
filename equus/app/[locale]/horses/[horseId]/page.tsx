@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { HorseHubPageContent } from "@/components/horses/horse-hub-page-content.tsx";
+import { HorseHubPageContent } from "@/components/horses/hub/horse-hub-page-content.tsx";
 import { generateHorseMetadata } from "@/lib/seo/entity-metadata.ts";
 import Horse from "@/models/Horse.ts";
 

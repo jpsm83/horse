@@ -117,7 +117,6 @@ export function createHorseFormSchemas(messages: HorseFormMessages) {
       ),
     color: optionalEnum(horseColorEnums, messages),
     heightHands: optionalNumber(messages),
-    primaryDiscipline: optionalEnum(horseDisciplineEnums, messages),
     disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
     countryOfBirth: z.string().refine((v): boolean => isValidCountryCode(v), { message: "Invalid country code" }),
     // Commercial
@@ -210,12 +209,8 @@ export function profileFormSchemas(messages: HorseFormMessages) {
     passportNumber: optionalTrimmedString(120),
   });
 
-  const disciplinesFormSchema = z.object({
-    primaryDiscipline: optionalEnum(horseDisciplineEnums, messages),
-    disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
-  });
-
   const aboutFormSchema = z.object({
+    disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
     description: optionalTrimmedString(2000),
   });
 
@@ -223,7 +218,7 @@ export function profileFormSchemas(messages: HorseFormMessages) {
     pedigree: pedigreeFormSchema,
   });
 
-  const discoveryFormSchema = z.object({
+  const visibilityFormSchema = z.object({
     profileVisibility: z.enum(visibilityEnums, {
       message: messages.invalidEnum,
     }),
@@ -235,7 +230,6 @@ export function profileFormSchemas(messages: HorseFormMessages) {
     .object({
       ...identityFormSchema.shape,
       ...identificationFormSchema.shape,
-      ...disciplinesFormSchema.shape,
       ...aboutFormSchema.shape,
       ...pedigreeSectionFormSchema.shape,
     })
@@ -264,10 +258,9 @@ export function profileFormSchemas(messages: HorseFormMessages) {
   return {
     identityFormSchema,
     identificationFormSchema: identificationFormSchemaWithIdentity,
-    disciplinesFormSchema,
     aboutFormSchema,
     pedigreeSectionFormSchema,
-    discoveryFormSchema,
+    visibilityFormSchema,
     profileFormSchema,
   };
 }
@@ -306,6 +299,9 @@ export function saleFormSchemas(messages: HorseFormMessages) {
       { message: messages.invalidDate },
     ),
     acquisitionSource: optionalTrimmedString(200),
+    profileVisibility: z.enum(visibilityEnums, {
+      message: messages.invalidEnum,
+    }),
   });
 
   return { saleFormSchema };
@@ -320,18 +316,16 @@ const defaultProfileSchemas = profileFormSchemas({
 
 export const identityFormSchema = defaultProfileSchemas.identityFormSchema;
 export const identificationFormSchema = defaultProfileSchemas.identificationFormSchema;
-export const disciplinesFormSchema = defaultProfileSchemas.disciplinesFormSchema;
 export const aboutFormSchema = defaultProfileSchemas.aboutFormSchema;
 export const pedigreeSectionFormSchema = defaultProfileSchemas.pedigreeSectionFormSchema;
-export const discoveryFormSchema = defaultProfileSchemas.discoveryFormSchema;
+export const visibilityFormSchema = defaultProfileSchemas.visibilityFormSchema;
 export const profileFormSchema = defaultProfileSchemas.profileFormSchema;
 
 export type IdentityFormValues = z.infer<typeof identityFormSchema>;
 export type IdentificationFormValues = z.infer<typeof identificationFormSchema>;
-export type DisciplinesFormValues = z.infer<typeof disciplinesFormSchema>;
 export type AboutFormValues = z.infer<typeof aboutFormSchema>;
 export type PedigreeSectionFormValues = z.infer<typeof pedigreeSectionFormSchema>;
-export type DiscoveryFormValues = z.infer<typeof discoveryFormSchema>;
+export type VisibilityFormValues = z.infer<typeof visibilityFormSchema>;
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const defaultEditSchemas = editHorseFormSchemas({
@@ -365,7 +359,6 @@ export const emptyCreateHorseFormValues: CreateHorseFormValues = {
   dateOfBirth: "",
   color: "",
   heightHands: "",
-  primaryDiscipline: "",
   disciplines: [],
   countryOfBirth: "",
   estimatedValue: "",

@@ -1,12 +1,24 @@
 "use client";
 
+/**
+ * Shared invite UI — search Equus users (default) or provider entities, then
+ * invite by profile id or by email-only fallback when search has no hits.
+ */
+
 import { useState } from "react";
 import { Loader2, Search, UserPlus, Mail, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/hooks/use-debounced-value.ts";
-import { useEntitySearch, type EntitySearchResult } from "@/hooks/queries/useEntitySearch.ts";
+import {
+  useEntitySearch,
+  type EntitySearchResult,
+} from "@/hooks/queries/useEntitySearch.ts";
+import {
+  useUserSearch,
+  type UserSearchResult,
+} from "@/hooks/queries/useUserSearch.ts";
 
 export type UserInviteLabels = {
   searchPlaceholder: string;
@@ -17,19 +29,23 @@ export type UserInviteLabels = {
   emailFallbackToggle: string;
   emailFallbackHint: string;
   emailLabel: string;
-  nameLabel: string;
   sendEmailInvite: string;
   cancelLabel: string;
 };
 
+export type UserInviteSearchResult = UserSearchResult | EntitySearchResult;
+
 type UserInviteSectionProps = {
+  /** Default `users` (ownership/admin). Use `entities` for Connect provider search. */
+  searchMode?: "users" | "entities";
   isInviting: boolean;
-  onInviteUser: (userId: string, searchResult: EntitySearchResult) => void;
-  onEmailInvite: (email: string, name?: string) => void;
+  onInviteUser: (id: string, searchResult: UserInviteSearchResult) => void;
+  onEmailInvite: (email: string) => void;
   labels: UserInviteLabels;
 };
 
 export function UserInviteSection({
+  searchMode = "users",
   isInviting,
   onInviteUser,
   onEmailInvite,
@@ -37,18 +53,30 @@ export function UserInviteSection({
 }: UserInviteSectionProps) {
   const [query, setQuery] = useState("");
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
   const [showEmailFallback, setShowEmailFallback] = useState(false);
 
   const debouncedQuery = useDebouncedValue(query, 300);
-  const { data: results = [], isLoading: isSearching, error: searchError } = useEntitySearch(debouncedQuery);
+  const userSearch = useUserSearch(searchMode === "users" ? debouncedQuery : "");
+  const entitySearch = useEntitySearch(searchMode === "entities" ? debouncedQuery : "");
+
+  const isSearching = searchMode === "users" ? userSearch.isLoading : entitySearch.isLoading;
+  const searchError = searchMode === "users" ? userSearch.error : entitySearch.error;
+  const results: UserInviteSearchResult[] =
+    searchMode === "users" ? (userSearch.data ?? []) : (entitySearch.data ?? []);
 
   function handleEmailInvite() {
     if (!email.trim()) return;
-    onEmailInvite(email.trim(), name.trim() || undefined);
+    onEmailInvite(email.trim());
     setEmail("");
-    setName("");
     setShowEmailFallback(false);
+  }
+
+  function resultSubtitle(result: UserInviteSearchResult): string {
+    if ("entityLabel" in result) {
+      return `${result.entityLabel} · ${result.email}`;
+    }
+    const handle = result.username ? `@${result.username} · ` : "";
+    return `${handle}${result.email}`;
   }
 
   return (
@@ -86,9 +114,7 @@ export function UserInviteSection({
             >
               <div className="space-y-0.5">
                 <p className="text-sm font-medium">{result.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {result.entityLabel} · {result.email}
-                </p>
+                <p className="text-xs text-muted-foreground">{resultSubtitle(result)}</p>
               </div>
               <Button
                 size="sm"
@@ -103,39 +129,35 @@ export function UserInviteSection({
         </ul>
       )}
 
-      {!isSearching && query.trim().length >= 2 && results.length === 0 && !searchError && !showEmailFallback && (
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">{labels.noResultsLabel}</p>
-          <Button variant="outline" size="sm" onClick={() => setShowEmailFallback(true)}>
-            <Mail className="mr-1 h-3 w-3" />
-            {labels.emailFallbackToggle}
-          </Button>
-        </div>
-      )}
+      {!isSearching &&
+        query.trim().length >= 2 &&
+        results.length === 0 &&
+        !searchError &&
+        !showEmailFallback && (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">{labels.noResultsLabel}</p>
+            <Button variant="outline" size="sm" onClick={() => setShowEmailFallback(true)}>
+              <Mail className="mr-1 h-3 w-3" />
+              {labels.emailFallbackToggle}
+            </Button>
+          </div>
+        )}
 
       {showEmailFallback && (
         <div className="space-y-3 rounded-lg border p-4">
           <p className="text-sm text-muted-foreground">{labels.emailFallbackHint}</p>
-          <div className="space-y-2">
-            <Input
-              placeholder={labels.emailLabel}
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Input
-              placeholder={labels.nameLabel}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
+          <Input
+            placeholder={labels.emailLabel}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
           <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
                 setEmail("");
-                setName("");
                 setShowEmailFallback(false);
               }}
             >

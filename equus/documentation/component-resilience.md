@@ -36,12 +36,12 @@ Every page component should be built so the **shell renders immediately** and **
 
 - `HorsePageShell` runs auth + owner queries but never returns a full-page skeleton. It always renders `<EntityTabs>`, the back link, and the title.
 - While auth/owner data is loading, only the content children area shows `<HorsePageContentSkeleton>` (a compact, generic placeholder).
-- Once data resolves, children render with their own data-driven skeletons (`ConnectionsTableSection` shows a table-row skeleton).
+- Once data resolves, children render with their own data-driven skeletons (`HorseConnectionsTableSection` shows a table-row skeleton).
 - Redirects (unauthenticated, 403, error) are handled in a `useEffect` side effect — they never block the render.
 
 ### Creating a new page section
 
-1. Create a component that owns its data fetch (e.g. `ConnectionsTableSection`)
+1. Create a component that owns its data fetch (e.g. `HorseConnectionsTableSection`)
 2. Use `useQuery` with `placeholderData: (prev) => prev`:
    ```typescript
    const { data = [], isPending } = useQuery({

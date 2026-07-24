@@ -8,15 +8,20 @@
 import mongoose from "mongoose";
 import Horse from "@/models/Horse.ts";
 import User from "@/models/User.ts";
-import Relationship from "@/models/Relationship.ts";
-import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { guardHorseCreation } from "@/lib/billing/subscriptionGuard.ts";
 import { ownedByUserQuery, userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
 import {
-  canViewHorseDiscovery,
-  type HorseDiscoveryRequesterContext,
-} from "@/lib/horses/horseDiscoveryAccess.ts";
+  canViewHorseGlobal,
+  canViewHorseHubSection,
+  hasAcceptedHorseRelationship,
+  hasActiveHorseHostCollaboration,
+  resolveHorseViewerAudience,
+} from "@/lib/horses/horseVisibilityAccess.ts";
+import {
+  normalizeHubSections,
+  type HubSections,
+} from "@/lib/horses/hubSections.ts";
 import { resolveHorsePublicContact } from "@/lib/horses/resolveHorsePublicContact.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import {
@@ -27,6 +32,7 @@ import type { z } from "zod";
 import type {
   createHorseSchema,
   updateHorseDiscoverySchema,
+  updateHorseHubSectionsSchema,
   updateHorseProfileSchema,
 } from "@/lib/validations/horse.ts";
 import {
@@ -34,9 +40,11 @@ import {
   HORSE_IDENTITY_REQUIRED_MESSAGE,
   normalizeHorseIdentityFields,
 } from "@/lib/utils/horseIdentity.ts";
+import { horseHubSectionKeys } from "@/utils/enums.ts";
 
 export type CreateHorseInput = z.infer<typeof createHorseSchema>;
 export type UpdateHorseDiscoveryInput = z.infer<typeof updateHorseDiscoverySchema>;
+export type UpdateHorseHubSectionsInput = z.infer<typeof updateHorseHubSectionsSchema>;
 
 // --- List types ---
 
@@ -46,7 +54,7 @@ export type HorseListItem = {
   breed?: string;
   sex?: string;
   color?: string;
-  primaryDiscipline?: string;
+  disciplines?: string[];
   profileImageUrl?: string;
   profileVisibility?: string;
   updatedAt?: string;
@@ -130,7 +138,6 @@ export type OwnerHorseHubSummary = {
   dateOfBirth?: string;
   color?: string;
   heightHands?: number;
-  primaryDiscipline?: string;
   disciplines?: string[];
   countryOfBirth?: string;
   estimatedValue?: number;
@@ -145,6 +152,7 @@ export type OwnerHorseHubSummary = {
   description?: string;
   notes?: string;
   profileVisibility?: string;
+  hubSections: Required<HubSections>;
   isMainOwner: boolean;
   isCoOwner: boolean;
   isResponsible: boolean;
@@ -154,58 +162,53 @@ export type OwnerHorseHubSummary = {
   adminTeam: AdminTeamMember[];
 };
 
+export type HorseHubIdentitySection = {
+  age?: number;
+  color?: string;
+  heightHands?: number;
+  disciplines?: string[];
+};
+
+export type HorseHubIdentificationSection = {
+  registryId?: string;
+  microchipId?: string;
+  passportNumber?: string;
+};
+
+export type HorseHubPedigreeSection = {
+  sireName?: string;
+  damName?: string;
+  bloodlineNotes?: string;
+};
+
+export type HorseHubAboutSection = {
+  description?: string;
+};
+
+export type HorseHubOwnershipSection = {
+  coOwnerCount: number;
+  soleOwner: boolean;
+};
+
+export type HorseHubDto = {
+  id: string;
+  name?: string;
+  breed?: string;
+  sex?: string;
+  profileImageUrl?: string;
+  sections: {
+    identity?: HorseHubIdentitySection;
+    identification?: HorseHubIdentificationSection;
+    pedigree?: HorseHubPedigreeSection;
+    about?: HorseHubAboutSection;
+    ownership?: HorseHubOwnershipSection;
+  };
+};
+
 function ensureObjectId(id: string, fieldName: string): void {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new ApiError(400, `Invalid ${fieldName}`, "VALIDATION_ERROR");
   }
-}
-
-async function hasAcceptedHorseRelationship(
-  userId: string,
-  horseId: string,
-): Promise<boolean> {
-  const relationship = await Relationship.findOne({
-    horseId,
-    status: "accepted",
-    $or: [{ requesterUserId: userId }, { receiverUserId: userId }],
-  })
-    .select("_id")
-    .lean();
-
-  return Boolean(relationship);
-}
-
-async function hasActiveHorseCollaboration(
-  userId: string,
-  horseId: string,
-): Promise<boolean> {
-  const hostingRelationships = await Relationship.find({
-    horseId,
-    relationshipType: "stable",
-    receiverAccountType: "stable",
-    status: "accepted",
-  })
-    .select("receiverAccountId")
-    .lean();
-
-  const stableIds = hostingRelationships
-    .map((entry) => entry.receiverAccountId)
-    .filter(Boolean);
-  if (stableIds.length === 0) {
-    return false;
-  }
-
-  const collaboration = await WorkplaceRelationship.findOne({
-    userId,
-    hostRoleType: "stable",
-    hostRoleProfileId: { $in: stableIds },
-    status: "active",
-    active: true,
-  })
-    .select("_id")
-    .lean();
-
-  return Boolean(collaboration);
 }
 
 export async function createHorse(actorUserId: string, input: CreateHorseInput) {
@@ -241,7 +244,6 @@ export async function createHorse(actorUserId: string, input: CreateHorseInput) 
   if (input.dateOfBirth) doc.dateOfBirth = input.dateOfBirth;
   if (input.color) doc.color = input.color;
   if (input.heightHands !== undefined) doc.heightHands = input.heightHands;
-  if (input.primaryDiscipline) doc.primaryDiscipline = input.primaryDiscipline;
   if (input.disciplines && input.disciplines.length > 0) doc.disciplines = input.disciplines;
   if (input.countryOfBirth) doc.countryOfBirth = input.countryOfBirth;
   // Commercial
@@ -291,7 +293,7 @@ function toHorseListItem(doc: Record<string, unknown>): HorseListItem {
     breed: doc.breed as string | undefined,
     sex: doc.sex as string | undefined,
     color: doc.color as string | undefined,
-    primaryDiscipline: doc.primaryDiscipline as string | undefined,
+    disciplines: doc.disciplines as string[] | undefined,
     profileImageUrl: doc.profileImageUrl as string | undefined,
     profileVisibility: doc.profileVisibility as string | undefined,
     updatedAt: (doc.updatedAt as Date | undefined)?.toISOString(),
@@ -382,20 +384,78 @@ export async function updateHorseDiscovery(
   ensureObjectId(actorUserId, "user id");
   ensureObjectId(horseId, "horse id");
 
+  if (input.profileVisibility === undefined) {
+    throw new ApiError(400, "No discovery fields to update", "VALIDATION_ERROR");
+  }
+
+  const updated = await Horse.findOneAndUpdate(
+    {
+      _id: horseId,
+      ...ownedByUserQuery(actorUserId),
+    },
+    { $set: { profileVisibility: input.profileVisibility } },
+    { returnDocument: "after" },
+  ).lean();
+
+  if (!updated) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  return updated as Record<string, unknown>;
+}
+
+/**
+ * Layer-2 Hub section visibility — targeted `$set` only (avoids full-document
+ * validation on unrelated legacy fields like invalid breed).
+ */
+export async function updateHorseHubSections(
+  actorUserId: string,
+  horseId: string,
+  input: UpdateHorseHubSectionsInput,
+) {
+  ensureObjectId(actorUserId, "user id");
+  ensureObjectId(horseId, "horse id");
+
   const horse = await Horse.findOne({
     _id: horseId,
     ...ownedByUserQuery(actorUserId),
-  });
+  })
+    .select("hubSections")
+    .lean();
+
   if (!horse) {
     throw new ApiError(404, "Horse not found", "NOT_FOUND");
   }
 
-  if (input.profileVisibility !== undefined) {
-    horse.profileVisibility = input.profileVisibility;
+  const current = normalizeHubSections(horse.hubSections as HubSections | undefined);
+  const next = { ...current };
+  let changed = false;
+  for (const key of horseHubSectionKeys) {
+    const section = input.hubSections[key];
+    if (section?.mode !== undefined) {
+      next[key] = { mode: section.mode };
+      changed = true;
+    }
   }
 
-  await horse.save();
-  return horse.toObject();
+  if (!changed) {
+    throw new ApiError(400, "No hubSections fields to update", "VALIDATION_ERROR");
+  }
+
+  const updated = await Horse.findOneAndUpdate(
+    {
+      _id: horseId,
+      ...ownedByUserQuery(actorUserId),
+    },
+    { $set: { hubSections: next } },
+    { returnDocument: "after" },
+  ).lean();
+
+  if (!updated) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  return updated as Record<string, unknown>;
 }
 
 export async function updateHorseProfile(
@@ -407,7 +467,7 @@ export async function updateHorseProfile(
   ensureObjectId(horseId, "horse id");
 
   const horse = await Horse.findById(horseId).select(
-    "mainOwnerUserId coOwners registryId microchipId passportNumber",
+    "mainOwnerUserId coOwners responsibles registryId microchipId passportNumber",
   );
   if (!horse) {
     throw new ApiError(404, "Horse not found");
@@ -646,7 +706,6 @@ export async function getOwnerHorseHubSummary(
     dateOfBirth: horse.dateOfBirth instanceof Date ? horse.dateOfBirth.toISOString() : undefined,
     color: horse.color as string | undefined,
     heightHands: horse.heightHands as number | undefined,
-    primaryDiscipline: horse.primaryDiscipline as string | undefined,
     disciplines: horse.disciplines as string[] | undefined,
     countryOfBirth: horse.countryOfBirth as string | undefined,
     estimatedValue: horse.estimatedValue as number | undefined,
@@ -661,6 +720,7 @@ export async function getOwnerHorseHubSummary(
     description: horse.description as string | undefined,
     notes: horse.notes as string | undefined,
     profileVisibility: horse.profileVisibility as string | undefined,
+    hubSections: normalizeHubSections(horse.hubSections as HubSections | undefined),
     isMainOwner,
     isCoOwner,
     isResponsible,
@@ -685,21 +745,17 @@ export async function getPublicHorseCard(
   await assertPublicReadAllowed(horse as Record<string, unknown>, "Horse");
 
   const requesterUserId = requester?.id;
+  const horseDoc = horse as Record<string, unknown>;
+  const visibilityAudience = await resolveHorseViewerAudience(horseDoc, requesterUserId);
+
+  if (!canViewHorseGlobal(horseDoc, visibilityAudience)) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
   const hasRelationship =
     requesterUserId ? await hasAcceptedHorseRelationship(requesterUserId, horseId) : false;
   const hasCollaboration =
-    requesterUserId ? await hasActiveHorseCollaboration(requesterUserId, horseId) : false;
-
-  const visibilityContext: HorseDiscoveryRequesterContext = {
-    requesterUserId,
-    isAuthenticated: requester?.isAuthenticated === true,
-    hasAcceptedRelationship: hasRelationship,
-    hasActiveCollaboration: hasCollaboration,
-  };
-
-  if (!canViewHorseDiscovery(horse as Record<string, unknown>, visibilityContext)) {
-    throw new ApiError(404, "Horse not found", "NOT_FOUND");
-  }
+    requesterUserId ? await hasActiveHorseHostCollaboration(requesterUserId, horseId) : false;
 
   const requesterContext: RequesterVisibilityContext = {
     isAuthenticated: requester?.isAuthenticated === true,
@@ -708,27 +764,117 @@ export async function getPublicHorseCard(
     isSelf:
       typeof requesterUserId === "string" &&
       requesterUserId.length > 0 &&
-      requesterUserId === String((horse as Record<string, unknown>).mainOwnerUserId),
+      requesterUserId === String(horseDoc.mainOwnerUserId),
   };
-  const audience = resolveAudienceForRequester(requesterContext);
+  const privacyAudience = resolveAudienceForRequester(requesterContext);
 
-  const owner = await User.findById((horse as Record<string, unknown>).mainOwnerUserId)
+  const owner = await User.findById(horseDoc.mainOwnerUserId)
     .select(
       "personalDetails.firstName personalDetails.lastName personalDetails.email personalDetails.phoneNumber preferences",
     )
     .lean();
 
   return {
-    id: String((horse as Record<string, unknown>)._id),
-    name: (horse as Record<string, unknown>).name as string | undefined,
-    breed: (horse as Record<string, unknown>).breed as string | undefined,
-    sex: (horse as Record<string, unknown>).sex as string | undefined,
-    profileVisibility: (horse as Record<string, unknown>).profileVisibility as string | undefined,
+    id: String(horseDoc._id),
+    name: horseDoc.name as string | undefined,
+    breed: horseDoc.breed as string | undefined,
+    sex: horseDoc.sex as string | undefined,
+    profileVisibility: horseDoc.profileVisibility as string | undefined,
     contactDisplay: resolveHorsePublicContact(
-      horse as Record<string, unknown>,
+      horseDoc,
       owner as Record<string, unknown> | null | undefined,
-      audience,
+      privacyAudience,
     ),
   };
+}
+
+export async function getHorseHub(
+  horseId: string,
+  requester?: { id?: string; isAuthenticated: boolean },
+): Promise<HorseHubDto> {
+  ensureObjectId(horseId, "horse id");
+
+  const horse = await Horse.findById(horseId).lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  await assertPublicReadAllowed(horse as Record<string, unknown>, "Horse");
+
+  const horseDoc = horse as Record<string, unknown>;
+  const audience = await resolveHorseViewerAudience(horseDoc, requester?.id);
+
+  if (!canViewHorseGlobal(horseDoc, audience)) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  const sections = buildHorseHubSections(horseDoc, audience);
+
+  return {
+    id: String(horseDoc._id),
+    name: horseDoc.name as string | undefined,
+    breed: horseDoc.breed as string | undefined,
+    sex: horseDoc.sex as string | undefined,
+    profileImageUrl: horseDoc.profileImageUrl as string | undefined,
+    sections,
+  };
+}
+
+/** Pure Hub section builder — used by getHorseHub and unit tests. */
+export function buildHorseHubSections(
+  horseDoc: Record<string, unknown>,
+  audience: Awaited<ReturnType<typeof resolveHorseViewerAudience>>,
+): HorseHubDto["sections"] {
+  const sections: HorseHubDto["sections"] = {};
+
+  if (canViewHorseHubSection(horseDoc, "identity", audience)) {
+    const dob = horseDoc.dateOfBirth;
+    let age: number | undefined;
+    if (dob instanceof Date) {
+      age = new Date().getFullYear() - dob.getFullYear();
+    } else if (typeof dob === "string" && dob.length > 0) {
+      age = new Date().getFullYear() - new Date(dob).getFullYear();
+    }
+    sections.identity = {
+      age,
+      color: horseDoc.color as string | undefined,
+      heightHands: horseDoc.heightHands as number | undefined,
+      disciplines: horseDoc.disciplines as string[] | undefined,
+    };
+  }
+
+  if (canViewHorseHubSection(horseDoc, "identification", audience)) {
+    sections.identification = {
+      registryId: horseDoc.registryId as string | undefined,
+      microchipId: horseDoc.microchipId as string | undefined,
+      passportNumber: horseDoc.passportNumber as string | undefined,
+    };
+  }
+
+  if (canViewHorseHubSection(horseDoc, "pedigree", audience)) {
+    const pedigree = (horseDoc.pedigree ?? {}) as Record<string, unknown>;
+    sections.pedigree = {
+      sireName: pedigree.sireName as string | undefined,
+      damName: pedigree.damName as string | undefined,
+      bloodlineNotes: pedigree.bloodlineNotes as string | undefined,
+    };
+  }
+
+  if (canViewHorseHubSection(horseDoc, "about", audience)) {
+    sections.about = {
+      description: horseDoc.description as string | undefined,
+    };
+  }
+
+  if (canViewHorseHubSection(horseDoc, "ownership", audience)) {
+    const coOwners = Array.isArray(horseDoc.coOwners) ? horseDoc.coOwners : [];
+    const coOwnerCount = coOwners.length;
+    sections.ownership = {
+      coOwnerCount,
+      soleOwner: coOwnerCount === 0,
+    };
+  }
+
+  return sections;
 }
 

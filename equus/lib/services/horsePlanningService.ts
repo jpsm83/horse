@@ -1,5 +1,9 @@
+import Horse from "@/models/Horse.ts";
 import HorseEvent from "@/models/HorseEvent.ts";
+import { ApiError } from "@/lib/api/errors.ts";
+import { userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
 import { recordAudit } from "@/lib/services/horseAuditService.ts";
+import type { CreatePlanningEventInput } from "@/lib/validations/horsePlanningForms.ts";
 
 export type PublicPlanningItem = {
   id: string;
@@ -12,6 +16,7 @@ export type PublicPlanningItem = {
   allDay: boolean;
   location?: string;
   sourceEntityType?: string;
+  sourceEntityId?: string;
   visibilityMode: string;
   createdAt: string;
 };
@@ -28,6 +33,7 @@ function toPublic(record: Record<string, unknown>): PublicPlanningItem {
     allDay: record.allDay as boolean,
     location: record.location as string | undefined,
     sourceEntityType: record.sourceEntityType as string | undefined,
+    sourceEntityId: record.sourceEntityId ? String(record.sourceEntityId) : undefined,
     visibilityMode: record.visibilityMode as string,
     createdAt: (record.createdAt as Date).toISOString(),
   };
@@ -51,14 +57,26 @@ export async function listPlanning(
 export async function createPlanningItem(
   userId: string,
   horseId: string,
-  input: Record<string, unknown>,
+  input: CreatePlanningEventInput,
 ): Promise<PublicPlanningItem> {
+  const horse = await Horse.findById(horseId).lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+  if (!userOwnsEntity(userId, horse as Record<string, unknown>)) {
+    throw new ApiError(403, "Only the owner team can create planning events", "FORBIDDEN");
+  }
+
   const event = await HorseEvent.create({
-    ...input,
+    eventType: input.eventType,
+    title: input.title,
+    location: input.location,
+    sourceEntityType: input.sourceEntityType,
+    sourceEntityId: input.sourceEntityId,
     horseId,
     createdByUserId: userId,
-    startDate: new Date(input.startDate as string),
-    endDate: input.endDate ? new Date(input.endDate as string) : undefined,
+    startDate: new Date(input.startDate),
+    endDate: input.endDate ? new Date(input.endDate) : undefined,
   });
   recordAudit({
     horseId,

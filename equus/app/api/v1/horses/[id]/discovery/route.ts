@@ -1,7 +1,8 @@
 /**
- * Horse discovery visibility/contact updates.
+ * Horse discovery visibility updates (Layer 1).
  *
- * `PATCH` `/api/v1/horses/[id]/discovery`
+ * `PATCH` `/api/v1/horses/[id]/discovery` — `profileVisibility` only.
+ * Hub section modes use `PATCH …/hub-sections`.
  */
 
 import connectDb from "@/lib/db.ts";

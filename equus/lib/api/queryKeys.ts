@@ -18,12 +18,15 @@ export const queryKeys = {
     lists: () => [...queryKeys.horses.all, "list"] as const,
     detail: (horseId: string) => [...queryKeys.horses.all, horseId] as const,
     owner: (horseId: string) => [...queryKeys.horses.all, horseId, "owner"] as const,
+    hub: (horseId: string) => [...queryKeys.horses.all, horseId, "hub"] as const,
     relationships: (horseId: string) => [...queryKeys.horses.all, horseId, "relationships"] as const,
     providers: (horseId: string) => [...queryKeys.horses.all, horseId, "providers"] as const,
     ownershipTransfers: (horseId: string) => [...queryKeys.horses.all, horseId, "ownership-transfers"] as const,
     ownershipHistory: (horseId: string) => [...queryKeys.horses.all, horseId, "ownership-history"] as const,
     reviews: (horseId: string) => [...queryKeys.horses.all, horseId, "reviews"] as const,
     planning: (horseId: string) => [...queryKeys.horses.all, horseId, "planning"] as const,
+    media: (horseId: string) => [...queryKeys.horses.all, horseId, "media"] as const,
+    audit: (horseId: string) => [...queryKeys.horses.all, horseId, "audit"] as const,
   },
   stables: {
     all: ["stables"] as const,
@@ -57,5 +60,6 @@ export const queryKeys = {
   search: {
     entities: (q: string) => ["search", "entities", q] as const,
     horses: (q: string) => ["search", "horses", q] as const,
+    users: (q: string) => ["search", "users", q] as const,
   },
 };

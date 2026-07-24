@@ -67,7 +67,6 @@ export type OwnerHorseSummary = {
   dateOfBirth?: string;
   color?: string;
   heightHands?: number;
-  primaryDiscipline?: string;
   disciplines?: string[];
   countryOfBirth?: string;
   estimatedValue?: number;
@@ -81,6 +80,19 @@ export type OwnerHorseSummary = {
   profileImageUrl?: string;
   description?: string;
   profileVisibility?: string;
+  hubSections?: {
+    identity: { mode: "public" | "relationship" | "owner" };
+    identification: { mode: "public" | "relationship" | "owner" };
+    pedigree: { mode: "public" | "relationship" | "owner" };
+    about: { mode: "public" | "relationship" | "owner" };
+    ownership: { mode: "public" | "relationship" | "owner" };
+    value: { mode: "public" | "relationship" | "owner" };
+    proactiveRepresentatives: { mode: "public" | "relationship" | "owner" };
+    coOwnerManagement: { mode: "public" | "relationship" | "owner" };
+    gallery: { mode: "public" | "relationship" | "owner" };
+    planning: { mode: "public" | "relationship" | "owner" };
+    connections: { mode: "public" | "relationship" | "owner" };
+  };
   isMainOwner: boolean;
   isCoOwner: boolean;
   isResponsible: boolean;
@@ -118,6 +130,46 @@ export async function fetchHorseForOwner(horseId: string): Promise<OwnerHorseSum
   const response = await apiFetchCatch(`/api/v1/horses/${encodeURIComponent(horseId)}/owner`);
   const data = await parseApiResponse<{ horse: OwnerHorseSummary }>(response);
   return data.horse;
+}
+
+export type HorseHubDto = {
+  id: string;
+  name?: string;
+  breed?: string;
+  sex?: string;
+  profileImageUrl?: string;
+  sections: {
+    identity?: {
+      age?: number;
+      color?: string;
+      heightHands?: number;
+      disciplines?: string[];
+    };
+    identification?: {
+      registryId?: string;
+      microchipId?: string;
+      passportNumber?: string;
+    };
+    pedigree?: {
+      sireName?: string;
+      damName?: string;
+      bloodlineNotes?: string;
+    };
+    about?: {
+      description?: string;
+    };
+    ownership?: {
+      coOwnerCount: number;
+      soleOwner: boolean;
+    };
+  };
+};
+
+/** Public/relationship Hub read — filtered sections only. */
+export async function fetchHorseHub(horseId: string): Promise<HorseHubDto> {
+  const response = await apiFetchCatch(`/api/v1/horses/${encodeURIComponent(horseId)}/hub`);
+  const data = await parseApiResponse<{ hub: HorseHubDto }>(response);
+  return data.hub;
 }
 
 /** Pending ownership transfer invites sent by the main owner for this horse. */

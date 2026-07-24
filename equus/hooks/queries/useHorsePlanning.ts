@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchWithAuth, parseApiResponse } from "@/lib/api/fetchWithAuth";
 import { queryKeys } from "@/lib/api/queryKeys";
+import type { CreatePlanningEventInput } from "@/lib/validations/horsePlanningForms.ts";
 
 export type CalendarEvent = {
   id: string;
@@ -14,6 +15,7 @@ export type CalendarEvent = {
   location?: string;
   sourceEntityType?: string;
   sourceEntityId?: string;
+  backgroundColor?: string;
 };
 
 async function fetchPlanning(horseId: string, from?: string, to?: string): Promise<CalendarEvent[]> {
@@ -28,14 +30,14 @@ async function fetchPlanning(horseId: string, from?: string, to?: string): Promi
 
 export function useHorsePlanning(horseId: string, from?: string, to?: string) {
   return useQuery({
-    queryKey: queryKeys.horses.planning(horseId),
+    queryKey: [...queryKeys.horses.planning(horseId), from ?? null, to ?? null] as const,
     queryFn: () => fetchPlanning(horseId, from, to),
     enabled: !!horseId,
     placeholderData: (previousData) => previousData,
   });
 }
 
-async function createPlanningEvent(horseId: string, body: Record<string, unknown>) {
+async function createPlanningEvent(horseId: string, body: CreatePlanningEventInput) {
   const res = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(horseId)}/planning`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -47,7 +49,7 @@ async function createPlanningEvent(horseId: string, body: Record<string, unknown
 export function useCreatePlanningEvent(horseId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (body: Record<string, unknown>) => createPlanningEvent(horseId, body),
+    mutationFn: (body: CreatePlanningEventInput) => createPlanningEvent(horseId, body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.horses.planning(horseId) });
     },

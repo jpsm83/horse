@@ -27,14 +27,14 @@ describe("mapHorseFormValuesToCreatePayload", () => {
       sex: "Mare",
       dateOfBirth: "2020-05-15",
       color: "Bay",
-      primaryDiscipline: "Dressage",
+      disciplines: ["Dressage"],
       profileVisibility: "relationship",
     });
 
     expect(payload.name).toBe("Nova");
     expect(payload.dateOfBirth).toEqual(new Date("2020-05-15"));
     expect(payload.color).toBe("Bay");
-    expect(payload.primaryDiscipline).toBe("Dressage");
+    expect(payload.disciplines).toEqual(["Dressage"]);
     expect(payload.profileVisibility).toBe("relationship");
   });
 

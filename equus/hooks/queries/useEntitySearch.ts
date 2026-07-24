@@ -20,8 +20,8 @@ async function fetchEntitySearch(query: string): Promise<EntitySearchResult[]> {
     credentials: "include",
   });
   if (!res.ok) throw new Error("Search failed");
-  const data: EntitySearchResponse = await res.json();
-  return data.results ?? [];
+  const body: { data?: EntitySearchResponse } = await res.json();
+  return body.data?.results ?? [];
 }
 
 export function useEntitySearch(query: string) {

@@ -1,7 +1,8 @@
 /**
  * Horse validation — Zod schemas for horse API input.
  *
- * `updateHorseDiscoverySchema` is used by `PATCH /api/v1/horses/:id/discovery`.
+ * `updateHorseDiscoverySchema` — Layer-1 `PATCH /api/v1/horses/:id/discovery`
+ * `updateHorseHubSectionsSchema` — Layer-2 `PATCH /api/v1/horses/:id/hub-sections`
  */
 
 import { z } from "zod";
@@ -15,6 +16,7 @@ import {
   visibilityEnums,
 } from "../../utils/enums.ts";
 import { isValidCountryCode } from "../data/countries.ts";
+import { hubSectionsSchema } from "../horses/hubSections.ts";
 import {
   hasAtLeastOneHorseIdentity,
   HORSE_IDENTITY_REQUIRED_MESSAGE,
@@ -30,9 +32,18 @@ const horsePedigreeSchema = z.object({
   bloodlineNotes: z.string().trim().optional(),
 }).optional();
 
+/** Layer-1 global horse visibility (Admin Visibility section). */
 export const updateHorseDiscoverySchema = z.object({
   profileVisibility: z.enum(visibilityEnums).optional(),
 });
+
+/** Layer-2 Hub section visibility (section popovers; partial map). */
+export const updateHorseHubSectionsSchema = z.object({
+  hubSections: hubSectionsSchema,
+}).refine(
+  (data) => Object.values(data.hubSections).some((section) => section?.mode !== undefined),
+  { message: "At least one hubSections entry with mode is required" },
+);
 
 export const createHorseSchema = z
   .object({
@@ -47,7 +58,6 @@ export const createHorseSchema = z
     dateOfBirth: z.coerce.date().optional(),
     color: z.enum(horseColorEnums).optional(),
     heightHands: z.coerce.number().min(0).max(30).optional(),
-    primaryDiscipline: z.enum(horseDisciplineEnums).optional(),
     disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
     countryOfBirth: z.string().refine((v): boolean => isValidCountryCode(v), { message: "Invalid country code" }),
 
@@ -89,7 +99,6 @@ export const updateHorseProfileSchema = z
     dateOfBirth: z.coerce.date().optional(),
     color: z.enum(horseColorEnums).optional(),
     heightHands: z.coerce.number().min(0).max(30).optional(),
-    primaryDiscipline: z.enum(horseDisciplineEnums).optional(),
     disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
     countryOfBirth: z.string().refine((v): boolean => isValidCountryCode(v), { message: "Invalid country code" }).optional(),
     estimatedValue: z.coerce.number().min(0).optional(),

@@ -1,0 +1,199 @@
+"use client";
+
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Trash2, Play, ImageIcon, Eye, EyeOff } from "lucide-react";
+
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog.tsx";
+import { useMedia, useDeleteMedia, useToggleMediaVisibility } from "@/hooks/queries/useMedia.ts";
+import { useAppToast } from "@/hooks/use-app-toast.ts";
+import { HorseMediaLightboxDialog } from "@/components/horses/media/horse-media-lightbox-dialog.tsx";
+
+type HorseMediaGallerySectionProps = {
+  horseId: string;
+};
+
+export function HorseMediaGallerySection({ horseId }: HorseMediaGallerySectionProps) {
+  const t = useTranslations("horseMedia");
+  const tCommon = useTranslations("common");
+  const toast = useAppToast();
+  const { data: media = [], isPending } = useMedia(horseId);
+  const deleteMutation = useDeleteMedia(horseId);
+  const toggleVisibilityMutation = useToggleMediaVisibility(horseId);
+
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+
+  function openLightbox(index: number) {
+    setLightboxIndex(index);
+  }
+
+  function closeLightbox() {
+    setLightboxIndex(null);
+  }
+
+  function goPrevious() {
+    setLightboxIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev));
+  }
+
+  function goNext() {
+    setLightboxIndex((prev) =>
+      prev !== null && prev < media.length - 1 ? prev + 1 : prev,
+    );
+  }
+
+  function handleDelete() {
+    if (!deleteTarget) return;
+
+    deleteMutation.mutate(
+      { mediaId: deleteTarget },
+      {
+        onSuccess: () => {
+          toast.success(t("deleteSuccess"));
+          setDeleteTarget(null);
+          if (lightboxIndex !== null && lightboxIndex >= media.length - 1) {
+            closeLightbox();
+          }
+        },
+        onError: () => toast.error(t("deleteError")),
+      },
+    );
+  }
+
+  if (isPending) {
+    return (
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <Skeleton key={i} className="aspect-square w-full rounded-lg" />
+        ))}
+      </div>
+    );
+  }
+
+  if (media.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <ImageIcon className="size-12 text-muted-foreground/40 mb-3" />
+        <p className="text-sm text-muted-foreground">{t("noMedia")}</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
+        {media.map((item, index) => (
+          <div
+            key={item.id}
+            className="group relative aspect-square overflow-hidden rounded-lg border cursor-pointer"
+            onClick={() => openLightbox(index)}
+          >
+            {item.type === "video" && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center">
+                <div className="flex items-center justify-center size-12 rounded-full bg-overlay/50">
+                  <Play className="size-6 text-overlay-foreground ml-0.5" />
+                </div>
+              </div>
+            )}
+
+            {item.type === "image" || item.thumbnailUrl ? (
+              <img
+                src={item.thumbnailUrl ?? item.url}
+                alt={item.title ?? ""}
+                className="size-full object-cover transition-transform group-hover:scale-105"
+                loading="lazy"
+              />
+            ) : (
+              <div className="flex size-full items-center justify-center bg-muted">
+                <ImageIcon className="size-8 text-muted-foreground" />
+              </div>
+            )}
+
+            <div className="absolute top-1 right-1 z-20 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 rounded-full bg-overlay/70 text-overlay-foreground hover:bg-overlay/90 hover:text-overlay-foreground border-overlay-foreground"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleVisibilityMutation.mutate(
+                    {
+                      mediaId: item.id,
+                      isVisibleOnHub: !item.isVisibleOnHub,
+                    },
+                    {
+                      onSuccess: () => toast.success(t("visibilityUpdateSuccess")),
+                      onError: () => toast.error(t("visibilityUpdateError")),
+                    },
+                  );
+                }}
+              >
+                {item.isVisibleOnHub !== false ? (
+                  <Eye className="size-3.5" />
+                ) : (
+                  <EyeOff className="size-3.5" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 rounded-full bg-destructive/70 text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground border-overlay-foreground"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteTarget(item.id);
+                }}
+              >
+                <Trash2 className="size-3.5" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {lightboxIndex !== null && (
+        <HorseMediaLightboxDialog
+          items={media}
+          currentIndex={lightboxIndex}
+          open={lightboxIndex !== null}
+          onOpenChange={closeLightbox}
+          onPrevious={goPrevious}
+          onNext={goNext}
+          onToggleVisibility={() => {
+            const item = media[lightboxIndex];
+            if (!item) return;
+            toggleVisibilityMutation.mutate(
+              {
+                mediaId: item.id,
+                isVisibleOnHub: !item.isVisibleOnHub,
+              },
+              {
+                onSuccess: () => toast.success(t("visibilityUpdateSuccess")),
+                onError: () => toast.error(t("visibilityUpdateError")),
+              },
+            );
+          }}
+          onRequestDelete={() => {
+            const item = media[lightboxIndex];
+            if (!item) return;
+            setDeleteTarget(item.id);
+          }}
+        />
+      )}
+
+      <ConfirmDeleteDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title={t("deleteConfirm")}
+        description={t("deleteConfirmDescription")}
+        confirmLabel={t("delete")}
+        cancelLabel={tCommon("cancel")}
+        isPending={deleteMutation.isPending}
+        onConfirm={handleDelete}
+      />
+    </>
+  );
+}

@@ -114,6 +114,7 @@ export function useEndRelationship() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.relationships.pending() });
       queryClient.invalidateQueries({ queryKey: queryKeys.horses.providers(data.horseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.relationships(data.horseId) });
     },
   });
 }

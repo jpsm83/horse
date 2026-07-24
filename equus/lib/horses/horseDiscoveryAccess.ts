@@ -1,45 +1,52 @@
 /**
- * Horse discovery visibility checks.
+ * Horse discovery visibility — thin compatibility layer over horseVisibilityAccess.
  *
- * Determines whether a requester may view a horse in discovery contexts using
- * `Horse.profileVisibility` plus ownership/relationship context.
+ * Prefer `canViewHorseGlobal` + `resolveHorseViewerAudience` for new code.
  */
 
 import { userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
-
-type HorseDiscoveryVisibility = "public" | "relationship" | "owner_only";
+import {
+  canViewHorseGlobal,
+  type HorseViewerAudience,
+} from "@/lib/horses/horseVisibilityAccess.ts";
 
 export type HorseDiscoveryRequesterContext = {
   requesterUserId?: string;
   isAuthenticated?: boolean;
   hasAcceptedRelationship?: boolean;
   hasActiveCollaboration?: boolean;
+  /** When provided, used directly instead of deriving from flags. */
+  audience?: HorseViewerAudience;
 };
 
-export function canViewHorseDiscovery(
+function audienceFromContext(
   horse: Record<string, unknown>,
   context: HorseDiscoveryRequesterContext,
-): boolean {
-  const visibility = (horse.profileVisibility ?? "public") as HorseDiscoveryVisibility;
+): HorseViewerAudience {
+  if (context.audience) {
+    return context.audience;
+  }
+
   const requesterUserId = context.requesterUserId;
-  const isOwner =
+  const isOwnerTeam =
     typeof requesterUserId === "string" &&
     requesterUserId.length > 0 &&
     userOwnsEntity(requesterUserId, horse);
 
-  if (isOwner) {
-    return true;
-  }
+  const isRelationshipAudience =
+    isOwnerTeam ||
+    context.hasAcceptedRelationship === true ||
+    context.hasActiveCollaboration === true;
 
-  switch (visibility) {
-    case "public":
-      return true;
-    case "relationship":
-      return context.hasAcceptedRelationship === true || context.hasActiveCollaboration === true;
-    case "owner_only":
-      return false;
-    default:
-      return false;
-  }
+  return { isOwnerTeam, isRelationshipAudience };
 }
 
+/** Prefer canViewHorseGlobal + resolveHorseViewerAudience for new code. */
+export function canViewHorseDiscovery(
+  horse: Record<string, unknown>,
+  context: HorseDiscoveryRequesterContext,
+): boolean {
+  return canViewHorseGlobal(horse, audienceFromContext(horse, context));
+}
+
+export { canViewHorseGlobal } from "@/lib/horses/horseVisibilityAccess.ts";
