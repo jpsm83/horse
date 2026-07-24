@@ -1,5 +1,7 @@
 # Color Token Centralization — Design Spec
 
+> **SUPERSEDED** by `docs/superpowers/specs/2026-07-24-color-token-centralization-completion-design.md`. Keep for history only — do not implement from this document.
+
 **Date:** 2025-07-19
 **Scope:** equus only (health and restaurant-pos are reference projects, not touched)
 **Goal:** Make `app/globals.css` the single source of truth for all app colors. Components reference only semantic design tokens — never raw Tailwind color names or hex values.

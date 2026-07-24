@@ -1,5 +1,7 @@
 # Color Token Centralization — Implementation Plan
 
+> **SUPERSEDED** by the plan that will accompany `docs/superpowers/specs/2026-07-24-color-token-centralization-completion-design.md` (`docs/superpowers/plans/2026-07-24-color-token-centralization-completion.md`). Do not execute this plan.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Migrate all raw Tailwind color names and hex values in equus to semantic design tokens defined in `app/globals.css`, making the entire app themeable from one file.
