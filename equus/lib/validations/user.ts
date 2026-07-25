@@ -13,6 +13,8 @@ import {
   userDirectMessageAudienceEnums,
   userProfileVisibilityEnums,
   userTypeEnums,
+  userHubSectionKeys,
+  visibilityEnums,
 } from "../../utils/enums.ts";
 import { isKnownCountryCode } from "../data/countries.ts";
 import { objectIdSchema } from "./common.ts";
@@ -53,6 +55,25 @@ export const addressSchema = z.object({
   additionalDetails: patchString().optional(),
   coordinates: z
     .union([z.tuple([z.number(), z.number()]), z.literal("")])
+    .optional(),
+});
+
+/** PATCH /api/v1/users/me/hub-sections — update a single section visibility mode. */
+export const updateUserHubSectionSchema = z.object({
+  sectionKey: z.enum(userHubSectionKeys),
+  mode: z.enum(visibilityEnums),
+});
+
+/** PATCH /api/v1/users/me/notifications — partial update of notification preferences. */
+export const updateUserNotificationPreferencesSchema = z.object({
+  email: z
+    .object({
+      relationshipRequests: z.boolean().optional(),
+      ownershipTransfers: z.boolean().optional(),
+      workplaceInvitations: z.boolean().optional(),
+      messages: z.boolean().optional(),
+      system: z.boolean().optional(),
+    })
     .optional(),
 });
 

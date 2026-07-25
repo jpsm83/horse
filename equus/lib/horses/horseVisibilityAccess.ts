@@ -15,6 +15,7 @@
 
 import Relationship from "@/models/Relationship.ts";
 import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
+import { ApiError } from "@/lib/api/errors.ts";
 import { userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
 import {
   DEFAULT_HUB_SECTIONS,
@@ -36,12 +37,24 @@ export const HORSE_HOST_COLLABORATOR_ACCOUNT_TYPES = businessRoleTypeEnums;
 
 type HorseVisibilityDoc = Record<string, unknown>;
 
+/**
+ * Media / HorseEvent still store legacy item modes (`entities`).
+ * Map to Layer-2 vocabulary before audience checks.
+ */
+export function normalizeItemVisibilityMode(
+  mode: string | undefined | null,
+): string {
+  if (mode === "entities") return "relationship";
+  if (mode === "owner_only") return "owner";
+  return mode ?? "public";
+}
+
 export function canAccessByVisibilityMode(
   mode: HorseVisibilityMode | string | undefined,
   audience: HorseViewerAudience,
 ): boolean {
-  const resolved = (mode ?? "public") as string;
-  // Legacy alias from pre-migration documents
+  const resolved = normalizeItemVisibilityMode(mode as string | undefined);
+  // Legacy alias from pre-migration documents (also handled in normalize)
   if (resolved === "owner_only") {
     return audience.isOwnerTeam;
   }
@@ -58,6 +71,14 @@ export function canAccessByVisibilityMode(
   }
 }
 
+/** Item-level media/event visibility using the same audience nesting as Layer 2. */
+export function canAccessByItemVisibilityMode(
+  mode: string | undefined | null,
+  audience: HorseViewerAudience,
+): boolean {
+  return canAccessByVisibilityMode(normalizeItemVisibilityMode(mode), audience);
+}
+
 export function canViewHorseGlobal(
   horse: HorseVisibilityDoc,
   audience: HorseViewerAudience,
@@ -66,6 +87,16 @@ export function canViewHorseGlobal(
     horse.profileVisibility as string | undefined,
     audience,
   );
+}
+
+/** Layer 1 deny — same shape as “not found” for public reads. */
+export function assertCanViewHorseGlobal(
+  horse: HorseVisibilityDoc,
+  audience: HorseViewerAudience,
+): void {
+  if (!canViewHorseGlobal(horse, audience)) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
 }
 
 export function canViewHorseHubSection(

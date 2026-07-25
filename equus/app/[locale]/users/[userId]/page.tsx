@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-import { PublicUserProfilePage } from "@/components/users/public-user-profile-page.tsx";
+import { PublicUserProfilePage } from "@/components/user/public/public-user-profile-page.tsx";
 import { Skeleton } from "@/components/ui/skeleton";
 import { userIdParamSchema } from "@/lib/validations/user.ts";
 import { generateUserMetadata } from "@/lib/seo/entity-metadata.ts";

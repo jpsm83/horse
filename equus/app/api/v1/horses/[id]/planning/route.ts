@@ -9,12 +9,12 @@ type RouteContext = { params: Promise<{ id: string }> };
 export async function GET(request: Request, context: RouteContext) {
   return withRoute(async () => {
     await connectDb();
-    await requireAuthFromRequest(request);
+    const session = await requireAuthFromRequest(request);
     const { id } = await context.params;
     const { searchParams } = new URL(request.url);
     const from = searchParams.get("from") ?? undefined;
     const to = searchParams.get("to") ?? undefined;
-    const events = await planningService.listPlanning(id, from, to);
+    const events = await planningService.listPlanning(id, from, to, session);
     return ok({ events });
   });
 }

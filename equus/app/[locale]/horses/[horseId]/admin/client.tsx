@@ -18,7 +18,7 @@ import { HorseSectionVisibility } from "@/components/horses/shared/horse-section
 import { Section } from "@/components/shared/section.tsx";
 import { useUnsavedChanges } from "@/components/shared/unsaved-changes-context.tsx";
 import { Button } from "@/components/ui/button";
-import type { OwnerHorseSummary } from "@/lib/api/horseClient.ts";
+import type { OwnerHorseSummary } from "@/lib/services/horseService.ts";
 import { normalizeHubSections } from "@/lib/horses/hubSections.ts";
 import {
   buildSaleSavePatch,
@@ -84,7 +84,7 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
     form.reset(toSaleFormValues(horse));
   }, [horse, form]);
 
-  const { isDirty } = useFormState({ control: form.control });
+  const { isDirty, dirtyFields } = useFormState({ control: form.control });
   const isSaving = updateHorseSale.isPending || updateVisibility.isPending;
 
   useEffect(() => {
@@ -96,9 +96,11 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
   }, [isSaving, setSaving]);
 
   async function onSave(values: SaleFormValues) {
-    const dirty = form.formState.dirtyFields as Record<string, boolean | object>;
-    const salePatch = buildSaleSavePatch(values, dirty);
-    const visibilityPatch = buildVisibilitySavePatch(values, dirty);
+    const salePatch = buildSaleSavePatch(values, dirtyFields as Record<string, boolean | object>);
+    const visibilityPatch = buildVisibilitySavePatch(
+      values,
+      dirtyFields as Record<string, boolean | object>,
+    );
 
     if (Object.keys(salePatch).length === 0 && Object.keys(visibilityPatch).length === 0) {
       toast.info(tSale("noChanges"));

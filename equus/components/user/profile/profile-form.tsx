@@ -1,13 +1,14 @@
 "use client";
 
 /**
- * Profile edit form — identity, address, photo, and security fields.
+ * Profile edit form — identity, address, and photo fields.
  * Submits to `PATCH /api/v1/users/me` (JSON or multipart with avatar).
- * Theme, language, and privacy live on the Preferences page.
+ * Security (password) and account deactivation are separate section components.
+ * Theme, language, and profile visibility live on their respective tabs.
  */
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleAlert, CircleCheckBig, Lock } from "lucide-react";
+import { CircleAlert, CircleCheckBig } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
@@ -33,7 +34,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { AppLocale } from "@/i18n/resolveLocale.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { formatAuthProvider } from "@/lib/api/auth/session";
-import { requestPasswordResetForCurrentUser } from "@/lib/api/auth/credentials";
 import { useUpdateProfile } from "@/hooks/queries/useCurrentUser.ts";
 import type { PublicUser } from "@/lib/services/userService.ts";
 import {
@@ -53,7 +53,7 @@ import { genderEnums, idTypeEnums } from "@/utils/enums.ts";
 
 const ProfileAddressMap = dynamic(
   () =>
-    import("@/components/profile/profile-address-map.tsx").then(
+    import("@/components/user/profile/profile-address-map.tsx").then(
       (mod) => mod.ProfileAddressMap,
     ),
   {
@@ -80,12 +80,12 @@ type ProfileFormProps = {
   email: string;
   emailVerified: boolean;
   authProvider: string;
-  hasPassword: boolean;
   imageUrl?: string;
   userType: string;
   businessDetails?: Record<string, unknown> | null;
   onSaved?: (user: PublicUser) => void;
   onSavingChange?: (isSaving: boolean) => void;
+  onDirtyChange?: (isDirty: boolean) => void;
 };
 
 export function ProfileForm({
@@ -93,12 +93,12 @@ export function ProfileForm({
   email,
   emailVerified,
   authProvider,
-  hasPassword,
   imageUrl,
   userType: initialUserType,
   businessDetails: initialBusinessDetails,
   onSaved,
   onSavingChange,
+  onDirtyChange,
 }: ProfileFormProps) {
   const currentLocale = useLocale() as AppLocale;
   const t = useTranslations("profile");
@@ -110,8 +110,6 @@ export function ProfileForm({
   const [imageFile, setImageFile] = useState<File | undefined>();
   const [previewUrl, setPreviewUrl] = useState<string | undefined>();
   const [savedImageUrl, setSavedImageUrl] = useState(imageUrl);
-  const [isRequestingPasswordReset, setIsRequestingPasswordReset] =
-    useState(false);
 
   const [savedCoordinates, setSavedCoordinates] = useState<[number, number] | null>(() =>
     readAddressCoordinates(
@@ -140,13 +138,17 @@ export function ProfileForm({
     ),
   });
 
-  const { dirtyFields } = form.formState;
+  const { dirtyFields, isDirty } = form.formState;
 
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     onSavingChange?.(isSaving);
   }, [isSaving, onSavingChange]);
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   const genderOptions = genderEnums.map((value) => ({
     value,
@@ -208,31 +210,6 @@ export function ProfileForm({
     }
   }
 
-  async function handlePasswordEmail() {
-    setIsRequestingPasswordReset(true);
-
-    let outcome: "success" | "error" = "success";
-    let successMessage = "";
-    let errorMessage = "";
-
-    try {
-      const result = await requestPasswordResetForCurrentUser();
-      successMessage = result.message;
-    } catch (err) {
-      outcome = "error";
-      errorMessage =
-        err instanceof Error ? err.message : t("passwordEmailFailed");
-    } finally {
-      setIsRequestingPasswordReset(false);
-    }
-
-    if (outcome === "success") {
-      toast.success(successMessage);
-    } else {
-      toast.error(errorMessage);
-    }
-  }
-
   const watchedFirstName = useWatch({
     control: form.control,
     name: "firstName",
@@ -266,7 +243,7 @@ export function ProfileForm({
           imageUrl={savedImageUrl}
           previewUrl={previewUrl}
           initials={initials || tCommon("owner").charAt(0)}
-          disabled={isRequestingPasswordReset}
+          disabled={false}
           onFileSelect={(file) => {
             if (!file) return;
             if (previewUrl?.startsWith("blob:")) {
@@ -625,38 +602,11 @@ export function ProfileForm({
         </div>
       </FieldSet>
 
-      <hr className="my-4" />
-
-      <FieldSet>
-        <FieldLegend className="pb-3 font-semibold">
-          {t("sections.security")}
-        </FieldLegend>
-        <FieldGroup>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full sm:w-auto"
-              disabled={isRequestingPasswordReset}
-              onClick={() => void handlePasswordEmail()}
-            >
-              <Lock className="size-4" aria-hidden />
-              {hasPassword ? t("passwordChange") : t("passwordSet")}
-            </Button>
-            <p className="text-sm text-muted-foreground">
-              {hasPassword
-                ? t("passwordChangeDescription")
-                : t("passwordSetDescription")}
-            </p>
-          </div>
-        </FieldGroup>
-      </FieldSet>
-
       <div className="flex">
         <Button
           type="submit"
           className="w-full sm:ms-auto sm:w-auto"
-          disabled={isSaving || isRequestingPasswordReset}
+          disabled={isSaving}
         >
           {isSaving ? t("submitting") : t("submit")}
         </Button>

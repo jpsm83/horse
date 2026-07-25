@@ -6,7 +6,7 @@ import { Controller, type Control } from "react-hook-form";
 import { HorseInviteSection, type HorseInviteLabels } from "@/components/shared/horse-invite-section.tsx";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
-import { useOwnerHorse, useUpdateHorse } from "@/hooks/queries/useHorse.ts";
+import { useHorseView, useUpdateHorse } from "@/hooks/queries/useHorse.ts";
 import { useCreatePedigreeConnection } from "@/hooks/queries/usePedigreeConnection.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import type { ProfileFormValues } from "@/lib/validations/horseForms.ts";
@@ -19,7 +19,8 @@ type HorsePedigreeSectionProps = {
 export function HorsePedigreeSection({ horseId, control }: HorsePedigreeSectionProps) {
   const t = useTranslations("horseProfile");
   const toast = useAppToast();
-  const { data: horse } = useOwnerHorse(horseId);
+  const { data: view } = useHorseView(horseId);
+  const horse = view?.horse;
   const createConnection = useCreatePedigreeConnection();
   const updateHorse = useUpdateHorse();
 

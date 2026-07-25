@@ -2,7 +2,7 @@
  * Map horse data ↔ profile form values and build PATCH payloads from dirty fields.
  */
 
-import type { OwnerHorseSummary } from "@/lib/api/horseClient.ts";
+import type { OwnerHorseSummary } from "@/lib/services/horseService.ts";
 import type { ProfileFormValues } from "@/lib/validations/horseForms.ts";
 
 type DirtyFields = Record<string, boolean | object | undefined>;

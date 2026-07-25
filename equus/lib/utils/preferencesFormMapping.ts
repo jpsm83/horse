@@ -29,8 +29,6 @@ export function mapUserToPreferencesFormValues(
   return {
     preferredTheme: normalizeTheme(readString(personalDetails.preferredTheme)),
     preferredLanguage: normalizeLocale(readString(personalDetails.preferredLanguage)),
-    profileVisibility: (readString(preferences?.profileVisibility) ||
-      "public") as PreferencesFormValues["profileVisibility"],
     allowDirectMessagesFrom: (readString(preferences?.allowDirectMessagesFrom) ||
       "everyone") as PreferencesFormValues["allowDirectMessagesFrom"],
   };
@@ -55,15 +53,10 @@ export function mapPreferencesFormValuesToPatch(
     patch.preferredTheme = normalizeTheme(values.preferredTheme);
   }
 
-  if (dirtyFields.profileVisibility || dirtyFields.allowDirectMessagesFrom) {
-    patch.preferences = {};
-
-    if (dirtyFields.profileVisibility) {
-      patch.preferences.profileVisibility = values.profileVisibility;
-    }
-    if (dirtyFields.allowDirectMessagesFrom) {
-      patch.preferences.allowDirectMessagesFrom = values.allowDirectMessagesFrom;
-    }
+  if (dirtyFields.allowDirectMessagesFrom) {
+    patch.preferences = {
+      allowDirectMessagesFrom: values.allowDirectMessagesFrom,
+    };
   }
 
   return patch;

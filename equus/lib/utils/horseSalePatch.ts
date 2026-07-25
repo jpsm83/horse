@@ -2,7 +2,7 @@
  * Map horse sale fields ↔ form values and build PATCH payloads from dirty fields.
  */
 
-import type { OwnerHorseSummary } from "@/lib/api/horseClient.ts";
+import type { OwnerHorseSummary } from "@/lib/services/horseService.ts";
 import type { SaleFormValues } from "@/lib/validations/horseForms.ts";
 import {
   buildDatePatch,

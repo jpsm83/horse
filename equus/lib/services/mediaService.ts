@@ -3,6 +3,13 @@ import Media from "@/models/Media.ts";
 import Horse from "@/models/Horse.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { ownedByUserQuery } from "@/lib/ownership/entityOwnership.ts";
+import {
+  assertCanViewHorseGlobal,
+  canAccessByItemVisibilityMode,
+  canViewHorseHubSection,
+  resolveHorseViewerAudience,
+} from "@/lib/horses/horseVisibilityAccess.ts";
+import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import { recordAudit } from "@/lib/services/horseAuditService.ts";
 import configureCloudinary from "@/lib/cloudinary/cloudinaryConfig.ts";
 import { v2 as cloudinary } from "cloudinary";
@@ -37,11 +44,50 @@ function toPublic(record: Record<string, unknown>): PublicMedia {
   };
 }
 
-export async function listMedia(horseId: string): Promise<PublicMedia[]> {
+/**
+ * List media for a horse.
+ * Layer 1 deny → 404. Owner team → full list. Others: Layer 2 gallery, then item modes.
+ */
+export async function listMedia(
+  horseId: string,
+  requester?: { id?: string; isAuthenticated?: boolean },
+): Promise<PublicMedia[]> {
+  if (!mongoose.Types.ObjectId.isValid(horseId)) {
+    throw new ApiError(400, "Invalid horse id", "VALIDATION_ERROR");
+  }
+
+  const horse = await Horse.findById(horseId).lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  const horseDoc = horse as Record<string, unknown>;
+  await assertPublicReadAllowed(horseDoc, "Horse");
+
+  const audience = await resolveHorseViewerAudience(horseDoc, requester?.id);
+  assertCanViewHorseGlobal(horseDoc, audience);
+
   const items = await Media.find({ horseId, isActive: true })
     .sort({ createdAt: -1 })
     .lean();
-  return items.map(toPublic);
+
+  if (audience.isOwnerTeam) {
+    return items.map((item) => toPublic(item as Record<string, unknown>));
+  }
+
+  if (!canViewHorseHubSection(horseDoc, "gallery", audience)) {
+    return [];
+  }
+
+  return items
+    .filter((item) => {
+      const record = item as Record<string, unknown>;
+      return canAccessByItemVisibilityMode(
+        record.visibilityMode as string | undefined,
+        audience,
+      );
+    })
+    .map((item) => toPublic(item as Record<string, unknown>));
 }
 
 export async function createMedia(

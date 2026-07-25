@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  canAccessByItemVisibilityMode,
   canAccessByVisibilityMode,
   canViewHorseGlobal,
   canViewHorseHubSection,
@@ -48,6 +49,12 @@ describe("horseVisibilityAccess", () => {
     it("accepts legacy owner_only alias", () => {
       expect(canAccessByVisibilityMode("owner_only", related)).toBe(false);
       expect(canAccessByVisibilityMode("owner_only", ownerTeam)).toBe(true);
+    });
+
+    it("maps legacy entities item mode to relationship", () => {
+      expect(canAccessByItemVisibilityMode("entities", guest)).toBe(false);
+      expect(canAccessByItemVisibilityMode("entities", related)).toBe(true);
+      expect(canAccessByItemVisibilityMode("entities", ownerTeam)).toBe(true);
     });
   });
 

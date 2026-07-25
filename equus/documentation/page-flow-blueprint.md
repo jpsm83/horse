@@ -5,11 +5,19 @@ Canonical pattern for all entity sub-pages in Equus. Every page follows this str
 ## 1. Directory Structure
 
 ```
+app/[locale]/horses/[horseId]/
+  layout.tsx            ← RSC (no "use client"): server-side data prefetch + HydrationBoundary
+  page.tsx              ← Server Component: generateMetadata + one client render (Hub page)
+  client.tsx            ← "use client": Hub content assembly (reads cache — no extra fetch)
+  loading.tsx           ← SSR skeleton (mandatory)
+
 app/[locale]/horses/[horseId]/<tab>/
   page.tsx              ← Server Component: generateMetadata + one client render
   client.tsx            ← "use client": content assembly (HorsePageShell + <Section> components)
   loading.tsx           ← SSR skeleton (mandatory)
 ```
+
+**`layout.tsx`** pre-fetches once per navigation, seeds TanStack cache via `HydrationBoundary`. All child tabs read from this cache — no waterfall.
 
 ### Horse UI layout (`components/horses/`)
 
@@ -17,7 +25,7 @@ app/[locale]/horses/[horseId]/<tab>/
 components/horses/
   shared/                 ← horse-only helpers used by 2+ tabs (not app-wide)
   admin/ | profile/ | connect/ | media/ | documents/ | planning/ | hub/ | create/ | list/ | history/
-  horse-page-shell.tsx    ← chrome used by all horseId tabs
+  horse-page-shell.tsx    ← chrome used by all ownership-gated horseId tabs
   horse-page-skeleton.tsx
 components/shared/        ← ONLY multi-module primitives (Section, FileUpload, …)
 ```
@@ -38,7 +46,44 @@ components/shared/        ← ONLY multi-module primitives (Section, FileUpload,
 - [ ] Not placed in `components/shared/` unless another module will import it
 - [ ] Docs (`horses.md`, this blueprint) updated if the tab layout changes
 
-## 2. Server Component (`page.tsx`) — Thin
+## 2. Layout RSC (`layout.tsx`) — Server Prefetch
+
+Sits at `app/[locale]/horses/[horseId]/layout.tsx`. Runs on the server for every navigation to any horse sub-page.
+
+```tsx
+// No "use client"
+import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
+import { getServerUserId } from "@/lib/auth/serverSession.ts";
+import { queryKeys } from "@/lib/api/queryKeys.ts";
+import { getHorseView } from "@/lib/services/horseService.ts";
+import connectDb from "@/lib/db.ts";
+
+export default async function HorseLayout({ children, params }) {
+  const { horseId } = await params;
+  const queryClient = new QueryClient();
+  try {
+    await connectDb();
+    const userId = await getServerUserId();
+    const data = await getHorseView(horseId, userId);
+    queryClient.setQueryData(queryKeys.horses.view(horseId), data);
+  } catch {
+    // Non-fatal: client will fetch on hydration
+  }
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      {children}
+    </HydrationBoundary>
+  );
+}
+```
+
+Rules:
+- No `"use client"`
+- Calls `getHorseView` directly (service layer, not REST) — no HTTP waterfall
+- Failure is non-fatal; client falls back to network fetch on hydration
+- Provides `viewerRole`, `allowedTabs`, and merged `HorseViewDto` to all child tabs
+
+## 3. Server Component (`page.tsx`) — Thin
 
 ```tsx
 import type { Metadata } from "next";
@@ -59,11 +104,11 @@ export default async function HorseConnectPage({ params }: PageProps) {
 ```
 
 Rules:
-- Only `generateMetadata` — no data fetching on the server for content
+- Only `generateMetadata` — no data fetching for content (layout handles that)
 - Single client component render — no server-side section logic
 - No `"use client"`
 
-## 3. `loading.tsx` — SSR Skeleton
+## 4. `loading.tsx` — SSR Skeleton
 
 ```tsx
 import { HorsePageSkeleton } from "@/components/horses/horse-page-skeleton.tsx";
@@ -78,7 +123,7 @@ Rules:
 - Uses a shared `*PageSkeleton` component, not bare `<Skeleton>`.
 - For non-horse entity pages, create an `EntityPageSkeleton` following the same pattern.
 
-## 4. Content Assembly (`client.tsx`)
+## 5. Content Assembly (`client.tsx`)
 
 The single Client Component that composes the shell + sections using the `<Section>` component. Co-located next to the route as `client.tsx`.
 
@@ -124,7 +169,9 @@ Rules:
   - **Action sections** — own their mutations (invite, delete, transfer). `client.tsx` only composes them.
   - **Deferred form tabs** (Profile, Admin sale settings) — parent owns one `useForm`, one Save button, and dirty → unsaved-changes wiring. Field-group sections receive `control` only.
 
-## 4.5. The `Section` Component (`components/shared/section.tsx`)
+**Hub exception:** Hub (`/horses/[horseId]`) does NOT use `HorsePageShell` — it is public-facing. Its `client.tsx` reads from `useHorseView()` directly and renders its own `EntityTabs`. Data is already in the cache from `layout.tsx`.
+
+## 5.5 The `Section` Component (`components/shared/section.tsx`)
 
 Reusable layout wrapper that standardizes section headers across all pages. Pure layout — no data fetching, no visibility PATCH, no error handling.
 
@@ -174,49 +221,94 @@ Section (layout slot)
 - Section is **pure layout** — it does NOT wrap children in ErrorBoundary. Wrap children in `ErrorBoundary` at the `client.tsx` level (see section 7)
 - **Toggle is optional** — omit `visibilityControl` to render a section without visibility control
 - **Section visibility is section-owned via adapter** — modes are `owner` | `relationship` | `public`. Autosave through the shared control; never parent form dirty/Save for Layer-2; never `PATCH …/discovery` for section modes
-- **Hub-facing keys only on Hub** — Hub DTO filters `identity` | `identification` | `pedigree` | `about` | `ownership`. Non-Hub keys (`value`, `proactiveRepresentatives`, `coOwnerManagement`, `gallery`, `planning`, `connections`) still persist via `HorseSectionVisibility` (Media / Planning / Connect Connections)
-- **Hub consumer** — Hub page fetches `GET /api/v1/horses/:id/hub` and renders only keys present in `sections` (server-filtered). Do not load full owner horse and hide sections in React.
+- **Hub-facing keys only on Hub** — Hub renders `identity` | `identification` | `pedigree` | `about` | `ownership` | `gallery` | `planning` | `connections`. Admin-only keys (`value` | `proactiveRepresentatives` | `coOwnerManagement`) persist via `HorseSectionVisibility` but are not Hub-facing.
+- **Hub consumer** — Hub page reads `useHorseView(horseId)` which hits the TanStack cache (pre-seeded by `layout.tsx`). No extra network request. Renders only sections present in `horse.sections` (server-filtered by L1+L2 visibility). Do not load full owner horse and hide sections in React.
 - **Parent controls sizing** via `className` — use `className="flex-1"` for sections that should fill remaining space, `className="shrink-0"` for sections that take natural height
 
-## 5. Shell Component (`HorsePageShell`, `*PageShell`)
+## 5.6 Shell Component (`HorsePageShell`)
 
-### 5.1 Responsibilities
-1. Render chrome immediately (tabs — no data needed)
-2. Gate content behind auth + ownership
+### Responsibilities
+1. Read horse data from TanStack cache via `useHorseView(horseId)` (pre-seeded by `layout.tsx`)
+2. Gate content behind auth + ownership using `viewerRole` / `allowedTabs` from the view response
 3. Show skeleton while auth/data loads
-4. Redirect on auth failure (return `null` to avoid skeleton flash)
+4. Redirect on auth failure
 5. Block content on permission failure (show "not allowed" fallback)
+6. Wrap content in `UnsavedChangesProvider` for deferred form tabs
 
-### 5.2 Auth redirect — no flash
+### 5.6.1 No data fetching in HorsePageShell
+`HorsePageShell` no longer fetches data. It reads from the cache:
+
 ```tsx
-const isLoading = isAuthLoading || isHorseLoading;
-const shouldRedirect = !isLoading && !isAuthenticated;
-
-if (shouldRedirect) {
-  return null;
-}
+const { data: view, isLoading } = useHorseView(horseId);
+const horse = view?.horse;
+const allowedTabs = view?.allowedTabs;
+const isAdmin = horse?.isAdmin === true;
 ```
 
-### 5.3 Loading state
+### 5.6.2 Auth redirect — no flash
 ```tsx
-if (isLoading || !horse) {
-  return <HorsePageSkeleton />;
-}
+useEffect(() => {
+  if (!isLoading && !isAuthenticated) {
+    router.replace(buildSignInPath("/horses/" + horseId));
+  }
+}, [isLoading, isAuthenticated]);
+
+if (!isAuthenticated && !isLoading) return null;
 ```
 
-Reuses the same `<HorsePageSkeleton>` component used in `loading.tsx` for visual consistency.
-
-### 5.4 Permission-denied fallback
+### 5.6.3 Loading state
 ```tsx
-if (requireOwnership && !(horse.isMainOwner === true)) {
-  return <div>...</div>;
-}
+{isLoading || !horse ? <HorsePageSkeleton /> : children}
 ```
 
-### 5.5 Content
+### 5.6.4 Permission-denied fallback
 ```tsx
-return <>{children}</>;
+const blocked = !isLoading && horse &&
+  ((requireMainOwner && !isMainOwner) || (requireOwnership && !isAdmin));
 ```
+
+## 5.7 viewerRole and allowedTabs
+
+### Flow
+```mermaid
+flowchart TB
+  subgraph server ["Server (layout.tsx RSC)"]
+    L["layout.tsx\ngetServerUserId()"] --> SVC["getHorseView(horseId, userId)"]
+    SVC --> VR["deriveViewerRole(audience, horseDoc)"]
+    VR --> AT["deriveAllowedTabs(viewerRole)"]
+    SVC --> CACHE["HydrationBoundary\nqueryClient.setQueryData(view)"]
+  end
+  subgraph client ["Client"]
+    CACHE --> HV["useHorseView(horseId)\n— cache hit"]
+    HV --> SHELL["HorsePageShell\ngetHorseTabs(horseId, allowedTabs)"]
+    HV --> HUB["HubContent\ngetHorseTabs(horseId, allowedTabs)"]
+    SHELL --> TABS["EntityTabs\n(only allowedTabs rendered)"]
+  end
+```
+
+### viewerRole enum
+| Role | Condition |
+|------|-----------|
+| `main_owner` | `horse.mainOwnerUserId === userId` |
+| `co_owner` | userId in `horse.coOwners[]` |
+| `responsible` | userId in `horse.responsibles[]` |
+| `related` | accepted `Relationship` or active host collaboration |
+| `public` | authenticated, no relationship |
+| `guest` | unauthenticated |
+
+### Tab access (server-enforced)
+| Tab | Minimum viewerRole |
+|-----|--------------------|
+| hub | `guest` |
+| planning | `guest` |
+| media | `guest` |
+| documents | `guest` |
+| connect | `responsible` |
+| profile | `responsible` |
+| history | `responsible` |
+| admin | `main_owner` |
+
+`getHorseTabs(horseId, allowedTabs)` in `lib/navigation/horseTabs.ts` filters to only the server-returned tabs. No client-side role inference.
 
 ## 6. Section Components — Action / Query Sections
 
@@ -254,7 +346,7 @@ export function HorseConnectionsTableSection({ horseId }: { horseId: string }) {
 
 Tabs that edit entity fields with a single Save (not immediate CRUD) follow this pattern:
 
-1. **`client.tsx`** receives `horse` from `HorsePageShell` render props
+1. **`client.tsx`** receives `horse` from `HorsePageShell` render props (type: `HorseViewDto` from `@/lib/services/horseService`)
 2. Parent creates **one** `useForm` (+ Zod resolver), resets from horse data
 3. Field-group sections receive `control` only — no `useForm`, no Save button, no mutations
 4. Parent renders **one Save** that validates, builds dirty-field patches, calls TanStack mutations, then `form.reset(values)`
@@ -262,7 +354,7 @@ Tabs that edit entity fields with a single Save (not immediate CRUD) follow this
 
 ### Parent sketch
 ```tsx
-function ProfileForm({ horseId, horse }: { horseId: string; horse: OwnerHorseSummary }) {
+function ProfileForm({ horseId, horse }: { horseId: string; horse: HorseViewDto }) {
   const form = useForm<ProfileFormValues>({ resolver: zodResolver(schema), defaultValues: empty() });
   useEffect(() => { form.reset(toFormValues(horse)); }, [horse, form]);
 
@@ -320,17 +412,19 @@ Rules:
 
 ## 8. Data Fetching Rules
 
-1. **All client-side API calls** use TanStack Query (`useQuery` / `useMutation`)
-2. **No raw `fetch()`** in any component — use hooks from `hooks/queries/`
-3. **`placeholderData: (prev) => prev`** on every query — eliminates skeleton flash on tab switches
-4. **`staleTime: 30_000`** (global default) — prevents repeated fetches on mount
-5. **`enabled:`** for conditional queries (e.g. search needs min 2 chars)
-6. **Query key factory** — use `queryKeys` (not ad-hoc arrays) for targeted invalidation
+1. **Layout-level prefetch** — `layout.tsx` RSC calls the service directly and seeds TanStack cache via `HydrationBoundary`. All tabs read from the pre-seeded cache — no waterfall.
+2. **All client-side API calls** use TanStack Query (`useQuery` / `useMutation`)
+3. **No raw `fetch()`** in any component — use hooks from `hooks/queries/`
+4. **`placeholderData: (prev) => prev`** on every query — eliminates skeleton flash on tab switches
+5. **`staleTime: 30_000`** (global default) — prevents repeated fetches on mount
+6. **`enabled:`** for conditional queries (e.g. search needs min 2 chars)
+7. **Query key factory** — use `queryKeys` (not ad-hoc arrays) for targeted invalidation
+8. **Mutations invalidate `view` key** — `useUpdateHorse`, `useUpdateHorseSale`, `useUpdateHorseVisibility`, `useUpdateHorseHubSection` all invalidate `queryKeys.horses.view(horseId)` on success
 
 ## 9. Mutation Rules
 
 1. Use `useMutation` — never `fetch().then()` in event handlers
-2. `onSuccess` invalidates related queries
+2. `onSuccess` invalidates related queries (always include `queryKeys.horses.view`)
 3. `onError` shows toast via `useAppToast()` — never silent `catch`
 4. Mutation loading state: disable the submit button, show spinner text
 5. **Deferred forms** — parent Save orchestrates one or more mutations from dirty fields; sections must not call those mutations themselves
@@ -347,12 +441,13 @@ Rules:
 ```
 [ ] Create `app/[locale]/horses/[horseId]/<tab>/page.tsx` — thin Server Component
 [ ] Create `app/[locale]/horses/[horseId]/<tab>/loading.tsx` — uses HorsePageSkeleton
-[ ] Create `app/[locale]/horses/[horseId]/<tab>/client.tsx` — HorsePageShell + `<Section>` components (co-located with the route)
+[ ] Create `app/[locale]/horses/[horseId]/<tab>/client.tsx` — HorsePageShell + <Section> components (co-located with the route)
+[ ] Confirm layout.tsx exists at app/[locale]/horses/[horseId]/layout.tsx — it pre-fetches horse data for all sub-pages
 [ ] For each data section in the tab:
-    [ ] Extract into a dedicated `"use client"` section component
-    [ ] Wrap it in `<Section title={...} className="flex-1">` (never raw `<section>`)
-    [ ] Wrap children inside `<Section>` with `<ErrorBoundary fallbackRender={InlineErrorFallback}>`
-    [ ] Add `visibilityControl={<HorseSectionVisibility … />}` (or other entity adapter) when the section needs Layer-2 visibility — never page-local PATCH helpers
+    [ ] Extract into a dedicated "use client" section component
+    [ ] Wrap it in <Section title={...} className="flex-1"> (never raw <section>)
+    [ ] Wrap children inside <Section> with <ErrorBoundary fallbackRender={InlineErrorFallback}>
+    [ ] Add visibilityControl={<HorseSectionVisibility … />} when the section needs Layer-2 visibility
     [ ] Use TanStack Query hooks (no raw fetch)
     [ ] Use `placeholderData: (prev) => prev`
     [ ] Show inline skeleton during `isPending`
@@ -361,10 +456,12 @@ Rules:
     [ ] Parent owns `useForm` + single Save + dirty → `useUnsavedChanges`
     [ ] Field sections receive `control` only (no per-section Save)
     [ ] Action sections on the same tab keep their own immediate mutations
+[ ] Mutations in this tab's hooks invalidate `queryKeys.horses.view(horseId)`
 [ ] Verify: tabs survive if one section crashes (header + other sections remain)
 [ ] Verify: navigation between tabs shows no skeleton (placeholderData)
 [ ] Verify: full page load (SSR) shows skeleton immediately, not after hydration
 [ ] Verify (deferred forms): leaving with dirty fields shows unsaved-changes dialog
+[ ] Update horses.md and horseTabs.md if the tab layout changes
 ```
 
 ## 12. Page Type Variants
@@ -376,4 +473,4 @@ Rules:
 | Breeder sub-page | `BreederPageShell` | `BreederPageSkeleton` |
 | (other entities) | `*PageShell` | `*PageSkeleton` |
 
-Each entity type creates its own shell + skeleton following the exact same pattern.
+Each entity type creates its own shell + skeleton following the exact same pattern. New entity shells should also follow the `layout.tsx` RSC prefetch pattern (§2) with a corresponding `getEntityView` service function.

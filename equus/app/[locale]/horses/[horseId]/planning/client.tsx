@@ -8,7 +8,7 @@ import { HorsePlanningCalendarSection } from "@/components/horses/planning/horse
 import { HorseSectionVisibility } from "@/components/horses/shared/horse-section-visibility.tsx";
 import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { Section } from "@/components/shared/section.tsx";
-import type { OwnerHorseSummary } from "@/lib/api/horseClient.ts";
+import type { OwnerHorseSummary } from "@/lib/services/horseService.ts";
 import { normalizeHubSections } from "@/lib/horses/hubSections.ts";
 
 type PlanningContentProps = {

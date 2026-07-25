@@ -69,9 +69,11 @@
         },
         "account": {
             "sectionLabel": "My account",
+            "hub": "Hub",
             "preferences": "Preferences",
-            "workplaces": "Workplaces",
-            "relationships": "Relationship requests",
+            "notifications": "Notifications",
+            "workplaces": "Workplace",
+            "relationships": "Relationships",
             "ownershipTransfers": "Ownership transfers",
             "subscription": "Subscription"
         },
@@ -469,7 +471,7 @@
         },
         "sectionDescriptions": {
             "appearance": "Theme and language apply as a preview. Save to keep them.",
-            "privacy": "Control who can see your profile and message you."
+            "privacy": "Control who can message you. Profile visibility is managed in the Profile tab."
         }
     },
     "createHorse": {
@@ -540,11 +542,6 @@
         "yesNoOptions": {
             "true": "Yes",
             "false": "No"
-        },
-        "visibilityOptions": {
-            "public": "Public - visible to everyone",
-            "relationship": "Relationships only - accepted provider links",
-            "owner": "Owner team only - hidden from discovery"
         },
         "sexOptions": {
             "Stallion": "Stallion",
@@ -697,19 +694,42 @@
         "registryId": "Registry ID",
         "microchipId": "Microchip ID",
         "passportNumber": "Passport number",
+        "identificationEmpty": "No identification records yet.",
         "overview": "Overview",
         "age": "Age",
+        "ageYears": "{count} years",
         "color": "Color",
         "height": "Height",
+        "heightHands": "{value} hh",
         "disciplines": "Disciplines",
         "pedigree": "Pedigree",
+        "pedigreeEmpty": "No pedigree information yet.",
         "sire": "Sire",
         "dam": "Dam",
         "about": "About",
         "aboutEmpty": "No description yet.",
+        "gallery": "Gallery",
+        "galleryEmpty": "No media to show.",
+        "galleryItemAlt": "Horse media",
+        "planning": "Upcoming",
+        "planningEmpty": "No upcoming events.",
+        "eventsEmpty": "No upcoming events.",
+        "connections": "Connections",
+        "connectionsEmpty": "No connections to show.",
+        "teamEmpty": "No team information available.",
+        "ownership": "Ownership",
+        "soleOwner": "Sole ownership",
+        "coOwnersCount": "Shared with {count} co-owner(s)",
+        "eventTypes": {
+            "appointment": "Appointment",
+            "competition": "Competition",
+            "training": "Training",
+            "feeding": "Feeding",
+            "other": "Other"
+        },
         "notFound": "This horse is not available.",
         "loadFailed": "Could not load this horse.",
-        "ownership": {
+        "ownershipSection": {
             "title": "Ownership",
             "description": "Transfer this horse or manage co-owners.",
             "soleOwner": "Sole ownership.",
@@ -849,11 +869,6 @@
         "useOwnerContact": "Contact display",
         "useOwnerContactYes": "Use owner contact",
         "useOwnerContactNo": "Custom contact",
-        "visibilityOptions": {
-            "public": "Public",
-            "relationship": "Connections only",
-            "owner": "Owner team only"
-        },
         "sexOptions": {
             "Stallion": "Stallion",
             "Mare": "Mare",
@@ -1220,7 +1235,7 @@
         },
         "relationships": {
             "title": "Relationships | Equus",
-            "description": "Manage your relationship requests and connections in Equus.",
+            "description": "Manage your horse relationships and connection requests.",
             "keywords": ""
         },
         "ownershipTransfers": {
@@ -1280,7 +1295,7 @@
         },
         "notifications": {
             "title": "Notifications | Equus",
-            "description": "Your Equus notifications.",
+            "description": "Manage your notification preferences.",
             "keywords": ""
         },
         "notFound": {
@@ -1295,7 +1310,7 @@
         },
         "subscription": {
             "title": "Subscription | Equus",
-            "description": "Manage your Equus subscription plan and billing.",
+            "description": "Manage your plan and billing.",
             "keywords": ""
         },
         "horseConnect": {
@@ -1336,6 +1351,16 @@
         "horseAdmin": {
             "title": "Admin | Equus",
             "description": "Manage sale settings, ownership, and hub configuration for your horse.",
+            "keywords": ""
+        },
+        "userHub": {
+            "title": "My Hub | Equus",
+            "description": "Preview and manage your public profile.",
+            "keywords": ""
+        },
+        "workplace": {
+            "title": "Workplace | Equus",
+            "description": "Manage your workplace memberships.",
             "keywords": ""
         }
     },
@@ -1378,6 +1403,134 @@
         "contactPhoneRequired": "Contact phone is required when not using owner contact",
         "contactEmailRequired": "Contact email is required when not using owner contact",
         "contactEmailInvalid": "Please provide a valid email address"
+    },
+    "userHub": {
+        "eyebrow": "Member",
+        "businessBadge": "Business",
+        "anonymousMember": "Anonymous Member",
+        "previewCallout": "This is a preview of your public profile. Use the visibility controls to choose who can see each section.",
+        "noAbout": "No bio or location added yet.",
+        "noEntities": "No horses or entities linked yet.",
+        "businessLabel": "Business:",
+        "locationLabel": "Location:",
+        "hasHorses": "Horses are linked to this profile.",
+        "sections": {
+            "identity": "Identity",
+            "about": "About",
+            "entities": "Horses & Entities",
+            "contact": "Contact"
+        },
+        "contact": {
+            "email": "Email",
+            "phone": "Phone",
+            "visibilityHint": "Visibility is controlled by the section toggle above."
+        },
+        "visibilitySection": {
+            "title": "Visibility Overview",
+            "description": "Manage who can see your public profile and each section.",
+            "profileVisibility": "Profile visibility",
+            "profileVisibilityHint": "Controls who can discover your profile.",
+            "change": "Change in Profile tab",
+            "section": "Section",
+            "visibility": "Visibility"
+        },
+        "notFound": "Profile not found.",
+        "loadFailed": "Failed to load your profile."
+    },
+    "userNotifications": {
+        "title": "Notifications",
+        "description": "Manage your email notification preferences.",
+        "saveFailed": "Failed to save notification settings.",
+        "sections": {
+            "email": "Email notifications",
+            "emailDescription": "Choose which events trigger email notifications."
+        },
+        "email": {
+            "relationshipRequests": {
+                "label": "Relationship requests",
+                "description": "Receive an email when someone requests a horse relationship with you."
+            },
+            "ownershipTransfers": {
+                "label": "Ownership transfers",
+                "description": "Receive an email when an ownership transfer involves you."
+            },
+            "workplaceInvitations": {
+                "label": "Workplace invitations",
+                "description": "Receive an email when you are invited to a workplace."
+            },
+            "messages": {
+                "label": "Direct messages",
+                "description": "Receive an email when you get a new direct message."
+            },
+            "system": {
+                "label": "System notifications",
+                "description": "Receive important system and security emails."
+            }
+        }
+    },
+    "userWorkplace": {
+        "title": "Workplace",
+        "description": "Manage your workplace memberships and pending invitations.",
+        "noInvitations": "No pending invitations.",
+        "noWorkplaces": "You have no active workplaces yet.",
+        "unknownWorkplace": "Unknown workplace",
+        "unknownRole": "Unknown role",
+        "hierarchyLevel": "Role",
+        "ownerBadge": "Owner",
+        "accept": "Accept",
+        "decline": "Decline",
+        "invitationAccepted": "Invitation accepted.",
+        "invitationDeclined": "Invitation declined.",
+        "invitationAcceptFailed": "Failed to accept invitation.",
+        "invitationDeclineFailed": "Failed to decline invitation.",
+        "sections": {
+            "invitations": "Pending invitations",
+            "invitationsDescription": "Workplace invitations waiting for your response.",
+            "active": "My workplaces",
+            "activeDescription": "Businesses you own or collaborate with."
+        }
+    },
+    "userRelationships": {
+        "title": "Relationships",
+        "description": "Manage your horse relationships and pending requests.",
+        "noRequests": "No pending relationship requests.",
+        "unknownHorse": "Unknown horse",
+        "fromLabel": "From",
+        "accept": "Accept",
+        "decline": "Decline",
+        "requestAccepted": "Request accepted.",
+        "requestDeclined": "Request declined.",
+        "requestAcceptFailed": "Failed to accept request.",
+        "requestDeclineFailed": "Failed to decline request.",
+        "listComingSoon": "Your active relationship list will appear here soon.",
+        "sections": {
+            "requests": "Incoming requests",
+            "requestsDescription": "Pending relationship requests waiting for your response.",
+            "active": "Active relationships",
+            "activeDescription": "Your accepted horse relationships."
+        }
+    },
+    "userSubscription": {
+        "title": "Subscription",
+        "description": "Manage your plan and billing details.",
+        "horseLimit": "Horses included",
+        "unlimited": "Unlimited",
+        "renewsOn": "Renews on {date}",
+        "trialEndsOn": "Trial ends on {date}",
+        "upgradeCallout": "Unlock more horses with a paid plan",
+        "upgradeDescription": "Add up to 3 horses on Bronze, or unlimited with Diamond.",
+        "upgradeButton": "Upgrade plan",
+        "upgradeComingSoon": "Billing portal coming soon.",
+        "status": {
+            "trial": "Trial",
+            "active": "Active",
+            "past_due": "Past due",
+            "canceled": "Canceled",
+            "incomplete": "Incomplete"
+        },
+        "sections": {
+            "plan": "Current plan"
+        }
     },
     "table": {
         "resetColumnsSuccess": "Columns reset successfully",

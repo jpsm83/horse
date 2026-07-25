@@ -226,6 +226,14 @@ export const idTypeEnums = [
 
 export const visibilityEnums = ["public", "relationship", "owner"] as const;
 
+/** Per-section Layer-2 visibility keys for user hub (Hub tab popovers). */
+export const userHubSectionKeys = [
+  "identity",
+  "about",
+  "entities",
+  "contact",
+] as const;
+
 /** Per-section Layer-2 visibility keys (Hub + Admin section popovers). */
 export const horseHubSectionKeys = [
   "identity",

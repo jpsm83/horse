@@ -69,9 +69,11 @@
         },
         "account": {
             "sectionLabel": "Mi cuenta",
+            "hub": "Hub",
             "preferences": "Preferencias",
-            "workplaces": "Lugares de trabajo",
-            "relationships": "Solicitudes de relación",
+            "notifications": "Notificaciones",
+            "workplaces": "Lugar de trabajo",
+            "relationships": "Relaciones",
             "ownershipTransfers": "Transferencias de propiedad",
             "subscription": "Suscripción"
         },
@@ -469,7 +471,7 @@
         },
         "sectionDescriptions": {
             "appearance": "El tema y el idioma se previsualizan al cambiar. Guarde para conservarlos.",
-            "privacy": "Controle quién puede ver su perfil y enviarle mensajes."
+            "privacy": "Controle quién puede enviarle mensajes. La visibilidad del perfil se gestiona en la pestaña Perfil."
         }
     },
     "createHorse": {
@@ -540,11 +542,6 @@
         "yesNoOptions": {
             "true": "Sí",
             "false": "No"
-        },
-        "visibilityOptions": {
-            "public": "Público - visible para todos",
-            "relationship": "Solo relaciones - enlaces con proveedores aceptados",
-            "owner": "Solo equipo propietario - oculto del descubrimiento"
         },
         "sexOptions": {
             "Stallion": "Semental",
@@ -697,19 +694,42 @@
         "registryId": "ID de registro",
         "microchipId": "ID de microchip",
         "passportNumber": "Número de pasaporte",
+        "identificationEmpty": "Sin registros de identificación.",
         "overview": "Resumen",
         "age": "Edad",
+        "ageYears": "{count} años",
         "color": "Color",
         "height": "Altura",
+        "heightHands": "{value} hh",
         "disciplines": "Disciplinas",
         "pedigree": "Pedigrí",
+        "pedigreeEmpty": "Sin información de pedigrí.",
         "sire": "Padre",
         "dam": "Madre",
         "about": "Acerca de",
         "aboutEmpty": "Sin descripción todavía.",
+        "gallery": "Galería",
+        "galleryEmpty": "No hay medios para mostrar.",
+        "galleryItemAlt": "Medio del caballo",
+        "planning": "Próximos",
+        "planningEmpty": "No hay eventos próximos.",
+        "eventsEmpty": "No hay eventos próximos.",
+        "connections": "Conexiones",
+        "connectionsEmpty": "No hay conexiones para mostrar.",
+        "teamEmpty": "Sin información del equipo.",
+        "ownership": "Propiedad",
+        "soleOwner": "Propiedad única",
+        "coOwnersCount": "Compartido con {count} copropietario(s)",
+        "eventTypes": {
+            "appointment": "Cita",
+            "competition": "Competición",
+            "training": "Entrenamiento",
+            "feeding": "Alimentación",
+            "other": "Otro"
+        },
         "notFound": "Este caballo no está disponible.",
         "loadFailed": "No se pudo cargar este caballo.",
-        "ownership": {
+        "ownershipSection": {
             "title": "Propiedad",
             "description": "Transfiere este caballo o gestiona copropietarios.",
             "soleOwner": "Propiedad única.",
@@ -849,11 +869,6 @@
         "useOwnerContact": "Contacto",
         "useOwnerContactYes": "Usar contacto del propietario",
         "useOwnerContactNo": "Contacto personalizado",
-        "visibilityOptions": {
-            "public": "Público",
-            "relationship": "Solo conexiones",
-            "owner": "Solo equipo propietario"
-        },
         "sexOptions": {
             "Stallion": "Semental",
             "Mare": "Yegua",
@@ -1220,7 +1235,7 @@
         },
         "relationships": {
             "title": "Relaciones | Equus",
-            "description": "Gestiona tus solicitudes de relación y conexiones en Equus.",
+            "description": "Gestiona tus relaciones de caballos y solicitudes de conexión.",
             "keywords": ""
         },
         "ownershipTransfers": {
@@ -1280,7 +1295,7 @@
         },
         "notifications": {
             "title": "Notificaciones | Equus",
-            "description": "Tus notificaciones de Equus.",
+            "description": "Gestiona tus preferencias de notificaciones.",
             "keywords": ""
         },
         "notFound": {
@@ -1295,7 +1310,7 @@
         },
         "subscription": {
             "title": "Suscripción | Equus",
-            "description": "Gestiona tu plan de suscripción y facturación de Equus.",
+            "description": "Gestiona tu plan y facturación.",
             "keywords": ""
         },
         "horseConnect": {
@@ -1336,6 +1351,16 @@
         "horseAdmin": {
             "title": "Admin | Equus",
             "description": "Gestiona configuración de venta, propiedad y hub de tu caballo.",
+            "keywords": ""
+        },
+        "userHub": {
+            "title": "Mi Hub | Equus",
+            "description": "Previsualiza y gestiona tu perfil público.",
+            "keywords": ""
+        },
+        "workplace": {
+            "title": "Lugar de trabajo | Equus",
+            "description": "Gestiona tus membresías en lugares de trabajo.",
             "keywords": ""
         }
     },
@@ -1378,6 +1403,134 @@
         "contactPhoneRequired": "El teléfono de contacto es obligatorio cuando no se usa el contacto del propietario",
         "contactEmailRequired": "El correo de contacto es obligatorio cuando no se usa el contacto del propietario",
         "contactEmailInvalid": "Proporcione una dirección de correo válida"
+    },
+    "userHub": {
+        "eyebrow": "Miembro",
+        "businessBadge": "Empresa",
+        "anonymousMember": "Miembro anónimo",
+        "previewCallout": "Esta es una vista previa de tu perfil público. Usa los controles de visibilidad para elegir quién puede ver cada sección.",
+        "noAbout": "Aún no has añadido bio ni ubicación.",
+        "noEntities": "Aún no hay caballos ni entidades vinculadas.",
+        "businessLabel": "Empresa:",
+        "locationLabel": "Ubicación:",
+        "hasHorses": "Hay caballos vinculados a este perfil.",
+        "sections": {
+            "identity": "Identidad",
+            "about": "Acerca de",
+            "entities": "Caballos y Entidades",
+            "contact": "Contacto"
+        },
+        "contact": {
+            "email": "Correo",
+            "phone": "Teléfono",
+            "visibilityHint": "La visibilidad está controlada por el interruptor de sección superior."
+        },
+        "visibilitySection": {
+            "title": "Resumen de visibilidad",
+            "description": "Gestiona quién puede ver tu perfil público y cada sección.",
+            "profileVisibility": "Visibilidad del perfil",
+            "profileVisibilityHint": "Controla quién puede descubrir tu perfil.",
+            "change": "Cambiar en la pestaña Perfil",
+            "section": "Sección",
+            "visibility": "Visibilidad"
+        },
+        "notFound": "Perfil no encontrado.",
+        "loadFailed": "Error al cargar tu perfil."
+    },
+    "userNotifications": {
+        "title": "Notificaciones",
+        "description": "Gestiona tus preferencias de notificaciones por correo.",
+        "saveFailed": "Error al guardar la configuración de notificaciones.",
+        "sections": {
+            "email": "Notificaciones por correo",
+            "emailDescription": "Elige qué eventos activan notificaciones por correo."
+        },
+        "email": {
+            "relationshipRequests": {
+                "label": "Solicitudes de relación",
+                "description": "Recibe un correo cuando alguien solicita una relación de caballo contigo."
+            },
+            "ownershipTransfers": {
+                "label": "Transferencias de propiedad",
+                "description": "Recibe un correo cuando una transferencia de propiedad te involucra."
+            },
+            "workplaceInvitations": {
+                "label": "Invitaciones a lugar de trabajo",
+                "description": "Recibe un correo cuando te invitan a un lugar de trabajo."
+            },
+            "messages": {
+                "label": "Mensajes directos",
+                "description": "Recibe un correo cuando recibes un nuevo mensaje directo."
+            },
+            "system": {
+                "label": "Notificaciones del sistema",
+                "description": "Recibe correos importantes de sistema y seguridad."
+            }
+        }
+    },
+    "userWorkplace": {
+        "title": "Lugar de trabajo",
+        "description": "Gestiona tus membresías y las invitaciones pendientes.",
+        "noInvitations": "No hay invitaciones pendientes.",
+        "noWorkplaces": "Aún no tienes lugares de trabajo activos.",
+        "unknownWorkplace": "Lugar de trabajo desconocido",
+        "unknownRole": "Rol desconocido",
+        "hierarchyLevel": "Rol",
+        "ownerBadge": "Propietario",
+        "accept": "Aceptar",
+        "decline": "Rechazar",
+        "invitationAccepted": "Invitación aceptada.",
+        "invitationDeclined": "Invitación rechazada.",
+        "invitationAcceptFailed": "Error al aceptar la invitación.",
+        "invitationDeclineFailed": "Error al rechazar la invitación.",
+        "sections": {
+            "invitations": "Invitaciones pendientes",
+            "invitationsDescription": "Invitaciones a lugares de trabajo esperando tu respuesta.",
+            "active": "Mis lugares de trabajo",
+            "activeDescription": "Empresas de las que eres propietario o colaborador."
+        }
+    },
+    "userRelationships": {
+        "title": "Relaciones",
+        "description": "Gestiona tus relaciones de caballos y solicitudes pendientes.",
+        "noRequests": "No hay solicitudes de relación pendientes.",
+        "unknownHorse": "Caballo desconocido",
+        "fromLabel": "De",
+        "accept": "Aceptar",
+        "decline": "Rechazar",
+        "requestAccepted": "Solicitud aceptada.",
+        "requestDeclined": "Solicitud rechazada.",
+        "requestAcceptFailed": "Error al aceptar la solicitud.",
+        "requestDeclineFailed": "Error al rechazar la solicitud.",
+        "listComingSoon": "Tu lista de relaciones activas aparecerá aquí pronto.",
+        "sections": {
+            "requests": "Solicitudes entrantes",
+            "requestsDescription": "Solicitudes de relación pendientes esperando tu respuesta.",
+            "active": "Relaciones activas",
+            "activeDescription": "Tus relaciones de caballos aceptadas."
+        }
+    },
+    "userSubscription": {
+        "title": "Suscripción",
+        "description": "Gestiona tu plan y datos de facturación.",
+        "horseLimit": "Caballos incluidos",
+        "unlimited": "Ilimitado",
+        "renewsOn": "Se renueva el {date}",
+        "trialEndsOn": "El período de prueba termina el {date}",
+        "upgradeCallout": "Desbloquea más caballos con un plan de pago",
+        "upgradeDescription": "Añade hasta 3 caballos con Bronze, o ilimitados con Diamond.",
+        "upgradeButton": "Cambiar plan",
+        "upgradeComingSoon": "El portal de facturación llegará pronto.",
+        "status": {
+            "trial": "Prueba",
+            "active": "Activo",
+            "past_due": "Vencido",
+            "canceled": "Cancelado",
+            "incomplete": "Incompleto"
+        },
+        "sections": {
+            "plan": "Plan actual"
+        }
     },
     "table": {
         "resetColumnsSuccess": "Columnas restablecidas correctamente",

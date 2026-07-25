@@ -1,7 +1,15 @@
+import mongoose from "mongoose";
 import Horse from "@/models/Horse.ts";
 import HorseEvent from "@/models/HorseEvent.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
+import {
+  assertCanViewHorseGlobal,
+  canAccessByItemVisibilityMode,
+  canViewHorseHubSection,
+  resolveHorseViewerAudience,
+} from "@/lib/horses/horseVisibilityAccess.ts";
+import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import { recordAudit } from "@/lib/services/horseAuditService.ts";
 import type { CreatePlanningEventInput } from "@/lib/validations/horsePlanningForms.ts";
 
@@ -39,11 +47,31 @@ function toPublic(record: Record<string, unknown>): PublicPlanningItem {
   };
 }
 
+/**
+ * List planning events for a horse.
+ * Layer 1 deny → 404. Owner team → full list. Others: Layer 2 planning, then item modes.
+ */
 export async function listPlanning(
   horseId: string,
   from?: string,
   to?: string,
+  requester?: { id?: string; isAuthenticated?: boolean },
 ): Promise<PublicPlanningItem[]> {
+  if (!mongoose.Types.ObjectId.isValid(horseId)) {
+    throw new ApiError(400, "Invalid horse id", "VALIDATION_ERROR");
+  }
+
+  const horse = await Horse.findById(horseId).lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  const horseDoc = horse as Record<string, unknown>;
+  await assertPublicReadAllowed(horseDoc, "Horse");
+
+  const audience = await resolveHorseViewerAudience(horseDoc, requester?.id);
+  assertCanViewHorseGlobal(horseDoc, audience);
+
   const query: Record<string, unknown> = { horseId, isActive: true };
   if (from || to) {
     query.startDate = {};
@@ -51,7 +79,23 @@ export async function listPlanning(
     if (to) (query.startDate as Record<string, unknown>).$lte = new Date(to);
   }
   const events = await HorseEvent.find(query).sort({ startDate: 1 }).lean();
-  return events.map(toPublic);
+
+  if (audience.isOwnerTeam) {
+    return events.map((item) => toPublic(item as Record<string, unknown>));
+  }
+
+  if (!canViewHorseHubSection(horseDoc, "planning", audience)) {
+    return [];
+  }
+
+  return events
+    .filter((item) =>
+      canAccessByItemVisibilityMode(
+        (item as Record<string, unknown>).visibilityMode as string | undefined,
+        audience,
+      ),
+    )
+    .map((item) => toPublic(item as Record<string, unknown>));
 }
 
 export async function createPlanningItem(
@@ -105,5 +149,5 @@ export async function listProviderPlanning(
     if (to) (query.startDate as Record<string, unknown>).$lte = new Date(to);
   }
   const events = await HorseEvent.find(query).sort({ startDate: 1 }).lean();
-  return events.map(toPublic);
+  return events.map((item) => toPublic(item as Record<string, unknown>));
 }

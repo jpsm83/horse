@@ -3,6 +3,7 @@
 /**
  * Horse profile / sale select — same empty-value sentinel as SelectField / FlagSelectField
  * (`common.selectPlaceholder`, or an explicit placeholder override).
+ * Trigger shows the selected option label (Base UI SelectValue alone shows the raw value).
  */
 
 import { useTranslations } from "next-intl";
@@ -55,6 +56,7 @@ export function HorseSelectField({
 }: HorseSelectFieldProps) {
   const tCommon = useTranslations("common");
   const emptySentinel = placeholder ?? tCommon("selectPlaceholder");
+  const selected = options.find((option) => option.value === value);
 
   return (
     <Field data-invalid={invalid}>
@@ -64,7 +66,11 @@ export function HorseSelectField({
         onValueChange={(next) => onChange(fromSelectValue(next, emptySentinel))}
       >
         <SelectTrigger id={id} className="w-full" aria-invalid={invalid}>
-          <SelectValue placeholder={emptySentinel} />
+          {selected ? (
+            <span className="flex flex-1 truncate text-left">{selected.label}</span>
+          ) : (
+            <SelectValue placeholder={emptySentinel} />
+          )}
         </SelectTrigger>
         <SelectContent {...SELECT_CONTENT_PROPS}>
           {options.map((option) => {

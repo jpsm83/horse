@@ -15,12 +15,11 @@ describe("mapUserToPreferencesFormValues", () => {
   it("maps saved preference fields", () => {
     const values = mapUserToPreferencesFormValues(
       { preferredLanguage: "es", preferredTheme: "onyx" },
-      { profileVisibility: "private", allowDirectMessagesFrom: "nobody" },
+      { allowDirectMessagesFrom: "nobody" },
     );
 
     expect(values.preferredLanguage).toBe("es");
     expect(values.preferredTheme).toBe("onyx");
-    expect(values.profileVisibility).toBe("private");
     expect(values.allowDirectMessagesFrom).toBe("nobody");
   });
 });
@@ -32,18 +31,15 @@ describe("mapPreferencesFormValuesToPatch", () => {
         ...emptyPreferencesFormValues,
         preferredTheme: "onyx",
         preferredLanguage: "es",
-        profileVisibility: "platform",
         allowDirectMessagesFrom: "relationships",
       },
       {
         preferredTheme: true,
-        profileVisibility: true,
       },
     );
 
     expect(patch).toEqual({
       preferredTheme: "onyx",
-      preferences: { profileVisibility: "platform" },
     });
   });
 

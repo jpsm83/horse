@@ -1,7 +1,7 @@
 /**
  * Horse detail routes.
  *
- * `GET`   `/api/v1/horses/[id]`  — public horse card
+ * `GET`   `/api/v1/horses/[id]`  — role-aware horse view (replaces /owner and /hub)
  * `PATCH` `/api/v1/horses/[id]`  — update profile (owner/co-owner only)
  */
 
@@ -18,8 +18,8 @@ export async function GET(request: Request, context: RouteContext) {
     await connectDb();
     const { id } = await context.params;
     const requester = await readOptionalAuthFromRequest(request);
-    const horse = await horseService.getPublicHorseCard(id, requester);
-    return ok({ horse });
+    const view = await horseService.getHorseView(id, requester.id ?? null);
+    return ok(view);
   });
 }
 

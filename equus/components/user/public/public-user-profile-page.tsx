@@ -1,6 +1,6 @@
 "use client";
 
-import { PublicUserProfilePageContent } from "@/components/users/public-user-profile-page-content.tsx";
+import { PublicUserProfilePageContent } from "@/components/user/public/public-user-profile-page-content.tsx";
 
 type PublicUserProfilePageProps = {
   userId: string;

@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { deleteMedia, createMedia, listMedia } from "@/lib/services/mediaService";
 import Media from "@/models/Media";
 import Horse from "@/models/Horse";
+import User from "@/models/User";
 import connectDb from "@/lib/db";
 
 const { mockDestroy } = vi.hoisted(() => ({
@@ -146,29 +147,144 @@ describe("createMedia", () => {
 });
 
 describe("listMedia", () => {
-  it("returns only active media for a horse", async () => {
+  it("returns only active media for owner team", async () => {
     await connectDb();
-    const horseId = new mongoose.Types.ObjectId().toHexString();
-    const userId = new mongoose.Types.ObjectId().toHexString();
+    const email = `media-list-owner-${Date.now()}@example.com`;
+    const owner = await User.create({
+      personalDetails: { email, password: "hash" },
+      authProvider: "credentials",
+    });
+    const ownerId = owner._id.toHexString();
+    const horse = await Horse.create({
+      mainOwnerUserId: owner._id,
+      createdByUserId: owner._id,
+      name: "List Horse",
+      breed: "Arabian",
+      sex: "Mare",
+      profileVisibility: "public",
+    });
+    const horseId = horse._id.toHexString();
 
     await Media.create([
       {
-        horseId: new mongoose.Types.ObjectId(horseId),
-        uploadedByUserId: new mongoose.Types.ObjectId(userId),
+        horseId: horse._id,
+        uploadedByUserId: owner._id,
         type: "image",
         url: "https://example.com/img1.jpg",
         isActive: true,
+        visibilityMode: "public",
       },
       {
-        horseId: new mongoose.Types.ObjectId(horseId),
-        uploadedByUserId: new mongoose.Types.ObjectId(userId),
+        horseId: horse._id,
+        uploadedByUserId: owner._id,
         type: "image",
         url: "https://example.com/img2.jpg",
         isActive: false,
+        visibilityMode: "public",
+      },
+      {
+        horseId: horse._id,
+        uploadedByUserId: owner._id,
+        type: "image",
+        url: "https://example.com/img3.jpg",
+        isActive: true,
+        visibilityMode: "owner",
       },
     ]);
 
-    const items = await listMedia(horseId);
+    const items = await listMedia(horseId, { id: ownerId });
+    expect(items).toHaveLength(2);
+  });
+
+  it("returns 404 when Layer 1 denies the viewer", async () => {
+    await connectDb();
+    const email = `media-l1-owner-${Date.now()}@example.com`;
+    const owner = await User.create({
+      personalDetails: { email, password: "hash" },
+      authProvider: "credentials",
+    });
+    const horse = await Horse.create({
+      mainOwnerUserId: owner._id,
+      createdByUserId: owner._id,
+      name: "Private Horse",
+      breed: "Arabian",
+      sex: "Mare",
+      profileVisibility: "owner",
+    });
+
+    await expect(listMedia(horse._id.toHexString())).rejects.toMatchObject({
+      statusCode: 404,
+    });
+  });
+
+  it("returns empty list when Layer 2 gallery denies non-owners", async () => {
+    await connectDb();
+    const email = `media-l2-owner-${Date.now()}@example.com`;
+    const owner = await User.create({
+      personalDetails: { email, password: "hash" },
+      authProvider: "credentials",
+    });
+    const horse = await Horse.create({
+      mainOwnerUserId: owner._id,
+      createdByUserId: owner._id,
+      name: "Gallery Hidden",
+      breed: "Arabian",
+      sex: "Mare",
+      profileVisibility: "public",
+      hubSections: { gallery: { mode: "owner" } },
+    });
+
+    await Media.create({
+      horseId: horse._id,
+      uploadedByUserId: owner._id,
+      type: "image",
+      url: "https://example.com/hidden.jpg",
+      isActive: true,
+      visibilityMode: "public",
+    });
+
+    const items = await listMedia(horse._id.toHexString());
+    expect(items).toHaveLength(0);
+  });
+
+  it("filters item visibility for guests when gallery is public", async () => {
+    await connectDb();
+    const email = `media-item-owner-${Date.now()}@example.com`;
+    const owner = await User.create({
+      personalDetails: { email, password: "hash" },
+      authProvider: "credentials",
+    });
+    const horse = await Horse.create({
+      mainOwnerUserId: owner._id,
+      createdByUserId: owner._id,
+      name: "Public Gallery",
+      breed: "Arabian",
+      sex: "Mare",
+      profileVisibility: "public",
+      hubSections: { gallery: { mode: "public" } },
+    });
+
+    await Media.create([
+      {
+        horseId: horse._id,
+        uploadedByUserId: owner._id,
+        type: "image",
+        url: "https://example.com/public.jpg",
+        isActive: true,
+        visibilityMode: "public",
+      },
+      {
+        horseId: horse._id,
+        uploadedByUserId: owner._id,
+        type: "image",
+        url: "https://example.com/owner-only.jpg",
+        isActive: true,
+        visibilityMode: "owner",
+      },
+    ]);
+
+    const items = await listMedia(horse._id.toHexString());
     expect(items).toHaveLength(1);
+    expect(items[0]?.url).toContain("public.jpg");
   });
 });

@@ -18,8 +18,45 @@ import {
   userDirectMessageAudienceEnums,
   userProfileVisibilityEnums,
   userTypeEnums,
+  visibilityEnums,
 } from "../utils/enums.ts";
 import { tierEnums } from "@/lib/billing/plans.ts";
+
+/** Layer-2 per-section visibility for the user public profile hub. */
+const userHubSectionSchema = new Schema(
+  { mode: { type: String, enum: visibilityEnums, default: "public" } },
+  { _id: false },
+);
+
+const userHubSectionsSchema = new Schema(
+  {
+    identity: { type: userHubSectionSchema, default: undefined },
+    about: { type: userHubSectionSchema, default: undefined },
+    entities: { type: userHubSectionSchema, default: undefined },
+    contact: { type: userHubSectionSchema, default: undefined },
+  },
+  { _id: false },
+);
+
+/** Email notification opt-in flags (default all true). */
+const notificationPreferencesSchema = new Schema(
+  {
+    email: {
+      type: new Schema(
+        {
+          relationshipRequests: { type: Boolean, default: true },
+          ownershipTransfers: { type: Boolean, default: true },
+          workplaceInvitations: { type: Boolean, default: true },
+          messages: { type: Boolean, default: true },
+          system: { type: Boolean, default: true },
+        },
+        { _id: false },
+      ),
+      default: undefined,
+    },
+  },
+  { _id: false },
+);
 
 const notificationEntrySchema = new Schema(
   {
@@ -117,6 +154,12 @@ const userSchema = new Schema(
 
     /** Deferred: notifications embed — use Notification collection until product needs inbox on User */
     notifications: { type: [notificationEntrySchema], default: undefined },
+
+    /** Layer-2 per-section visibility for the user hub (public profile preview). */
+    hubSections: { type: userHubSectionsSchema, default: undefined },
+
+    /** Email/push notification opt-in preferences. */
+    notificationPreferences: { type: notificationPreferencesSchema, default: undefined },
 
     /** User-level privacy/discovery preferences for profile exposure. */
     preferences: { type: userPreferencesSchema, default: undefined },

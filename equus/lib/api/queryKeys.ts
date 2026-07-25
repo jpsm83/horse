@@ -10,13 +10,17 @@ export const queryKeys = {
   users: {
     detail: (userId: string) => ["users", userId] as const,
     me: ["users", "me"] as const,
+    /** Role-aware owner view — pre-seeded by layout.tsx RSC via HydrationBoundary. */
+    view: (userId: string) => ["users", userId, "view"] as const,
     navigation: ["users", "me", "navigation"] as const,
     workplaces: ["users", "me", "workplaces"] as const,
+    notifications: (userId: string) => ["users", userId, "notifications"] as const,
   },
   horses: {
     all: ["horses"] as const,
     lists: () => [...queryKeys.horses.all, "list"] as const,
     detail: (horseId: string) => [...queryKeys.horses.all, horseId] as const,
+    view: (horseId: string) => [...queryKeys.horses.all, horseId, "view"] as const,
     owner: (horseId: string) => [...queryKeys.horses.all, horseId, "owner"] as const,
     hub: (horseId: string) => [...queryKeys.horses.all, horseId, "hub"] as const,
     relationships: (horseId: string) => [...queryKeys.horses.all, horseId, "relationships"] as const,

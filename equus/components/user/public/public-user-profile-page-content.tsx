@@ -7,7 +7,7 @@
 import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import { PublicUserProfileCardView } from "@/components/users/public-user-profile-card.tsx";
+import { PublicUserProfileCardView } from "@/components/user/public/public-user-profile-card.tsx";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePublicUser } from "@/hooks/queries/useUser.ts";
 import { isFetchError } from "@/lib/api/fetchWithAuth";

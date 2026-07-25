@@ -16,7 +16,7 @@ import { HorseSectionVisibility } from "@/components/horses/shared/horse-section
 import { Section } from "@/components/shared/section.tsx";
 import { useUnsavedChanges } from "@/components/shared/unsaved-changes-context.tsx";
 import { Button } from "@/components/ui/button";
-import type { OwnerHorseSummary } from "@/lib/api/horseClient.ts";
+import type { OwnerHorseSummary } from "@/lib/services/horseService.ts";
 import { normalizeHubSections } from "@/lib/horses/hubSections.ts";
 import {
   buildProfileSavePatches,
@@ -72,7 +72,7 @@ function ProfileForm({ horseId, horse }: ProfileFormProps) {
     form.reset(toProfileFormValues(horse));
   }, [horse, form]);
 
-  const { isDirty } = useFormState({ control: form.control });
+  const { isDirty, dirtyFields } = useFormState({ control: form.control });
   const isSaving = updateHorse.isPending;
 
   useEffect(() => {
@@ -86,7 +86,7 @@ function ProfileForm({ horseId, horse }: ProfileFormProps) {
   async function onSave(values: ProfileFormValues) {
     const { horsePatch } = buildProfileSavePatches(
       values,
-      form.formState.dirtyFields as Record<string, boolean | object>,
+      dirtyFields as Record<string, boolean | object>,
     );
 
     if (Object.keys(horsePatch).length === 0) {

@@ -1,9 +1,9 @@
 ﻿/**
- * HorsePageShell — shared layout for all horse sub-pages.
+ * HorsePageShell — shared chrome for all horse sub-pages.
  *
- * Renders the chrome (tabs) immediately and defers auth/ownership gating
- * to the content area only. Redirects are handled as side effects so they
- * never block rendering. The tab bar communicates the current location.
+ * Reads the pre-seeded horse view from the TanStack cache (populated by layout.tsx RSC).
+ * Renders the tab bar immediately and gates ownership-required content once auth resolves.
+ * No data fetching here — the layout handles that via HydrationBoundary.
  */
 
 "use client";
@@ -19,12 +19,12 @@ import { HorsePageSkeleton } from "@/components/horses/horse-page-skeleton.tsx";
 import { Link } from "@/i18n/navigation.ts";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { getHorseTabs } from "@/lib/navigation/horseTabs.ts";
-import { useOwnerHorse } from "@/hooks/queries/useHorse.ts";
+import { useHorseView } from "@/hooks/queries/useHorse.ts";
 import { useAppAuth } from "@/hooks/use-app-auth.ts";
-import { isFetchError } from "@/lib/api/fetchWithAuth";
+import type { HorseViewDto, HorseTab } from "@/lib/services/horseService.ts";
 
-type HorsePageShellRenderProps = {
-  horse: Exclude<ReturnType<typeof useOwnerHorse>["data"], undefined>;
+export type HorsePageShellRenderProps = {
+  horse: HorseViewDto;
   isOwner: boolean;
 };
 
@@ -44,39 +44,30 @@ export function HorsePageShell({
   const router = useRouter();
   const tCommon = useTranslations("common");
   const { isAuthenticated, isLoading: isAuthLoading } = useAppAuth();
-  const { data: horse, isLoading: isHorseLoading, error: horseError } = useOwnerHorse(horseId);
+  const { data: view, isLoading: isViewLoading } = useHorseView(horseId);
 
-  const isLoading = isAuthLoading || isHorseLoading;
+  const isLoading = isAuthLoading || isViewLoading;
+  const horse = view?.horse;
+  const allowedTabs = view?.allowedTabs as HorseTab[] | undefined;
+  const isAdmin = horse?.isAdmin === true;
+  const isMainOwner = horse?.isMainOwner === true;
 
+  // Auth redirect — only after loading resolves
   useEffect(() => {
     if (isLoading) return;
-
     if (!isAuthenticated) {
       router.replace(buildSignInPath("/horses/" + horseId));
-      return;
     }
+  }, [isLoading, isAuthenticated, router, horseId]);
 
-    if (horseError) {
-      if (isFetchError(horseError) && horseError.statusCode === 403) {
-        router.push("/not-allowed?reason=wrong_account");
-      } else {
-        router.replace("/horses");
-      }
-      return;
-    }
-  }, [isLoading, isAuthenticated, horseError, router, horseId]);
-
-  const shouldRedirect = !isLoading && !isAuthenticated;
-
-  if (shouldRedirect) {
+  if (!isAuthenticated && !isLoading) {
     return null;
   }
 
-  const isMainOwner = horse?.isMainOwner ?? false;
-  const isAdmin = horse?.isAdmin ?? false;
-
   const blocked =
-    (requireMainOwner && !isMainOwner) || (requireOwnership && !isAdmin);
+    !isLoading &&
+    horse &&
+    ((requireMainOwner && !isMainOwner) || (requireOwnership && !isAdmin));
 
   return (
     <UnsavedChangesProvider
@@ -85,7 +76,12 @@ export function HorsePageShell({
       stayLabel={tCommon("stayOnPage")}
       leaveLabel={tCommon("leaveWithoutSaving")}
     >
-      <EntityTabs tabs={getHorseTabs(horseId)} isAdmin={isAdmin} isMainOwner={isMainOwner} isPending={isLoading} />
+      <EntityTabs
+        tabs={getHorseTabs(horseId, allowedTabs)}
+        isAdmin={isAdmin}
+        isMainOwner={isMainOwner}
+        isPending={isLoading}
+      />
       <div className="mx-auto flex w-full flex-1 flex-col gap-4 p-4 sm:p-6 sm:gap-6">
         {isLoading || !horse ? (
           <HorsePageSkeleton suppressHydrationWarning />
@@ -99,10 +95,10 @@ export function HorsePageShell({
               Back to hub
             </Link>
           </div>
+        ) : typeof children === "function" ? (
+          children({ horse, isOwner: isMainOwner })
         ) : (
-          typeof children === "function"
-            ? children({ horse, isOwner: horse.isMainOwner === true })
-            : children
+          children
         )}
       </div>
     </UnsavedChangesProvider>

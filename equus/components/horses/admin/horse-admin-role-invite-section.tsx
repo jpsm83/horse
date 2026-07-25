@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { UserInviteSection, type UserInviteLabels } from "@/components/shared/user-invite-section.tsx";
-import { useOwnerHorse } from "@/hooks/queries/useHorse.ts";
+import { useHorseView } from "@/hooks/queries/useHorse.ts";
 import { useCreateOwnershipTransfer } from "@/hooks/queries/useOwnershipTransfer.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import type { CreateOwnershipTransferInput } from "@/hooks/queries/useOwnershipTransfer.ts";
@@ -28,7 +28,8 @@ export function HorseAdminRoleInviteSection({
 }: HorseAdminRoleInviteSectionProps) {
   const t = useTranslations("horseAdmin");
   const toast = useAppToast();
-  const { data: horse } = useOwnerHorse(horseId);
+  const { data: view } = useHorseView(horseId);
+  const horse = view?.horse;
   const createTransfer = useCreateOwnershipTransfer();
 
   if (!horse?.isMainOwner) return null;

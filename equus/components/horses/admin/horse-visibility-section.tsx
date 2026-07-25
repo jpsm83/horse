@@ -13,17 +13,21 @@ import { Controller, type Control } from "react-hook-form";
 import { HorseSelectField } from "@/components/horses/shared/horse-select-field.tsx";
 import { FieldGroup } from "@/components/ui/field";
 import type { SaleFormValues } from "@/lib/validations/horseForms.ts";
-import { visibilityEnums } from "@/utils/enums.ts";
 
 type HorseVisibilitySectionProps = {
   control: Control<SaleFormValues>;
 };
 
 export function HorseVisibilitySection({ control }: HorseVisibilitySectionProps) {
-  const t = useTranslations("horseProfile");
+  const t = useTranslations("visibility");
+  const tProfile = useTranslations("horseProfile");
 
   const visibilityOptions = useMemo(
-    () => visibilityEnums.map((v) => ({ value: v, label: t(`visibilityOptions.${v}`) })),
+    () =>
+      (["owner", "relationship", "public"] as const).map((v) => ({
+        value: v,
+        label: t(`modes.${v}`),
+      })),
     [t],
   );
 
@@ -36,7 +40,7 @@ export function HorseVisibilitySection({ control }: HorseVisibilitySectionProps)
           render={({ field, fieldState }) => (
             <HorseSelectField
               id="horse-profileVisibility"
-              label={t("profileVisibility")}
+              label={tProfile("profileVisibility")}
               value={field.value}
               onChange={field.onChange}
               invalid={fieldState.invalid}

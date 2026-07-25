@@ -16,7 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserInviteSection } from "@/components/shared/user-invite-section.tsx";
-import { useOwnerHorse } from "@/hooks/queries/useHorse.ts";
+import { useHorseView } from "@/hooks/queries/useHorse.ts";
 import { useCreateOwnershipTransfer } from "@/hooks/queries/useOwnershipTransfer.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 
@@ -36,7 +36,8 @@ export function HorseOwnershipManagementSection({
 }: HorseOwnershipManagementSectionProps) {
   const t = useTranslations("horseAdmin");
   const toast = useAppToast();
-  const { data: horse, isPending } = useOwnerHorse(horseId);
+  const { data: view, isPending } = useHorseView(horseId);
+  const horse = view?.horse;
   const createTransfer = useCreateOwnershipTransfer();
 
   const [pendingInvite, setPendingInvite] = useState<{

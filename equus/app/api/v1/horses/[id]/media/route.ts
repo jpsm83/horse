@@ -11,7 +11,7 @@ export async function GET(request: Request, context: RouteContext) {
     await connectDb();
     const session = await requireAuthFromRequest(request);
     const { id } = await context.params;
-    const items = await mediaService.listMedia(id);
+    const items = await mediaService.listMedia(id, session);
     return ok({ media: items });
   });
 }

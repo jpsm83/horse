@@ -12,11 +12,13 @@ import { ApiError } from "@/lib/api/errors.ts";
 import { guardHorseCreation } from "@/lib/billing/subscriptionGuard.ts";
 import { ownedByUserQuery, userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
 import {
-  canViewHorseGlobal,
+  assertCanViewHorseGlobal,
+  canAccessByItemVisibilityMode,
   canViewHorseHubSection,
   hasAcceptedHorseRelationship,
   hasActiveHorseHostCollaboration,
   resolveHorseViewerAudience,
+  type HorseViewerAudience,
 } from "@/lib/horses/horseVisibilityAccess.ts";
 import {
   normalizeHubSections,
@@ -41,10 +43,33 @@ import {
   normalizeHorseIdentityFields,
 } from "@/lib/utils/horseIdentity.ts";
 import { horseHubSectionKeys } from "@/utils/enums.ts";
+import Media from "@/models/Media.ts";
+import HorseEvent from "@/models/HorseEvent.ts";
+import Relationship from "@/models/Relationship.ts";
 
 export type CreateHorseInput = z.infer<typeof createHorseSchema>;
 export type UpdateHorseDiscoveryInput = z.infer<typeof updateHorseDiscoverySchema>;
 export type UpdateHorseHubSectionsInput = z.infer<typeof updateHorseHubSectionsSchema>;
+
+// --- Role-aware view types ---
+
+export type HorseTab =
+  | "hub"
+  | "connect"
+  | "planning"
+  | "media"
+  | "documents"
+  | "profile"
+  | "admin"
+  | "history";
+
+export type ViewerRole =
+  | "main_owner"
+  | "co_owner"
+  | "responsible"
+  | "related"
+  | "public"
+  | "guest";
 
 // --- List types ---
 
@@ -190,6 +215,29 @@ export type HorseHubOwnershipSection = {
   soleOwner: boolean;
 };
 
+export type HorseHubGalleryItem = {
+  id: string;
+  type: string;
+  url: string;
+  thumbnailUrl?: string;
+  title?: string;
+};
+
+export type HorseHubPlanningItem = {
+  id: string;
+  title: string;
+  eventType: string;
+  startDate: string;
+  endDate?: string;
+  location?: string;
+};
+
+export type HorseHubConnectionItem = {
+  id: string;
+  relationshipType: string;
+  displayName: string;
+};
+
 export type HorseHubDto = {
   id: string;
   name?: string;
@@ -202,7 +250,66 @@ export type HorseHubDto = {
     pedigree?: HorseHubPedigreeSection;
     about?: HorseHubAboutSection;
     ownership?: HorseHubOwnershipSection;
+    gallery?: HorseHubGalleryItem[];
+    planning?: HorseHubPlanningItem[];
+    connections?: HorseHubConnectionItem[];
   };
+};
+
+/**
+ * Unified role-scoped horse view DTO.
+ * All fields are always present; owner-only fields are populated when the
+ * viewer is in the ownership team (main_owner | co_owner | responsible).
+ * Hub sections are always filtered by L1+L2 visibility for the viewer.
+ */
+export type HorseViewDto = {
+  id: string;
+  name?: string;
+  breed?: string;
+  sex?: string;
+  profileImageUrl?: string;
+  profileVisibility?: string;
+
+  // Hub sections — visibility-filtered by server
+  sections: HorseHubDto["sections"];
+
+  // Owner-team-only fields
+  registeredName?: string;
+  registryId?: string;
+  microchipId?: string;
+  passportNumber?: string;
+  dateOfBirth?: string;
+  color?: string;
+  heightHands?: number;
+  disciplines?: string[];
+  countryOfBirth?: string;
+  estimatedValue?: number;
+  valueCurrency?: string;
+  saleStatus?: string;
+  askingPrice?: number;
+  acquisitionDate?: string;
+  acquisitionSource?: string;
+  showValuePublicly?: boolean;
+  pedigree?: Record<string, unknown>;
+  description?: string;
+  notes?: string;
+  hubSections?: Required<HubSections>;
+  isMainOwner?: boolean;
+  isCoOwner?: boolean;
+  isResponsible?: boolean;
+  isAdmin?: boolean;
+  coOwners?: OwnerHorseCoOwner[];
+  responsibles?: OwnerHorseResponsible[];
+  adminTeam?: AdminTeamMember[];
+};
+
+/** Backward-compat alias for tab clients that previously used OwnerHorseSummary from horseClient. */
+export type OwnerHorseSummary = HorseViewDto;
+
+export type HorseViewResponse = {
+  viewerRole: ViewerRole;
+  allowedTabs: HorseTab[];
+  horse: HorseViewDto;
 };
 
 function ensureObjectId(id: string, fieldName: string): void {
@@ -747,10 +854,7 @@ export async function getPublicHorseCard(
   const requesterUserId = requester?.id;
   const horseDoc = horse as Record<string, unknown>;
   const visibilityAudience = await resolveHorseViewerAudience(horseDoc, requesterUserId);
-
-  if (!canViewHorseGlobal(horseDoc, visibilityAudience)) {
-    throw new ApiError(404, "Horse not found", "NOT_FOUND");
-  }
+  assertCanViewHorseGlobal(horseDoc, visibilityAudience);
 
   const hasRelationship =
     requesterUserId ? await hasAcceptedHorseRelationship(requesterUserId, horseId) : false;
@@ -803,12 +907,10 @@ export async function getHorseHub(
 
   const horseDoc = horse as Record<string, unknown>;
   const audience = await resolveHorseViewerAudience(horseDoc, requester?.id);
-
-  if (!canViewHorseGlobal(horseDoc, audience)) {
-    throw new ApiError(404, "Horse not found", "NOT_FOUND");
-  }
+  assertCanViewHorseGlobal(horseDoc, audience);
 
   const sections = buildHorseHubSections(horseDoc, audience);
+  await attachHubSocialSections(sections, horseDoc, audience, horseId);
 
   return {
     id: String(horseDoc._id),
@@ -820,10 +922,10 @@ export async function getHorseHub(
   };
 }
 
-/** Pure Hub section builder — used by getHorseHub and unit tests. */
+/** Pure Hub profile section builder — used by getHorseHub and unit tests. */
 export function buildHorseHubSections(
   horseDoc: Record<string, unknown>,
-  audience: Awaited<ReturnType<typeof resolveHorseViewerAudience>>,
+  audience: HorseViewerAudience,
 ): HorseHubDto["sections"] {
   const sections: HorseHubDto["sections"] = {};
 
@@ -878,3 +980,293 @@ export function buildHorseHubSections(
   return sections;
 }
 
+/** Layer-2 gallery / planning / connections for Hub DTO. */
+export async function attachHubSocialSections(
+  sections: HorseHubDto["sections"],
+  horseDoc: Record<string, unknown>,
+  audience: HorseViewerAudience,
+  horseId: string,
+): Promise<void> {
+  if (canViewHorseHubSection(horseDoc, "gallery", audience)) {
+    const media = await Media.find({ horseId, isActive: true })
+      .sort({ createdAt: -1 })
+      .lean();
+    sections.gallery = media
+      .filter((item) => {
+        const record = item as Record<string, unknown>;
+        if (record.isVisibleOnHub === false) return false;
+        return canAccessByItemVisibilityMode(
+          record.visibilityMode as string | undefined,
+          audience,
+        );
+      })
+      .map((item) => {
+        const record = item as Record<string, unknown>;
+        return {
+          id: String(record._id),
+          type: record.type as string,
+          url: record.url as string,
+          thumbnailUrl: record.thumbnailUrl as string | undefined,
+          title: record.title as string | undefined,
+        };
+      });
+  }
+
+  if (canViewHorseHubSection(horseDoc, "planning", audience)) {
+    const now = new Date();
+    const events = await HorseEvent.find({
+      horseId,
+      isActive: true,
+      startDate: { $gte: now },
+    })
+      .sort({ startDate: 1 })
+      .limit(20)
+      .lean();
+    sections.planning = events
+      .filter((item) =>
+        canAccessByItemVisibilityMode(
+          (item as Record<string, unknown>).visibilityMode as string | undefined,
+          audience,
+        ),
+      )
+      .map((item) => {
+        const record = item as Record<string, unknown>;
+        return {
+          id: String(record._id),
+          title: record.title as string,
+          eventType: record.eventType as string,
+          startDate: (record.startDate as Date).toISOString(),
+          endDate: record.endDate ? (record.endDate as Date).toISOString() : undefined,
+          location: record.location as string | undefined,
+        };
+      });
+  }
+
+  if (canViewHorseHubSection(horseDoc, "connections", audience)) {
+    const relationships = await Relationship.find({
+      horseId,
+      status: "accepted",
+    })
+      .sort({ respondedAt: -1 })
+      .lean();
+    sections.connections = relationships.map((item) => {
+      const record = item as Record<string, unknown>;
+      const historical = record.historicalReference as
+        | { receiverLabel?: string; requesterLabel?: string }
+        | undefined;
+      const displayName =
+        historical?.receiverLabel ||
+        historical?.requesterLabel ||
+        String(record.relationshipType);
+      return {
+        id: String(record._id),
+        relationshipType: String(record.relationshipType),
+        displayName,
+      };
+    });
+  }
+}
+
+// --- Role derivation helpers (exported for testing) ---
+
+export const ROLE_ORDER: ViewerRole[] = [
+  "guest",
+  "public",
+  "related",
+  "responsible",
+  "co_owner",
+  "main_owner",
+];
+
+/** Map of minimum role required to access each tab. */
+export const TAB_MIN_ROLE: Record<HorseTab, ViewerRole> = {
+  hub: "guest",
+  planning: "guest",
+  media: "guest",
+  documents: "guest",
+  connect: "responsible",
+  profile: "responsible",
+  history: "responsible",
+  admin: "main_owner",
+};
+
+function deriveViewerRole(
+  audience: HorseViewerAudience,
+  horseDoc: Record<string, unknown>,
+  userId?: string | null,
+): ViewerRole {
+  if (!userId) return "guest";
+  if (audience.isOwnerTeam) {
+    const isMainOwner = String(horseDoc.mainOwnerUserId) === userId;
+    if (isMainOwner) return "main_owner";
+    const isCoOwner = (Array.isArray(horseDoc.coOwners) ? horseDoc.coOwners : []).some(
+      (c: { userId?: unknown }) => c.userId != null && String(c.userId) === userId,
+    );
+    if (isCoOwner) return "co_owner";
+    return "responsible";
+  }
+  if (audience.isRelationshipAudience) return "related";
+  return "public";
+}
+
+export function deriveAllowedTabs(viewerRole: ViewerRole): HorseTab[] {
+  const roleIndex = ROLE_ORDER.indexOf(viewerRole);
+  return (Object.keys(TAB_MIN_ROLE) as HorseTab[]).filter((tab) => {
+    const minIndex = ROLE_ORDER.indexOf(TAB_MIN_ROLE[tab]);
+    return roleIndex >= minIndex;
+  });
+}
+
+/**
+ * Unified role-aware horse view — single endpoint for all horse tabs.
+ * Returns role-scoped horse data, the viewer's role, and the tabs they may access.
+ * Owner-team viewers receive full owner fields; others receive only Hub-filtered sections.
+ */
+export async function getHorseView(
+  horseId: string,
+  userId?: string | null,
+): Promise<HorseViewResponse> {
+  ensureObjectId(horseId, "horse id");
+
+  const horse = await Horse.findById(horseId).lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  await assertPublicReadAllowed(horse as Record<string, unknown>, "Horse");
+
+  const horseDoc = horse as Record<string, unknown>;
+  const audience = await resolveHorseViewerAudience(horseDoc, userId ?? undefined);
+  assertCanViewHorseGlobal(horseDoc, audience);
+
+  const viewerRole = deriveViewerRole(audience, horseDoc, userId);
+  const allowedTabs = deriveAllowedTabs(viewerRole);
+
+  // Hub sections — always built, filtered by L1+L2 visibility for this viewer
+  const sections = buildHorseHubSections(horseDoc, audience);
+  await attachHubSocialSections(sections, horseDoc, audience, horseId);
+
+  const horseView: HorseViewDto = {
+    id: String(horseDoc._id),
+    name: horseDoc.name as string | undefined,
+    breed: horseDoc.breed as string | undefined,
+    sex: horseDoc.sex as string | undefined,
+    profileImageUrl: horseDoc.profileImageUrl as string | undefined,
+    profileVisibility: horseDoc.profileVisibility as string | undefined,
+    sections,
+  };
+
+  // Merge owner-team-only fields when viewer is on the ownership team
+  if (audience.isOwnerTeam && userId) {
+    const isMainOwner = String(horseDoc.mainOwnerUserId) === userId;
+    const isCoOwner = (Array.isArray(horseDoc.coOwners) ? horseDoc.coOwners : []).some(
+      (c: { userId?: unknown }) => c.userId != null && String(c.userId) === userId,
+    );
+    const isResponsible = (Array.isArray(horseDoc.responsibles) ? horseDoc.responsibles : []).some(
+      (r: { userId?: unknown }) => r.userId != null && String(r.userId) === userId,
+    );
+
+    const rawCoOwners = (
+      Array.isArray(horseDoc.coOwners)
+        ? (horseDoc.coOwners as Array<{ userId?: unknown; ownershipPercentage?: number; joinedAt?: unknown }>)
+        : []
+    ).filter((c) => c.userId != null);
+
+    const rawResponsibles = (
+      Array.isArray(horseDoc.responsibles)
+        ? (horseDoc.responsibles as Array<{ userId?: unknown; joinedAt?: unknown }>)
+        : []
+    ).filter((r) => r.userId != null);
+
+    const [coOwnerDetails, responsibleDetails, mainOwnerDetails] = await Promise.all([
+      Promise.all(rawCoOwners.map((c) => resolveUserDetails(String(c.userId)))),
+      Promise.all(rawResponsibles.map((r) => resolveUserDetails(String(r.userId)))),
+      resolveUserDetails(String(horseDoc.mainOwnerUserId)),
+    ]);
+
+    const coOwners: OwnerHorseCoOwner[] = rawCoOwners.map((entry, i) => ({
+      userId: String(entry.userId),
+      label: coOwnerDetails[i].label,
+      ownershipPercentage: Number(entry.ownershipPercentage ?? 0),
+      email: coOwnerDetails[i].email,
+      phone: coOwnerDetails[i].phone,
+      imageUrl: coOwnerDetails[i].imageUrl,
+      joinedAt: entry.joinedAt instanceof Date ? entry.joinedAt.toISOString() : undefined,
+    }));
+
+    const responsibles: OwnerHorseResponsible[] = rawResponsibles.map((entry, i) => ({
+      userId: String(entry.userId),
+      label: responsibleDetails[i].label,
+      email: responsibleDetails[i].email,
+      phone: responsibleDetails[i].phone,
+      imageUrl: responsibleDetails[i].imageUrl,
+      joinedAt: entry.joinedAt instanceof Date ? entry.joinedAt.toISOString() : undefined,
+    }));
+
+    const adminTeam: AdminTeamMember[] = [
+      {
+        userId: String(horseDoc.mainOwnerUserId),
+        type: "owner",
+        name: mainOwnerDetails.label,
+        email: mainOwnerDetails.email,
+        phone: mainOwnerDetails.phone,
+        imageUrl: mainOwnerDetails.imageUrl,
+        joinedAt: (horseDoc.createdAt instanceof Date ? horseDoc.createdAt : new Date()).toISOString(),
+      },
+      ...coOwners.map((c) => ({
+        userId: c.userId,
+        type: "co_owner" as const,
+        name: c.label,
+        email: c.email ?? "",
+        phone: c.phone,
+        imageUrl: c.imageUrl,
+        joinedAt: c.joinedAt ?? "",
+      })),
+      ...responsibles.map((r) => ({
+        userId: r.userId,
+        type: "responsible" as const,
+        name: r.label,
+        email: r.email ?? "",
+        phone: r.phone,
+        imageUrl: r.imageUrl,
+        joinedAt: r.joinedAt ?? "",
+      })),
+    ];
+
+    Object.assign(horseView, {
+      registeredName: horseDoc.registeredName as string | undefined,
+      registryId: horseDoc.registryId as string | undefined,
+      microchipId: horseDoc.microchipId as string | undefined,
+      passportNumber: horseDoc.passportNumber as string | undefined,
+      dateOfBirth:
+        horseDoc.dateOfBirth instanceof Date ? horseDoc.dateOfBirth.toISOString() : undefined,
+      color: horseDoc.color as string | undefined,
+      heightHands: horseDoc.heightHands as number | undefined,
+      disciplines: horseDoc.disciplines as string[] | undefined,
+      countryOfBirth: horseDoc.countryOfBirth as string | undefined,
+      estimatedValue: horseDoc.estimatedValue as number | undefined,
+      valueCurrency: horseDoc.valueCurrency as string | undefined,
+      saleStatus: horseDoc.saleStatus as string | undefined,
+      askingPrice: horseDoc.askingPrice as number | undefined,
+      acquisitionDate:
+        horseDoc.acquisitionDate instanceof Date
+          ? horseDoc.acquisitionDate.toISOString()
+          : undefined,
+      acquisitionSource: horseDoc.acquisitionSource as string | undefined,
+      showValuePublicly: horseDoc.showValuePublicly as boolean | undefined,
+      pedigree: horseDoc.pedigree as Record<string, unknown> | undefined,
+      description: horseDoc.description as string | undefined,
+      notes: horseDoc.notes as string | undefined,
+      hubSections: normalizeHubSections(horseDoc.hubSections as HubSections | undefined),
+      isMainOwner,
+      isCoOwner,
+      isResponsible,
+      isAdmin: isMainOwner || isCoOwner || isResponsible,
+      coOwners,
+      responsibles,
+      adminTeam,
+    } satisfies Partial<HorseViewDto>);
+  }
+
+  return { viewerRole, allowedTabs, horse: horseView };
+}

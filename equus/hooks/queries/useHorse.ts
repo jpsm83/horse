@@ -7,19 +7,23 @@ import { queryKeys } from "@/lib/api/queryKeys";
 import type { PublicRelationship } from "@/lib/services/relationshipService";
 import type { CreateHorsePayload } from "@/lib/utils/horseFormMapping";
 import type { PublicOwnershipTransfer } from "@/lib/services/ownershipTransferService";
-import type { OwnerHorseSummary, HorseHubDto } from "@/lib/api/horseClient";
-import type { HorseListResult, HorseListFilters } from "@/lib/services/horseService.ts";
+import type { HorseListResult, HorseListFilters, HorseViewResponse } from "@/lib/services/horseService.ts";
 
-async function fetchOwnerHorse(horseId: string): Promise<OwnerHorseSummary> {
-  const response = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(horseId)}/owner`);
-  const data = await parseApiResponse<{ horse: OwnerHorseSummary }>(response);
-  return data.horse;
+// --- Horse view (unified role-aware) ---
+
+async function fetchHorseView(horseId: string): Promise<HorseViewResponse> {
+  const response = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(horseId)}`);
+  return parseApiResponse<HorseViewResponse>(response);
 }
 
-async function fetchHorseHub(horseId: string): Promise<HorseHubDto> {
-  const response = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(horseId)}/hub`);
-  const data = await parseApiResponse<{ hub: HorseHubDto }>(response);
-  return data.hub;
+export function useHorseView(horseId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.horses.view(horseId!),
+    queryFn: () => fetchHorseView(horseId!),
+    enabled: !!horseId,
+    placeholderData: (previousData) => previousData,
+    retry: false,
+  });
 }
 
 export type CreatedHorseResponse = {
@@ -73,24 +77,6 @@ export function useHorseList(filters: HorseListFilters = {}) {
   return useQuery({
     queryKey: [...queryKeys.horses.lists(), filters],
     queryFn: () => fetchHorseList(filters),
-  });
-}
-
-export function useOwnerHorse(horseId: string | undefined) {
-  return useQuery({
-    queryKey: queryKeys.horses.owner(horseId!),
-    queryFn: () => fetchOwnerHorse(horseId!),
-    enabled: !!horseId,
-    placeholderData: (previousData) => previousData,
-    retry: false,
-  });
-}
-
-export function useHorseHub(horseId: string | undefined) {
-  return useQuery({
-    queryKey: queryKeys.horses.hub(horseId!),
-    queryFn: () => fetchHorseHub(horseId!),
-    enabled: !!horseId,
   });
 }
 
@@ -171,8 +157,7 @@ export function useUpdateHorse() {
   return useMutation({
     mutationFn: updateHorseApi,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.horses.owner(variables.horseId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.horses.hub(variables.horseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.view(variables.horseId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.horses.lists() });
     },
   });
@@ -197,8 +182,7 @@ export function useUpdateHorseSale() {
   return useMutation({
     mutationFn: updateHorseSaleApi,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.horses.owner(variables.horseId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.horses.hub(variables.horseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.view(variables.horseId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.horses.lists() });
     },
   });
@@ -229,8 +213,7 @@ export function useUpdateHorseVisibility() {
   return useMutation({
     mutationFn: updateHorseVisibilityApi,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.horses.owner(variables.horseId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.horses.hub(variables.horseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.view(variables.horseId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.horses.lists() });
     },
   });
@@ -266,8 +249,7 @@ export function useUpdateHorseHubSection() {
   return useMutation({
     mutationFn: updateHorseHubSectionApi,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.horses.owner(variables.horseId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.horses.hub(variables.horseId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.horses.view(variables.horseId) });
     },
   });
 }

@@ -20,13 +20,11 @@ Related:
 |--------|------|---------|
 | `GET` | `/api/v1/horses?mine=true&page=1&limit=20` | List horses — optional auth; `mine` filters to owned/co-owned for authenticated users; returns public horses for guests |
 | `POST` | `/api/v1/horses` | Create a horse owned by the authenticated user (`mainOwnerUserId`, `createdByUserId`) |
-| `GET` | `/api/v1/horses/:id/owner` | Owner-only horse summary (name, breed, sex) for hub UI |
+| `GET` | `/api/v1/horses/:id` | **Unified role-aware horse view** — returns `{ viewerRole, allowedTabs, horse }` (replaces the retired `/owner` and `/hub` endpoints). Auth optional; `viewerRole` determines payload scope. |
+| `PATCH` | `/api/v1/horses/:id` | Owner profile field patch (not section visibility) |
 | `GET` | `/api/v1/horses/:id/relationships?status=pending` | Outbound pending invites sent by the owner for this horse |
 | `PATCH` | `/api/v1/horses/:id/discovery` | Layer-1 `profileVisibility` only (Admin Visibility form Save) |
 | `PATCH` | `/api/v1/horses/:id/hub-sections` | Layer-2 partial `hubSections` (section popover autosave) |
-| `GET` | `/api/v1/horses/:id` | Public horse card (list/contact) — Layer 1 only |
-| `GET` | `/api/v1/horses/:id/hub` | Filtered Hub DTO — Layer 1 gate + Layer 2 section filter (auth optional) |
-| `PATCH` | `/api/v1/horses/:id` | Owner profile field patch (not section visibility) |
 | `GET` | `/api/v1/horses/:id/planning` | List planning events (auth required) |
 | `POST` | `/api/v1/horses/:id/planning` | Create planning event (admin / `userOwnsEntity` only; Zod body) |
 | `GET` | `/api/v1/horses/:id/audit` | Audit/history logs (admin / `userOwnsEntity` only) |
@@ -37,6 +35,47 @@ Related:
 | `POST` | `/api/v1/horses/:id/media-deletion-requests` | Request deletion of a media item (non-owners) — creates pending request for owner approval |
 | `PATCH` | `/api/v1/horses/:id/media-deletion-requests/:requestId` | Approve or decline a deletion request (owner/co-owner only) |
 | `DELETE` | `/api/v1/horses/:id/media-deletion-requests/:requestId` | Cancel own pending deletion request (requester only) |
+
+### `GET /api/v1/horses/:id` — response shape
+
+```ts
+type HorseViewResponse = {
+  viewerRole: "main_owner" | "co_owner" | "responsible" | "related" | "public" | "guest";
+  allowedTabs: Array<"hub" | "connect" | "planning" | "media" | "documents" | "profile" | "admin" | "history">;
+  horse: HorseViewDto; // owner fields present only for ownership-team viewers
+};
+```
+
+`viewerRole` derivation (server-side):
+- `main_owner` — `horse.mainOwnerUserId === userId`
+- `co_owner` — userId in `horse.coOwners[]`
+- `responsible` — userId in `horse.responsibles[]` (ownership team but not owning stake)
+- `related` — accepted `Relationship` or active collaboration on a linked host entity
+- `public` — authenticated but no relationship
+- `guest` — unauthenticated
+
+`allowedTabs` is computed from `viewerRole` via `TAB_MIN_ROLE` in `lib/services/horseService.ts`. Client reads directly from the response — no role inference on the client.
+
+### Hub tab — social profile page
+
+The Hub tab at `/horses/[horseId]` is a **read-only social profile** for the horse. It reads from the TanStack cache (seeded by `layout.tsx` RSC — no extra network request). Sections present in `horse.sections` are rendered; absent keys mean the viewer lacks access or the owner hid the section.
+
+New layout (components under `components/horses/hub/`):
+```
+HubContent
+├── HorseHubHero          — cover/profile image, name, breed, sex
+├── HorseHubStats         — age, color, height as highlight cards; discipline tags
+├── HorseHubAbout         — description
+├── HorseHubGallery       — masonry/grid photo gallery with lightbox
+├── HorseHubUpcomingEvents — next 5 planning events
+├── HorseHubPedigree      — sire/dam/bloodline callout
+├── HorseHubTeam          — ownership count + connections list
+└── HorseHubIdentification — registry/microchip/passport
+```
+
+- Page: `app/[locale]/horses/[horseId]/page.tsx` + `client.tsx`
+- Data: reads `useHorseView(horseId)` — cache hit from layout RSC, no separate fetch
+- i18n: `horseHub` namespace
 
 ---
 
@@ -63,35 +102,37 @@ flowchart TB
 - **public** — anyone
 - Nested inclusion: `owner` ⊆ `relationship` ⊆ `public`
 
-**Layer 1 — global:** `Horse.profileVisibility` — can this viewer open the Hub / public card at all?
+**Layer 1 — global:** `Horse.profileVisibility` — can this viewer open the Hub / public card at all? Deny → **404**.
 
-**Layer 2 — Hub sections:** `Horse.hubSections` — which Hub blocks appear?
+**Layer 2 — Hub sections:** `Horse.hubSections` — which Hub blocks appear? Every section visibility popover is Layer-2 only.
 
 ```ts
 hubSections: {
-  identity: { mode },                 // default public — Profile Identity
-  identification: { mode },           // default public — Profile Identification
-  pedigree: { mode },                 // default public
-  about: { mode },                    // default public
-  ownership: { mode },                // default relationship — Admin Ownership
-  value: { mode },                    // default owner — Admin Horse Value
-  proactiveRepresentatives: { mode }, // default owner — Admin Proactive Representatives
-  coOwnerManagement: { mode },        // default owner — Admin Co-owner Management
-  gallery: { mode },                  // default public — Media Gallery (persist; Hub block TBD)
-  planning: { mode },                 // default public — Planning calendar (persist; Hub block TBD)
-  connections: { mode },              // default relationship — Connect Connections (persist; Hub block TBD)
+  identity: { mode },                 // default public — Profile Identity + Hub
+  identification: { mode },           // default public — Profile Identification + Hub
+  pedigree: { mode },                 // default public — Hub
+  about: { mode },                    // default public — Hub
+  ownership: { mode },                // default relationship — Admin Ownership + Hub
+  value: { mode },                    // default owner — Admin Horse Value (not Hub-facing)
+  proactiveRepresentatives: { mode }, // default owner — Admin (not Hub-facing)
+  coOwnerManagement: { mode },        // default owner — Admin (not Hub-facing)
+  gallery: { mode },                  // default public — Media Gallery + Hub
+  planning: { mode },                 // default public — Planning + Hub
+  connections: { mode },              // default relationship — Connect Connections + Hub
 }
 ```
 
-Keys match section responsibility (1:1 with Profile/Admin/Media/Planning/Connect sections that have popovers). Hub filtered DTO uses the Hub-facing subset (`identity` … `ownership`). No per-section `entityIds`.
+Keys match section responsibility (1:1 with Profile/Admin/Media/Planning/Connect sections that have popovers). **Hub-facing filtered DTO:** `identity`, `identification`, `pedigree`, `about`, `ownership`, `gallery`, `planning`, `connections`. Admin-only keys stay off Hub. No per-section `entityIds`.
+
+**Read flow:** Layer 1 → Layer 2 → render/return only allowed data. Do **not** ship full horse and hide in React.
+
+**List APIs:** `GET …/media` and `GET …/planning` enforce the same Layer 1 → Layer 2 gates. **Owner team always receives the full management list** (so they can edit content even when Hub mode hides it from others). Non-owners: L2 deny → empty list; else filter by item `visibilityMode` (`entities` maps to `relationship`).
 
 **Autosave:** Profile/Admin/Media Gallery/Planning/Connect Connections compose `HorseSectionVisibility` in the `Section` `visibilityControl` slot. That adapter uses shared `SectionVisibilityControl` → `useUpdateHorseHubSection` → `PATCH …/hub-sections`. Do **not** wire section PATCH in page `client.tsx`. Not part of Profile/Admin form Save and not the discovery route. Admin Layer-1 `profileVisibility` remains on Admin form Save → `PATCH …/discovery`.
 
-Policy: `lib/horses/horseVisibilityAccess.ts`. Hub read returns only allowed section keys (`GET …/hub`). Do not ship full horse and hide in React.
+Policy: `lib/horses/horseVisibilityAccess.ts` (`assertCanViewHorseGlobal`, `canViewHorseHubSection`, `canAccessByItemVisibilityMode`).
 
 Public card contact still comes from the main owner, filtered by `User.preferences` via `lib/privacy/userVisibility.ts`.
-
-**Follow-up (out of scope here):** Media/Events still use `visibilityMode: owner | entities | public`. Target mapping: `entities` → `relationship`.
 
 Migrations:
 - `scripts/migrate-horse-visibility-owner.mjs` (`owner_only` → `owner`)
@@ -151,14 +192,14 @@ On success the UI toasts and redirects to `/horses/{horseId}`. Profile visibilit
 
 ### Horse hub (`/horses/[horseId]`)
 
-Social Hub page. Renders **only sections present** in the filtered Hub DTO from `GET /api/v1/horses/:id/hub` (Layer 1 + Layer 2): `identity`, `identification`, `pedigree`, `about`, `ownership`. Global profile visibility is edited on **Admin** (form Save → `PATCH …/discovery`). Per-section visibility uses `HorseSectionVisibility` (autosave via `PATCH …/hub-sections`).
+Read-only social profile page (optional auth). The Hub tab is the public face of a horse. Data flows from the `layout.tsx` RSC (pre-seeded TanStack cache) — no extra network call.
 
-- Page: `app/[locale]/horses/[horseId]/page.tsx`
-- Components: `components/horses/hub/horse-hub-page-content.tsx`
-- Hook: `useHorseHub` → `GET /api/v1/horses/:id/hub`
+- Page: `app/[locale]/horses/[horseId]/page.tsx` + `client.tsx`
+- Components: `components/horses/hub/horse-hub-hero.tsx`, `horse-hub-stats.tsx`, `horse-hub-about.tsx`, `horse-hub-gallery.tsx`, `horse-hub-upcoming-events.tsx`, `horse-hub-pedigree.tsx`, `horse-hub-team.tsx`, `horse-hub-identification.tsx`
+- Data: `useHorseView(horseId)` — reads from cache seeded by layout, no additional fetch
 - i18n: `horseHub` namespace
 
-Layer 1 deny → 404 (same as public card). Guests may view when Layer 1 allows.
+Layer 1 deny → 404. Guests may view when Layer 1 allows. No visibility popovers on Hub; those live on Profile/Admin/Media/Planning/Connect.
 
 ### Horse profile (`/horses/[horseId]/profile`)
 
@@ -195,7 +236,7 @@ Admin-only tab (`requireOwnership`) to invite providers and manage connections.
 - Hooks: `useHorseProviders`, `useHorsePendingRelationships`, `useEndRelationship`, `useCancelSentInvite`
 - i18n: `horseConnect` namespace
 
-**Visibility:** Layer-2 `hubSections.connections` (default `relationship`) via section popover. Invite section has no Layer-2 control.
+**Visibility:** Layer-2 `hubSections.connections` (default `relationship`) via section popover — also gates the Hub connections block. Invite section has no Layer-2 control. Connect providers list stays ownership-gated.
 
 ### Horse history (`/horses/[horseId]/history`)
 
@@ -226,7 +267,7 @@ Calendar for appointments, competitions, training, and daily activities. Tab sta
 - Model: `models/HorseEvent.ts`
 - i18n: `horsePlanning` namespace
 
-**Visibility:** Layer-2 `hubSections.planning` (section popover) persists who may see a future Hub planning block. Create requires ownership team.
+**Visibility:** Layer-2 `hubSections.planning` (section popover) gates Hub planning and filters `GET …/planning` for non–owner-team viewers. Create requires ownership team. Management tab still uses `HorsePageShell` (auth + owner summary).
 
 ### Horse media (`/horses/[horseId]/media`)
 
@@ -243,7 +284,7 @@ Media gallery with drag-and-drop upload. Two-section layout: upload section on t
 - i18n: `horseMedia` namespace
 
 **Cloudinary folder structure:** `horses/{horseId}/media/{sourceEntityType}/`
-**Visibility:** Layer-2 `hubSections.gallery` (section popover) persists who may see a future Hub gallery block. Per-item Eye toggles `isVisibleOnHub`. Owner-uploaded media defaults to public; entity-uploaded media defaults to owner-only.
+**Visibility:** Layer-2 `hubSections.gallery` (section popover) gates Hub gallery and filters `GET …/media` for non–owner-team viewers. Per-item Eye toggles `isVisibleOnHub` (Hub gallery requires Hub-visible items). Owner-uploaded media defaults to public; entity-uploaded media defaults to owner-only. Management tab still uses `HorsePageShell` (auth + owner summary).
 
 ### Deletion policy (Media and Documents)
 

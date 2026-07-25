@@ -1,44 +1,74 @@
 # Horse Tabs
 
-## Current Tab Structure (2026-07-24)
+## Current Tab Structure (2026-07-25)
 
-| Tab | Route | Visibility | Purpose |
-|-----|-------|-----------|---------|
-| Hub | `/horses/[id]` | Public (Layer 1) | Filtered social page from `GET …/hub` — only allowed Hub sections |
-| Connect | `/horses/[id]/connect` | Admin (owner, co-owner, responsible) | Invite providers + manage connections table. Connections Layer-2 `hubSections.connections` via `HorseSectionVisibility`. |
-| Planning | `/horses/[id]/planning` | Public | Calendar for appointments, competitions, training, and daily activities. Layer-2 `hubSections.planning` via `HorseSectionVisibility` (admin-only popover). Create events: admin only. Shows events from connected providers. |
-| Media | `/horses/[id]/media` | Public | Upload/view photos and videos. Gallery Layer-2 `hubSections.gallery` via `HorseSectionVisibility` (admin-only popover). Direct delete: owner, co-owner, responsible. Others request deletion (representatives decide when present). |
-| Documents | `/horses/[id]/documents` | Public | Horse documents and files. Same delete/request policy as Media. |
-| Profile | `/horses/[id]/profile` | Admin (owner, co-owner, responsible) | Edit identity / identification / pedigree / about (disciplines multi-select in About). Parent-owned form, single Save, unsaved-changes guard |
-| Admin | `/horses/[id]/admin` | Owner-only | Visibility (`profileVisibility` via discovery API) + sale settings (parent-owned form + Save) + ownership / responsible actions (immediate mutations) |
-| History | `/horses/[id]/history` | Admin (owner, co-owner, responsible) | Activity/audit log. Columns: user (avatar), username, email, type, action, date. |
+| Tab | Route | Minimum Role | Purpose |
+|-----|-------|-------------|---------|
+| Hub | `/horses/[id]` | `guest` | Read-only social profile page — hero, stats, about, gallery, upcoming events, pedigree, team, identification. Data from `useHorseView`. No visibility popovers. |
+| Connect | `/horses/[id]/connect` | `responsible` | Invite providers + manage connections table. Connections Layer-2 `hubSections.connections` via `HorseSectionVisibility` (also Hub). |
+| Planning | `/horses/[id]/planning` | `guest` (view) | Calendar management. Layer-2 `hubSections.planning` via popover + Hub block. Create: ownership team only. Owner team sees full list; others filtered. |
+| Media | `/horses/[id]/media` | `guest` (view) | Upload/view photos and videos. Gallery Layer-2 `hubSections.gallery` via popover + Hub block. Owner team sees full list; others filtered. |
+| Documents | `/horses/[id]/documents` | `guest` | Horse documents and files. Same delete/request policy as Media. |
+| Profile | `/horses/[id]/profile` | `responsible` | Edit identity / identification / pedigree / about (disciplines multi-select in About). Parent-owned form, single Save, unsaved-changes guard. |
+| Admin | `/horses/[id]/admin` | `main_owner` | Visibility (`profileVisibility` via discovery API) + sale settings (parent-owned form + Save) + ownership / responsible actions (immediate mutations). |
+| History | `/horses/[id]/history` | `responsible` | Activity/audit log. Columns: user (avatar), username, email, type, action, date. |
+
+## Tab access via `viewerRole` and `allowedTabs`
+
+Tab access is **server-determined**. The unified `GET /api/v1/horses/:id` returns `allowedTabs[]` based on the viewer's `viewerRole`. The client renders only the tabs returned by the server — no role inference on the client.
+
+`viewerRole` values (in ascending privilege):
+```
+guest → public → related → responsible → co_owner → main_owner
+```
+
+Minimum role map (`TAB_MIN_ROLE` in `lib/services/horseService.ts`):
+
+| Tab | Minimum viewerRole |
+|-----|--------------------|
+| hub | `guest` |
+| planning | `guest` |
+| media | `guest` |
+| documents | `guest` |
+| connect | `responsible` |
+| profile | `responsible` |
+| history | `responsible` |
+| admin | `main_owner` |
+
+`getHorseTabs(horseId, allowedTabs)` in `lib/navigation/horseTabs.ts` filters the full tab list to only those in `allowedTabs`. Falls back to legacy `requireOwnership`/`requireMainOwner` flags when `allowedTabs` is undefined (cache miss).
 
 ## Removed Tabs
 
 - **Edit** — renamed to Profile (redirect from `/edit` to `/profile`)
 - **Events** — renamed to Planning (redirect from `/events` to `/planning`)
-- **Discovery** — former standalone tab; contact display / ageYears / marksDescription removed from the Horse model. **Admin Visibility** edits Layer-1 `profileVisibility` (`HorseVisibilitySection` → form Save → `PATCH …/discovery`). **Section popovers** use shared `HorseSectionVisibility` in the `Section` `visibilityControl` slot (Layer-2 `hubSections`, including Admin `value` / `proactiveRepresentatives` / `coOwnerManagement`, Media `gallery`, Planning `planning`, and Connect `connections`) → `PATCH …/hub-sections` — not parent form state and not the discovery route.
+- **Discovery** — former standalone tab; contact display / ageYears / marksDescription removed from the Horse model. **Admin Visibility** edits Layer-1 `profileVisibility` (`HorseVisibilitySection` → form Save → `PATCH …/discovery`). **Section popovers** use shared `HorseSectionVisibility` in the `Section` `visibilityControl` slot (Layer-2 `hubSections`) → `PATCH …/hub-sections`.
 - **Relations** — merged into Connect tab (invites + connections + reviews)
-- **Medical** — health records tab; removed for future rebuild. Tab entry, route, API, components, service, model, and translations deleted.
-- **Feed** — feed plans tab; removed for future rebuild. Tab entry, route, API, components, service, model, and translations deleted.
-- **Competition results** — removed from Profile tab, Horse model (`competitionResults[]`), APIs, services, hooks, and translations. Not planned.
+- **Medical** — health records tab; removed for future rebuild.
+- **Feed** — feed plans tab; removed for future rebuild.
+- **Competition results** — removed from Profile tab and Horse model.
 
 ## Component layout
 
-Horse tab UI lives under `components/horses/<tab>/` with a `horse-` filename prefix. Cross-tab horse helpers: `components/horses/shared/`. App-wide primitives: `components/shared/`. See [`page-flow-blueprint.md`](./page-flow-blueprint.md) §1.
+Horse tab UI lives under `components/horses/<tab>/` with a `horse-` filename prefix. Cross-tab horse helpers: `components/horses/shared/`. App-wide primitives: `components/shared/`. Hub components: `components/horses/hub/horse-hub-*.tsx`. See [`page-flow-blueprint.md`](./page-flow-blueprint.md) §1.
 
-## First delivery — Hub as social surface
+## Hub tab — social profile page
 
-First delivery prioritizes **user + horse details for social interaction** and **stable SaaS**. The Hub tab is the primary public social surface for a horse (utility-first; not a global Instagram feed).
+The Hub tab is a **read-only social profile** for the horse. Redesigned as a social media-style page. No `HorsePageShell` — no ownership gate. Sections render only when present in `horse.sections` (server already filtered by L1+L2 visibility for the viewer).
 
-Hub reads a **filtered DTO** (`GET /api/v1/horses/:id/hub`): Layer 1 (`profileVisibility`) gates access; Layer 2 (`hubSections`) decides which blocks appear. See [`horses.md`](./horses.md) two-layer visibility.
+Components (all read-only, no visibility popovers):
+```
+HubContent (reads useHorseView — cache hit from layout.tsx)
+├── HorseHubHero          — cover/profile image, name, breed, sex, location
+├── HorseHubStats         — age, color, height as highlight cards; discipline tags
+├── HorseHubAbout         — description
+├── HorseHubGallery       — masonry/grid photo gallery with lightbox
+├── HorseHubUpcomingEvents — next 5 planning events
+├── HorseHubPedigree      — sire/dam/bloodline callout
+├── HorseHubTeam          — ownership count + connections list
+└── HorseHubIdentification — registry/microchip/passport
+```
 
-Market-derived Hub/profile backlog (`H-FD-*`): [`../../documentation/horseModule.md`](../../documentation/horseModule.md) §14 and [`../../documentation/firstDeliveryCompetitiveBacklog.md`](../../documentation/firstDeliveryCompetitiveBacklog.md).  
-Stable SaaS backlog (`S-FD-*`): [`../../documentation/stableModule.md`](../../documentation/stableModule.md) §12.
-
-## Business Rules
-
-See AGENTS.md for critical business rules about entity registration requirements.
+Market-derived Hub/profile backlog (`H-FD-*`): [`../../documentation/horseModule.md`](../../documentation/horseModule.md) §14.
 
 ## Deferred form tabs (Profile, Admin)
 
@@ -56,4 +86,8 @@ Canonical rules: [`page-flow-blueprint.md`](./page-flow-blueprint.md) §6.5.
 [Hub] [Connect] [Planning] [Media] [Documents] [Profile] [Admin] [History]
 ```
 
-Role-based access: Hub, Planning, Media, Documents → public. Connect, Profile, History → Admin (owner/co-owner/responsible). Admin → owner-only.
+Only `allowedTabs` from the server response are rendered. Tabs not in `allowedTabs` are not shown.
+
+## Business Rules
+
+See AGENTS.md for critical business rules about entity registration requirements.

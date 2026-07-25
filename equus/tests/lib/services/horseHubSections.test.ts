@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { buildHorseHubSections } from "@/lib/services/horseService.ts";
+import { buildHorseHubSections, deriveAllowedTabs, ROLE_ORDER, TAB_MIN_ROLE } from "@/lib/services/horseService.ts";
 import type { HorseViewerAudience } from "@/lib/horses/horseVisibilityAccess.ts";
+import type { ViewerRole, HorseTab } from "@/lib/services/horseService.ts";
 
 const guest: HorseViewerAudience = {
   isOwnerTeam: false,
@@ -55,7 +56,7 @@ describe("buildHorseHubSections", () => {
     expect(sections.ownership).toEqual({ coOwnerCount: 1, soleOwner: false });
   });
 
-  it("includes all sections for owner team", () => {
+  it("includes all profile sections for owner team", () => {
     const sections = buildHorseHubSections(horse, ownerTeam);
     expect(Object.keys(sections).sort()).toEqual([
       "about",
@@ -65,5 +66,60 @@ describe("buildHorseHubSections", () => {
       "pedigree",
     ]);
     expect(sections.about?.description).toBe("Friendly");
+  });
+
+  it("includes bloodlineNotes in pedigree when present", () => {
+    const withNotes = {
+      ...horse,
+      pedigree: { sireName: "Sire", damName: "Dam", bloodlineNotes: "Warmblood line" },
+      hubSections: { ...horse.hubSections, pedigree: { mode: "public" } },
+    };
+    const sections = buildHorseHubSections(withNotes, guest);
+    expect(sections.pedigree?.bloodlineNotes).toBe("Warmblood line");
+  });
+});
+
+describe("deriveAllowedTabs", () => {
+  it("guest gets only public tabs", () => {
+    const tabs = deriveAllowedTabs("guest");
+    const expected: HorseTab[] = ["hub", "planning", "media", "documents"];
+    expect(tabs.sort()).toEqual(expected.sort());
+  });
+
+  it("public role gets same tabs as guest", () => {
+    expect(deriveAllowedTabs("public").sort()).toEqual(deriveAllowedTabs("guest").sort());
+  });
+
+  it("related role gets same tabs as guest/public", () => {
+    expect(deriveAllowedTabs("related").sort()).toEqual(deriveAllowedTabs("guest").sort());
+  });
+
+  it("responsible gets all tabs except admin", () => {
+    const tabs = deriveAllowedTabs("responsible");
+    expect(tabs).toContain("hub");
+    expect(tabs).toContain("profile");
+    expect(tabs).toContain("connect");
+    expect(tabs).toContain("history");
+    expect(tabs).not.toContain("admin");
+  });
+
+  it("co_owner gets all tabs except admin", () => {
+    const tabs = deriveAllowedTabs("co_owner");
+    expect(tabs).toContain("profile");
+    expect(tabs).not.toContain("admin");
+  });
+
+  it("main_owner gets all tabs including admin", () => {
+    const tabs = deriveAllowedTabs("main_owner");
+    const allTabs = Object.keys(TAB_MIN_ROLE) as HorseTab[];
+    expect(tabs.sort()).toEqual(allTabs.sort());
+  });
+
+  it("ROLE_ORDER is ordered from lowest to highest privilege", () => {
+    const guestIdx = ROLE_ORDER.indexOf("guest");
+    const mainOwnerIdx = ROLE_ORDER.indexOf("main_owner");
+    expect(guestIdx).toBeLessThan(mainOwnerIdx);
+    expect(ROLE_ORDER.indexOf("public")).toBeGreaterThan(guestIdx);
+    expect(ROLE_ORDER.indexOf("responsible")).toBeLessThan(mainOwnerIdx);
   });
 });

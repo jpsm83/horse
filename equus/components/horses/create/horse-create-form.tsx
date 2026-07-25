@@ -41,7 +41,6 @@ import {
   horseDisciplineEnums,
   horseSexEnums,
   saleStatusEnums,
-  visibilityEnums,
 } from "@/utils/enums.ts";
 
 type CreateHorseFormProps = {
@@ -52,6 +51,7 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
   const router = useRouter();
   const locale = useLocale() as AppLocale;
   const t = useTranslations("createHorse");
+  const tVisibility = useTranslations("visibility");
   const tCommon = useTranslations("common");
   const toast = useAppToast();
   const createHorseMutation = useCreateHorse();
@@ -115,8 +115,12 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
   );
 
   const visibilityOptions = useMemo(
-    () => visibilityEnums.map((v) => ({ value: v, label: t(`visibilityOptions.${v}`) })),
-    [t],
+    () =>
+      (["owner", "relationship", "public"] as const).map((v) => ({
+        value: v,
+        label: tVisibility(`modes.${v}`),
+      })),
+    [tVisibility],
   );
 
   const yesNoOptions = useMemo(

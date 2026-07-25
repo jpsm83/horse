@@ -8,7 +8,7 @@ import { DataTable } from "@/components/table";
 import type { DataTableColumnDef } from "@/components/table";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog.tsx";
 import { Button } from "@/components/ui/button";
-import { useOwnerHorse } from "@/hooks/queries/useHorse.ts";
+import { useHorseView } from "@/hooks/queries/useHorse.ts";
 import { useCreateOwnershipTransfer } from "@/hooks/queries/useOwnershipTransfer.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { useQueryClient } from "@tanstack/react-query";
@@ -47,7 +47,8 @@ export function HorseAdminHistorySection({ horseId }: HorseAdminHistorySectionPr
   const t = useTranslations("horseAdmin");
   const toast = useAppToast();
   const queryClient = useQueryClient();
-  const { data: horse } = useOwnerHorse(horseId);
+  const { data: view } = useHorseView(horseId);
+  const horse = view?.horse;
   const createTransfer = useCreateOwnershipTransfer();
   const [removeTarget, setRemoveTarget] = useState<RemoveTarget | null>(null);
 

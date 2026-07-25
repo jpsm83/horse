@@ -30,6 +30,10 @@ import {
   userDirectMessageAudienceEnums,
   userProfileVisibilityEnums,
 } from "@/utils/enums.ts";
+import {
+  normalizeUserHubSections,
+  type UserHubSections,
+} from "@/lib/users/userHubSections.ts";
 import type { UploadInputFile } from "../cloudinary/types.ts";
 import type { z } from "zod";
 import type { updatePersonalDetailsSchema } from "../validations/user.ts";
@@ -67,10 +71,39 @@ export type PublicUser = {
   profileComplete: boolean;
   hasPassword: boolean;
   isActive: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
-  lastLoginAt?: Date;
-  lastActiveAt?: Date;
+  /** Hub section visibility settings (Layer-2). Included when fetched by the owner. */
+  hubSections?: Required<UserHubSections>;
+  /** Email notification opt-in flags. Included when fetched by the owner. */
+  notificationPreferences?: {
+    email?: {
+      relationshipRequests?: boolean;
+      ownershipTransfers?: boolean;
+      workplaceInvitations?: boolean;
+      messages?: boolean;
+      system?: boolean;
+    };
+  };
+  /** Subscription tier and status. */
+  subscription?: {
+    tier: string;
+    status: string;
+    trialEndsAt?: string;
+    currentPeriodEnd?: string;
+    currency?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+  lastLoginAt?: string;
+  lastActiveAt?: string;
+};
+
+/**
+ * Role-aware view DTO for the user's own account pages.
+ * Pre-seeded into TanStack cache by layout.tsx RSC via getUserView.
+ */
+export type UserViewDto = {
+  user: PublicUser;
+  isOwner: boolean;
 };
 
 // --- Internal helpers ---
@@ -136,19 +169,23 @@ export function userHasPassword(doc: Record<string, unknown>): boolean {
 /** Map a Mongoose user document to the public API user type (no secrets). */
 export function toPublicUser(
   doc: Record<string, unknown>,
-  options?: { hasPassword?: boolean },
+  options?: { hasPassword?: boolean; includeOwnerFields?: boolean },
 ): PublicUser {
   const personalDetails = omitNullishFields({
     ...(doc.personalDetails as Record<string, unknown>),
   });
   delete personalDetails.password;
+  delete personalDetails._id;
 
   const hasPassword = options?.hasPassword ?? userHasPassword(doc);
 
   const userType = (doc.userType as string) ?? "individual";
-  const businessDetails = doc.businessDetails as Record<string, unknown> | undefined;
+  const rawBusinessDetails = doc.businessDetails as Record<string, unknown> | undefined;
+  const businessDetails = rawBusinessDetails
+    ? omitNullishFields({ ...rawBusinessDetails, _id: undefined })
+    : undefined;
 
-  return {
+  const base: PublicUser = {
     id: String(doc._id),
     personalDetails,
     preferences: toPublicUserPreferences(doc),
@@ -159,10 +196,147 @@ export function toPublicUser(
     profileComplete: isProfileComplete(personalDetails),
     hasPassword,
     isActive: doc.isActive !== false,
-    createdAt: doc.createdAt as Date | undefined,
-    updatedAt: doc.updatedAt as Date | undefined,
-    lastLoginAt: doc.lastLoginAt as Date | undefined,
-    lastActiveAt: doc.lastActiveAt as Date | undefined,
+    createdAt: doc.createdAt instanceof Date ? doc.createdAt.toISOString() : undefined,
+    updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : undefined,
+    lastLoginAt: doc.lastLoginAt instanceof Date ? doc.lastLoginAt.toISOString() : undefined,
+    lastActiveAt: doc.lastActiveAt instanceof Date ? doc.lastActiveAt.toISOString() : undefined,
+  };
+
+  // Include owner-only fields when the requester is the account owner.
+  if (options?.includeOwnerFields) {
+    base.hubSections = normalizeUserHubSections(
+      doc.hubSections as Record<string, unknown> | null | undefined,
+    );
+
+    const np = doc.notificationPreferences as Record<string, unknown> | undefined;
+    if (np) {
+      base.notificationPreferences = np as PublicUser["notificationPreferences"];
+    }
+
+    const sub = doc.subscription as Record<string, unknown> | undefined;
+    if (sub) {
+      base.subscription = {
+        tier: (sub.tier as string) ?? "free",
+        status: (sub.status as string) ?? "trial",
+        trialEndsAt: sub.trialEndsAt instanceof Date ? sub.trialEndsAt.toISOString() : undefined,
+        currentPeriodEnd: sub.currentPeriodEnd instanceof Date ? sub.currentPeriodEnd.toISOString() : undefined,
+        currency: (sub.currency as string) ?? "USD",
+      };
+    }
+  }
+
+  return base;
+}
+
+/**
+ * Load the full owner-facing user view for layout.tsx RSC prefetch.
+ * Returns the user with hub sections and notification preferences included.
+ * Non-fatal: layout.tsx wraps in try/catch.
+ */
+export async function getUserView(
+  userId: string,
+  viewerUserId: string | null,
+): Promise<UserViewDto> {
+  const user = await User.findById(userId)
+    .select(
+      "-personalDetails.password -verificationToken -resetPasswordToken -resetPasswordExpires",
+    )
+    .lean();
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const isOwner = viewerUserId !== null && viewerUserId === String((user as Record<string, unknown>)._id);
+
+  return {
+    user: toPublicUser(user as Record<string, unknown>, {
+      includeOwnerFields: isOwner,
+    }),
+    isOwner,
+  };
+}
+
+/**
+ * Update a single hub section visibility mode for the account owner.
+ * Called by PATCH /api/v1/users/me/hub-sections.
+ */
+export async function updateUserHubSection(
+  userId: string,
+  sectionKey: string,
+  mode: string,
+): Promise<PublicUser> {
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { $set: { [`hubSections.${sectionKey}.mode`]: mode } },
+    { returnDocument: "after", runValidators: true },
+  )
+    .select("-personalDetails.password -verificationToken -resetPasswordToken -resetPasswordExpires")
+    .lean();
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return toPublicUser(user as Record<string, unknown>, { includeOwnerFields: true });
+}
+
+/**
+ * Get or update notification preferences for the account owner.
+ * Called by GET/PATCH /api/v1/users/me/notifications.
+ */
+export async function getNotificationPreferences(userId: string) {
+  const user = await User.findById(userId)
+    .select("notificationPreferences")
+    .lean();
+
+  if (!user) throw new Error("User not found");
+
+  const np = (user as Record<string, unknown>).notificationPreferences as Record<string, unknown> | undefined;
+  return buildNotificationPreferences(np);
+}
+
+export async function updateNotificationPreferences(
+  userId: string,
+  patch: Record<string, unknown>,
+): Promise<ReturnType<typeof buildNotificationPreferences>> {
+  const set: Record<string, unknown> = {};
+
+  const emailPatch = (patch.email ?? {}) as Record<string, unknown>;
+  for (const [key, value] of Object.entries(emailPatch)) {
+    if (typeof value === "boolean") {
+      set[`notificationPreferences.email.${key}`] = value;
+    }
+  }
+
+  if (Object.keys(set).length === 0) {
+    return getNotificationPreferences(userId);
+  }
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { $set: set },
+    { returnDocument: "after", runValidators: true },
+  )
+    .select("notificationPreferences")
+    .lean();
+
+  if (!user) throw new Error("User not found");
+
+  const np = (user as Record<string, unknown>).notificationPreferences as Record<string, unknown> | undefined;
+  return buildNotificationPreferences(np);
+}
+
+function buildNotificationPreferences(np: Record<string, unknown> | undefined) {
+  const email = (np?.email ?? {}) as Record<string, unknown>;
+  return {
+    email: {
+      relationshipRequests: (email.relationshipRequests as boolean) ?? true,
+      ownershipTransfers: (email.ownershipTransfers as boolean) ?? true,
+      workplaceInvitations: (email.workplaceInvitations as boolean) ?? true,
+      messages: (email.messages as boolean) ?? true,
+      system: (email.system as boolean) ?? true,
+    },
   };
 }
 

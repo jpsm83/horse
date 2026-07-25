@@ -2,13 +2,9 @@
 
 import { horseHead } from "@lucide/lab";
 import {
-  Bell,
-  Briefcase,
   CreditCard,
   Icon,
-  Link2,
   LogOut,
-  Settings2,
   UserRound,
   UserRoundPen,
 } from "lucide-react";
@@ -31,10 +27,7 @@ import { useAppAuth } from "@/hooks/use-app-auth.ts";
 import { useUserProfile } from "@/hooks/queries/useCurrentUser.ts";
 import { Link, usePathname } from "@/i18n/navigation.ts";
 import { resolveAppHomePath } from "@/lib/navigation/postAuthRedirect.ts";
-import {
-  userPreferencesPath,
-  userProfilePath,
-} from "@/lib/navigation/userTabs.ts";
+import { userHubPath } from "@/lib/navigation/userTabs.ts";
 import { cn } from "@/lib/utils";
 
 type AppSidebarProps = {
@@ -42,7 +35,6 @@ type AppSidebarProps = {
 };
 
 export function AppSidebar({ onHoverChange }: AppSidebarProps) {
-  const t = useTranslations("header");
   const tDiscover = useTranslations("header.discover");
   const tAccount = useTranslations("header.account");
   const tCommon = useTranslations("common");
@@ -128,8 +120,11 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
       <SidebarFooter className="border-t border-sidebar-border p-3">
         {isAuthenticated && user ? (
           <>
-            {/* Avatar + name row */}
-            <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 cursor-default">
+            {/* Avatar + name row — navigates to user hub */}
+            <Link
+              href={userHubPath(user.id)}
+              className="flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-sidebar-accent group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+            >
               <Avatar className="size-8 shrink-0 rounded-full">
                 {profileImageUrlValue ? (
                   <AvatarImage src={profileImageUrlValue} alt="" />
@@ -146,71 +141,11 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
                   {user.email}
                 </span>
               </div>
-            </div>
+            </Link>
 
-            {/* Links — hidden when collapsed */}
+            {/* Account actions — hidden when collapsed */}
             <div className="mt-2 space-y-0.5 group-data-[collapsible=icon]:hidden">
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    render={<Link href={userProfilePath(user.id)} />}
-                    isActive={pathname.startsWith(`/user/${user.id}/profile`)}
-                    tooltip={t("profile")}
-                  >
-                    <UserRoundPen className="size-4" />
-                    <span>{t("profile")}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    render={<Link href={userPreferencesPath(user.id)} />}
-                    isActive={pathname.startsWith(`/user/${user.id}/preferences`)}
-                    tooltip={tAccount("preferences")}
-                  >
-                    <Settings2 className="size-4" />
-                    <span>{tAccount("preferences")}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    render={<Link href="/notifications" />}
-                    isActive={pathname === "/notifications"}
-                    tooltip={t("notifications")}
-                  >
-                    <Bell className="size-4" />
-                    <span>{t("notifications")}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    render={<Link href="/workplaces" />}
-                    isActive={pathname === "/workplaces"}
-                    tooltip={tAccount("workplaces")}
-                  >
-                    <Briefcase className="size-4" />
-                    <span>{tAccount("workplaces")}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    render={<Link href="/relationships" />}
-                    isActive={pathname === "/relationships"}
-                    tooltip={tAccount("relationships")}
-                  >
-                    <Link2 className="size-4" />
-                    <span>{tAccount("relationships")}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    render={<Link href="/subscription" />}
-                    isActive={pathname === "/subscription"}
-                    tooltip={tAccount("subscription")}
-                  >
-                    <CreditCard className="size-4" />
-                    <span>{tAccount("subscription")}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     tooltip={tCommon("signOut")}
@@ -222,7 +157,6 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
                     <span>{tCommon("signOut")}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                {/* Subscription — last in list */}
               </SidebarMenu>
             </div>
           </>
