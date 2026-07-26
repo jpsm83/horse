@@ -2,13 +2,16 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useForm, useFormState } from "react-hook-form";
+import { Plus, UserCog } from "lucide-react";
 
 import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { HorseAdminHistorySection } from "@/components/horses/admin/horse-admin-history-section.tsx";
+import { HorseAdminRoleInviteDialog } from "@/components/horses/admin/horse-admin-role-invite-dialog.tsx";
 import { HorseCoOwnerManagementSection } from "@/components/horses/admin/horse-co-owner-management-section.tsx";
+import { HorseOwnershipChangeDialog } from "@/components/horses/admin/horse-ownership-change-dialog.tsx";
 import { HorseOwnershipManagementSection } from "@/components/horses/admin/horse-ownership-management-section.tsx";
 import { HorseProactiveRepresentativesSection } from "@/components/horses/admin/horse-proactive-representatives-section.tsx";
 import { HorseValueSection } from "@/components/horses/admin/horse-value-section.tsx";
@@ -16,6 +19,7 @@ import { HorseVisibilitySection } from "@/components/horses/admin/horse-visibili
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { HorseSectionVisibility } from "@/components/horses/shared/horse-section-visibility.tsx";
 import { Section } from "@/components/shared/section.tsx";
+import { SectionTitleAction } from "@/components/shared/section-title-action.tsx";
 import { useUnsavedChanges } from "@/components/shared/unsaved-changes-context.tsx";
 import { Button } from "@/components/ui/button";
 import type { OwnerHorseSummary } from "@/lib/services/horseService.ts";
@@ -64,7 +68,28 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
   const updateVisibility = useUpdateHorseVisibility();
   const { setDirty, setSaving } = useUnsavedChanges();
 
+  const [proactiveInviteOpen, setProactiveInviteOpen] = useState(false);
+  const [coOwnerInviteOpen, setCoOwnerInviteOpen] = useState(false);
+  const [changeOwnerOpen, setChangeOwnerOpen] = useState(false);
+
   const hubSections = normalizeHubSections(horse.hubSections);
+  const isMainOwner = horse.isMainOwner === true;
+
+  const inviteSectionLabels = useMemo(
+    () => ({
+      searchPlaceholder: t("searchPlaceholder"),
+      inviteLabel: t("inviteLabel"),
+      searchingLabel: t("searchingLabel"),
+      searchErrorLabel: t("searchErrorLabel"),
+      noResultsLabel: t("noResultsLabel"),
+      emailFallbackToggle: t("emailFallbackToggle"),
+      emailFallbackHint: t("emailFallbackHint"),
+      emailLabel: t("emailLabel"),
+      sendEmailInvite: t("sendEmailInvite"),
+      cancelLabel: t("cancel"),
+    }),
+    [t],
+  );
 
   const formMessages = useMemo(
     () => horseFormMessagesFromTranslations(tSale),
@@ -96,13 +121,19 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
   }, [isSaving, setSaving]);
 
   async function onSave(values: SaleFormValues) {
-    const salePatch = buildSaleSavePatch(values, dirtyFields as Record<string, boolean | object>);
+    const salePatch = buildSaleSavePatch(
+      values,
+      dirtyFields as Record<string, boolean | object>,
+    );
     const visibilityPatch = buildVisibilitySavePatch(
       values,
       dirtyFields as Record<string, boolean | object>,
     );
 
-    if (Object.keys(salePatch).length === 0 && Object.keys(visibilityPatch).length === 0) {
+    if (
+      Object.keys(salePatch).length === 0 &&
+      Object.keys(visibilityPatch).length === 0
+    ) {
       toast.info(tSale("noChanges"));
       return;
     }
@@ -122,87 +153,12 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
   }
 
   return (
-    <>
-      <Section
-        title={t("adminHistoryTitle")}
-        description={t("adminHistoryDescription")}
-        className="flex-1"
-      >
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <HorseAdminHistorySection horseId={horseId} />
-        </ErrorBoundary>
-      </Section>
-
-      <div className="flex items-stretch gap-4">
-        <div className="flex w-full min-h-0 flex-col gap-4">
-          <Section
-            title={t("ownershipTitle")}
-            description={t("ownershipTransferDescription")}
-            visibilityControl={
-              <HorseSectionVisibility
-                horseId={horseId}
-                sectionKey="ownership"
-                mode={hubSections.ownership.mode}
-                uiSectionKey="admin-ownership"
-              />
-            }
-            className="min-h-0 flex-1"
-          >
-            <div className="min-h-0 flex-1 overflow-auto">
-              <ErrorBoundary
-                fallbackRender={(p) => <InlineErrorFallback {...p} />}
-              >
-                <HorseOwnershipManagementSection horseId={horseId} />
-              </ErrorBoundary>
-            </div>
-          </Section>
-
-          <Section
-            title={t("proactiveRepresentativesTitle")}
-            description={t("proactiveRepresentativesDescription")}
-            visibilityControl={
-              <HorseSectionVisibility
-                horseId={horseId}
-                sectionKey="proactiveRepresentatives"
-                mode={hubSections.proactiveRepresentatives.mode}
-                uiSectionKey="admin-proactive-representatives"
-              />
-            }
-            className="shrink-0"
-          >
-            <ErrorBoundary
-              fallbackRender={(p) => <InlineErrorFallback {...p} />}
-            >
-              <HorseProactiveRepresentativesSection horseId={horseId} />
-            </ErrorBoundary>
-          </Section>
-
-          <Section
-            title={t("coOwnerManagementTitle")}
-            description={t("coOwnerManagementDescription")}
-            visibilityControl={
-              <HorseSectionVisibility
-                horseId={horseId}
-                sectionKey="coOwnerManagement"
-                mode={hubSections.coOwnerManagement.mode}
-                uiSectionKey="admin-co-owner-management"
-              />
-            }
-            className="shrink-0"
-          >
-            <ErrorBoundary
-              fallbackRender={(p) => <InlineErrorFallback {...p} />}
-            >
-              <HorseCoOwnerManagementSection horseId={horseId} />
-            </ErrorBoundary>
-          </Section>
-        </div>
-
-        <div className="flex w-full min-h-0 flex-col gap-4">
+    <div className="flex flex-col gap-4 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div className="flex min-w-0 flex-col gap-4">
           <Section
             title={tProfile("sections.visibility")}
             description={tProfile("sectionDescriptions.visibility")}
-            className="w-full shrink-0"
           >
             <ErrorBoundary
               fallbackRender={(p) => <InlineErrorFallback {...p} />}
@@ -212,28 +168,121 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
           </Section>
 
           <Section
-            title={t("horseValueTitle")}
-            description={t("horseValueDescription")}
+            title={t("ownershipTitle")}
+            description={t("ownershipTransferDescription")}
+            titleAddon={
+              isMainOwner ? (
+                <SectionTitleAction onClick={() => setChangeOwnerOpen(true)}>
+                  <UserCog className="size-3" />
+                  {t("changeOwner")}
+                </SectionTitleAction>
+              ) : null
+            }
             visibilityControl={
               <HorseSectionVisibility
                 horseId={horseId}
-                sectionKey="value"
-                mode={hubSections.value.mode}
-                uiSectionKey="admin-value"
+                sectionKey="ownership"
+                mode={hubSections.ownership.mode}
+                uiSectionKey="admin-ownership"
               />
             }
-            className="min-h-0 w-full flex-1"
           >
             <div className="min-h-0 flex-1 overflow-auto">
               <ErrorBoundary
                 fallbackRender={(p) => <InlineErrorFallback {...p} />}
               >
-                <HorseValueSection control={form.control} />
+                <HorseOwnershipManagementSection horseId={horseId} />
               </ErrorBoundary>
             </div>
           </Section>
         </div>
+
+        <Section
+          title={t("horseValueTitle")}
+          description={t("horseValueDescription")}
+          className="min-w-0"
+          visibilityControl={
+            <HorseSectionVisibility
+              horseId={horseId}
+              sectionKey="value"
+              mode={hubSections.value.mode}
+              uiSectionKey="admin-value"
+            />
+          }
+        >
+          <div className="min-h-0 flex-1 overflow-auto">
+            <ErrorBoundary
+              fallbackRender={(p) => <InlineErrorFallback {...p} />}
+            >
+              <HorseValueSection control={form.control} />
+            </ErrorBoundary>
+          </div>
+        </Section>
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <Section
+          title={t("proactiveRepresentativesTitle")}
+          description={t("proactiveRepresentativesDescription")}
+          className="min-w-0"
+          titleAddon={
+            isMainOwner ? (
+              <SectionTitleAction onClick={() => setProactiveInviteOpen(true)}>
+                <Plus className="size-3" />
+                {t("add")}
+              </SectionTitleAction>
+            ) : null
+          }
+          visibilityControl={
+            <HorseSectionVisibility
+              horseId={horseId}
+              sectionKey="proactiveRepresentatives"
+              mode={hubSections.proactiveRepresentatives.mode}
+              uiSectionKey="admin-proactive-representatives"
+            />
+          }
+        >
+          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+            <HorseProactiveRepresentativesSection horseId={horseId} />
+          </ErrorBoundary>
+        </Section>
+
+        <Section
+          title={t("coOwnerManagementTitle")}
+          description={t("coOwnerManagementDescription")}
+          className="min-w-0"
+          titleAddon={
+            isMainOwner ? (
+              <SectionTitleAction onClick={() => setCoOwnerInviteOpen(true)}>
+                <Plus className="size-3" />
+                {t("add")}
+              </SectionTitleAction>
+            ) : null
+          }
+          visibilityControl={
+            <HorseSectionVisibility
+              horseId={horseId}
+              sectionKey="coOwnerManagement"
+              mode={hubSections.coOwnerManagement.mode}
+              uiSectionKey="admin-co-owner-management"
+            />
+          }
+        >
+          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+            <HorseCoOwnerManagementSection horseId={horseId} />
+          </ErrorBoundary>
+        </Section>
+      </div>
+
+      <Section
+        title={t("adminHistoryTitle")}
+        description={t("adminHistoryDescription")}
+        className="w-full"
+      >
+        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <HorseAdminHistorySection horseId={horseId} />
+        </ErrorBoundary>
+      </Section>
 
       <div className="flex justify-end">
         <Button
@@ -246,6 +295,34 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
           {isSaving ? tCommon("saving") : tCommon("save")}
         </Button>
       </div>
-    </>
+
+      <HorseAdminRoleInviteDialog
+        horseId={horseId}
+        open={proactiveInviteOpen}
+        onOpenChange={setProactiveInviteOpen}
+        transferKind="add_responsible"
+        title={t("proactiveInviteDialogTitle")}
+        description={t("proactiveInviteDialogDescription")}
+        successMessage={t("proactiveInvited")}
+        inviteSectionLabels={inviteSectionLabels}
+      />
+
+      <HorseAdminRoleInviteDialog
+        horseId={horseId}
+        open={coOwnerInviteOpen}
+        onOpenChange={setCoOwnerInviteOpen}
+        transferKind="promote_co_owner"
+        title={t("coOwnerInviteDialogTitle")}
+        description={t("coOwnerInviteDialogDescription")}
+        successMessage={t("coOwnerInvited")}
+        inviteSectionLabels={inviteSectionLabels}
+      />
+
+      <HorseOwnershipChangeDialog
+        horseId={horseId}
+        open={changeOwnerOpen}
+        onOpenChange={setChangeOwnerOpen}
+      />
+    </div>
   );
 }

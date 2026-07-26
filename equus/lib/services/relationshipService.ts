@@ -37,6 +37,10 @@ export type PublicRelationship = {
   endedAt?: Date;
   receiverAccountType?: string;
   receiverAccountId?: string;
+  /** Linked invitee user id when known. */
+  receiverUserId?: string;
+  /** Profile image for Connect / identity tables. */
+  receiverImageUrl?: string;
 };
 
 export type RelationshipInvitePreview = {
@@ -136,7 +140,42 @@ function toPublicRelationship(doc: Record<string, unknown>): PublicRelationship 
     endedAt: doc.endedAt as Date | undefined,
     receiverAccountType: doc.receiverAccountType as string | undefined,
     receiverAccountId: doc.receiverAccountId ? String(doc.receiverAccountId) : undefined,
+    receiverUserId: doc.receiverUserId ? String(doc.receiverUserId) : undefined,
   };
+}
+
+/** Batch-attach receiver profile images for horse connection tables. */
+async function attachReceiverProfileImages(
+  relationships: PublicRelationship[],
+): Promise<PublicRelationship[]> {
+  const userIds = [
+    ...new Set(
+      relationships
+        .map((r) => r.receiverUserId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  if (userIds.length === 0) return relationships;
+
+  const users = await User.find({ _id: { $in: userIds } })
+    .select("personalDetails.imageUrl")
+    .lean();
+
+  const imageByUserId = new Map(
+    users.map((user) => {
+      const imageUrl = (
+        user as { personalDetails?: { imageUrl?: string } }
+      ).personalDetails?.imageUrl?.trim();
+      return [String(user._id), imageUrl || undefined] as const;
+    }),
+  );
+
+  return relationships.map((rel) => ({
+    ...rel,
+    receiverImageUrl: rel.receiverUserId
+      ? imageByUserId.get(rel.receiverUserId)
+      : undefined,
+  }));
 }
 
 // --- Public API ---
@@ -353,7 +392,7 @@ export async function listPendingSentForHorse(
     results.push(pub);
   }
 
-  return results;
+  return attachReceiverProfileImages(results);
 }
 
 export async function acceptRelationship(
@@ -509,7 +548,7 @@ export async function listProvidersForHorse(
     results.push(pub);
   }
 
-  return results;
+  return attachReceiverProfileImages(results);
 }
 
 export async function linkRelationshipByReferral(

@@ -1,14 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ErrorBoundary } from "react-error-boundary";
+import { UserPlus } from "lucide-react";
 
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
-import { HorseConnectInviteSection } from "@/components/horses/connect/horse-invite-section.tsx";
+import { HorseConnectInviteDialog } from "@/components/horses/connect/horse-connect-invite-dialog.tsx";
 import { HorseConnectionsTableSection } from "@/components/horses/connect/horse-connections-table-section.tsx";
 import { HorseSectionVisibility } from "@/components/horses/shared/horse-section-visibility.tsx";
 import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { Section } from "@/components/shared/section.tsx";
+import { SectionTitleAction } from "@/components/shared/section-title-action.tsx";
 import type { OwnerHorseSummary } from "@/lib/services/horseService.ts";
 import { normalizeHubSections } from "@/lib/horses/hubSections.ts";
 
@@ -32,22 +35,19 @@ type ConnectSectionsProps = {
 function ConnectSections({ horseId, horse }: ConnectSectionsProps) {
   const t = useTranslations("horseConnect");
   const hubSections = normalizeHubSections(horse.hubSections);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   return (
     <>
       <Section
-        title={t("inviteSection")}
-        description={t("description")}
-        className="shrink-0"
-      >
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <HorseConnectInviteSection horseId={horseId} />
-        </ErrorBoundary>
-      </Section>
-
-      <Section
         title={t("connectionsSection")}
         className="flex-1"
+        titleAddon={
+          <SectionTitleAction onClick={() => setInviteOpen(true)}>
+            <UserPlus className="size-3" />
+            {t("invite")}
+          </SectionTitleAction>
+        }
         visibilityControl={
           <HorseSectionVisibility
             horseId={horseId}
@@ -61,6 +61,12 @@ function ConnectSections({ horseId, horse }: ConnectSectionsProps) {
           <HorseConnectionsTableSection horseId={horseId} />
         </ErrorBoundary>
       </Section>
+
+      <HorseConnectInviteDialog
+        horseId={horseId}
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+      />
     </>
   );
 }

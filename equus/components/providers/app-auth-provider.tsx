@@ -39,6 +39,7 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [authRevision, setAuthRevision] = useState(0);
   const isLoadingRef = useRef(false);
+  const hasResolvedUserRef = useRef(false);
 
   const nextAuthUserId =
     sessionStatus === "authenticated" ? session?.user?.id : undefined;
@@ -49,6 +50,7 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
         nextAuthUserId,
       });
       setUser(currentUser);
+      if (currentUser) hasResolvedUserRef.current = true;
     } catch (err) {
       console.error("Auth session load failed:", err);
       appToast.error("Failed to connect to server");
@@ -70,7 +72,10 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
     isLoadingRef.current = true;
 
     void (async () => {
-      setIsLoading(true);
+      // Only flash global auth loading on first resolve — revalidations keep prior user.
+      if (!hasResolvedUserRef.current) {
+        setIsLoading(true);
+      }
       try {
         await loadAuthState();
       } finally {
@@ -88,6 +93,7 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
       router.replace(GUEST_LANDING_PATH);
       await clearClientAuthSession();
       setUser(null);
+      hasResolvedUserRef.current = false;
       applyThemeToDocument("default");
       syncThemeCookie("default");
     } finally {
@@ -99,7 +105,11 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       isAuthenticated: user !== null,
-      isLoading: sessionStatus === "loading" || isLoading || isLoggingOut,
+      // Do not treat NextAuth "loading" as app-unauthenticated when we already have a REST user.
+      isLoading:
+        (sessionStatus === "loading" && user === null) ||
+        isLoading ||
+        isLoggingOut,
       logout,
     }),
     [user, sessionStatus, isLoading, isLoggingOut, logout],

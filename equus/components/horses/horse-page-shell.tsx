@@ -3,12 +3,12 @@
  *
  * Reads the pre-seeded horse view from the TanStack cache (populated by layout.tsx RSC).
  * Renders the tab bar immediately and gates ownership-required content once auth resolves.
- * No data fetching here — the layout handles that via HydrationBoundary.
+ * No data fetching here — the layout handles that via PreferHydrationBoundary.
  */
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
@@ -44,15 +44,36 @@ export function HorsePageShell({
   const router = useRouter();
   const tCommon = useTranslations("common");
   const { isAuthenticated, isLoading: isAuthLoading } = useAppAuth();
-  const { data: view, isLoading: isViewLoading } = useHorseView(horseId);
+  const { data: view, isLoading: isViewLoading, isFetching: isViewFetching } =
+    useHorseView(horseId);
 
   const isLoading = isAuthLoading || isViewLoading;
   const horse = view?.horse;
   const allowedTabs = view?.allowedTabs as HorseTab[] | undefined;
-  const isAdmin = horse?.isAdmin === true;
-  const isMainOwner = horse?.isMainOwner === true;
 
-  // Auth redirect — only after loading resolves
+  const privilegesHorseIdRef = useRef(horseId);
+  const privilegesRef = useRef({ isAdmin: false, isMainOwner: false });
+  if (privilegesHorseIdRef.current !== horseId) {
+    privilegesHorseIdRef.current = horseId;
+    privilegesRef.current = { isAdmin: false, isMainOwner: false };
+  }
+  if (horse?.isAdmin === true) privilegesRef.current.isAdmin = true;
+  if (horse?.isMainOwner === true) privilegesRef.current.isMainOwner = true;
+
+  // While auth/view is settling, keep last known owner privileges for this horse so a
+  // transient guest hydrate cannot flash "blocked" / hide tabs.
+  const holdPrivileges =
+    isAuthenticated &&
+    privilegesRef.current.isAdmin &&
+    (isAuthLoading || isViewFetching || isViewLoading);
+  const isAdmin = horse?.isAdmin === true || holdPrivileges;
+  const isMainOwner =
+    horse?.isMainOwner === true ||
+    (holdPrivileges && privilegesRef.current.isMainOwner);
+
+  const effectiveAllowedTabs =
+    holdPrivileges && horse?.isAdmin !== true ? undefined : allowedTabs;
+
   useEffect(() => {
     if (isLoading) return;
     if (!isAuthenticated) {
@@ -66,7 +87,8 @@ export function HorsePageShell({
 
   const blocked =
     !isLoading &&
-    horse &&
+    !holdPrivileges &&
+    Boolean(horse) &&
     ((requireMainOwner && !isMainOwner) || (requireOwnership && !isAdmin));
 
   return (
@@ -77,7 +99,7 @@ export function HorsePageShell({
       leaveLabel={tCommon("leaveWithoutSaving")}
     >
       <EntityTabs
-        tabs={getHorseTabs(horseId, allowedTabs)}
+        tabs={getHorseTabs(horseId, effectiveAllowedTabs)}
         isAdmin={isAdmin}
         isMainOwner={isMainOwner}
         isPending={isLoading}

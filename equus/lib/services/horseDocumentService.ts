@@ -22,14 +22,31 @@ export type PublicHorseDocument = {
   storagePublicId?: string;
   visibility: string;
   uploadedByName: string;
+  uploadedByImageUrl?: string;
   createdAt: string;
 };
 
 function toPublic(record: Record<string, unknown>): PublicHorseDocument {
-  const uploader = record.uploadedByUserId as Record<string, unknown> | undefined;
-  const firstName = (uploader?.firstName as string) ?? "";
-  const lastName = (uploader?.lastName as string) ?? "";
-  const uploadedByName = [firstName, lastName].filter(Boolean).join(" ") || "Unknown";
+  const uploader = record.uploadedByUserId as
+    | {
+        firstName?: string;
+        lastName?: string;
+        personalDetails?: {
+          firstName?: string;
+          lastName?: string;
+          username?: string;
+          imageUrl?: string;
+        };
+      }
+    | undefined;
+
+  const pd = uploader?.personalDetails;
+  const firstName = pd?.firstName ?? uploader?.firstName ?? "";
+  const lastName = pd?.lastName ?? uploader?.lastName ?? "";
+  const username = pd?.username?.trim() ?? "";
+  const uploadedByName =
+    [firstName, lastName].filter(Boolean).join(" ") || username || "Unknown";
+  const imageUrl = pd?.imageUrl?.trim();
 
   return {
     id: String(record._id),
@@ -44,13 +61,17 @@ function toPublic(record: Record<string, unknown>): PublicHorseDocument {
     storagePublicId: record.storagePublicId as string | undefined,
     visibility: record.visibility as string,
     uploadedByName,
+    uploadedByImageUrl: imageUrl || undefined,
     createdAt: (record.createdAt as Date).toISOString(),
   };
 }
 
 export async function listHorseDocuments(horseId: string): Promise<PublicHorseDocument[]> {
   const docs = await Document.find({ horseId, isActive: true })
-    .populate("uploadedByUserId", "firstName lastName")
+    .populate(
+      "uploadedByUserId",
+      "personalDetails.firstName personalDetails.lastName personalDetails.username personalDetails.imageUrl firstName lastName",
+    )
     .sort({ createdAt: -1 })
     .lean();
   return docs.map(toPublic);

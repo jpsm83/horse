@@ -205,7 +205,7 @@ Layer 1 deny → 404. Guests may view when Layer 1 allows. No visibility popover
 
 Deferred edit form for identity, identification, pedigree, and about (disciplines multi-select lives in about).
 
-Pedigree sire/dam linking uses **PedigreeConnection** acknowledgment (not ownership transfer). See [`pedigreeConnections.md`](./pedigreeConnections.md). Registry / microchip / passport are optional at horse **create**; at least one is required when saving the horse **profile**. When set, each is uniquely indexed.
+Pedigree sire/dam: **Add** (`SectionTitleAction`) opens one reusable search/invite **`PendingDialog`** (`horse-pedigree-parent-dialog.tsx` + shared `HorseInviteSection`); linked parents render as shared **`EntityChip`** (`entityType="horse"`, horse name + owner email → horse Hub) with clear. Linking uses **PedigreeConnection** acknowledgment (not ownership transfer). See [`pedigreeConnections.md`](./pedigreeConnections.md). Registry / microchip / passport are optional at horse **create**; at least one is required when saving the horse **profile**. When set, each is uniquely indexed.
 
 - Assembly: `app/[locale]/horses/[horseId]/profile/client.tsx` — parent owns one `useForm` + single Save
 - Field sections under `components/horses/profile/` (`horse-*-section.tsx`) receive `control` only (no per-section Save)
@@ -218,10 +218,14 @@ Pedigree sire/dam linking uses **PedigreeConnection** acknowledgment (not owners
 
 Owner-only tab. **Visibility** (`HorseVisibilitySection`) edits `profileVisibility` via `useUpdateHorseVisibility` → `PATCH /api/v1/horses/:id/discovery`. Sale settings use the same deferred-form pattern as Profile; ownership/responsible sections use immediate actions.
 
-- Assembly: `app/[locale]/horses/[horseId]/admin/client.tsx` — parent owns one deferred form (sale + visibility) + single bottom Save
+- Assembly: `app/[locale]/horses/[horseId]/admin/client.tsx` — parent owns one deferred form (sale + visibility) + single bottom Save; ownership action dialogs mount beside sections
 - Components under `components/horses/admin/` (`horse-visibility-section.tsx`, `horse-value-section.tsx`, ownership/responsible sections)
 - Sale patches: `lib/utils/horseSalePatch.ts` → `useUpdateHorseSale`
-- Action sections (own mutations): admin history, co-owners, proactive representatives, ownership transfer
+- Action sections (own mutations):
+  - Admin history table (`components/horses/admin/horse-admin-history-section.tsx`) — visual SoT for horse `DataTable`s; shared `components/table` helpers (`TableUserAvatarCell`, `TableRowAction`, `TableIconAction`); remove via confirm
+  - **Proactive representatives / co-owners:** `EntityChip` (`entityType="user"`); **Add** (`SectionTitleAction`) → `HorseAdminRoleInviteDialog` (`PendingDialog` + `UserInviteSection`)
+  - **Ownership management:** current owner `EntityChip`; **Change owner** (`SectionTitleAction`) → `HorseOwnershipChangeDialog` (`PendingDialog` then `ConfirmActionDialog` for `transfer_main`)
+  - Shared identity card: `components/shared/entity-chip.tsx` + `lib/navigation/entityPaths.ts`
 - Same unsaved-changes guard as Profile when sale/visibility fields are dirty
 - Pattern: [`page-flow-blueprint.md`](./page-flow-blueprint.md) §6.5
 
@@ -230,13 +234,13 @@ Owner-only tab. **Visibility** (`HorseVisibilitySection`) edits `profileVisibili
 Admin-only tab (`requireOwnership`) to invite providers and manage connections.
 
 - Server component: `app/[locale]/horses/[horseId]/connect/page.tsx`
-- Client assembly: `app/[locale]/horses/[horseId]/connect/client.tsx` — Connections `visibilityControl={<HorseSectionVisibility sectionKey="connections" … />}`
-- Invite section: `components/horses/connect/horse-invite-section.tsx` — wraps shared `UserInviteSection` (`searchMode="entities"`) → `useCreateRelationshipInvite`
-- Connections table: `components/horses/connect/horse-connections-table-section.tsx` — accepted providers + pending invites; end/cancel mutations
+- Client assembly: `app/[locale]/horses/[horseId]/connect/client.tsx` — single Connections section; Invite via `SectionTitleAction` in `titleAddon` → `HorseConnectInviteDialog`; `visibilityControl={<HorseSectionVisibility sectionKey="connections" … />}`
+- Invite dialog: `components/horses/connect/horse-connect-invite-dialog.tsx` — `PendingDialog` + `UserInviteSection` (`searchMode="entities"`) → `useCreateRelationshipInvite`
+- Connections table: `components/horses/connect/horse-connections-table-section.tsx` — Admin History `DataTable` pattern (`TableUserAvatarCell`, `TableRowAction` for End/Cancel, `columnOrder`, `isRealtimeFilterColumn`, `ConfirmDeleteDialog`); receiver images enriched on list APIs
 - Hooks: `useHorseProviders`, `useHorsePendingRelationships`, `useEndRelationship`, `useCancelSentInvite`
 - i18n: `horseConnect` namespace
 
-**Visibility:** Layer-2 `hubSections.connections` (default `relationship`) via section popover — also gates the Hub connections block. Invite section has no Layer-2 control. Connect providers list stays ownership-gated.
+**Visibility:** Layer-2 `hubSections.connections` (default `relationship`) via section popover — also gates the Hub connections block. Connect providers list stays ownership-gated.
 
 ### Horse history (`/horses/[horseId]/history`)
 
@@ -244,7 +248,7 @@ Admin-only audit log (`requireOwnership` + `userOwnsEntity` on `GET …/audit`).
 
 - Server component: `app/[locale]/horses/[horseId]/history/page.tsx`
 - Client assembly: `app/[locale]/horses/[horseId]/history/client.tsx`
-- Audit section: `components/horses/history/horse-history-audit-section.tsx` — columns User (centered avatar), Username, Email, Type, Action, Date
+- Audit section: `components/horses/history/horse-history-audit-section.tsx` — Admin History `DataTable` pattern (`TableUserAvatarCell` + shared initials; read-only, no action column)
 - Service DTO fields: `userEmail`, `userUsername`, `userImageUrl`
 - Hooks: `hooks/queries/useHorseAudit.ts` — `useHorseAuditLogs` (`queryKeys.horses.audit`)
 - Service: `lib/services/horseAuditService.ts` — `listAuditLogs` (enriches actor email/image), `recordAudit` (resolves `sourceType` + `actorLabel` when omitted)
@@ -271,12 +275,11 @@ Calendar for appointments, competitions, training, and daily activities. Tab sta
 
 ### Horse media (`/horses/[horseId]/media`)
 
-Media gallery with drag-and-drop upload. Two-section layout: upload section on top, thumbnail gallery below. Tab stays public; Gallery Layer-2 popover is admin-only.
+Single **Media Gallery Control** section: tile dropzone as the first gallery cell, then thumbnails. Pending files open a blocking **upload review Dialog** (blur + focus trap). Gallery Layer-2 visibility control is admin-only (allowed Popover).
 
 - Server component: `app/[locale]/horses/[horseId]/media/page.tsx`
 - Client assembly: `app/[locale]/horses/[horseId]/media/client.tsx` — Gallery `visibilityControl={<HorseSectionVisibility sectionKey="gallery" … />}` when `horse.isAdmin`
-- Upload component: `components/horses/media/horse-media-upload-section.tsx` — wraps shared `FileUpload` with Cloudinary upload + HorseMedia record creation
-- Gallery component: `components/horses/media/horse-media-gallery-section.tsx` — thumbnail grid + lightbox dialog + delete + per-item Eye (`isVisibleOnHub`)
+- Gallery component: `components/horses/media/horse-media-gallery-section.tsx` — tile dropzone (first grid cell) + upload review **Dialog** + thumbnail grid + lightbox + delete + per-item Eye (`isVisibleOnHub`)
 - Hooks: `hooks/queries/useMedia.ts` — `useMedia`, `useUploadMedia`, `useDeleteMedia`, `useToggleMediaVisibility` (`queryKeys.horses.media`)
 - Service: `lib/services/horseMediaService.ts` — `listMedia`, `createMedia`, `deleteMedia`, `extractStoragePublicId`
 - Model: `models/HorseMedia.ts` — `type` (image/video), `url`, `thumbnailUrl`, `sourceEntityType`, `sourceEntityId`, `visibilityMode`
@@ -284,7 +287,7 @@ Media gallery with drag-and-drop upload. Two-section layout: upload section on t
 - i18n: `horseMedia` namespace
 
 **Cloudinary folder structure:** `horses/{horseId}/media/{sourceEntityType}/`
-**Visibility:** Layer-2 `hubSections.gallery` (section popover) gates Hub gallery and filters `GET …/media` for non–owner-team viewers. Per-item Eye toggles `isVisibleOnHub` (Hub gallery requires Hub-visible items). Owner-uploaded media defaults to public; entity-uploaded media defaults to owner-only. Management tab still uses `HorsePageShell` (auth + owner summary).
+**Visibility:** Layer-2 `hubSections.gallery` (section visibility Popover) gates Hub gallery and filters `GET …/media` for non–owner-team viewers. Per-item Eye toggles `isVisibleOnHub` (Hub gallery requires Hub-visible items). Owner-uploaded media defaults to public; entity-uploaded media defaults to owner-only. Management tab still uses `HorsePageShell` (auth + owner summary).
 
 ### Deletion policy (Media and Documents)
 
@@ -303,10 +306,16 @@ Media gallery with drag-and-drop upload. Two-section layout: upload section on t
 
 ### Horse documents (`/horses/[horseId]/documents`)
 
+Single **Documents** section with Upload via `SectionTitleAction` in `titleAddon`. Upload form opens **`PendingDialog`** (Spinner while uploading).
+
+- Server component: `app/[locale]/horses/[horseId]/documents/page.tsx`
+- Client assembly: `app/[locale]/horses/[horseId]/documents/client.tsx` — Upload via `SectionTitleAction` in `titleAddon` → `HorseDocumentsUploadDialog`
+- Table: `components/horses/documents/horse-documents-table-section.tsx` — Admin History `DataTable` pattern (User avatar first, `TableIconAction` download/delete, `columnOrder`, realtime filters)
+- Upload dialog: `components/horses/documents/horse-documents-upload-dialog.tsx` — `PendingDialog` + form
 - Upload: `POST /api/v1/horses/:id/documents/upload` (multipart + Cloudinary + `Document` record)
-- List: `GET /api/v1/horses/:id/documents`
+- List: `GET /api/v1/horses/:id/documents` — DTO includes `uploadedByName` + `uploadedByImageUrl`
 - Delete (admin): `DELETE /api/v1/horses/:id/documents/:docId` — Cloudinary destroy + hard-delete MongoDB
-- UI: `ConfirmActionDialog` / `ConfirmDeleteDialog` before delete; shared with Media / Admin History
+- UI: `ConfirmDeleteDialog` before delete; shared with Media / Admin History
 - Service: `lib/services/horseDocumentService.ts`
 - Deletion requests: `lib/services/documentDeletionService.ts`
 - i18n: `horseDocuments` namespace

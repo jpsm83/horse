@@ -27,6 +27,11 @@ export type FileUploadProps = {
   onRemoveExisting?: (url: string) => void;
   disabled?: boolean;
   uploading?: boolean;
+  /** `tile` = aspect-square compact dropzone for gallery grids. */
+  variant?: "default" | "tile";
+  /** When false, only the dropzone is rendered (caller owns previews). Default true. */
+  showPreviewList?: boolean;
+  className?: string;
 };
 
 const DEFAULT_ACCEPT = "image/*,video/*";
@@ -39,13 +44,13 @@ function nextFileId(): string {
   return `file-${fileIdCounter}-${Date.now()}`;
 }
 
-function getFileIcon(mimeType: string) {
+export function fileUploadIconForMime(mimeType: string) {
   if (mimeType.startsWith("image/")) return ImageIcon;
   if (mimeType.startsWith("video/")) return VideoIcon;
   return FileIcon;
 }
 
-function formatFileSize(bytes: number): string {
+export function formatUploadFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -62,12 +67,16 @@ export function FileUpload({
   onRemoveExisting,
   disabled = false,
   uploading = false,
+  variant = "default",
+  showPreviewList = true,
+  className,
 }: FileUploadProps) {
   const t = useTranslations("common");
   const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
   const [dragOver, setDragOver] = useState(false);
   const [internalFiles, setInternalFiles] = useState<UploadedFileState[]>([]);
+  const isTile = variant === "tile";
 
   const files = value ?? internalFiles;
   const setFiles = onChange ?? setInternalFiles;
@@ -142,16 +151,6 @@ export function FileUpload({
     [files, setFiles],
   );
 
-  function setFileStatus(
-    id: string,
-    status: UploadedFileState["status"],
-    extra?: Partial<UploadedFileState>,
-  ) {
-    setFiles(
-      files.map((f) => (f.id === id ? { ...f, status, ...extra } : f)),
-    );
-  }
-
   useEffect(() => {
     return () => {
       for (const f of files) {
@@ -165,7 +164,7 @@ export function FileUpload({
   const hasFiles = files.length > 0 || (existingUrls?.length ?? 0) > 0;
 
   return (
-    <div className="space-y-3">
+    <div className={cn(isTile ? "size-full" : "space-y-3", className)}>
       <div
         data-slot="file-upload-dropzone"
         role="button"
@@ -185,7 +184,10 @@ export function FileUpload({
         }}
         onClick={() => inputRef.current?.click()}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 text-center transition-colors",
+          "flex cursor-pointer flex-col items-center justify-center text-center transition-colors",
+          isTile
+            ? "size-full gap-1 rounded-lg border-2 border-dashed p-2"
+            : "gap-2 rounded-lg border-2 border-dashed p-6",
           dragOver
             ? "border-ring bg-accent/10"
             : "border-muted-foreground/25 hover:border-muted-foreground/50",
@@ -203,16 +205,28 @@ export function FileUpload({
           disabled={disabled || uploading}
           onChange={handleFileSelect}
         />
-        <Upload className="size-8 text-muted-foreground" aria-hidden />
-        <div className="space-y-1">
-          <p className="text-sm font-medium">{t("dropFiles")}</p>
-          <p className="text-xs text-muted-foreground">
-            {t("maxFilesInfo", { count: remainingSlots })}
+        <Upload
+          className={cn(
+            "text-muted-foreground",
+            isTile ? "size-6" : "size-8",
+          )}
+          aria-hidden
+        />
+        {isTile ? (
+          <p className="text-xs font-medium text-muted-foreground leading-tight px-1">
+            {t("uploadFiles")}
           </p>
-        </div>
+        ) : (
+          <div className="space-y-1">
+            <p className="text-sm font-medium">{t("dropFiles")}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("maxFilesInfo", { count: remainingSlots })}
+            </p>
+          </div>
+        )}
       </div>
 
-      {hasFiles ? (
+      {showPreviewList && hasFiles ? (
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
           {existingUrls?.map((url) => (
             <div
@@ -244,7 +258,7 @@ export function FileUpload({
           ))}
 
           {files.map((entry) => {
-            const FileIconComponent = getFileIcon(entry.file.type);
+            const FileIconComponent = fileUploadIconForMime(entry.file.type);
             return (
               <div
                 key={entry.id}
@@ -266,7 +280,7 @@ export function FileUpload({
                       {entry.file.name}
                     </span>
                     <span className="text-[10px] text-muted-foreground">
-                      {formatFileSize(entry.file.size)}
+                      {formatUploadFileSize(entry.file.size)}
                     </span>
                   </div>
                 )}

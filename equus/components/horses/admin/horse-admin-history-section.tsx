@@ -1,13 +1,24 @@
 "use client";
 
+/**
+ * HorseAdminHistorySection — admin team table (visual SoT for horse DataTables).
+ */
+
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Trash2 } from "lucide-react";
+import { Trash2, UserCog } from "lucide-react";
 
-import { DataTable } from "@/components/table";
-import type { DataTableColumnDef } from "@/components/table";
+import {
+  DataTable,
+  initialsFromLabel,
+  TableIconAction,
+  TableRowAction,
+  TableUserAvatarCell,
+  type DataTableColumnDef,
+} from "@/components/table";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog.tsx";
-import { Button } from "@/components/ui/button";
+import { HorseOwnershipChangeDialog } from "@/components/horses/admin/horse-ownership-change-dialog.tsx";
+import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { useHorseView } from "@/hooks/queries/useHorse.ts";
 import { useCreateOwnershipTransfer } from "@/hooks/queries/useOwnershipTransfer.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
@@ -24,6 +35,8 @@ type AdminRow = {
   id: string;
   userId: string;
   memberType: MemberType;
+  userImageUrl?: string;
+  userInitials: string;
   type: string;
   name: string;
   email: string;
@@ -37,6 +50,16 @@ type RemoveTarget = {
   name: string;
 };
 
+const COLUMN_ORDER = [
+  "user",
+  "type",
+  "name",
+  "email",
+  "phone",
+  "joinedAt",
+  "action",
+] as const;
+
 const typeFilterOptions = [
   { value: "Owner", label: "Owner" },
   { value: "Co-owner", label: "Co-owner" },
@@ -47,25 +70,32 @@ export function HorseAdminHistorySection({ horseId }: HorseAdminHistorySectionPr
   const t = useTranslations("horseAdmin");
   const toast = useAppToast();
   const queryClient = useQueryClient();
-  const { data: view } = useHorseView(horseId);
+  const { data: view, isPending } = useHorseView(horseId);
   const horse = view?.horse;
   const createTransfer = useCreateOwnershipTransfer();
   const [removeTarget, setRemoveTarget] = useState<RemoveTarget | null>(null);
+  const [changeOwnerOpen, setChangeOwnerOpen] = useState(false);
 
   const isMainOwner = horse?.isMainOwner === true;
 
   const rows: AdminRow[] = useMemo(() => {
     if (!horse) return [];
-    return horse.adminTeam.map((member) => ({
-      id: member.userId,
-      userId: member.userId,
-      memberType: member.type,
-      type: t(`adminTypes.${member.type}`),
-      name: member.name,
-      email: member.email,
-      phone: member.phone ?? "-",
-      joinedAt: member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : "-",
-    }));
+    return horse.adminTeam.map((member) => {
+      const name = member.name?.trim() || "—";
+      const email = member.email?.trim() || "—";
+      return {
+        id: member.userId,
+        userId: member.userId,
+        memberType: member.type,
+        userImageUrl: member.imageUrl,
+        userInitials: initialsFromLabel(name !== "—" ? name : email),
+        type: t(`adminTypes.${member.type}`),
+        name,
+        email,
+        phone: member.phone ?? "-",
+        joinedAt: member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : "-",
+      };
+    });
   }, [horse?.adminTeam, t]);
 
   const dropdownOptionsByColumnKey = useMemo(
@@ -94,7 +124,7 @@ export function HorseAdminHistorySection({ horseId }: HorseAdminHistorySectionPr
         onSuccess: () => {
           toast.success(t(successKey));
           setRemoveTarget(null);
-          void queryClient.invalidateQueries({ queryKey: queryKeys.horses.owner(horseId) });
+          void queryClient.invalidateQueries({ queryKey: queryKeys.horses.view(horseId) });
           void queryClient.invalidateQueries({
             queryKey: queryKeys.horses.ownershipTransfers(horseId),
           });
@@ -106,6 +136,18 @@ export function HorseAdminHistorySection({ horseId }: HorseAdminHistorySectionPr
 
   const columns: DataTableColumnDef<AdminRow>[] = useMemo(
     () => [
+      {
+        id: "user",
+        accessorKey: "userInitials",
+        header: t("adminHistoryUser"),
+        enableSorting: false,
+        cell: ({ row }) => (
+          <TableUserAvatarCell
+            imageUrl={row.original.userImageUrl}
+            initials={row.original.userInitials}
+          />
+        ),
+      },
       {
         id: "type",
         accessorKey: "type",
@@ -147,15 +189,26 @@ export function HorseAdminHistorySection({ horseId }: HorseAdminHistorySectionPr
         cell: ({ row }) => {
           const member = row.original;
           if (!isMainOwner) return null;
+
+          if (member.memberType === "owner") {
+            return (
+              <TableRowAction
+                title={t("changeOwner")}
+                aria-label={t("changeOwner")}
+                onClick={() => setChangeOwnerOpen(true)}
+              >
+                <UserCog className="size-3" />
+                {t("changeOwner")}
+              </TableRowAction>
+            );
+          }
+
           if (member.memberType !== "co_owner" && member.memberType !== "responsible") {
             return null;
           }
 
           return (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
+            <TableIconAction
               title={t("adminHistoryRemove")}
               aria-label={t("adminHistoryRemove")}
               onClick={() =>
@@ -167,13 +220,17 @@ export function HorseAdminHistorySection({ horseId }: HorseAdminHistorySectionPr
               }
             >
               <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
+            </TableIconAction>
           );
         },
       },
     ],
     [t, isMainOwner],
   );
+
+  if (isPending && !horse) {
+    return <Skeleton className="h-[400px] w-full rounded-lg" />;
+  }
 
   return (
     <>
@@ -185,6 +242,8 @@ export function HorseAdminHistorySection({ horseId }: HorseAdminHistorySectionPr
         emptyStateMessage={t("adminHistoryEmpty")}
         dropdownOptionsByColumnKey={dropdownOptionsByColumnKey}
         isRealtimeFilterColumn={() => true}
+        columnOrder={[...COLUMN_ORDER]}
+        defaultColumnOrder={[...COLUMN_ORDER]}
       />
 
       <ConfirmDeleteDialog
@@ -204,6 +263,12 @@ export function HorseAdminHistorySection({ horseId }: HorseAdminHistorySectionPr
         cancelLabel={t("cancel")}
         isPending={createTransfer.isPending}
         onConfirm={handleConfirmRemove}
+      />
+
+      <HorseOwnershipChangeDialog
+        horseId={horseId}
+        open={changeOwnerOpen}
+        onOpenChange={setChangeOwnerOpen}
       />
     </>
   );

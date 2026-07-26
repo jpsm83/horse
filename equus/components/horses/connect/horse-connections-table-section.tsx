@@ -1,17 +1,22 @@
 /**
- * HorseConnectionsTableSection — self-contained table for the Connect tab.
+ * HorseConnectionsTableSection — Connect tab connections table.
  *
- * Owns data fetching, loading skeleton, and end/cancel mutations.
- * Errors are caught by the parent ErrorBoundary wrapper.
+ * Shares Admin History DataTable helpers / props.
  */
 
 "use client";
 
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { DataTable } from "@/components/table";
-import type { DataTableColumnDef } from "@/components/table";
-import { Button } from "@/components/ui/button";
+import {
+  DataTable,
+  initialsFromLabel,
+  TableRowAction,
+  TableUserAvatarCell,
+  type DataTableColumnDef,
+} from "@/components/table";
+import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { useHorseProviders, useHorsePendingRelationships } from "@/hooks/queries/useHorse.ts";
 import { useEndRelationship, useCancelSentInvite } from "@/hooks/queries/useRelationship.ts";
@@ -21,14 +26,34 @@ import { relationshipTypeFilterOptions, relationshipStatusFilterOptions } from "
 
 type Props = { horseId: string };
 
+type ConnectionStatus = "accepted" | "pending" | "refused" | "ended";
+
 type ConnectionRow = {
   id: string;
+  userImageUrl?: string;
+  userInitials: string;
   type: string;
-  status: "accepted" | "pending" | "refused" | "ended";
+  status: ConnectionStatus;
   name: string;
   email: string;
   since: string;
 };
+
+type ActionTarget = {
+  id: string;
+  status: "accepted" | "pending";
+  name: string;
+};
+
+const COLUMN_ORDER = [
+  "user",
+  "type",
+  "status",
+  "name",
+  "email",
+  "since",
+  "action",
+] as const;
 
 export function HorseConnectionsTableSection({ horseId }: Props) {
   const t = useTranslations("horseConnect");
@@ -43,109 +68,207 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
     useHorsePendingRelationships(horseId);
   const endMutation = useEndRelationship();
   const cancelMutation = useCancelSentInvite();
+  const [actionTarget, setActionTarget] = useState<ActionTarget | null>(null);
 
   const isPending = isProvidersPending || isRelationshipsPending;
+  const isActionPending = endMutation.isPending || cancelMutation.isPending;
 
-  function handleEnd(relationshipId: string, status: "accepted" | "pending") {
+  function formatStatus(status: ConnectionStatus): string {
+    switch (status) {
+      case "accepted":
+        return t("statusActive");
+      case "pending":
+        return t("statusPending");
+      case "refused":
+        return t("statusRefused");
+      case "ended":
+        return t("statusEnded");
+      default:
+        return status;
+    }
+  }
+
+  function formatType(relationshipType: string): string {
+    if (relationshipTypeEnums.includes(relationshipType as never)) {
+      return tTypes(relationshipType);
+    }
+    return t("typeUnknown");
+  }
+
+  function handleConfirmAction() {
+    if (!actionTarget) return;
+    const { id, status } = actionTarget;
     const mutation = status === "accepted" ? endMutation : cancelMutation;
-    mutation.mutate(relationshipId, {
-      onSuccess: () =>
-        toast.success(status === "accepted" ? t("connectionEnded") : t("invitationCancelled")),
+    mutation.mutate(id, {
+      onSuccess: () => {
+        toast.success(status === "accepted" ? t("connectionEnded") : t("invitationCancelled"));
+        setActionTarget(null);
+      },
       onError: () =>
-        toast.error(status === "accepted" ? t("connectionEndFailed") : t("invitationCancelFailed")),
+        toast.error(
+          status === "accepted" ? t("connectionEndFailed") : t("invitationCancelFailed"),
+        ),
     });
   }
 
-  const dropdownOptionsByColumnKey = {
-    type: relationshipTypeFilterOptions,
-    status: relationshipStatusFilterOptions,
-  };
+  const dropdownOptionsByColumnKey = useMemo(
+    () => ({
+      type: relationshipTypeFilterOptions,
+      status: relationshipStatusFilterOptions,
+    }),
+    [],
+  );
 
-  const columns: DataTableColumnDef<ConnectionRow>[] = [
-    {
-      id: "type",
-      accessorKey: "type",
-      header: t("tableType"),
-      enableSorting: true,
-      filterType: "dropdown",
-    },
-    {
-      id: "status",
-      accessorKey: "status",
-      header: t("tableStatus"),
-      enableSorting: true,
-      filterType: "dropdown",
-    },
-    {
-      id: "name",
-      accessorKey: "name",
-      header: t("tableName"),
-      enableSorting: true,
-      filterType: "input",
-    },
-    { id: "email", accessorKey: "email", header: t("tableEmail"), filterType: "input" },
-    {
-      id: "since",
-      accessorKey: "since",
-      header: t("tableSince"),
-      enableSorting: true,
-      filterType: "input",
-      meta: { dataType: "date" },
-    },
-    {
-      id: "actions",
-      header: t("tableActions"),
-      cell: ({ row }) => {
-        const r = row.original;
-        if (r.status === "accepted") {
-          return (
-            <Button variant="outline" size="sm" onClick={() => handleEnd(r.id, "accepted")}>
-              {t("endConnection")}
-            </Button>
-          );
-        }
-        if (r.status === "pending") {
-          return (
-            <Button variant="outline" size="sm" onClick={() => handleEnd(r.id, "pending")}>
-              {t("cancelInvitation")}
-            </Button>
-          );
-        }
-        return null;
+  const columns: DataTableColumnDef<ConnectionRow>[] = useMemo(
+    () => [
+      {
+        id: "user",
+        accessorKey: "userInitials",
+        header: t("tableUser"),
+        enableSorting: false,
+        cell: ({ row }) => (
+          <TableUserAvatarCell
+            imageUrl={row.original.userImageUrl}
+            initials={row.original.userInitials}
+          />
+        ),
       },
-    },
-  ];
+      {
+        id: "type",
+        accessorKey: "type",
+        header: t("tableType"),
+        enableSorting: true,
+        filterType: "dropdown",
+        cell: ({ row }) => formatType(row.original.type),
+      },
+      {
+        id: "status",
+        accessorKey: "status",
+        header: t("tableStatus"),
+        enableSorting: true,
+        filterType: "dropdown",
+        cell: ({ row }) => formatStatus(row.original.status),
+      },
+      {
+        id: "name",
+        accessorKey: "name",
+        header: t("tableName"),
+        enableSorting: true,
+        filterType: "input",
+      },
+      {
+        id: "email",
+        accessorKey: "email",
+        header: t("tableEmail"),
+        filterType: "input",
+      },
+      {
+        id: "since",
+        accessorKey: "since",
+        header: t("tableSince"),
+        enableSorting: true,
+        filterType: "input",
+        meta: { dataType: "date" },
+      },
+      {
+        id: "action",
+        header: t("tableActions"),
+        enableSorting: false,
+        cell: ({ row }) => {
+          const r = row.original;
+          if (r.status === "accepted") {
+            return (
+              <TableRowAction
+                onClick={() =>
+                  setActionTarget({ id: r.id, status: "accepted", name: r.name })
+                }
+              >
+                {t("endConnection")}
+              </TableRowAction>
+            );
+          }
+          if (r.status === "pending") {
+            return (
+              <TableRowAction
+                onClick={() =>
+                  setActionTarget({ id: r.id, status: "pending", name: r.name })
+                }
+              >
+                {t("cancelInvitation")}
+              </TableRowAction>
+            );
+          }
+          return null;
+        },
+      },
+    ],
+    [t, tTypes],
+  );
+
+  const rows: ConnectionRow[] = useMemo(() => {
+    const allRelationships = [...currentProviders, ...pendingRelationships];
+    return allRelationships.map((rel) => {
+      const name = rel.receiverLabel ?? rel.invitedEmail ?? "-";
+      const email = rel.invitedEmail ?? "-";
+      return {
+        id: rel.id,
+        userImageUrl: rel.receiverImageUrl,
+        userInitials: initialsFromLabel(name !== "-" ? name : email),
+        type: rel.relationshipType,
+        status: rel.status as ConnectionStatus,
+        name,
+        email,
+        since: rel.respondedAt
+          ? new Date(rel.respondedAt).toLocaleDateString()
+          : rel.requestedAt
+            ? new Date(rel.requestedAt).toLocaleDateString()
+            : "-",
+      };
+    });
+  }, [currentProviders, pendingRelationships]);
 
   if (isPending) {
-    return <Skeleton className="h-full w-full rounded-lg" />;
+    return <Skeleton className="h-[400px] w-full rounded-lg" />;
   }
 
-  const allRelationships = [...currentProviders, ...pendingRelationships];
-
-  const rows: ConnectionRow[] = allRelationships.map((rel) => ({
-    id: rel.id,
-    type:
-      rel.relationshipType && relationshipTypeEnums.includes(rel.relationshipType as never)
-        ? tTypes(rel.relationshipType)
-        : t("typeUnknown"),
-    status: rel.status as ConnectionRow["status"],
-    name: rel.receiverLabel ?? rel.invitedEmail ?? "-",
-    email: rel.invitedEmail ?? "-",
-    since: rel.respondedAt
-      ? new Date(rel.respondedAt).toLocaleDateString()
-      : rel.requestedAt
-        ? new Date(rel.requestedAt).toLocaleDateString()
-        : "-",
-  }));
-
   return (
-    <DataTable
-      columns={columns}
-      data={rows}
-      enableSorting
-      enableFiltering
-      emptyStateMessage={t("noResults")}
-      dropdownOptionsByColumnKey={dropdownOptionsByColumnKey}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={rows}
+        enableSorting
+        enableFiltering
+        emptyStateMessage={t("noResults")}
+        dropdownOptionsByColumnKey={dropdownOptionsByColumnKey}
+        isRealtimeFilterColumn={() => true}
+        columnOrder={[...COLUMN_ORDER]}
+        defaultColumnOrder={[...COLUMN_ORDER]}
+      />
+
+      <ConfirmDeleteDialog
+        open={actionTarget !== null}
+        onOpenChange={(open) => {
+          if (!open && !isActionPending) setActionTarget(null);
+        }}
+        title={
+          actionTarget?.status === "accepted"
+            ? t("endConnectionConfirmTitle")
+            : t("cancelInvitationConfirmTitle")
+        }
+        description={
+          actionTarget?.status === "accepted"
+            ? t("endConnectionConfirmDescription", { name: actionTarget.name })
+            : t("cancelInvitationConfirmDescription", {
+                name: actionTarget?.name ?? "",
+              })
+        }
+        confirmLabel={
+          actionTarget?.status === "accepted" ? t("endConnection") : t("cancelInvitation")
+        }
+        cancelLabel={t("cancel")}
+        isPending={isActionPending}
+        onConfirm={handleConfirmAction}
+      />
+    </>
   );
 }

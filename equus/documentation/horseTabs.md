@@ -5,13 +5,13 @@
 | Tab | Route | Minimum Role | Purpose |
 |-----|-------|-------------|---------|
 | Hub | `/horses/[id]` | `guest` | Read-only social profile page — hero, stats, about, gallery, upcoming events, pedigree, team, identification. Data from `useHorseView`. No visibility popovers. |
-| Connect | `/horses/[id]/connect` | `responsible` | Invite providers + manage connections table. Connections Layer-2 `hubSections.connections` via `HorseSectionVisibility` (also Hub). |
+| Connect | `/horses/[id]/connect` | `responsible` | Invite providers + manage connections table (Admin History `DataTable` pattern). Connections Layer-2 `hubSections.connections` via `HorseSectionVisibility` (also Hub). |
 | Planning | `/horses/[id]/planning` | `guest` (view) | Calendar management. Layer-2 `hubSections.planning` via popover + Hub block. Create: ownership team only. Owner team sees full list; others filtered. |
 | Media | `/horses/[id]/media` | `guest` (view) | Upload/view photos and videos. Gallery Layer-2 `hubSections.gallery` via popover + Hub block. Owner team sees full list; others filtered. |
-| Documents | `/horses/[id]/documents` | `guest` | Horse documents and files. Same delete/request policy as Media. |
+| Documents | `/horses/[id]/documents` | `guest` | Horse documents and files (Admin History `DataTable` pattern). Same delete/request policy as Media. |
 | Profile | `/horses/[id]/profile` | `responsible` | Edit identity / identification / pedigree / about (disciplines multi-select in About). Parent-owned form, single Save, unsaved-changes guard. |
-| Admin | `/horses/[id]/admin` | `main_owner` | Visibility (`profileVisibility` via discovery API) + sale settings (parent-owned form + Save) + ownership / responsible actions (immediate mutations). |
-| History | `/horses/[id]/history` | `responsible` | Activity/audit log. Columns: user (avatar), username, email, type, action, date. |
+| Admin | `/horses/[id]/admin` | `main_owner` | Visibility (`profileVisibility` via discovery API) + sale settings (parent-owned form + Save) + ownership / responsible actions (immediate mutations). History table is the visual SoT for horse `DataTable`s. |
+| History | `/horses/[id]/history` | `responsible` | Activity/audit log (Admin History `DataTable` pattern). Columns: user (avatar), username, email, type, action, date. |
 
 ## Tab access via `viewerRole` and `allowedTabs`
 
@@ -50,6 +50,8 @@ Minimum role map (`TAB_MIN_ROLE` in `lib/services/horseService.ts`):
 ## Component layout
 
 Horse tab UI lives under `components/horses/<tab>/` with a `horse-` filename prefix. Cross-tab horse helpers: `components/horses/shared/`. App-wide primitives: `components/shared/`. Hub components: `components/horses/hub/horse-hub-*.tsx`. See [`page-flow-blueprint.md`](./page-flow-blueprint.md) §1.
+
+**Tables:** Connect, Documents, History, and Admin share one `DataTable` system (`components/table`) and the Admin History visual pattern (`TableUserAvatarCell`, row/icon actions, required filter/sort/columnOrder props). See [`page-flow-blueprint.md`](./page-flow-blueprint.md) §6 (Horse entity tables).
 
 ## Hub tab — social profile page
 

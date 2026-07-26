@@ -1,12 +1,20 @@
 "use client";
 
+/**
+ * HorseDocumentsTableSection — Documents tab table (Admin History DataTable pattern).
+ */
+
 import { useMemo, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Download, Trash2 } from "lucide-react";
 
-import { DataTable } from "@/components/table";
-import type { DataTableColumnDef } from "@/components/table";
-import { Button } from "@/components/ui/button";
+import {
+  DataTable,
+  initialsFromLabel,
+  TableIconAction,
+  TableUserAvatarCell,
+  type DataTableColumnDef,
+} from "@/components/table";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog.tsx";
 import {
   Tooltip,
@@ -23,6 +31,21 @@ import { documentTypeEnums } from "@/utils/enums";
 
 type Props = { horseId: string };
 
+type DocumentRow = PublicHorseDocument & {
+  userInitials: string;
+};
+
+const COLUMN_ORDER = [
+  "user",
+  "date",
+  "type",
+  "format",
+  "title",
+  "description",
+  "uploadedByName",
+  "action",
+] as const;
+
 const documentTypeFilterOptions = documentTypeEnums.map((dt) => ({
   value: dt,
   label: dt.charAt(0).toUpperCase() + dt.slice(1),
@@ -37,25 +60,28 @@ export function HorseDocumentsTableSection({ horseId }: Props) {
   const deleteMutation = useDeleteHorseDocument(horseId);
   const [deleteTarget, setDeleteTarget] = useState<PublicHorseDocument | null>(null);
 
-  const handleDownload = useCallback(async (doc: PublicHorseDocument) => {
-    try {
-      const response = await fetchWithAuth(
-        `/api/v1/horses/${encodeURIComponent(horseId)}/documents/${encodeURIComponent(doc.id)}/download`,
-      );
-      if (!response.ok) throw new Error("Download failed");
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = doc.fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch {
-      toast.error(t("downloadError"));
-    }
-  }, [horseId, toast, t]);
+  const handleDownload = useCallback(
+    async (doc: PublicHorseDocument) => {
+      try {
+        const response = await fetchWithAuth(
+          `/api/v1/horses/${encodeURIComponent(horseId)}/documents/${encodeURIComponent(doc.id)}/download`,
+        );
+        if (!response.ok) throw new Error("Download failed");
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = doc.fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch {
+        toast.error(t("downloadError"));
+      }
+    },
+    [horseId, toast, t],
+  );
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
@@ -72,115 +98,145 @@ export function HorseDocumentsTableSection({ horseId }: Props) {
     );
   }
 
-  const dropdownOptionsByColumnKey = useMemo(() => ({
-    type: documentTypeFilterOptions,
-  }), []);
+  const dropdownOptionsByColumnKey = useMemo(
+    () => ({
+      type: documentTypeFilterOptions,
+    }),
+    [],
+  );
 
-  const columns: DataTableColumnDef<PublicHorseDocument>[] = useMemo(() => [
-    {
-      id: "date",
-      accessorFn: (r) => new Date(r.createdAt).toLocaleDateString(),
-      header: t("date"),
-      enableSorting: true,
-      filterType: "input",
-      meta: { dataType: "date" },
-    },
-    {
-      id: "type",
-      accessorFn: (r) => tTypes(r.documentType),
-      header: t("type"),
-      enableSorting: true,
-      filterType: "dropdown",
-    },
-    {
-      id: "format",
-      accessorFn: (r) => {
-        const ext = r.fileName?.split(".").pop();
-        return ext ? ext.toUpperCase() : "-";
+  const rows: DocumentRow[] = useMemo(
+    () =>
+      docs.map((doc) => ({
+        ...doc,
+        userInitials: initialsFromLabel(doc.uploadedByName),
+      })),
+    [docs],
+  );
+
+  const columns: DataTableColumnDef<DocumentRow>[] = useMemo(
+    () => [
+      {
+        id: "user",
+        accessorKey: "userInitials",
+        header: t("user"),
+        enableSorting: false,
+        cell: ({ row }) => (
+          <TableUserAvatarCell
+            imageUrl={row.original.uploadedByImageUrl}
+            initials={row.original.userInitials}
+          />
+        ),
       },
-      header: t("format"),
-      enableSorting: true,
-      filterType: "input",
-    },
-    {
-      id: "title",
-      accessorKey: "title",
-      header: t("title"),
-      enableSorting: true,
-      filterType: "input",
-    },
-    {
-      id: "description",
-      accessorFn: (r) => r.description ?? "-",
-      header: t("description"),
-      enableSorting: true,
-      filterType: "input",
-      cell: ({ row }) => {
-        const text = row.original.description;
-        if (!text) return <span className="text-muted-foreground">-</span>;
-        return (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger className="block max-w-[200px] truncate cursor-help text-left">
-                {text}
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-sm break-words">
-                {text}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        );
+      {
+        id: "date",
+        accessorFn: (r) => new Date(r.createdAt).toLocaleDateString(),
+        header: t("date"),
+        enableSorting: true,
+        filterType: "input",
+        meta: { dataType: "date" },
       },
-    },
-    {
-      id: "uploadedByName",
-      accessorKey: "uploadedByName",
-      header: t("uploadedBy"),
-      enableSorting: true,
-      filterType: "input",
-    },
-    {
-      id: "actions",
-      header: t("actions"),
-      cell: ({ row }) => {
-        const doc = row.original;
-        return (
-          <div className="flex gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleDownload(doc)}
-              title={t("download")}
-            >
-              <Download className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setDeleteTarget(doc)}
-              title={t("delete")}
-            >
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
-          </div>
-        );
+      {
+        id: "type",
+        accessorFn: (r) => r.documentType,
+        header: t("type"),
+        enableSorting: true,
+        filterType: "dropdown",
+        cell: ({ row }) => tTypes(row.original.documentType),
       },
-    },
-  ], [t, tTypes, handleDownload]);
+      {
+        id: "format",
+        accessorFn: (r) => {
+          const ext = r.fileName?.split(".").pop();
+          return ext ? ext.toUpperCase() : "-";
+        },
+        header: t("format"),
+        enableSorting: true,
+        filterType: "input",
+      },
+      {
+        id: "title",
+        accessorKey: "title",
+        header: t("title"),
+        enableSorting: true,
+        filterType: "input",
+      },
+      {
+        id: "description",
+        accessorFn: (r) => r.description ?? "-",
+        header: t("description"),
+        enableSorting: true,
+        filterType: "input",
+        cell: ({ row }) => {
+          const text = row.original.description;
+          if (!text) return <span className="text-muted-foreground">-</span>;
+          return (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger className="block max-w-[200px] truncate cursor-help text-left">
+                  {text}
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-sm break-words">
+                  {text}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        },
+      },
+      {
+        id: "uploadedByName",
+        accessorKey: "uploadedByName",
+        header: t("uploadedBy"),
+        enableSorting: true,
+        filterType: "input",
+      },
+      {
+        id: "action",
+        header: t("actions"),
+        enableSorting: false,
+        cell: ({ row }) => {
+          const doc = row.original;
+          return (
+            <div className="flex gap-1">
+              <TableIconAction
+                onClick={() => handleDownload(doc)}
+                title={t("download")}
+                aria-label={t("download")}
+              >
+                <Download className="h-4 w-4" />
+              </TableIconAction>
+              <TableIconAction
+                onClick={() => setDeleteTarget(doc)}
+                title={t("delete")}
+                aria-label={t("delete")}
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </TableIconAction>
+            </div>
+          );
+        },
+      },
+    ],
+    [t, tTypes, handleDownload],
+  );
 
   if (isPending) {
-    return <Skeleton className="h-full w-full rounded-lg" />;
+    return <Skeleton className="h-[400px] w-full rounded-lg" />;
   }
 
   return (
     <>
       <DataTable
         columns={columns}
-        data={docs}
+        data={rows}
         enableSorting
         enableFiltering
         emptyStateMessage={t("noDocuments")}
         dropdownOptionsByColumnKey={dropdownOptionsByColumnKey}
+        isRealtimeFilterColumn={() => true}
+        columnOrder={[...COLUMN_ORDER]}
+        defaultColumnOrder={[...COLUMN_ORDER]}
       />
 
       <ConfirmDeleteDialog

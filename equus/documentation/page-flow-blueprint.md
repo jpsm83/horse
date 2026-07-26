@@ -6,7 +6,7 @@ Canonical pattern for all entity sub-pages in Equus. Every page follows this str
 
 ```
 app/[locale]/horses/[horseId]/
-  layout.tsx            ← RSC (no "use client"): server-side data prefetch + HydrationBoundary
+  layout.tsx            ← RSC (no "use client"): server-side data prefetch + PreferHydrationBoundary
   page.tsx              ← Server Component: generateMetadata + one client render (Hub page)
   client.tsx            ← "use client": Hub content assembly (reads cache — no extra fetch)
   loading.tsx           ← SSR skeleton (mandatory)
@@ -17,7 +17,7 @@ app/[locale]/horses/[horseId]/<tab>/
   loading.tsx           ← SSR skeleton (mandatory)
 ```
 
-**`layout.tsx`** pre-fetches once per navigation, seeds TanStack cache via `HydrationBoundary`. All child tabs read from this cache — no waterfall.
+**`layout.tsx`** pre-fetches once per navigation, seeds TanStack cache via `PreferHydrationBoundary` (skips guest overwrite of an owner-scoped horse view). `getServerUserId` falls back to a valid refresh cookie when the access token is expired so RSC does not seed a guest view mid-session. All child tabs read from this cache — no waterfall.
 
 ### Horse UI layout (`components/horses/`)
 
@@ -52,8 +52,9 @@ Sits at `app/[locale]/horses/[horseId]/layout.tsx`. Runs on the server for every
 
 ```tsx
 // No "use client"
-import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
-import { getServerUserId } from "@/lib/auth/serverSession.ts";
+import { QueryClient, dehydrate } from "@tanstack/react-query";
+import { PreferHydrationBoundary } from "@/components/shared/prefer-hydration-boundary.tsx";
+import { getServerUserId, hasRefreshCookie } from "@/lib/auth/serverSession.ts";
 import { queryKeys } from "@/lib/api/queryKeys.ts";
 import { getHorseView } from "@/lib/services/horseService.ts";
 import connectDb from "@/lib/db.ts";
@@ -63,16 +64,19 @@ export default async function HorseLayout({ children, params }) {
   const queryClient = new QueryClient();
   try {
     await connectDb();
-    const userId = await getServerUserId();
-    const data = await getHorseView(horseId, userId);
-    queryClient.setQueryData(queryKeys.horses.view(horseId), data);
+    const userId = await getServerUserId(); // access token, else refresh cookie
+    const canRecoverSession = !userId && (await hasRefreshCookie());
+    if (!canRecoverSession) {
+      const data = await getHorseView(horseId, userId);
+      queryClient.setQueryData(queryKeys.horses.view(horseId), data);
+    }
   } catch {
     // Non-fatal: client will fetch on hydration
   }
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <PreferHydrationBoundary state={dehydrate(queryClient)}>
       {children}
-    </HydrationBoundary>
+    </PreferHydrationBoundary>
   );
 }
 ```
@@ -80,6 +84,9 @@ export default async function HorseLayout({ children, params }) {
 Rules:
 - No `"use client"`
 - Calls `getHorseView` directly (service layer, not REST) — no HTTP waterfall
+- `getServerUserId` falls back to refresh cookie when access is expired (RSC cannot set cookies; client refresh still rotates access)
+- Skip guest seed when refresh exists but identity unresolved — never overwrite owner cache with guest
+- `PreferHydrationBoundary` also blocks guest→owner downgrade hydrations client-side
 - Failure is non-fatal; client falls back to network fetch on hydration
 - Provides `viewerRole`, `allowedTabs`, and merged `HorseViewDto` to all child tabs
 
@@ -130,32 +137,39 @@ The single Client Component that composes the shell + sections using the `<Secti
 ```tsx
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { Section } from "@/components/shared/section.tsx";
-import { HorseConnectInviteSection } from "@/components/horses/connect/horse-invite-section.tsx";
+import { SectionTitleAction } from "@/components/shared/section-title-action.tsx";
+import { HorseConnectInviteDialog } from "@/components/horses/connect/horse-connect-invite-dialog.tsx";
 import { HorseConnectionsTableSection } from "@/components/horses/connect/horse-connections-table-section.tsx";
 
 type Props = { horseId: string };
 
 export function ConnectContent({ horseId }: Props) {
   const t = useTranslations("horseConnect");
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   return (
     <HorsePageShell horseId={horseId}>
       <Section
-        title={t("inviteSection")}
-        description={t("description")}
-      >
-        <HorseConnectInviteSection horseId={horseId} />
-      </Section>
-
-      <Section
         title={t("connectionsSection")}
+        titleAddon={
+          <SectionTitleAction onClick={() => setInviteOpen(true)}>
+            {t("invite")}
+          </SectionTitleAction>
+        }
       >
         <HorseConnectionsTableSection horseId={horseId} />
       </Section>
+
+      <HorseConnectInviteDialog
+        horseId={horseId}
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+      />
     </HorsePageShell>
   );
 }
@@ -185,8 +199,12 @@ import { cn } from "@/lib/utils";
 type SectionProps = {
   title: string;
   description?: string;
+  /** Content after the title, bordered like description (e.g. Connect Invite). */
+  titleAddon?: ReactNode;
   /** Slot for SectionVisibilityControl / entity adapters (e.g. HorseSectionVisibility). */
   visibilityControl?: ReactNode;
+  /** Slot for actions opposite the title (e.g. Documents Upload). */
+  headerActions?: ReactNode;
   className?: string;
   children: ReactNode;
 };
@@ -196,31 +214,55 @@ type SectionProps = {
 ```
 <section className={cn("flex min-h-0 flex-col gap-4", className)}>
   ├── <header> shrink-0
-  │   ├── title + description
-  │   └── visibilityControl? (entity adapter → SectionVisibilityControl → popover)
+  │   ├── title + titleAddon? + description?
+  │   └── headerActions? + visibilityControl? (entity adapter → SectionVisibilityControl → allowed Popover)
   └── children (rendered as-is — ErrorBoundary lives in client.tsx)
-```
-
-### Section visibility architecture (reuse across entities)
+```### Section visibility architecture (reuse across entities)
 
 ```
 Section (layout slot)
   └── HorseSectionVisibility (entity adapter)     // or StableSectionVisibility later
         └── SectionVisibilityControl (shared behavior: toast, pending, persistMode)
-              └── SectionVisibilityPopover (dumb UI)
+              └── SectionVisibilityPopover (dumb UI — non-blocking Popover, not Dialog)
 ```
 
 - **Shared types:** `lib/visibility/sectionVisibility.ts` (`VisibilityMode`, `SectionVisibility`)
 - **Shared control:** `components/shared/section-visibility-control.tsx` — identical behavior for every consumer
-- **Shared popover:** `components/shared/section-visibility-popover.tsx` — UI only
+- **Shared popover:** `components/shared/section-visibility-popover.tsx` — UI only; allowed Popover for quick mode picking (see §5.5.1 Overlays)
 - **Horse adapter:** `components/horses/shared/horse-section-visibility.tsx` → `PATCH …/horses/:id/hub-sections`
 - **New entity:** add `*SectionVisibility` adapter + entity PATCH; reuse control unchanged. Do **not** wire `persistMode` / PATCH in page `client.tsx`.
 
+### 5.5.1 Overlays (Dialog / AlertDialog / Popover / Sheet)
+
+Canonical overlay rules for all Equus UI. Do **not** invent a custom blur wrapper — use shadcn primitives.
+
+| Primitive | When | Backdrop / page lock |
+|-----------|------|----------------------|
+| **`Dialog`** | Blocking task UI (media upload review, documents upload, connect invite, lightbox, planning create, deactivate account, command palette) | Yes (`DialogOverlay` blur) |
+| **`AlertDialog`** via `ConfirmActionDialog` / `ConfirmDeleteDialog` | Confirmations (delete, unsaved leave, ownership confirm) | Yes (`AlertDialogOverlay` blur) |
+| **`Popover`** | Non-blocking anchored controls (multi-select, invite picker, color badge legend, section visibility) | No — intentional |
+| **`Sheet`** | Mobile nav drawer only (`sidebar.tsx`) | Side panel — keep |
+
+**Rules:**
+- Blocking flows **must** use `Dialog` or `AlertDialog` (blur + focus trap). Never use `Popover` for upload review, deletes, or multi-step confirmations.
+- Anchored form/select UX stays on `Popover` (or `Select`); do not reinvent with Dialog.
+- Prefer shared `ConfirmActionDialog` / `ConfirmDeleteDialog` for yes/no confirms.
+- **Pending mutations in Dialogs:** use shared **`PendingDialog`** (`components/shared/pending-dialog.tsx`) — Dialog shell + centered shadcn **`Spinner`** overlay, block dismiss while `pending`. Do **not** re-copy overlay markup per feature. Domain dialogs (Connect invite, pedigree parent, documents upload, media upload review) compose on top of it.
+- **`titleAddon` actions:** use **`SectionTitleAction`** (muted ghost, same tone as section visibility) — not primary `Button`.
+- Media gallery: tile dropzone stays in-page; pending file review opens **`PendingDialog`**.
+- Documents: single section with Upload via `SectionTitleAction` in `titleAddon`; upload form opens **`PendingDialog`**.
+- Connect: single Connections section with Invite via `SectionTitleAction` in `titleAddon`; provider search opens **`PendingDialog`** (`HorseConnectInviteDialog`).
+- Profile pedigree: Sire/Dam use **Add** (`SectionTitleAction`) → one reusable **`HorsePedigreeParentDialog`** (`PendingDialog` + `HorseInviteSection`); selected parent shows shared **`EntityChip`** (`entityType="horse"`, horse name + owner email → horse Hub) with clear.
+- Admin proactive representatives / co-owner management: member **`EntityChip`**s (`entityType="user"`) + **Add** (`SectionTitleAction`) → **`HorseAdminRoleInviteDialog`** (`PendingDialog` + `UserInviteSection`); remove confirms via `ConfirmDeleteDialog`.
+- Admin ownership management: current owner **`EntityChip`** + **Change owner** (`SectionTitleAction`) → **`HorseOwnershipChangeDialog`** (`PendingDialog` + search, then `ConfirmActionDialog` before `transfer_main`).
+- **`EntityChip`** (`components/shared/entity-chip.tsx`) — canonical cross-entity identity card; hub URLs via `entityHubPath` (`lib/navigation/entityPaths.ts`). User + horse now; extend the union/path map for stable, groom, etc. later.
 ### Rules
 - **Always** use `<Section>` for page sections — never raw `<section>` elements
 - Section is **pure layout** — it does NOT wrap children in ErrorBoundary. Wrap children in `ErrorBoundary` at the `client.tsx` level (see section 7)
 - **Toggle is optional** — omit `visibilityControl` to render a section without visibility control
-- **Section visibility is section-owned via adapter** — modes are `owner` | `relationship` | `public`. Autosave through the shared control; never parent form dirty/Save for Layer-2; never `PATCH …/discovery` for section modes
+- **Header actions are optional** — use `headerActions` for section-level buttons opposite the title when needed
+- **Title addon is optional** — use `titleAddon` for content immediately after the title with a left border (same visual pattern as description; e.g. Connect Invite, Documents Upload)
+- **Section visibility is section-owned via adapter** — modes are `owner` | `relationship` | `public`. Autosave through the shared control; never parent form dirty/Save for Layer-2; never `PATCH …/discovery` for section modes. Control UI is a **Popover** (allowed non-blocking overlay), not a Dialog.
 - **Hub-facing keys only on Hub** — Hub renders `identity` | `identification` | `pedigree` | `about` | `ownership` | `gallery` | `planning` | `connections`. Admin-only keys (`value` | `proactiveRepresentatives` | `coOwnerManagement`) persist via `HorseSectionVisibility` but are not Hub-facing.
 - **Hub consumer** — Hub page reads `useHorseView(horseId)` which hits the TanStack cache (pre-seeded by `layout.tsx`). No extra network request. Renders only sections present in `horse.sections` (server-filtered by L1+L2 visibility). Do not load full owner horse and hide sections in React.
 - **Parent controls sizing** via `className` — use `className="flex-1"` for sections that should fill remaining space, `className="shrink-0"` for sections that take natural height
@@ -276,7 +318,7 @@ flowchart TB
     L["layout.tsx\ngetServerUserId()"] --> SVC["getHorseView(horseId, userId)"]
     SVC --> VR["deriveViewerRole(audience, horseDoc)"]
     VR --> AT["deriveAllowedTabs(viewerRole)"]
-    SVC --> CACHE["HydrationBoundary\nqueryClient.setQueryData(view)"]
+    SVC --> CACHE["PreferHydrationBoundary\nqueryClient.setQueryData(view)"]
   end
   subgraph client ["Client"]
     CACHE --> HV["useHorseView(horseId)\n— cache hit"]
@@ -342,6 +384,30 @@ export function HorseConnectionsTableSection({ horseId }: { horseId: string }) {
 }
 ```
 
+### Horse entity tables
+
+Single table system: `components/table` (`DataTable`). Visual SoT: Admin History (`horse-admin-history-section.tsx`). Connect, Documents, History, and Admin reuse the same helpers — do not re-copy avatar/action markup.
+
+Shared helpers (export from `components/table`):
+- `initialsFromLabel` — avatar initials
+- `TableUserAvatarCell` — centered `Avatar size="sm"`
+- `TableRowAction` — labeled row action (theme default `Button`)
+- `TableIconAction` — ghost `size="icon"` row action
+
+Every horse `DataTable` must pass:
+
+```tsx
+enableSorting
+enableFiltering
+isRealtimeFilterColumn={() => true}
+columnOrder={[...COLUMN_ORDER]}
+defaultColumnOrder={[...COLUMN_ORDER]}
+```
+
+plus `dropdownOptionsByColumnKey` when any column uses `filterType: "dropdown"`.
+
+Pending skeleton: `Skeleton className="h-[400px] w-full rounded-lg"`.
+
 ## 6.5. Deferred Form Tabs — Parent-Owned Save (Profile, Admin)
 
 Tabs that edit entity fields with a single Save (not immediate CRUD) follow this pattern:
@@ -393,16 +459,12 @@ global-error.tsx              ← Root layout crash (unrecoverable)
       └─ AppErrorBoundary     ← Higher app crash (resets on route change)
           └─ HorsePageShell   ← Chrome (EntityTabs, sidebar) — no inline boundary
               │                 (falls back to AppErrorBoundary if chrome itself crashes)
-              ├─ <Section>    ← pure layout (header only)
-              │   ├─ header (title + toggle) — survives crashes
-              │   └─ ErrorBoundary → HorseConnectInviteSection  ← from client.tsx
-              │                   (fails → inline card, header + tabs survive)
-              └─ <Section>    ← pure layout (header only)
-                  ├─ header (title + toggle) — survives crashes
+              └─ <Section>    ← pure layout (header: title + titleAddon + visibility)
+                  ├─ header — survives crashes
                   └─ ErrorBoundary → HorseConnectionsTableSection  ← from client.tsx
                                   (fails → inline card, header + tabs survive)
+              (+ invite Dialog mounted beside the section — not inside ErrorBoundary children)
 ```
-
 Rules:
 - `ErrorBoundary` lives in `client.tsx`, wrapping each section's children inside the `<Section>` component
 - `ErrorBoundary` only wraps **data-dependent children**, not the section header — if children throw, the section title + visibility toggle stay visible
@@ -412,7 +474,7 @@ Rules:
 
 ## 8. Data Fetching Rules
 
-1. **Layout-level prefetch** — `layout.tsx` RSC calls the service directly and seeds TanStack cache via `HydrationBoundary`. All tabs read from the pre-seeded cache — no waterfall.
+1. **Layout-level prefetch** — `layout.tsx` RSC calls the service directly and seeds TanStack cache via `PreferHydrationBoundary` (never overwrite owner horse view with guest). `getServerUserId` resolves via access token, then refresh cookie. All tabs read from the pre-seeded cache — no waterfall.
 2. **All client-side API calls** use TanStack Query (`useQuery` / `useMutation`)
 3. **No raw `fetch()`** in any component — use hooks from `hooks/queries/`
 4. **`placeholderData: (prev) => prev`** on every query — eliminates skeleton flash on tab switches

@@ -9,6 +9,10 @@ export {
   ColorRangeEditor,
 } from "./color-range-badge";
 export { FlagCell } from "./flag-cell";
+export { initialsFromLabel } from "./initials-from-label";
+export { TableUserAvatarCell } from "./table-user-avatar-cell";
+export { TableRowAction } from "./table-row-action";
+export { TableIconAction } from "./table-icon-action";
 
 export type {
   DataTableProps,

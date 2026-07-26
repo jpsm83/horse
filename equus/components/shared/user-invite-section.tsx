@@ -6,10 +6,11 @@
  */
 
 import { useState } from "react";
-import { Loader2, Search, UserPlus, Mail, X } from "lucide-react";
+import { Search, UserPlus, Mail, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { useDebouncedValue } from "@/hooks/use-debounced-value.ts";
 import {
   useEntitySearch,
@@ -96,7 +97,7 @@ export function UserInviteSection({
 
       {isSearching && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Spinner className="size-4" />
           {labels.searchingLabel}
         </div>
       )}

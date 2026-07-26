@@ -2,15 +2,19 @@
  * HorseHistoryAuditSection — audit log table for the History tab.
  *
  * Column order (fixed): user, username, userEmail, type, action, date.
+ * Shares Admin History DataTable helpers / props.
  */
 
 "use client";
 
 import { useTranslations } from "next-intl";
 
-import { DataTable } from "@/components/table";
-import type { DataTableColumnDef } from "@/components/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DataTable,
+  initialsFromLabel,
+  TableUserAvatarCell,
+  type DataTableColumnDef,
+} from "@/components/table";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { useHorseAuditLogs } from "@/hooks/queries/useHorseAudit.ts";
 import { relationshipTypeEnums } from "@/utils/enums.ts";
@@ -38,16 +42,6 @@ const COLUMN_ORDER = [
 ] as const;
 
 const TEAM_SOURCE_TYPES = ["owner", "co_owner", "responsible", "system", "unknown"] as const;
-
-function initialsFromLabel(label: string): string {
-  const trimmed = label.trim();
-  if (!trimmed || trimmed === "—") return "?";
-  const parts = trimmed.split(/[\s@._-]+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return `${parts[0]![0] ?? ""}${parts[1]![0] ?? ""}`.toUpperCase();
-  }
-  return trimmed.slice(0, 2).toUpperCase();
-}
 
 export function HorseHistoryAuditSection({ horseId }: Props) {
   const t = useTranslations("horseHistory");
@@ -78,19 +72,12 @@ export function HorseHistoryAuditSection({ horseId }: Props) {
       accessorKey: "userInitials",
       header: t("user"),
       enableSorting: false,
-      cell: ({ row }) => {
-        const { userImageUrl, userInitials } = row.original;
-        return (
-          <div className="flex w-full items-center justify-center">
-            <Avatar size="sm" className="rounded-full">
-              {userImageUrl ? (
-                <AvatarImage src={userImageUrl} alt="" className="object-cover" />
-              ) : null}
-              <AvatarFallback>{userInitials}</AvatarFallback>
-            </Avatar>
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <TableUserAvatarCell
+          imageUrl={row.original.userImageUrl}
+          initials={row.original.userInitials}
+        />
+      ),
     },
     {
       id: "userUsername",
@@ -155,6 +142,7 @@ export function HorseHistoryAuditSection({ horseId }: Props) {
       enableSorting
       enableFiltering
       emptyStateMessage={t("empty")}
+      isRealtimeFilterColumn={() => true}
       columnOrder={[...COLUMN_ORDER]}
       defaultColumnOrder={[...COLUMN_ORDER]}
     />
