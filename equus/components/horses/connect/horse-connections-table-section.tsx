@@ -17,7 +17,7 @@ import {
   type DataTableColumnDef,
 } from "@/components/table";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog.tsx";
-import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { HorseConnectionsTableSkeleton } from "@/components/horses/connect/horse-connections-table-skeleton.tsx";
 import { useHorseProviders, useHorsePendingRelationships } from "@/hooks/queries/useHorse.ts";
 import { useEndRelationship, useCancelSentInvite } from "@/hooks/queries/useRelationship.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
@@ -60,18 +60,23 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
   const tTypes = useTranslations("invites.horseProviders.types");
   const toast = useAppToast();
 
-  const { data: currentProviders = [], isPending: isProvidersPending } = useHorseProviders(
-    horseId,
-    "accepted",
-  );
-  const { data: pendingRelationships = [], isPending: isRelationshipsPending } =
-    useHorsePendingRelationships(horseId);
+  const {
+    data: currentProviders = [],
+    isPending: isProvidersPending,
+    isError: isProvidersError,
+  } = useHorseProviders(horseId, "accepted");
+  const {
+    data: pendingRelationships = [],
+    isPending: isRelationshipsPending,
+    isError: isRelationshipsError,
+  } = useHorsePendingRelationships(horseId);
   const endMutation = useEndRelationship();
   const cancelMutation = useCancelSentInvite();
   const [actionTarget, setActionTarget] = useState<ActionTarget | null>(null);
 
   const isPending = isProvidersPending || isRelationshipsPending;
   const isActionPending = endMutation.isPending || cancelMutation.isPending;
+  const hasError = isProvidersError || isRelationshipsError;
 
   function formatStatus(status: ConnectionStatus): string {
     switch (status) {
@@ -228,7 +233,15 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
   }, [currentProviders, pendingRelationships]);
 
   if (isPending) {
-    return <Skeleton className="h-[400px] w-full rounded-lg" />;
+    return <HorseConnectionsTableSkeleton />;
+  }
+
+  if (hasError) {
+    return (
+      <p className="text-sm text-destructive">
+        {t("tableLoadFailed")}
+      </p>
+    );
   }
 
   return (

@@ -1034,7 +1034,8 @@
         "connectionEndFailed": "Failed to end connection.",
         "invitationCancelled": "Invitation cancelled.",
         "invitationCancelFailed": "Failed to cancel invitation.",
-        "typeUnknown": "Unknown"
+        "typeUnknown": "Unknown",
+        "tableLoadFailed": "Failed to load connections. Please try again."
     },
     "horseHistory": {
         "title": "History",

@@ -25,8 +25,10 @@ app/[locale]/horses/[horseId]/<tab>/
 components/horses/
   shared/                 ← horse-only helpers used by 2+ tabs (not app-wide)
   admin/ | profile/ | connect/ | media/ | documents/ | planning/ | hub/ | create/ | list/ | history/
-  horse-page-shell.tsx    ← chrome used by all ownership-gated horseId tabs
-  horse-page-skeleton.tsx
+  horse-page-shell.tsx    ← auth gate + ownership gate for all ownership-gated tabs
+  horse-layout-chrome.tsx ← EntityTabs + content wrapper (rendered in layout.tsx)
+  horse-page-content-skeleton.tsx  ← canonical body skeleton (used by loading.tsx + HorsePageShell)
+  horse-page-skeleton.tsx          ← legacy hub page tab-level skeleton
 components/shared/        ← ONLY multi-module primitives (Section, FileUpload, …)
 ```
 
@@ -118,17 +120,18 @@ Rules:
 ## 4. `loading.tsx` — SSR Skeleton
 
 ```tsx
-import { HorsePageSkeleton } from "@/components/horses/horse-page-skeleton.tsx";
+import { HorsePageContentSkeleton } from "@/components/horses/horse-page-content-skeleton.tsx";
 
 export default function TabLoading() {
-  return <HorsePageSkeleton />;
+  return <HorsePageContentSkeleton />;
 }
 ```
 
 Rules:
-- **Mandatory per route segment.** Without it, SSR sends empty content in `{children}`, causing a visible blank flash before JS hydration.
-- Uses a shared `*PageSkeleton` component, not bare `<Skeleton>`.
-- For non-horse entity pages, create an `EntityPageSkeleton` following the same pattern.
+- **Mandatory per route segment.** The skeleton replaces the `{children}` slot during SSR streaming, preventing a blank content area.
+- Uses `HorsePageContentSkeleton` — the **same skeleton** used by `HorsePageShell` for its body loading state. Same component = no visual swap when SSR transitions to client hydration.
+- For non-horse entity pages, create an `EntityPageContentSkeleton` following the same pattern.
+- Uses the Skeleton component's default `variant="skeleton"` (`bg-skeleton`) — visible on both `bg-card` and `bg-muted` backgrounds.
 
 ## 5. Content Assembly (`client.tsx`)
 
@@ -139,12 +142,14 @@ The single Client Component that composes the shell + sections using the `<Secti
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { ErrorBoundary } from "react-error-boundary";
 
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { Section } from "@/components/shared/section.tsx";
 import { SectionTitleAction } from "@/components/shared/section-title-action.tsx";
-import { HorseConnectInviteDialog } from "@/components/horses/connect/horse-connect-invite-dialog.tsx";
 import { HorseConnectionsTableSection } from "@/components/horses/connect/horse-connections-table-section.tsx";
+import { HorseSectionVisibility } from "@/components/horses/shared/horse-section-visibility.tsx";
+import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 
 type Props = { horseId: string };
 
@@ -153,23 +158,30 @@ export function ConnectContent({ horseId }: Props) {
   const [inviteOpen, setInviteOpen] = useState(false);
 
   return (
-    <HorsePageShell horseId={horseId}>
-      <Section
-        title={t("connectionsSection")}
-        titleAddon={
-          <SectionTitleAction onClick={() => setInviteOpen(true)}>
-            {t("invite")}
-          </SectionTitleAction>
-        }
-      >
-        <HorseConnectionsTableSection horseId={horseId} />
-      </Section>
-
-      <HorseConnectInviteDialog
-        horseId={horseId}
-        open={inviteOpen}
-        onOpenChange={setInviteOpen}
-      />
+    <HorsePageShell horseId={horseId} requireOwnership>
+      {({ horse }) => (
+        <Section
+          title={t("connectionsSection")}
+          className="flex-1"
+          titleAddon={
+            <SectionTitleAction onClick={() => setInviteOpen(true)}>
+              {t("invite")}
+            </SectionTitleAction>
+          }
+          visibilityControl={
+            <HorseSectionVisibility
+              horseId={horseId}
+              sectionKey="connections"
+              mode={horse.hubSections?.connections?.mode}
+              uiSectionKey="connect-connections"
+            />
+          }
+        >
+          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+            <HorseConnectionsTableSection horseId={horseId} />
+          </ErrorBoundary>
+        </Section>
+      )}
     </HorsePageShell>
   );
 }
@@ -177,13 +189,11 @@ export function ConnectContent({ horseId }: Props) {
 
 Rules:
 - No raw `fetch()` — all API calls go through TanStack Query hooks
-- Every section uses `<Section>` — never manual `<section>` wrappers
-- No error boundary around the shell itself (shell is the chrome — it should not crash from section errors)
-- **Two section kinds** (see §6 and §6.5):
-  - **Action sections** — own their mutations (invite, delete, transfer). `client.tsx` only composes them.
-  - **Deferred form tabs** (Profile, Admin sale settings) — parent owns one `useForm`, one Save button, and dirty → unsaved-changes wiring. Field-group sections receive `control` only.
-
-**Hub exception:** Hub (`/horses/[horseId]`) does NOT use `HorsePageShell` — it is public-facing. Its `client.tsx` reads from `useHorseView()` directly and renders its own `EntityTabs`. Data is already in the cache from `layout.tsx`.
+- Every data section is wrapped in `<ErrorBoundary>` inside the `<Section>` children slot — the section header (title, visibility) survives section crashes
+- The shell gates ownership via `requireOwnership` / `requireMainOwner`, passing horse data via render props `{ horse, isOwner }`
+- `Section` renders immediately (no data dependencies). Only the section's children wait on data.
+- Invite/mutation dialogs mount beside the section, **not inside** the ErrorBoundary
+- Section visibility uses the entity adapter (`HorseSectionVisibility`) wired through the Section's `visibilityControl` slot
 
 ## 5.5 The `Section` Component (`components/shared/section.tsx`)
 
@@ -270,44 +280,77 @@ Canonical overlay rules for all Equus UI. Do **not** invent a custom blur wrappe
 ## 5.6 Shell Component (`HorsePageShell`)
 
 ### Responsibilities
-1. Read horse data from TanStack cache via `useHorseView(horseId)` (pre-seeded by `layout.tsx`)
-2. Gate content behind auth + ownership using `viewerRole` / `allowedTabs` from the view response
-3. Show skeleton while auth/data loads
-4. Redirect on auth failure
-5. Block content on permission failure (show "not allowed" fallback)
-6. Wrap content in `UnsavedChangesProvider` for deferred form tabs
+1. Check auth state via `useAppAuth()` — redirect unauthenticated users to sign-in
+2. Read horse data from TanStack cache via `useHorseView(horseId)` (pre-seeded by `layout.tsx` RSC)
+3. Gate content behind ownership using `horse.isAdmin` / `horse.isMainOwner`
+4. Show ONE body skeleton (`HorsePageContentSkeleton`) while auth or view data is loading
+5. Show "not allowed" fallback for permission failures
+6. Pass `{ horse, isOwner }` to children via render props
 
-### 5.6.1 No data fetching in HorsePageShell
-`HorsePageShell` no longer fetches data. It reads from the cache:
+### Implementation (simplified — no useRef privilege hold)
 
 ```tsx
-const { data: view, isLoading } = useHorseView(horseId);
-const horse = view?.horse;
-const allowedTabs = view?.allowedTabs;
-const isAdmin = horse?.isAdmin === true;
-```
+"use client";
 
-### 5.6.2 Auth redirect — no flash
-```tsx
-useEffect(() => {
-  if (!isLoading && !isAuthenticated) {
-    router.replace(buildSignInPath("/horses/" + horseId));
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
+
+import { HorsePageContentSkeleton } from "@/components/horses/horse-page-content-skeleton.tsx";
+import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
+import { useHorseView } from "@/hooks/queries/useHorse.ts";
+import { useAppAuth } from "@/hooks/use-app-auth.ts";
+
+export function HorsePageShell({ horseId, requireOwnership, requireMainOwner, children }) {
+  const router = useRouter();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAppAuth();
+  const { data: view, isLoading: isViewLoading } = useHorseView(horseId);
+
+  const isLoading = isAuthLoading || isViewLoading;
+  const horse = view?.horse;
+  const isAdmin = horse?.isAdmin === true;
+  const isMainOwner = horse?.isMainOwner === true;
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!isAuthenticated) {
+      router.replace(buildSignInPath("/horses/" + horseId));
+    }
+  }, [isLoading, isAuthenticated, router, horseId]);
+
+  const blocked =
+    !isLoading &&
+    Boolean(horse) &&
+    ((requireMainOwner && !isMainOwner) || (requireOwnership && !isAdmin));
+
+  if (isLoading || !horse) {
+    return <HorsePageContentSkeleton suppressHydrationWarning />;
   }
-}, [isLoading, isAuthenticated]);
 
-if (!isAuthenticated && !isLoading) return null;
+  if (!isAuthenticated) {
+    return <HorsePageContentSkeleton suppressHydrationWarning />;
+  }
+
+  if (blocked) {
+    return <p className="text-muted-foreground">You don't have permission to view this page.</p>;
+  }
+
+  return typeof children === "function"
+    ? children({ horse, isOwner: isMainOwner })
+    : children;
+}
 ```
 
-### 5.6.3 Loading state
-```tsx
-{isLoading || !horse ? <HorsePageSkeleton /> : children}
-```
+### Key design decisions
 
-### 5.6.4 Permission-denied fallback
-```tsx
-const blocked = !isLoading && horse &&
-  ((requireMainOwner && !isMainOwner) || (requireOwnership && !isAdmin));
-```
+- **No `useRef` privilege hold pattern.** `placeholderData: (prev) => prev` on `useHorseView` preserves the previous horse data during background refetch — `horse?.isAdmin` stays correct without manual ref management.
+- **`isAdmin` / `isMainOwner` are direct checks** (`horse?.isAdmin === true`), not computed from cached refs or derived state.
+- **`HorsePageContentSkeleton` is the single body skeleton** — same component used by `loading.tsx`. Same visual = no flash on SSR→client transition.
+- **Auth redirect runs in `useEffect`** — never blocks render. While auth is loading, the skeleton shows.
+- **Render props pattern** — children receive `{ horse, isOwner }` directly, no prop drilling.
+
+### Hub exception
+Hub (`/horses/[horseId]`) does NOT use `HorsePageShell` — it is public-facing. Its `client.tsx` reads from `useHorseView()` directly and renders its own `EntityTabs`. Data is already in the cache from `layout.tsx`.
 
 ## 5.7 viewerRole and allowedTabs
 
@@ -355,32 +398,43 @@ flowchart TB
 ## 6. Section Components — Action / Query Sections
 
 Each **action or list** section is a `"use client"` component that:
-- Owns its own TanStack Query hooks (`useQuery`, `useMutation`) when it performs immediate actions (invite, delete, upload, transfer)
+- Owns its own TanStack Query hooks (`useQuery`, `useMutation`)
+- Destructures `{ data = [], isPending, isError }` from queries
 - Shows inline skeleton during `isPending`
-- Destructures data with fallback: `{ data = [] }`
-- Uses `placeholderData: (prev) => prev` on all queries
-- Does NOT define its own `ErrorBoundary` — the `client.tsx` assembly wraps each section child manually in `<ErrorBoundary fallbackRender={InlineErrorFallback}>`
+- Shows error state when `isError` is true (not an empty table)
+- Uses `placeholderData: (prev) => prev` on all queries (handled inside hook definitions)
+- Does NOT define its own `ErrorBoundary` — the `client.tsx` assembly wraps each section child in `<ErrorBoundary fallbackRender={InlineErrorFallback}>`
 - Does NOT use raw `fetch()` — always through hooks
-- Does NOT render a page-level Save for deferred edits — that belongs to the parent form (see §6.5)
 
 ### Pattern
 ```tsx
 "use client";
 import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
-import { useHorseProviders } from "@/hooks/queries/useHorse.ts";
+import { Spinner } from "@/components/ui/spinner.tsx";
 
-export function HorseConnectionsTableSection({ horseId }: { horseId: string }) {
-  const t = useTranslations("horseConnect");
-  const { data: providers = [], isPending } = useHorseProviders(horseId, "accepted", {
-    placeholderData: (prev) => prev,
-  });
+export function ExampleTableSection({ horseId }: { horseId: string }) {
+  const t = useTranslations("namespace");
+  const { data: items = [], isPending, isError } = useSomeQuery(horseId);
 
   if (isPending) {
-    return <Skeleton className="h-[400px] w-full rounded-lg" />;
+    return <ExampleTableSkeleton />;
   }
 
-  return <DataTable /* ... */ />;
+  if (isError) {
+    return <p className="text-sm text-destructive">{t("loadFailed")}</p>;
+  }
+
+  return <DataTable data={items} /* ... */ />;
+}
+
+function ExampleTableSkeleton() {
+  return (
+    <div className="relative w-full h-[400px]">
+      <Spinner className="absolute inset-0 z-10 m-auto size-6" />
+      <Skeleton className="h-full w-full rounded-lg" />
+    </div>
+  );
 }
 ```
 
@@ -406,7 +460,32 @@ defaultColumnOrder={[...COLUMN_ORDER]}
 
 plus `dropdownOptionsByColumnKey` when any column uses `filterType: "dropdown"`.
 
-Pending skeleton: `Skeleton className="h-[400px] w-full rounded-lg"`.
+### Skeleton pattern (table / data sections)
+
+Data-dependent sections use a skeleton + Spinner overlay while loading:
+
+```tsx
+// components/horses/<tab>/horse-<name>-skeleton.tsx
+import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { Spinner } from "@/components/ui/spinner.tsx";
+
+export function HorseConnectionsTableSkeleton({ showSpinner = true }) {
+  return (
+    <div className="relative w-full h-full">
+      {showSpinner && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center">
+          <Spinner className="size-6" />
+        </div>
+      )}
+      <Skeleton className="inset-0 h-full w-full p-4 rounded-md" />
+    </div>
+  );
+}
+```
+
+- Uses `bg-skeleton` via the `Skeleton` component's default `variant="skeleton"` — visible on `bg-card` / `bg-muted` backgrounds
+- `showSpinner` defaults to `true`; disable for sub-skeletons where a parent skeleton already shows a spinner
+- The `Skeleton` uses Tailwind's `animate-pulse` — CSS handles the animation, no JavaScript needed
 
 ## 6.5. Deferred Form Tabs — Parent-Owned Save (Profile, Admin)
 
@@ -457,24 +536,28 @@ function ProfileForm({ horseId, horse }: { horseId: string; horse: HorseViewDto 
 global-error.tsx              ← Root layout crash (unrecoverable)
   └─ [locale]/error.tsx       ← App chrome crash (keeps layout, shows recovery page)
       └─ AppErrorBoundary     ← Higher app crash (resets on route change)
-          └─ HorsePageShell   ← Chrome (EntityTabs, sidebar) — no inline boundary
-              │                 (falls back to AppErrorBoundary if chrome itself crashes)
-              └─ <Section>    ← pure layout (header: title + titleAddon + visibility)
-                  ├─ header — survives crashes
-                  └─ ErrorBoundary → HorseConnectionsTableSection  ← from client.tsx
-                                  (fails → inline card, header + tabs survive)
-              (+ invite Dialog mounted beside the section — not inside ErrorBoundary children)
+          └─ HorseLayoutChrome    ← EntityTabs + content wrapper
+              ├─ EntityTabs       ← survive section crashes
+              └─ content area
+                  └─ HorsePageShell   ← gates auth/ownership, shows body skeleton
+                      └─ <Section>    ← pure layout (title + addon + visibility header)
+                          ├─ header → survives section crashes
+                          └─ ErrorBoundary → <SectionComponent />   ← from client.tsx
+                              (fails → InlineErrorFallback card, header + tabs survive)
+                      (+ invite/mutation Dialogs mounted beside sections — not inside ErrorBoundary)
 ```
+
 Rules:
-- `ErrorBoundary` lives in `client.tsx`, wrapping each section's children inside the `<Section>` component
+- `ErrorBoundary` lives in `client.tsx`, wrapping each data-dependent section child inside `<Section>`
 - `ErrorBoundary` only wraps **data-dependent children**, not the section header — if children throw, the section title + visibility toggle stay visible
 - Each section is isolated — one failing does not cascade
 - `AppErrorBoundary` is the last resort, not the first line of defense
 - `InlineErrorFallback` is compact (card + Try Again button) — never full-page
+- Mutation Dialogs (invite, delete, upload) are mounted **beside** sections, not inside ErrorBoundary wrappers
 
 ## 8. Data Fetching Rules
 
-1. **Layout-level prefetch** — `layout.tsx` RSC calls the service directly and seeds TanStack cache via `PreferHydrationBoundary` (never overwrite owner horse view with guest). `getServerUserId` resolves via access token, then refresh cookie. All tabs read from the pre-seeded cache — no waterfall.
+1. **Layout-level prefetch** — `layout.tsx` RSC calls `getHorseView` directly (service layer) and seeds TanStack cache via `PreferHydrationBoundary`. `getServerUserId` resolves via access token, then refresh cookie. All tabs read from the pre-seeded cache — no waterfall.
 2. **All client-side API calls** use TanStack Query (`useQuery` / `useMutation`)
 3. **No raw `fetch()`** in any component — use hooks from `hooks/queries/`
 4. **`placeholderData: (prev) => prev`** on every query — eliminates skeleton flash on tab switches
@@ -501,38 +584,41 @@ Rules:
 ## 11. Checklist for New Horse Sub-Pages
 
 ```
-[ ] Create `app/[locale]/horses/[horseId]/<tab>/page.tsx` — thin Server Component
-[ ] Create `app/[locale]/horses/[horseId]/<tab>/loading.tsx` — uses HorsePageSkeleton
-[ ] Create `app/[locale]/horses/[horseId]/<tab>/client.tsx` — HorsePageShell + <Section> components (co-located with the route)
+[ ] Create app/[locale]/horses/[horseId]/<tab>/page.tsx — thin Server Component
+[ ] Create app/[locale]/horses/[horseId]/<tab>/loading.tsx — uses HorsePageContentSkeleton (same as body skeleton)
+[ ] Create app/[locale]/horses/[horseId]/<tab>/client.tsx — HorsePageShell + <Section> components (co-located with route)
 [ ] Confirm layout.tsx exists at app/[locale]/horses/[horseId]/layout.tsx — it pre-fetches horse data for all sub-pages
 [ ] For each data section in the tab:
-    [ ] Extract into a dedicated "use client" section component
+    [ ] Extract into a dedicated "use client" section component under components/horses/<tab>/
+    [ ] Filename starts with horse- (e.g. horse-connections-table-section.tsx)
     [ ] Wrap it in <Section title={...} className="flex-1"> (never raw <section>)
     [ ] Wrap children inside <Section> with <ErrorBoundary fallbackRender={InlineErrorFallback}>
-    [ ] Add visibilityControl={<HorseSectionVisibility … />} when the section needs Layer-2 visibility
-    [ ] Use TanStack Query hooks (no raw fetch)
-    [ ] Use `placeholderData: (prev) => prev`
-    [ ] Show inline skeleton during `isPending`
-    [ ] Handle errors with toast for mutations, ErrorBoundary for render errors
+    [ ] Add visibilityControl={<HorseSectionVisibility … />} when section needs Layer-2 visibility
+    [ ] Use TanStack Query hooks with destructured { data = [], isPending, isError }
+    [ ] Section hooks use placeholderData: (prev) => prev (defined inside hook, not passed by caller)
+    [ ] Show skeleton + Spinner overlay during isPending (create a <Name>Skeleton component)
+    [ ] Show error message when isError (not an empty table)
+    [ ] Invite/mutation Dialogs mount beside sections, not inside ErrorBoundary
 [ ] If the tab is a deferred form (Profile / Admin sale settings):
-    [ ] Parent owns `useForm` + single Save + dirty → `useUnsavedChanges`
-    [ ] Field sections receive `control` only (no per-section Save)
+    [ ] Parent owns useForm + single Save + dirty → useUnsavedChanges
+    [ ] Field sections receive control only (no per-section Save)
     [ ] Action sections on the same tab keep their own immediate mutations
-[ ] Mutations in this tab's hooks invalidate `queryKeys.horses.view(horseId)`
+[ ] Mutations in this tab's hooks invalidate queryKeys.horses.view(horseId)
 [ ] Verify: tabs survive if one section crashes (header + other sections remain)
 [ ] Verify: navigation between tabs shows no skeleton (placeholderData)
-[ ] Verify: full page load (SSR) shows skeleton immediately, not after hydration
+[ ] Verify: cold page load (SSR) shows ONE body skeleton, not multiple flashes
+[ ] Verify: loading.tsx and HorsePageShell use the SAME skeleton component (HorsePageContentSkeleton)
 [ ] Verify (deferred forms): leaving with dirty fields shows unsaved-changes dialog
 [ ] Update horses.md and horseTabs.md if the tab layout changes
 ```
 
 ## 12. Page Type Variants
 
-| Type | Shell Component | Skeleton Component |
-|---|---|---|
-| Horse sub-page | `HorsePageShell` | `HorsePageSkeleton` |
-| Stable sub-page | `StablePageShell` | `StablePageSkeleton` |
-| Breeder sub-page | `BreederPageShell` | `BreederPageSkeleton` |
-| (other entities) | `*PageShell` | `*PageSkeleton` |
+| Type | Shell Component | Body Skeleton |
+|------|----------------|---------------|
+| Horse sub-page | `HorsePageShell` | `HorsePageContentSkeleton` |
+| Stable sub-page | `StablePageShell` | `StablePageContentSkeleton` |
+| Breeder sub-page | `BreederPageShell` | `BreederPageContentSkeleton` |
+| (other entities) | `*PageShell` | `*PageContentSkeleton` |
 
 Each entity type creates its own shell + skeleton following the exact same pattern. New entity shells should also follow the `layout.tsx` RSC prefetch pattern (§2) with a corresponding `getEntityView` service function.

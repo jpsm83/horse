@@ -10,6 +10,7 @@
 import type { ReactNode } from "react";
 import { QueryClient, dehydrate } from "@tanstack/react-query";
 
+import { HorseLayoutChrome } from "@/components/horses/horse-layout-chrome.tsx";
 import { PreferHydrationBoundary } from "@/components/shared/prefer-hydration-boundary.tsx";
 import { getServerUserId, hasRefreshCookie } from "@/lib/auth/serverSession.ts";
 import { queryKeys } from "@/lib/api/queryKeys.ts";
@@ -40,7 +41,7 @@ export default async function HorseLayout({ children, params }: HorseLayoutProps
 
   return (
     <PreferHydrationBoundary state={dehydrate(queryClient)}>
-      {children}
+      <HorseLayoutChrome horseId={horseId}>{children}</HorseLayoutChrome>
     </PreferHydrationBoundary>
   );
 }

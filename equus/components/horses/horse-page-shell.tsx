@@ -1,27 +1,22 @@
 ﻿/**
- * HorsePageShell — shared chrome for all horse sub-pages.
+ * HorsePageShell — auth and ownership gate for horse sub-page content.
  *
- * Reads the pre-seeded horse view from the TanStack cache (populated by layout.tsx RSC).
- * Renders the tab bar immediately and gates ownership-required content once auth resolves.
- * No data fetching here — the layout handles that via PreferHydrationBoundary.
+ * Tab chrome and content padding live in HorseLayoutChrome (layout.tsx).
+ * Reads the pre-seeded horse view from TanStack cache populated by layout RSC.
  */
 
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
-import { EntityTabs } from "@/components/shared/entity-tabs.tsx";
-import { UnsavedChangesProvider } from "@/components/shared/unsaved-changes-context.tsx";
-import { HorsePageSkeleton } from "@/components/horses/horse-page-skeleton.tsx";
+import { HorsePageContentSkeleton } from "@/components/horses/horse-page-content-skeleton.tsx";
 import { Link } from "@/i18n/navigation.ts";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
-import { getHorseTabs } from "@/lib/navigation/horseTabs.ts";
 import { useHorseView } from "@/hooks/queries/useHorse.ts";
 import { useAppAuth } from "@/hooks/use-app-auth.ts";
-import type { HorseViewDto, HorseTab } from "@/lib/services/horseService.ts";
+import type { HorseViewDto } from "@/lib/services/horseService.ts";
 
 export type HorsePageShellRenderProps = {
   horse: HorseViewDto;
@@ -42,37 +37,13 @@ export function HorsePageShell({
   children,
 }: HorsePageShellProps) {
   const router = useRouter();
-  const tCommon = useTranslations("common");
   const { isAuthenticated, isLoading: isAuthLoading } = useAppAuth();
-  const { data: view, isLoading: isViewLoading, isFetching: isViewFetching } =
-    useHorseView(horseId);
+  const { data: view, isLoading: isViewLoading } = useHorseView(horseId);
 
   const isLoading = isAuthLoading || isViewLoading;
   const horse = view?.horse;
-  const allowedTabs = view?.allowedTabs as HorseTab[] | undefined;
-
-  const privilegesHorseIdRef = useRef(horseId);
-  const privilegesRef = useRef({ isAdmin: false, isMainOwner: false });
-  if (privilegesHorseIdRef.current !== horseId) {
-    privilegesHorseIdRef.current = horseId;
-    privilegesRef.current = { isAdmin: false, isMainOwner: false };
-  }
-  if (horse?.isAdmin === true) privilegesRef.current.isAdmin = true;
-  if (horse?.isMainOwner === true) privilegesRef.current.isMainOwner = true;
-
-  // While auth/view is settling, keep last known owner privileges for this horse so a
-  // transient guest hydrate cannot flash "blocked" / hide tabs.
-  const holdPrivileges =
-    isAuthenticated &&
-    privilegesRef.current.isAdmin &&
-    (isAuthLoading || isViewFetching || isViewLoading);
-  const isAdmin = horse?.isAdmin === true || holdPrivileges;
-  const isMainOwner =
-    horse?.isMainOwner === true ||
-    (holdPrivileges && privilegesRef.current.isMainOwner);
-
-  const effectiveAllowedTabs =
-    holdPrivileges && horse?.isAdmin !== true ? undefined : allowedTabs;
+  const isAdmin = horse?.isAdmin === true;
+  const isMainOwner = horse?.isMainOwner === true;
 
   useEffect(() => {
     if (isLoading) return;
@@ -81,48 +52,36 @@ export function HorsePageShell({
     }
   }, [isLoading, isAuthenticated, router, horseId]);
 
-  if (!isAuthenticated && !isLoading) {
-    return null;
-  }
-
   const blocked =
     !isLoading &&
-    !holdPrivileges &&
     Boolean(horse) &&
     ((requireMainOwner && !isMainOwner) || (requireOwnership && !isAdmin));
 
-  return (
-    <UnsavedChangesProvider
-      dialogTitle={tCommon("unsavedChangesTitle")}
-      dialogDescription={tCommon("unsavedChangesDescription")}
-      stayLabel={tCommon("stayOnPage")}
-      leaveLabel={tCommon("leaveWithoutSaving")}
-    >
-      <EntityTabs
-        tabs={getHorseTabs(horseId, effectiveAllowedTabs)}
-        isAdmin={isAdmin}
-        isMainOwner={isMainOwner}
-        isPending={isLoading}
-      />
-      <div className="mx-auto flex w-full flex-1 flex-col gap-4 p-4 sm:p-6 sm:gap-6">
-        {isLoading || !horse ? (
-          <HorsePageSkeleton suppressHydrationWarning />
-        ) : blocked ? (
-          <div className="mx-auto p-6">
-            <p className="text-muted-foreground">You don&apos;t have permission to view this page.</p>
-            <Link
-              href={"/horses/" + horseId}
-              className="text-sm font-medium text-primary underline underline-offset-4 hover:text-foreground"
-            >
-              Back to hub
-            </Link>
-          </div>
-        ) : typeof children === "function" ? (
-          children({ horse, isOwner: isMainOwner })
-        ) : (
-          children
-        )}
+  if (isLoading || !horse) {
+    return <HorsePageContentSkeleton suppressHydrationWarning />;
+  }
+
+  if (!isAuthenticated) {
+    return <HorsePageContentSkeleton suppressHydrationWarning />;
+  }
+
+  if (blocked) {
+    return (
+      <div className="mx-auto p-6">
+        <p className="text-muted-foreground">You don&apos;t have permission to view this page.</p>
+        <Link
+          href={"/horses/" + horseId}
+          className="text-sm font-medium text-primary underline underline-offset-4 hover:text-foreground"
+        >
+          Back to hub
+        </Link>
       </div>
-    </UnsavedChangesProvider>
+    );
+  }
+
+  return typeof children === "function" ? (
+    children({ horse, isOwner: isMainOwner })
+  ) : (
+    children
   );
 }

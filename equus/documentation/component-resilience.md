@@ -15,18 +15,18 @@ Every page component should be built so the **shell renders immediately** and **
 
 ## Loading pattern: immediate chrome + deferred content
 
-`HorsePageShell` is the reference implementation (`components/horses/horse-page-shell.tsx`).
+`HorseLayoutChrome` and `HorsePageShell` are the reference implementations.
 
 ```
 ┌───────────────────────────────────────┐
-│  EntityTabs (always renders)           │  ← immediate, no data needed
-├───────────────────────────────────────┤
-│  ← Back button                        │  ← immediate
-│  Page title                            │
+│  EntityTabs (always renders)           │  ← HorseLayoutChrome, immediate
 ├───────────────────────────────────────┤
 │  ┌──── Content area ────────────────┐ │
-│  │  loading → HorsePageContentSkele. │ │  ← compact, content-only
-│  │  resolved → section components    │ │  ← each owns its own state
+│  │  loading → HorsePageContentSkeleton│ │  ← SSR streaming phase
+│  │  auth gating → same skeleton      │ │  ← HorsePageShell (same component)
+│  │  resolved → Section wrapper       │ │  ← renders immediately (headings)
+│  │    └─ Skeleton + Spinner          │ │  ← section owns its loading state
+│  │    └─ DataTable or error          │ │  ← resolved or error state
 │  │  not owner → "not allowed" msg    │ │
 │  └────────────────────────────────────┘ │
 └───────────────────────────────────────┘
@@ -34,35 +34,50 @@ Every page component should be built so the **shell renders immediately** and **
 
 ### What this means in practice
 
-- `HorsePageShell` runs auth + owner queries but never returns a full-page skeleton. It always renders `<EntityTabs>`, the back link, and the title.
-- While auth/owner data is loading, only the content children area shows `<HorsePageContentSkeleton>` (a compact, generic placeholder).
-- Once data resolves, children render with their own data-driven skeletons (`HorseConnectionsTableSection` shows a table-row skeleton).
-- Redirects (unauthenticated, 403, error) are handled in a `useEffect` side effect — they never block the render.
+- `HorseLayoutChrome` (in the layout) always renders `EntityTabs` immediately. The tabs show pending skeleton state while auth and horse view data loads.
+- While the page-level auth/data is loading, only the content children area shows `<HorsePageContentSkeleton>` (a compact, generic placeholder).
+- `loading.tsx` renders the **same** `<HorsePageContentSkeleton>` component — no visual swap between SSR and client hydration.
+- Once data resolves, children render — the `Section` wrapper renders immediately (headers, buttons). Only data-dependent children within the section show their own skeleton.
+- `HorsePageShell` checks auth via `useAppAuth()` and reads horse data from pre-seeded TanStack cache via `useHorseView()`. `placeholderData: (prev) => prev` keeps cached data visible during background refetch — no unnecessary skeleton flashes.
+- Redirects (unauthenticated) are handled in a `useEffect` side effect — they never block the render.
 
 ### Creating a new page section
 
 1. Create a component that owns its data fetch (e.g. `HorseConnectionsTableSection`)
-2. Use `useQuery` with `placeholderData: (prev) => prev`:
-   ```typescript
-   const { data = [], isPending } = useQuery({
-     queryKey,
-     queryFn,
-     placeholderData: (previousData) => previousData,
-   });
-   ```
-3. Check `isPending` → render an inline skeleton (not a full-page one)
-4. Render the data-driven UI when resolved
-5. Wrap the section in an `ErrorBoundary` in the parent:
+2. Create a sibling skeleton component (e.g. `HorseConnectionsTableSkeleton`)
+3. The skeleton uses the `Skeleton` primitive (defaults to `variant="skeleton"` → `bg-skeleton`) with a `Spinner` overlay:
+   ```tsx
+   // HorseConnectionsTableSkeleton
+   import { Skeleton } from "@/components/ui/skeleton.tsx";
+   import { Spinner } from "@/components/ui/spinner.tsx";
 
-   ```typescript
-   <section>
-     <h2>Section Title</h2>
-     <ErrorBoundary fallbackRender={({ error, resetErrorBoundary }) => (
-       <InlineErrorFallback error={error} resetErrorBoundary={resetErrorBoundary} />
-     )}>
-       <SectionComponent horseId={horseId} />
+   export function HorseConnectionsTableSkeleton({ showSpinner = true }) {
+     return (
+       <div className="relative w-full h-full">
+         {showSpinner && (
+           <div className="absolute inset-0 z-10 flex items-center justify-center">
+             <Spinner className="size-6" />
+           </div>
+         )}
+         <Skeleton className="inset-0 h-full w-full p-4 rounded-md" />
+       </div>
+     );
+   }
+   ```
+4. The section component uses `useQuery` with `placeholderData` (defined inside the hook) and handles both `isPending` and `isError`:
+   ```tsx
+   const { data = [], isPending, isError } = useSomeQuery(horseId);
+   if (isPending) return <HorseConnectionsTableSkeleton />;
+   if (isError) return <p className="text-destructive">{t("loadFailed")}</p>;
+   return <DataTable data={data} />;
+   ```
+5. Wrap the section in `ErrorBoundary` inside the `client.tsx` parent:
+   ```tsx
+   <Section title={t("sectionTitle")}>
+     <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+       <HorseConnectionsTableSection horseId={horseId} />
      </ErrorBoundary>
-   </section>
+   </Section>
    ```
 
 ---
@@ -219,9 +234,11 @@ Not yet implemented in the codebase; add when needed.
 
 - [ ] Chrome renders without waiting for data (tabs, title, back button)
 - [ ] Content area uses `suppressHydrationWarning` if it renders differently on server vs client (loading skeleton → real data)
-- [ ] Each data section uses `useQuery` with `placeholderData: (prev) => prev`
-- [ ] Each data section shows an inline skeleton during `isPending`
-- [ ] Each data section is wrapped in its own `ErrorBoundary` with `InlineErrorFallback`
+- [ ] `loading.tsx` and `HorsePageShell` use the **same** skeleton component — no visual swap on SSR→client transition
+- [ ] Each data section uses `useQuery` with `placeholderData: (prev) => prev` (defined inside the hook)
+- [ ] Each data section destructures `{ data = [], isPending, isError }` — shows skeleton on pending, error message on error
+- [ ] Each data section's skeleton uses the `Skeleton` component with `variant="skeleton"` (default, `bg-skeleton`) + `Spinner` overlay
+- [ ] Each data section is wrapped in its own `ErrorBoundary` with `InlineErrorFallback` in the parent `client.tsx`
 - [ ] `loading.tsx` uses a minimal skeleton (not a full-page duplicate)
 - [ ] No `useSuspenseQuery` for cookie-authenticated data
 - [ ] No `<Suspense>` wrapping page content components (causes hydration instrumentation errors)

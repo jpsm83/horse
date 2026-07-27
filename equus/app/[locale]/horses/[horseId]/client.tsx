@@ -11,15 +11,12 @@ import { HorseHubUpcomingEvents } from "@/components/horses/hub/horse-hub-upcomi
 import { HorseHubPedigree } from "@/components/horses/hub/horse-hub-pedigree.tsx";
 import { HorseHubTeam } from "@/components/horses/hub/horse-hub-team.tsx";
 import { HorseHubIdentification } from "@/components/horses/hub/horse-hub-identification.tsx";
-import { HorsePageSkeleton } from "@/components/horses/horse-page-skeleton.tsx";
-import { EntityTabs } from "@/components/shared/entity-tabs.tsx";
+import { HorsePageContentSkeleton } from "@/components/horses/horse-page-content-skeleton.tsx";
 import { Section } from "@/components/shared/section.tsx";
 import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { Link } from "@/i18n/navigation.ts";
-import { getHorseTabs } from "@/lib/navigation/horseTabs.ts";
 import { useHorseView } from "@/hooks/queries/useHorse.ts";
 import { isFetchError } from "@/lib/api/fetchWithAuth";
-import type { HorseTab } from "@/lib/services/horseService.ts";
 
 type HubContentProps = {
   horseId: string;
@@ -30,47 +27,31 @@ export function HubContent({ horseId }: HubContentProps) {
   const { data: view, isLoading, error } = useHorseView(horseId);
 
   const horse = view?.horse;
-  const allowedTabs = view?.allowedTabs as HorseTab[] | undefined;
-  const isAdmin = horse?.isAdmin === true;
-  const isMainOwner = horse?.isMainOwner === true;
-  const tabs = getHorseTabs(horseId, allowedTabs);
 
   if (isLoading) {
-    return (
-      <>
-        <EntityTabs tabs={tabs} isAdmin={isAdmin} isMainOwner={isMainOwner} isPending />
-        <div className="mx-auto flex w-full flex-1 flex-col gap-4 p-4 sm:p-6 sm:gap-6">
-          <HorsePageSkeleton suppressHydrationWarning />
-        </div>
-      </>
-    );
+    return <HorsePageContentSkeleton suppressHydrationWarning />;
   }
 
   if (error || !horse) {
     const notFound =
       isFetchError(error) && (error.statusCode === 404 || error.statusCode === 403);
     return (
-      <>
-        <EntityTabs tabs={tabs} isAdmin={isAdmin} isMainOwner={isMainOwner} isPending={false} />
-        <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-3 p-6">
-          <p className="text-muted-foreground">{notFound ? t("notFound") : t("loadFailed")}</p>
-          <Link
-            href="/horses"
-            className="text-sm font-medium text-primary underline underline-offset-4 hover:text-foreground"
-          >
-            {t("backToHorses")}
-          </Link>
-        </div>
-      </>
+      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-3">
+        <p className="text-muted-foreground">{notFound ? t("notFound") : t("loadFailed")}</p>
+        <Link
+          href="/horses"
+          className="text-sm font-medium text-primary underline underline-offset-4 hover:text-foreground"
+        >
+          {t("backToHorses")}
+        </Link>
+      </div>
     );
   }
 
   const { sections } = horse;
 
   return (
-    <>
-      <EntityTabs tabs={tabs} isAdmin={isAdmin} isMainOwner={isMainOwner} isPending={false} />
-      <div className="mx-auto flex w-full flex-1 flex-col gap-6 p-4 sm:p-6">
+    <div className="flex w-full flex-1 flex-col gap-6">
         {/* Hero — always visible */}
         <HorseHubHero horse={horse} />
 
@@ -135,6 +116,5 @@ export function HubContent({ horseId }: HubContentProps) {
           </Section>
         )}
       </div>
-    </>
   );
 }
