@@ -11,11 +11,16 @@
 
 "use client";
 
-import { X } from "lucide-react";
+import { Link2Off } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { TableIconAction } from "@/components/table";
 import {
   entityHubPath,
   type EntityChipEntityType,
@@ -33,6 +38,7 @@ export type EntityChipProps = {
   subtitle?: string;
   imageUrl?: string;
   clearLabel?: string;
+  clearTooltip?: string;
   onClear?: () => void;
   clearDisabled?: boolean;
   className?: string;
@@ -52,6 +58,7 @@ export function EntityChip({
   subtitle,
   imageUrl,
   clearLabel,
+  clearTooltip,
   onClear,
   clearDisabled = false,
   className,
@@ -93,17 +100,23 @@ export function EntityChip({
         <div className="flex min-w-0 flex-1 items-center gap-3">{identity}</div>
       )}
       {onClear && clearLabel ? (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-xs"
-          className="shrink-0"
-          aria-label={clearLabel}
-          disabled={clearDisabled}
-          onClick={onClear}
-        >
-          <X className="size-3.5" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <TableIconAction
+                className="text-destructive hover:text-destructive-foreground"
+                aria-label={clearLabel}
+                disabled={clearDisabled}
+                onClick={onClear}
+              >
+                <Link2Off className="h-4 w-4" />
+              </TableIconAction>
+            }
+          />
+          <TooltipContent>
+            {clearTooltip ?? clearLabel}
+          </TooltipContent>
+        </Tooltip>
       ) : null}
     </div>
   );

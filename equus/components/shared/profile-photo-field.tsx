@@ -1,14 +1,15 @@
-"use client";
-
 /**
- * Profile photo picker — circular preview, hover overlay on desktop, tap-to-change on mobile.
+ * Profile photo picker — circular avatar or rectangular cover preview.
  * Parent owns upload state and submit.
  * Fully reusable — accepts display strings via `labels` prop, no i18n namespace coupling.
  *
  * Used by:
  * - `ProfileForm` (profile page)
  * - `CreateHorseForm` (horse create page)
+ * - `HorseHubHero` (avatar + cover variants)
  */
+
+"use client";
 
 import { Camera, Trash2 } from "lucide-react";
 import { useEffect, useId } from "react";
@@ -31,6 +32,13 @@ export type ProfilePhotoFieldProps = {
   previewUrl?: string;
   initials: string;
   disabled?: boolean;
+  /** `avatar` (default) = circular; `cover` = full-width hero band. */
+  variant?: "avatar" | "cover";
+  /** When `cover` + `fill`, the band fills its parent (hero full-bleed). */
+  fill?: boolean;
+  /** Avatar diameter only (`cover` ignores this). Default `lg` (8rem). */
+  avatarSize?: "sm" | "md" | "lg" | "xl";
+  className?: string;
   onFileSelect: (file: File | undefined) => void;
   onPreviewClear: () => void;
   onError?: (message: string) => void;
@@ -49,6 +57,10 @@ export function ProfilePhotoField({
   previewUrl,
   initials,
   disabled = false,
+  variant = "avatar",
+  fill = false,
+  avatarSize = "lg",
+  className,
   onFileSelect,
   onPreviewClear,
   onError,
@@ -58,6 +70,9 @@ export function ProfilePhotoField({
   const inputId = useId();
   const displayImageUrl = previewUrl ?? imageUrl;
   const hasNewPreview = Boolean(previewUrl);
+  const isCover = variant === "cover";
+  const avatarSizeClass =
+    avatarSize === "sm" ? "size-20" : avatarSize === "md" ? "size-24" : avatarSize === "lg" ? "size-32" : "size-40";
 
   useEffect(() => {
     return () => {
@@ -91,19 +106,40 @@ export function ProfilePhotoField({
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 sm:items-start sm:gap-6">
-      <div className="relative">
+    <div
+      className={cn(
+        isCover ? "w-full" : "flex flex-col items-center gap-3 sm:items-start sm:gap-6",
+        className,
+      )}
+    >
+      <div className={cn("relative", isCover ? cn("w-full", fill && "h-full") : undefined)}>
         <div
           className={cn(
-            "size-32 overflow-hidden rounded-full",
+            "overflow-hidden",
+            isCover
+              ? cn("w-full rounded-none", fill ? "h-full" : "h-36 sm:h-48")
+              : cn(avatarSizeClass, "rounded-full"),
             !displayImageUrl && "bg-muted",
           )}
         >
           {displayImageUrl ? (
-            <Avatar className="size-full rounded-full">
-              <AvatarImage src={displayImageUrl} alt="" className="object-cover" />
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
+            isCover ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={displayImageUrl}
+                alt=""
+                className="size-full object-cover"
+              />
+            ) : (
+              <Avatar className="size-full rounded-full">
+                <AvatarImage src={displayImageUrl} alt="" className="object-cover" />
+                <AvatarFallback>{initials}</AvatarFallback>
+              </Avatar>
+            )
+          ) : isCover ? (
+            <div className="flex size-full items-center justify-center bg-muted">
+              <Camera className="size-8 text-muted-foreground" aria-hidden />
+            </div>
           ) : (
             <div className="flex size-full items-center justify-center">
               <Avatar className="size-full rounded-full">
@@ -115,8 +151,10 @@ export function ProfilePhotoField({
 
         <div
           className={cn(
-            "absolute inset-0 flex flex-col items-center justify-center rounded-full bg-overlay/40 text-overlay-foreground opacity-0 transition-opacity",
+            "absolute inset-0 flex flex-col items-center justify-center bg-overlay/40 text-overlay-foreground opacity-0 transition-opacity",
+            isCover ? "rounded-none" : "rounded-full",
             !disabled && "sm:hover:opacity-100",
+            !disabled && "max-sm:opacity-100 max-sm:bg-overlay/25",
           )}
         >
           <input
@@ -135,7 +173,7 @@ export function ProfilePhotoField({
               disabled && "cursor-not-allowed",
             )}
           >
-            <Camera className="size-9" aria-hidden />
+            <Camera className={cn(isCover ? "size-8" : "size-9")} aria-hidden />
             <span className="text-xs font-medium">{labels.photoChange}</span>
           </label>
         </div>
@@ -145,7 +183,10 @@ export function ProfilePhotoField({
             type="button"
             variant="destructive"
             size="icon"
-            className="absolute bottom-0 left-0 size-8 rounded-full"
+            className={cn(
+              "absolute size-8 rounded-full",
+              isCover ? "bottom-2 left-2" : "bottom-0 left-0",
+            )}
             onClick={handleRemovePreview}
             disabled={disabled}
             title={labels.photoRemovePreview}

@@ -16,6 +16,7 @@ import {
   type DataTableColumnDef,
 } from "@/components/table";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { Spinner } from "@/components/ui/spinner.tsx";
 import { useHorseAuditLogs } from "@/hooks/queries/useHorseAudit.ts";
 import { relationshipTypeEnums } from "@/utils/enums.ts";
 
@@ -46,7 +47,7 @@ const TEAM_SOURCE_TYPES = ["owner", "co_owner", "responsible", "system", "unknow
 export function HorseHistoryAuditSection({ horseId }: Props) {
   const t = useTranslations("horseHistory");
   const tProviderTypes = useTranslations("invites.horseProviders.types");
-  const { data: logs = [], isPending } = useHorseAuditLogs(horseId);
+  const { data: logs = [], isPending, isError } = useHorseAuditLogs(horseId);
 
   function formatAction(actionType: string): string {
     const key = actionType.replace(/\./g, "_");
@@ -117,7 +118,11 @@ export function HorseHistoryAuditSection({ horseId }: Props) {
   ];
 
   if (isPending) {
-    return <Skeleton className="h-[400px] w-full rounded-lg" />;
+    return <HorseHistoryAuditSkeleton />;
+  }
+
+  if (isError) {
+    return <p className="text-sm text-destructive">{t("loadFailed")}</p>;
   }
 
   const rows: LogRow[] = logs.map((log) => {
@@ -146,5 +151,16 @@ export function HorseHistoryAuditSection({ horseId }: Props) {
       columnOrder={[...COLUMN_ORDER]}
       defaultColumnOrder={[...COLUMN_ORDER]}
     />
+  );
+}
+
+function HorseHistoryAuditSkeleton() {
+  return (
+    <div className="relative w-full h-full">
+      <div className="absolute inset-0 z-10 flex items-center justify-center">
+        <Spinner className="size-6" />
+      </div>
+      <Skeleton className="h-full w-full rounded-lg" />
+    </div>
   );
 }

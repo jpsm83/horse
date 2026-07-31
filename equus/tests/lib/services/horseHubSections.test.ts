@@ -38,6 +38,20 @@ describe("buildHorseHubSections", () => {
     },
   };
 
+  it("includes identity detail fields for public identity", () => {
+    const rich = {
+      ...horse,
+      registeredName: "Legacy Name",
+      dateOfBirth: new Date("2016-05-12T00:00:00.000Z"),
+      countryOfBirth: "US",
+    };
+    const sections = buildHorseHubSections(rich, guest);
+    expect(sections.identity?.registeredName).toBe("Legacy Name");
+    expect(sections.identity?.countryOfBirth).toBe("US");
+    expect(sections.identity?.dateOfBirth).toBeDefined();
+    expect(sections.identity?.age).toBeDefined();
+  });
+
   it("omits forbidden sections for guests independently", () => {
     const sections = buildHorseHubSections(horse, guest);
     expect(sections.identity).toBeDefined();
@@ -80,18 +94,24 @@ describe("buildHorseHubSections", () => {
 });
 
 describe("deriveAllowedTabs", () => {
-  it("guest gets only public tabs", () => {
+  it("guest gets only hub tab", () => {
     const tabs = deriveAllowedTabs("guest");
-    const expected: HorseTab[] = ["hub", "planning", "media", "documents"];
-    expect(tabs.sort()).toEqual(expected.sort());
+    expect(tabs).toEqual(["hub"]);
   });
 
   it("public role gets same tabs as guest", () => {
     expect(deriveAllowedTabs("public").sort()).toEqual(deriveAllowedTabs("guest").sort());
   });
 
-  it("related role gets same tabs as guest/public", () => {
-    expect(deriveAllowedTabs("related").sort()).toEqual(deriveAllowedTabs("guest").sort());
+  it("related role gets hub, planning, media, documents", () => {
+    const tabs = deriveAllowedTabs("related");
+    expect(tabs).toEqual(
+      expect.arrayContaining(["hub", "planning", "media", "documents"]),
+    );
+    expect(tabs).not.toContain("connect");
+    expect(tabs).not.toContain("profile");
+    expect(tabs).not.toContain("history");
+    expect(tabs).not.toContain("admin");
   });
 
   it("responsible gets all tabs except admin", () => {

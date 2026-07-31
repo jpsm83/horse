@@ -6,15 +6,28 @@ import {
   Trash2,
   Play,
   ImageIcon,
+  ImagePlus,
   Eye,
   EyeOff,
   Upload,
   Loader2,
+  UserCircle,
+  PanelTop,
 } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner.tsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog.tsx";
 import { PendingDialog } from "@/components/shared/pending-dialog.tsx";
 import {
@@ -29,6 +42,7 @@ import {
   useToggleMediaVisibility,
   useUploadMedia,
 } from "@/hooks/queries/useMedia.ts";
+import { useUpdateHorse } from "@/hooks/queries/useHorse.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { HorseMediaLightboxDialog } from "@/components/horses/media/horse-media-lightbox-dialog.tsx";
 import type { PublicMedia } from "@/lib/services/mediaService";
@@ -45,12 +59,22 @@ type HorseMediaGalleryTileImageProps = {
 };
 
 /** Owns load state; remount via key={src} when the URL changes. */
-function HorseMediaGalleryTileImage({ src, alt }: HorseMediaGalleryTileImageProps) {
+function HorseMediaGalleryTileImage({
+  src,
+  alt,
+}: HorseMediaGalleryTileImageProps) {
   const [loaded, setLoaded] = useState(false);
 
   return (
     <>
-      {!loaded && <Skeleton className="absolute inset-0 size-full rounded-none" />}
+      {!loaded && (
+        <div className="relative w-full h-full">
+          <div className="absolute inset-0 z-10 flex items-center justify-center">
+            <Spinner className="size-6" />
+          </div>
+          <Skeleton className="absolute inset-0 size-full rounded-none" />
+        </div>
+      )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
@@ -71,6 +95,8 @@ type HorseMediaGalleryTileProps = {
   onOpen: () => void;
   onToggleVisibility: () => void;
   onRequestDelete: () => void;
+  onRequestSetAs?: () => void;
+  setAsPending?: boolean;
 };
 
 function HorseMediaGalleryTile({
@@ -78,11 +104,15 @@ function HorseMediaGalleryTile({
   onOpen,
   onToggleVisibility,
   onRequestDelete,
+  onRequestSetAs,
+  setAsPending = false,
 }: HorseMediaGalleryTileProps) {
+  const t = useTranslations("horseMedia");
   const imageSrc =
     item.type === "image" || item.thumbnailUrl
       ? (item.thumbnailUrl ?? item.url)
       : null;
+  const canSetAsImage = item.type === "image" && Boolean(onRequestSetAs);
 
   return (
     <div
@@ -110,6 +140,21 @@ function HorseMediaGalleryTile({
       )}
 
       <div className="absolute top-1 right-1 z-20 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        {canSetAsImage ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 rounded-full bg-overlay/70 text-overlay-foreground hover:bg-overlay/90 hover:text-overlay-foreground border-overlay-foreground"
+            disabled={setAsPending}
+            aria-label={t("setAsImage")}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRequestSetAs?.();
+            }}
+          >
+            <ImagePlus className="size-3.5" />
+          </Button>
+        ) : null}
         <Button
           variant="ghost"
           size="icon"
@@ -167,7 +212,10 @@ function PendingUploadDialogContent({
   removeLabel,
 }: PendingUploadDialogProps) {
   const pendingFiles = files.filter(
-    (f) => f.status === "pending" || f.status === "uploading" || f.status === "error",
+    (f) =>
+      f.status === "pending" ||
+      f.status === "uploading" ||
+      f.status === "error",
   );
 
   function removeFile(id: string) {
@@ -245,7 +293,10 @@ function PendingUploadDialogContent({
         })}
       </div>
       <div className="flex justify-end">
-        <Button onClick={onUpload} disabled={isUploading || pendingFiles.length === 0}>
+        <Button
+          onClick={onUpload}
+          disabled={isUploading || pendingFiles.length === 0}
+        >
           {isUploading ? (
             <>
               <Loader2 className="mr-1 h-4 w-4 animate-spin" />
@@ -271,13 +322,15 @@ export function HorseMediaGallerySection({
   const t = useTranslations("horseMedia");
   const tCommon = useTranslations("common");
   const toast = useAppToast();
-  const { data: media = [], isPending } = useMedia(horseId);
+  const { data: media = [], isPending, isError } = useMedia(horseId);
   const deleteMutation = useDeleteMedia(horseId);
   const toggleVisibilityMutation = useToggleMediaVisibility(horseId);
   const uploadMutation = useUploadMedia(horseId);
+  const updateHorse = useUpdateHorse();
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [setAsTarget, setSetAsTarget] = useState<PublicMedia | null>(null);
   const [files, setFiles] = useState<UploadedFileState[]>([]);
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
   const [isUploading, setIsUploading] = useState(false);
@@ -305,6 +358,30 @@ export function HorseMediaGallerySection({
   function goNext() {
     setLightboxIndex((prev) =>
       prev !== null && prev < media.length - 1 ? prev + 1 : prev,
+    );
+  }
+
+  function handleSetAsImage(role: "profile" | "hero") {
+    if (!setAsTarget) return;
+    const item = setAsTarget;
+    const patch =
+      role === "profile"
+        ? { profileImageUrl: item.url }
+        : { heroImageUrl: item.url };
+    updateHorse.mutate(
+      { horseId, patch },
+      {
+        onSuccess: () => {
+          toast.success(
+            role === "profile" ? t("setAsProfileSuccess") : t("setAsHeroSuccess"),
+          );
+          setSetAsTarget(null);
+        },
+        onError: () =>
+          toast.error(
+            role === "profile" ? t("setAsProfileError") : t("setAsHeroError"),
+          ),
+      },
     );
   }
 
@@ -386,13 +463,11 @@ export function HorseMediaGallerySection({
   }
 
   if (isPending) {
-    return (
-      <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <Skeleton key={i} className="aspect-square w-full rounded-lg" />
-        ))}
-      </div>
-    );
+    return <HorseMediaGallerySkeleton />;
+  }
+
+  if (isError) {
+    return <p className="text-sm text-destructive">{t("galleryLoadFailed")}</p>;
   }
 
   return (
@@ -430,6 +505,8 @@ export function HorseMediaGallerySection({
               );
             }}
             onRequestDelete={() => setDeleteTarget(item.id)}
+            onRequestSetAs={() => setSetAsTarget(item)}
+            setAsPending={updateHorse.isPending}
           />
         ))}
       </div>
@@ -485,8 +562,54 @@ export function HorseMediaGallerySection({
             if (!item) return;
             setDeleteTarget(item.id);
           }}
+          onRequestSetAs={() => {
+            const item = media[lightboxIndex];
+            if (!item || item.type !== "image") return;
+            setSetAsTarget(item);
+          }}
+          setAsPending={updateHorse.isPending}
         />
       )}
+
+      <AlertDialog
+        open={setAsTarget !== null}
+        onOpenChange={(open) => {
+          if (!open && !updateHorse.isPending) setSetAsTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("setAsConfirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("setAsConfirmDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+            <Button
+              type="button"
+              disabled={updateHorse.isPending}
+              onClick={() => handleSetAsImage("profile")}
+              className="w-full sm:w-full"
+            >
+              <UserCircle className="size-4" aria-hidden />
+              {t("setAsProfile")}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={updateHorse.isPending}
+              onClick={() => handleSetAsImage("hero")}
+              className="w-full sm:w-full"
+            >
+              <PanelTop className="size-4" aria-hidden />
+              {t("setAsHero")}
+            </Button>
+            <AlertDialogCancel disabled={updateHorse.isPending}>
+              {tCommon("cancel")}
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <ConfirmDeleteDialog
         open={deleteTarget !== null}
@@ -501,5 +624,16 @@ export function HorseMediaGallerySection({
         onConfirm={handleDelete}
       />
     </>
+  );
+}
+
+function HorseMediaGallerySkeleton() {
+  return (
+    <div className="relative w-full h-full">
+      <div className="absolute inset-0 z-10 flex items-center justify-center">
+        <Spinner className="size-6" />
+      </div>
+      <Skeleton className="h-full w-full rounded-lg" />
+    </div>
   );
 }

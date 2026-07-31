@@ -7,9 +7,9 @@ import { queryKeys } from "@/lib/api/queryKeys";
 import type { PublicRelationship } from "@/lib/services/relationshipService";
 import type { CreateHorsePayload } from "@/lib/utils/horseFormMapping";
 import type { PublicOwnershipTransfer } from "@/lib/services/ownershipTransferService";
-import type { HorseListResult, HorseListFilters, HorseViewResponse } from "@/lib/services/horseService.ts";
+import type { HorseListResult, HorseListFilters, HorseViewResponse, HorseHubSocialResponse } from "@/lib/services/horseService.ts";
 
-// --- Horse view (unified role-aware) ---
+// --- Horse view (unified role-aware chrome — no Hub social lists) ---
 
 async function fetchHorseView(horseId: string): Promise<HorseViewResponse> {
   const response = await fetchWithAuth(`/api/v1/horses/${encodeURIComponent(horseId)}`);
@@ -23,6 +23,24 @@ export function useHorseView(horseId: string | undefined) {
     enabled: !!horseId,
     placeholderData: (previousData) => previousData,
     retry: false,
+  });
+}
+
+// --- Hub social lists (guest-safe gallery / planning / connections) ---
+
+async function fetchHorseHubSocial(horseId: string): Promise<HorseHubSocialResponse> {
+  const response = await fetchWithAuth(
+    `/api/v1/horses/${encodeURIComponent(horseId)}/hub-social`,
+  );
+  return parseApiResponse<HorseHubSocialResponse>(response);
+}
+
+export function useHorseHubSocial(horseId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.horses.hubSocial(horseId!),
+    queryFn: () => fetchHorseHubSocial(horseId!),
+    enabled: !!horseId,
+    placeholderData: (previousData) => previousData,
   });
 }
 

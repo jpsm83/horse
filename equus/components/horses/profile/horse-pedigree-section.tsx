@@ -29,6 +29,7 @@ type PedigreeParentEntityChipProps = {
   horseId?: string;
   fallbackName: string;
   clearLabel: string;
+  clearTooltip?: string;
   clearDisabled?: boolean;
   onClear: () => void;
 };
@@ -38,6 +39,7 @@ function PedigreeParentEntityChip({
   horseId,
   fallbackName,
   clearLabel,
+  clearTooltip,
   clearDisabled,
   onClear,
 }: PedigreeParentEntityChipProps) {
@@ -58,6 +60,7 @@ function PedigreeParentEntityChip({
       subtitle={ownerEmail || undefined}
       imageUrl={imageUrl}
       clearLabel={clearLabel}
+      clearTooltip={clearTooltip}
       clearDisabled={clearDisabled}
       onClear={onClear}
     />
@@ -190,6 +193,7 @@ export function HorsePedigreeSection({ horseId, control }: HorsePedigreeSectionP
                 horseId={pedigree?.sireHorseId}
                 fallbackName={pedigree?.sireName ?? t("sireLabel")}
                 clearLabel={t("disconnect")}
+                clearTooltip={t("disconnectTooltip")}
                 clearDisabled={isConnecting}
                 onClear={() => handleDisconnect("sire")}
               />
@@ -211,6 +215,7 @@ export function HorsePedigreeSection({ horseId, control }: HorsePedigreeSectionP
                 horseId={pedigree?.damHorseId}
                 fallbackName={pedigree?.damName ?? t("damLabel")}
                 clearLabel={t("disconnect")}
+                clearTooltip={t("disconnectTooltip")}
                 clearDisabled={isConnecting}
                 onClear={() => handleDisconnect("dam")}
               />

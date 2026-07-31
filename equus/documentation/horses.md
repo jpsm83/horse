@@ -20,7 +20,8 @@ Related:
 |--------|------|---------|
 | `GET` | `/api/v1/horses?mine=true&page=1&limit=20` | List horses — optional auth; `mine` filters to owned/co-owned for authenticated users; returns public horses for guests |
 | `POST` | `/api/v1/horses` | Create a horse owned by the authenticated user (`mainOwnerUserId`, `createdByUserId`) |
-| `GET` | `/api/v1/horses/:id` | **Unified role-aware horse view** — returns `{ viewerRole, allowedTabs, horse }` (replaces the retired `/owner` and `/hub` endpoints). Auth optional; `viewerRole` determines payload scope. |
+| `GET` | `/api/v1/horses/:id` | **Unified role-aware horse view** — returns `{ viewerRole, allowedTabs, horse }` (replaces the retired `/owner` and `/hub` endpoints). Auth optional; `viewerRole` determines payload scope. Slim chrome: cheap Hub section projections only — **no** gallery/planning/connections lists. |
+| `GET` | `/api/v1/horses/:id/hub-social` | **Hub social lists** (guest-safe) — `{ sections: { gallery?, planning?, connections? } }` filtered by L1+L2. Auth optional. Hub tab only — not seeded by horse layout. |
 | `PATCH` | `/api/v1/horses/:id` | Owner profile field patch (not section visibility) |
 | `GET` | `/api/v1/horses/:id/relationships?status=pending` | Outbound pending invites sent by the owner for this horse |
 | `PATCH` | `/api/v1/horses/:id/discovery` | Layer-1 `profileVisibility` only (Admin Visibility form Save) |
@@ -46,6 +47,24 @@ type HorseViewResponse = {
 };
 ```
 
+`horse.sections` on this endpoint holds **cheap Hub projections** only (`identity`, `identification`, `pedigree`, `about`, `ownership`) — field slices from the horse document after L1+L2. It does **not** include `gallery` / `planning` / `connections` lists (those require Media / Event / Relationship queries).
+
+Guest-visible chrome also includes `profileImageUrl` and `heroImageUrl` (Hub avatar + cover). Owners set them from Hub (`ProfilePhotoField` upload → media + PATCH) or Media tab (“Set as profile/hero”).
+
+### `GET /api/v1/horses/:id/hub-social` — Hub list payload
+
+```ts
+type HorseHubSocialResponse = {
+  sections: {
+    gallery?: HorseHubGalleryItem[];
+    planning?: HorseHubPlanningItem[];
+    connections?: HorseHubConnectionItem[];
+  };
+};
+```
+
+Auth optional (same L1 rules as the horse view). Used by Hub zones via `useHorseHubSocial` — not by Media / Planning / Connect management tabs (those keep their auth-required list APIs).
+
 `viewerRole` derivation (server-side):
 - `main_owner` — `horse.mainOwnerUserId === userId`
 - `co_owner` — userId in `horse.coOwners[]`
@@ -58,23 +77,30 @@ type HorseViewResponse = {
 
 ### Hub tab — social profile page
 
-The Hub tab at `/horses/[horseId]` is a **read-only social profile** for the horse. It reads from the TanStack cache (seeded by `layout.tsx` RSC — no extra network request). Sections present in `horse.sections` are rendered; absent keys mean the viewer lacks access or the owner hid the section.
+The Hub tab at `/horses/[horseId]` is a **read-only social profile** for the horse. It reads the slim horse view from the TanStack cache (seeded by `layout.tsx` RSC — no Media/Event/Relationship queries). Cheap `horse.sections` keys gate presence for identity/about/pedigree/etc. Gallery / planning / connections **lists** load via `GET /api/v1/horses/:id/hub-social` (`useHorseHubSocial`) when those Hub zones are wired — guest-safe and Hub-only (not seeded by the shared layout).
 
-New layout (components under `components/horses/hub/`):
+Layout: full-width hero, then a three-column body on `lg` (left details, center media, right pedigree/people); stacked on smaller screens.
+
+Components under `components/horses/hub/`:
 ```
 HubContent
-├── HorseHubHero          — cover/profile image, name, breed, sex
-├── HorseHubStats         — age, color, height as highlight cards; discipline tags
-├── HorseHubAbout         — description
-├── HorseHubGallery       — masonry/grid photo gallery with lightbox
-├── HorseHubUpcomingEvents — next 5 planning events
-├── HorseHubPedigree      — sire/dam/bloodline callout
-├── HorseHubTeam          — ownership count + connections list
-└── HorseHubIdentification — registry/microchip/passport
+├── HorseHubHero          — cover, avatar, name, quick stats, actions  (useHorseView)
+├── Left column
+│   ├── HorseHubAbout         — metadata / identity details list  (useHorseView sections)
+│   ├── HorseHubDisciplines   — discipline tags
+│   └── HorseHubDescription  — biography text
+├── Center column
+│   └── HorseHubGallery      — media grid → useHorseHubSocial (when wired)
+└── Right column
+    ├── HorseHubPedigree     — sire/dam + bloodline notes
+    └── HorseHubPeople       — owner, co-owners, representatives
 ```
 
+Deferred: upcoming planning events block (would also use hub-social `planning`).
+
 - Page: `app/[locale]/horses/[horseId]/page.tsx` + `client.tsx`
-- Data: reads `useHorseView(horseId)` — cache hit from layout RSC, no separate fetch
+- Chrome data: `useHorseView(horseId)` — cache hit from layout RSC
+- Social lists: `useHorseHubSocial(horseId)` — Hub-only, not layout-seeded
 - i18n: `horseHub` namespace
 
 ---
@@ -122,7 +148,7 @@ hubSections: {
 }
 ```
 
-Keys match section responsibility (1:1 with Profile/Admin/Media/Planning/Connect sections that have popovers). **Hub-facing filtered DTO:** `identity`, `identification`, `pedigree`, `about`, `ownership`, `gallery`, `planning`, `connections`. Admin-only keys stay off Hub. No per-section `entityIds`.
+Keys match section responsibility (1:1 with Profile/Admin/Media/Planning/Connect sections that have popovers). **Hub-facing data:** cheap projections on `GET …/horses/:id` (`identity`, `identification`, `pedigree`, `about`, `ownership`); list sections on `GET …/hub-social` (`gallery`, `planning`, `connections`). Admin-only keys stay off Hub. No per-section `entityIds`.
 
 **Read flow:** Layer 1 → Layer 2 → render/return only allowed data. Do **not** ship full horse and hide in React.
 
@@ -171,7 +197,7 @@ Authenticated create flow at `/horses/new` (locale-prefixed for `es`). The form 
 **Form sections (top to bottom):**
 1. **Media** — profile photo (`ProfilePhotoField` from `components/shared/`), gallery (`FileUpload` from `components/shared/`), description, notes
 2. **Horse identity** — name, registeredName, breed, sex, dateOfBirth, color, heightHands, disciplines (multi-select only; no separate primary), registryId, microchipId, passportNumber, countryOfBirth
-3. **Commercial** — estimatedValue, valueCurrency, saleStatus, askingPrice, acquisitionDate, acquisitionSource, showValuePublicly
+3. **Commercial** — estimatedValue, valueCurrency, saleStatus, askingPrice, acquisitionDate. Acquisition source (`acquisitionSourceUserId`) is read-only — auto-set to the creating owner, updated on ownership transfer, and falls back to the current owner for display.
 4. **Pedigree** — sireName, damName, bloodlineNotes (sireHorseId/damHorseId set via consent-based connections)
 5. **Discovery** — profileVisibility
 
@@ -222,8 +248,7 @@ Owner-only tab. **Visibility** (`HorseVisibilitySection`) edits `profileVisibili
 - Components under `components/horses/admin/` (`horse-visibility-section.tsx`, `horse-value-section.tsx`, ownership/responsible sections)
 - Sale patches: `lib/utils/horseSalePatch.ts` → `useUpdateHorseSale`
 - Action sections (own mutations):
-  - Admin history table (`components/horses/admin/horse-admin-history-section.tsx`) — visual SoT for horse `DataTable`s; shared `components/table` helpers (`TableUserAvatarCell`, `TableRowAction`, `TableIconAction`); remove via confirm
-  - **Proactive representatives / co-owners:** `EntityChip` (`entityType="user"`); **Add** (`SectionTitleAction`) → `HorseAdminRoleInviteDialog` (`PendingDialog` + `UserInviteSection`)
+  - **Owner / co-owners / proactive representatives:** `EntityChip` (`entityType="user"`) with joined date; **Add** (`SectionTitleAction`) → `HorseAdminRoleInviteDialog` (`PendingDialog` + `UserInviteSection`); remove via `ConfirmDeleteDialog`
   - **Ownership management:** current owner `EntityChip`; **Change owner** (`SectionTitleAction`) → `HorseOwnershipChangeDialog` (`PendingDialog` then `ConfirmActionDialog` for `transfer_main`)
   - Shared identity card: `components/shared/entity-chip.tsx` + `lib/navigation/entityPaths.ts`
 - Same unsaved-changes guard as Profile when sale/visibility fields are dirty

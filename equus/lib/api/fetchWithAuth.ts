@@ -9,6 +9,7 @@
 import {
   refreshAccessToken,
   shouldAttemptTokenRefresh,
+  isAccessTokenExpired,
   resetOptionalUserCache,
   notifySessionExpired,
   ApiClientError,
@@ -25,6 +26,10 @@ export async function fetchWithAuth(
   init?: RequestInit,
   options?: { notifyOnExpired?: boolean },
 ): Promise<Response> {
+  if (shouldAttemptTokenRefresh(input) && isAccessTokenExpired()) {
+    await refreshAccessToken();
+  }
+
   let response = await fetch(input, { ...init, credentials: "include" });
 
   if (response.status === 401 && shouldAttemptTokenRefresh(input)) {

@@ -18,7 +18,7 @@ async function createUser(email: string) {
   });
 }
 
-describe("getHorseHub social sections", () => {
+describe("getHorseHubSocial", () => {
   it("includes gallery planning and connections when Layer 2 allows", async () => {
     await connectDb();
     const owner = await createUser(`hub-social-${Date.now()}@example.com`);
@@ -66,13 +66,19 @@ describe("getHorseHub social sections", () => {
       respondedAt: new Date(),
     });
 
-    const hub = await horseService.getHorseView(horseId);
-    expect(hub.horse.sections.gallery?.length).toBe(1);
-    expect(hub.horse.sections.planning?.length).toBe(1);
-    expect(hub.horse.sections.connections?.[0]?.displayName).toBe("Sunrise Stable");
-    expect(hub.viewerRole).toBe("guest");
-    expect(hub.allowedTabs).toContain("hub");
-    expect(hub.allowedTabs).not.toContain("admin");
+    const social = await horseService.getHorseHubSocial(horseId);
+    expect(social.sections.gallery?.length).toBe(1);
+    expect(social.sections.planning?.length).toBe(1);
+    expect(social.sections.connections?.[0]?.displayName).toBe("Sunrise Stable");
+
+    // Shared view stays slim — no social lists even when data exists
+    const view = await horseService.getHorseView(horseId);
+    expect(view.horse.sections.gallery).toBeUndefined();
+    expect(view.horse.sections.planning).toBeUndefined();
+    expect(view.horse.sections.connections).toBeUndefined();
+    expect(view.viewerRole).toBe("guest");
+    expect(view.allowedTabs).toContain("hub");
+    expect(view.allowedTabs).not.toContain("admin");
   });
 
   it("omits gallery when Layer 2 gallery is owner-only for guests", async () => {
@@ -98,8 +104,11 @@ describe("getHorseHub social sections", () => {
       isActive: true,
     });
 
-    const hub = await horseService.getHorseView(String(horse._id));
-    expect(hub.horse.sections.gallery).toBeUndefined();
+    const social = await horseService.getHorseHubSocial(String(horse._id));
+    expect(social.sections.gallery).toBeUndefined();
+
+    const view = await horseService.getHorseView(String(horse._id));
+    expect(view.horse.sections.gallery).toBeUndefined();
   });
 });
 

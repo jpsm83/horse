@@ -398,7 +398,15 @@ async function applyEntityOwnershipChange(
             { coOwners: null },
           ],
         },
-        { $set: { mainOwnerUserId: receiverUserId } },
+        {
+          $set: {
+            mainOwnerUserId: receiverUserId,
+            // The previous owner becomes the horse's acquisition source (read-only).
+            ...(entityType === "horse"
+              ? { acquisitionSourceUserId: mainOwnerUserId }
+              : {}),
+          },
+        },
         { returnDocument: "after" },
       );
 

@@ -86,7 +86,7 @@ export function HorseAdminRoleInviteSection({
       {members.length === 0 ? (
         <p className="text-sm text-muted-foreground">{emptyLabel}</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-4">
           {members.map((member) => (
             <li key={member.userId}>
               <EntityChip
@@ -96,11 +96,17 @@ export function HorseAdminRoleInviteSection({
                 subtitle={member.email}
                 imageUrl={member.imageUrl}
                 clearLabel={t("remove")}
+                clearTooltip={t("removeTooltip")}
                 clearDisabled={createTransfer.isPending}
                 onClear={() =>
                   setRemoveTarget({ userId: member.userId, name: member.label })
                 }
               />
+              {member.joinedAt ? (
+                <p className="mt-2 text-xs text-muted-foreground text-end">
+                  {t("sinceDate", { date: new Date(member.joinedAt).toLocaleDateString() })}
+                </p>
+              ) : null}
             </li>
           ))}
         </ul>

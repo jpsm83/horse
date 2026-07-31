@@ -31,7 +31,9 @@ export function FlagIcon({
   title?: string;
   className?: string;
 }) {
-  const FlagComponent = FlagIcons[code as keyof typeof FlagIcons] as
+  const FlagComponent = FlagIcons[
+    code.trim().toUpperCase() as keyof typeof FlagIcons
+  ] as
     | React.ComponentType<FlagIconProps>
     | undefined;
 

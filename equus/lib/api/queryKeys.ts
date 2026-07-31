@@ -21,6 +21,8 @@ export const queryKeys = {
     lists: () => [...queryKeys.horses.all, "list"] as const,
     detail: (horseId: string) => [...queryKeys.horses.all, horseId] as const,
     view: (horseId: string) => [...queryKeys.horses.all, horseId, "view"] as const,
+    /** Guest-safe Hub gallery / planning / connections — Hub tab only. */
+    hubSocial: (horseId: string) => [...queryKeys.horses.all, horseId, "hub-social"] as const,
     owner: (horseId: string) => [...queryKeys.horses.all, horseId, "owner"] as const,
     hub: (horseId: string) => [...queryKeys.horses.all, horseId, "hub"] as const,
     relationships: (horseId: string) => [...queryKeys.horses.all, horseId, "relationships"] as const,

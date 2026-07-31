@@ -45,4 +45,30 @@ describe("createHorseFormSchema", () => {
 
     expect(result.success).toBe(true);
   });
+
+  it("rejects heightHands above the server max of 30", () => {
+    const result = createHorseFormSchema.safeParse({
+      ...emptyCreateHorseFormValues,
+      name: "Comet",
+      breed: "Lusitano",
+      sex: "Gelding",
+      countryOfBirth: "US",
+      heightHands: "123",
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts heightHands within range", () => {
+    const result = createHorseFormSchema.safeParse({
+      ...emptyCreateHorseFormValues,
+      name: "Comet",
+      breed: "Lusitano",
+      sex: "Gelding",
+      countryOfBirth: "US",
+      heightHands: "16",
+    });
+
+    expect(result.success).toBe(true);
+  });
 });

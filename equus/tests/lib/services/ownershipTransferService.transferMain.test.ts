@@ -65,6 +65,7 @@ describe("ownershipTransferService.transfer_main", () => {
     expect(String((reloaded?.registration as { payerUserId?: unknown })?.payerUserId)).toBe(
       String(buyer._id),
     );
+    expect(String(reloaded?.acquisitionSourceUserId)).toBe(String(main._id));
     expect(userOwnsEntity(String(main._id), reloaded as Record<string, unknown>)).toBe(
       false,
     );
@@ -151,6 +152,7 @@ describe("ownershipTransferService.transfer_main", () => {
 
     const reloaded = await Horse.findById(horse._id).lean();
     expect(String(reloaded?.mainOwnerUserId)).toBe(String(buyer._id));
+    expect(String(reloaded?.acquisitionSourceUserId)).toBe(String(main._id));
   });
 
   it("rejects accept from a user who is not the designated receiver", async () => {

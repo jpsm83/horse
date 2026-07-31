@@ -81,13 +81,6 @@ export function mapHorseFormValuesToCreatePayload(
   const acquisitionDate = parseOptionalDate(values.acquisitionDate);
   if (acquisitionDate) payload.acquisitionDate = acquisitionDate;
 
-  const acquisitionSource = nonEmpty(values.acquisitionSource);
-  if (acquisitionSource) payload.acquisitionSource = acquisitionSource;
-
-  if (values.showValuePublicly === "true") {
-    payload.showValuePublicly = true;
-  }
-
   // Pedigree
   const sireName = nonEmpty(values.pedigree.sireName);
   const damName = nonEmpty(values.pedigree.damName);

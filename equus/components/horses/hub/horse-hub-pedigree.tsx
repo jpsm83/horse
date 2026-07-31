@@ -1,43 +1,45 @@
+/**
+ * HorseHubPedigree — Hub tab sire/dam + bloodline card (placeholder).
+ *
+ * Assembled by HubContent. Pedigree parents and notes will be wired in a
+ * later pass — no horse props yet.
+ */
+
 "use client";
 
 import { useTranslations } from "next-intl";
 
-import type { HorseHubPedigreeSection } from "@/lib/services/horseService.ts";
+import { Section } from "@/components/shared/section.tsx";
+import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { cn } from "@/lib/utils";
 
 type HorseHubPedigreeProps = {
-  pedigree: HorseHubPedigreeSection;
+  className?: string;
 };
 
-export function HorseHubPedigree({ pedigree }: HorseHubPedigreeProps) {
+export function HorseHubPedigree({ className }: HorseHubPedigreeProps) {
   const t = useTranslations("horseHub");
 
-  const hasData = pedigree.sireName || pedigree.damName || pedigree.bloodlineNotes;
-
-  if (!hasData) {
-    return <p className="text-sm text-muted-foreground">{t("pedigreeEmpty")}</p>;
-  }
-
   return (
-    <div className="flex flex-col gap-3">
-      {(pedigree.sireName || pedigree.damName) && (
-        <dl className="flex flex-wrap gap-3">
-          {pedigree.sireName && (
-            <div className="flex flex-col gap-0.5 rounded-lg border border-border bg-muted/40 px-4 py-2 min-w-[120px]">
-              <dt className="text-xs text-muted-foreground">{t("sire")}</dt>
-              <dd className="text-sm font-semibold">{pedigree.sireName}</dd>
+    <Section title={t("pedigree")} className={cn(className)}>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 2 }).map((_, index) => (
+            <div key={index} className="flex items-center gap-3">
+              <Skeleton className="size-10 shrink-0 rounded-full" />
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-3 w-40" />
+              </div>
             </div>
-          )}
-          {pedigree.damName && (
-            <div className="flex flex-col gap-0.5 rounded-lg border border-border bg-muted/40 px-4 py-2 min-w-[120px]">
-              <dt className="text-xs text-muted-foreground">{t("dam")}</dt>
-              <dd className="text-sm font-semibold">{pedigree.damName}</dd>
-            </div>
-          )}
-        </dl>
-      )}
-      {pedigree.bloodlineNotes && (
-        <p className="text-sm leading-relaxed text-muted-foreground">{pedigree.bloodlineNotes}</p>
-      )}
-    </div>
+          ))}
+        </div>
+        <div className="flex flex-col gap-2 border-t border-border pt-4">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+        </div>
+      </div>
+      <p className="sr-only">{t("placeholder")}</p>
+    </Section>
   );
 }

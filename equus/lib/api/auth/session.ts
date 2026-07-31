@@ -31,6 +31,7 @@ export function shouldAttemptTokenRefresh(url: string): boolean {
 }
 
 let refreshInFlight: Promise<boolean> | null = null;
+let accessTokenExpiresAt = 0;
 let silentAuthFailure = false;
 let suppressSessionExpiredNotification = false;
 let sessionExpiredHandler: (() => void) | null = null;
@@ -91,6 +92,10 @@ export async function refreshAccessToken(): Promise<boolean> {
         method: "POST",
         credentials: "include",
       });
+      if (response.ok) {
+        const body = await response.json();
+        accessTokenExpiresAt = body?.data?.expiresAt ?? Date.now() + 15 * 60 * 1000;
+      }
       return response.ok;
     } catch {
       return false;
@@ -100,6 +105,11 @@ export async function refreshAccessToken(): Promise<boolean> {
   })();
 
   return refreshInFlight;
+}
+
+/** Returns true when the access token is expired or expires within 60 seconds. */
+export function isAccessTokenExpired(): boolean {
+  return Date.now() > accessTokenExpiresAt - 60_000;
 }
 
 /** In-memory cache so public pages (e.g. home) do not re-hit /auth/me on locale navigation. */

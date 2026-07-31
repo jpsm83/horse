@@ -516,8 +516,6 @@
         "saleStatus": "Sale status",
         "askingPrice": "Asking price",
         "acquisitionDate": "Acquisition date",
-        "acquisitionSource": "Acquisition source",
-        "showValuePublicly": "Show value publicly",
         "sireName": "Sire name",
         "damName": "Dam name",
         "bloodlineNotes": "Bloodline notes",
@@ -538,10 +536,6 @@
         "useOwnerContactOptions": {
             "true": "Use my owner contact details",
             "false": "Use a different contact for this horse"
-        },
-        "yesNoOptions": {
-            "true": "Yes",
-            "false": "No"
         },
         "sexOptions": {
             "Stallion": "Stallion",
@@ -708,6 +702,37 @@
         "dam": "Dam",
         "about": "About",
         "aboutEmpty": "No description yet.",
+        "description": "Description",
+        "media": "Media",
+        "people": "People",
+        "placeholder": "Content coming soon.",
+        "emptyValue": "—",
+        "share": "Share",
+        "shareCopied": "Link copied to clipboard.",
+        "shareFailed": "Could not copy link.",
+        "shareCopyLink": "Copy link",
+        "shareTitle": "Meet {name} on Equus",
+        "shareNetworks": {
+            "facebook": "Share on Facebook",
+            "x": "Share on X",
+            "whatsapp": "Share on WhatsApp",
+            "telegram": "Share on Telegram",
+            "linkedin": "Share on LinkedIn",
+            "pinterest": "Share on Pinterest",
+            "email": "Share by email"
+        },
+        "breed": "Breed",
+        "sex": "Sex",
+        "birthday": "Birthday",
+        "registeredNameLabel": "Registered name: {name}",
+        "photoChange": "Change photo",
+        "photoRemovePreview": "Remove preview",
+        "photoInvalidType": "Only image files are allowed",
+        "photoTooLarge": "File size exceeds 5 MB limit",
+        "profileImageUpdated": "Profile image updated.",
+        "heroImageUpdated": "Hero image updated.",
+        "profileImageError": "Failed to update profile image.",
+        "heroImageError": "Failed to update hero image.",
         "gallery": "Gallery",
         "galleryEmpty": "No media to show.",
         "galleryItemAlt": "Horse media",
@@ -822,7 +847,10 @@
         "ownershipConfirmTitle": "Confirm Ownership Transfer",
         "ownershipConfirmDescription": "Are you sure you want to transfer ownership of this horse? This action cannot be undone. Once the recipient accepts, you will permanently lose all rights to this horse.",
         "confirmTransfer": "I understand, transfer ownership",
-        "transferring": "Transferring..."
+        "transferring": "Transferring...",
+        "loadFailed": "Failed to load data. Please try again.",
+        "sinceDate": "Since {date}",
+        "removeTooltip": "Revoke access and remove this user from its role."
     },
     "errors": {
         "EMAIL_NOT_VERIFIED": "Please verify your email before signing in.",
@@ -862,6 +890,7 @@
         "connectAsSire": "Connect as Sire",
         "connectAsDam": "Connect as Dam",
         "disconnect": "Disconnect",
+        "disconnectTooltip": "Remove this pedigree connection. The parent will no longer appear in this horse's lineage.",
         "connected": "Connected",
         "searching": "Searching...",
         "searchError": "Search failed",
@@ -1035,7 +1064,10 @@
         "invitationCancelled": "Invitation cancelled.",
         "invitationCancelFailed": "Failed to cancel invitation.",
         "typeUnknown": "Unknown",
-        "tableLoadFailed": "Failed to load connections. Please try again."
+        "tableLoadFailed": "Failed to load connections. Please try again.",
+        "resendInvitation": "Resend invitation",
+        "invitationResent": "Invitation resent.",
+        "invitationResendFailed": "Failed to resend invitation."
     },
     "horseHistory": {
         "title": "History",
@@ -1078,7 +1110,8 @@
             "document_created": "Document added",
             "document_updated": "Document updated",
             "document_deleted": "Document deleted"
-        }
+        },
+        "loadFailed": "Failed to load history. Please try again."
     },
     "subscription": {
         "title": "Subscription",
@@ -1120,7 +1153,8 @@
             "other": "Other"
         },
         "provider": "Provider",
-        "noProvider": "No provider"
+        "noProvider": "No provider",
+        "loadFailed": "Failed to load planning data. Please try again."
     },
     "horseMedia": {
         "title": "Media & Gallery",
@@ -1145,9 +1179,19 @@
         "deleteError": "Failed to delete media.",
         "visibilityUpdateSuccess": "Visibility updated.",
         "visibilityUpdateError": "Failed to update visibility.",
+        "setAsImage": "Set as Hub image",
+        "setAsProfile": "Set as profile image",
+        "setAsHero": "Set as hero image",
+        "setAsConfirmTitle": "Set as Hub image",
+        "setAsConfirmDescription": "Choose whether this image should be the profile photo or the hero cover on the Hub.",
+        "setAsProfileSuccess": "Profile image updated.",
+        "setAsHeroSuccess": "Hero image updated.",
+        "setAsProfileError": "Failed to set profile image.",
+        "setAsHeroError": "Failed to set hero image.",
         "previous": "Previous",
         "next": "Next",
-        "close": "Close"
+        "close": "Close",
+        "galleryLoadFailed": "Failed to load gallery. Please try again."
     },
     "horseDocuments": {
         "documentsTitle": "Documents",
@@ -1184,7 +1228,8 @@
             "ownership": "Ownership",
             "competition": "Competition",
             "other": "Document"
-        }
+        },
+        "docsLoadFailed": "Failed to load documents. Please try again."
     },
     "metadata": {
         "home": {
@@ -1399,11 +1444,8 @@
         "estimatedValue": "Estimated value",
         "valueCurrency": "Currency",
         "askingPrice": "Asking price",
-        "showValuePublicly": "Show value publicly",
         "acquisitionDate": "Acquisition date",
         "acquisitionSource": "Acquisition source",
-        "yes": "Yes",
-        "no": "No",
         "noChanges": "No changes to save",
         "saved": "Sale settings saved",
         "saveFailed": "Failed to save sale settings",

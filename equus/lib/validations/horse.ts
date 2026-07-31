@@ -66,8 +66,6 @@ export const createHorseSchema = z
     saleStatus: z.enum(saleStatusEnums).optional(),
     askingPrice: z.coerce.number().min(0).optional(),
     acquisitionDate: z.coerce.date().optional(),
-    acquisitionSource: z.string().trim().max(200).optional(),
-    showValuePublicly: z.boolean().optional(),
 
     pedigree: horsePedigreeSchema,
 
@@ -106,10 +104,9 @@ export const updateHorseProfileSchema = z
     saleStatus: z.enum(saleStatusEnums).optional(),
     askingPrice: z.coerce.number().min(0).optional(),
     acquisitionDate: z.coerce.date().optional(),
-    acquisitionSource: z.string().trim().max(200).optional(),
-    showValuePublicly: z.boolean().optional(),
     pedigree: horsePedigreeSchema.optional(),
     profileImageUrl: z.string().url().optional(),
+    heroImageUrl: z.string().url().optional(),
     gallery: z.array(z.string().url()).optional(),
     description: z.string().trim().max(2000).optional(),
   })

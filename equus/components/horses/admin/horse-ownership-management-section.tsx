@@ -36,7 +36,7 @@ export function HorseOwnershipManagementSection({
 
   if (!horse?.isMainOwner) return null;
 
-  const currentOwner = horse.adminTeam.find((member) => member.type === "owner");
+  const currentOwner = horse.adminTeam?.find((member) => member.type === "owner");
 
   if (!currentOwner) {
     return <p className="text-sm text-muted-foreground">{t("currentOwnerMissing")}</p>;
@@ -52,6 +52,11 @@ export function HorseOwnershipManagementSection({
         subtitle={currentOwner.email || undefined}
         imageUrl={currentOwner.imageUrl}
       />
+      {currentOwner.joinedAt ? (
+        <p className="text-xs text-muted-foreground text-end">
+          {t("sinceDate", { date: new Date(currentOwner.joinedAt).toLocaleDateString() })}
+        </p>
+      ) : null}
     </div>
   );
 }

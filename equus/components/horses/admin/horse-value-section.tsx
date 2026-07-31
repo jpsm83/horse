@@ -6,15 +6,26 @@ import { Controller, useWatch, type Control } from "react-hook-form";
 
 import { TextField } from "@/components/forms/text-field.tsx";
 import { HorseSelectField } from "@/components/horses/shared/horse-select-field.tsx";
+import { EntityChip } from "@/components/shared/entity-chip.tsx";
 import { FieldGroup } from "@/components/ui/field";
 import type { SaleFormValues } from "@/lib/validations/horseForms.ts";
 import { currencyEnums } from "@/utils/enums.ts";
 
 type HorseValueSectionProps = {
   control: Control<SaleFormValues>;
+  /** Read-only acquisition source (falls back to the current owner). */
+  acquisitionSourceUser?: {
+    userId: string;
+    name: string;
+    email: string;
+    imageUrl?: string;
+  };
 };
 
-export function HorseValueSection({ control }: HorseValueSectionProps) {
+export function HorseValueSection({
+  control,
+  acquisitionSourceUser,
+}: HorseValueSectionProps) {
   const t = useTranslations("horseSale");
   const tCommon = useTranslations("common");
 
@@ -31,14 +42,6 @@ export function HorseValueSection({ control }: HorseValueSectionProps) {
   const currencyOptions = useMemo(
     () => currencyEnums.map((v) => ({ value: v, label: v })),
     [],
-  );
-
-  const showValueOptions = useMemo(
-    () => [
-      { value: "true", label: t("yes") },
-      { value: "false", label: t("no") },
-    ],
-    [t],
   );
 
   return (
@@ -92,21 +95,6 @@ export function HorseValueSection({ control }: HorseValueSectionProps) {
             />
           )}
         />
-        <Controller
-          name="showValuePublicly"
-          control={control}
-          render={({ field, fieldState }) => (
-            <HorseSelectField
-              id="admin-showValuePublicly"
-              label={t("showValuePublicly")}
-              value={field.value}
-              onChange={field.onChange}
-              invalid={fieldState.invalid}
-              error={fieldState.error}
-              options={showValueOptions}
-            />
-          )}
-        />
         <TextField
           control={control}
           name="acquisitionDate"
@@ -114,13 +102,22 @@ export function HorseValueSection({ control }: HorseValueSectionProps) {
           label={t("acquisitionDate")}
           type="date"
         />
-        <TextField
-          control={control}
-          name="acquisitionSource"
-          id="admin-acquisitionSource"
-          label={t("acquisitionSource")}
-        />
       </div>
+
+      {acquisitionSourceUser ? (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-medium text-muted-foreground">
+            {t("acquisitionSource")}
+          </p>
+          <EntityChip
+            entityType="user"
+            entityId={acquisitionSourceUser.userId}
+            title={acquisitionSourceUser.name}
+            subtitle={acquisitionSourceUser.email || undefined}
+            imageUrl={acquisitionSourceUser.imageUrl}
+          />
+        </div>
+      ) : null}
     </FieldGroup>
   );
 }

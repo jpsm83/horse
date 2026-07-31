@@ -6,6 +6,7 @@
 export {
   refreshAccessToken,
   shouldAttemptTokenRefresh,
+  isAccessTokenExpired,
   resetOptionalUserCache,
   notifySessionExpired,
   ApiClientError,

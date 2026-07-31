@@ -385,15 +385,15 @@ flowchart TB
 | Tab | Minimum viewerRole |
 |-----|--------------------|
 | hub | `guest` |
-| planning | `guest` |
-| media | `guest` |
-| documents | `guest` |
+| planning | `related` |
+| media | `related` |
+| documents | `related` |
 | connect | `responsible` |
 | profile | `responsible` |
 | history | `responsible` |
 | admin | `main_owner` |
 
-`getHorseTabs(horseId, allowedTabs)` in `lib/navigation/horseTabs.ts` filters to only the server-returned tabs. No client-side role inference.
+`getHorseTabs(horseId, allowedTabs)` in `lib/navigation/horseTabs.ts` filters to only the server-returned tabs. Falls back to `[hub]` when `allowedTabs` is undefined. No client-side role inference.
 
 ## 6. Section Components — Action / Query Sections
 
@@ -440,7 +440,7 @@ function ExampleTableSkeleton() {
 
 ### Horse entity tables
 
-Single table system: `components/table` (`DataTable`). Visual SoT: Admin History (`horse-admin-history-section.tsx`). Connect, Documents, History, and Admin reuse the same helpers — do not re-copy avatar/action markup.
+Single table system: `components/table` (`DataTable`). Visual SoT: History (`horse-history-audit-section.tsx`). Connect, Documents, and History reuse the same helpers — do not re-copy avatar/action markup.
 
 Shared helpers (export from `components/table`):
 - `initialsFromLabel` — avatar initials

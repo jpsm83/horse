@@ -516,8 +516,6 @@
         "saleStatus": "Estado de venta",
         "askingPrice": "Precio de venta",
         "acquisitionDate": "Fecha de adquisición",
-        "acquisitionSource": "Fuente de adquisición",
-        "showValuePublicly": "Mostrar valor públicamente",
         "sireName": "Nombre del padre",
         "damName": "Nombre de la madre",
         "bloodlineNotes": "Notas de linaje",
@@ -538,10 +536,6 @@
         "useOwnerContactOptions": {
             "true": "Usar mis datos de contacto como propietario",
             "false": "Usar un contacto distinto para este caballo"
-        },
-        "yesNoOptions": {
-            "true": "Sí",
-            "false": "No"
         },
         "sexOptions": {
             "Stallion": "Semental",
@@ -708,6 +702,37 @@
         "dam": "Madre",
         "about": "Acerca de",
         "aboutEmpty": "Sin descripción todavía.",
+        "description": "Descripción",
+        "media": "Medios",
+        "people": "Personas",
+        "placeholder": "Contenido próximamente.",
+        "emptyValue": "—",
+        "share": "Compartir",
+        "shareCopied": "Enlace copiado al portapapeles.",
+        "shareFailed": "No se pudo copiar el enlace.",
+        "shareCopyLink": "Copiar enlace",
+        "shareTitle": "Conoce a {name} en Equus",
+        "shareNetworks": {
+            "facebook": "Compartir en Facebook",
+            "x": "Compartir en X",
+            "whatsapp": "Compartir en WhatsApp",
+            "telegram": "Compartir en Telegram",
+            "linkedin": "Compartir en LinkedIn",
+            "pinterest": "Compartir en Pinterest",
+            "email": "Compartir por correo"
+        },
+        "breed": "Raza",
+        "sex": "Sexo",
+        "birthday": "Cumpleaños",
+        "registeredNameLabel": "Nombre registrado: {name}",
+        "photoChange": "Cambiar foto",
+        "photoRemovePreview": "Quitar vista previa",
+        "photoInvalidType": "Solo se permiten archivos de imagen",
+        "photoTooLarge": "El archivo supera el límite de 5 MB",
+        "profileImageUpdated": "Imagen de perfil actualizada.",
+        "heroImageUpdated": "Imagen de héroe actualizada.",
+        "profileImageError": "No se pudo actualizar la imagen de perfil.",
+        "heroImageError": "No se pudo actualizar la imagen de héroe.",
         "gallery": "Galería",
         "galleryEmpty": "No hay medios para mostrar.",
         "galleryItemAlt": "Medio del caballo",
@@ -822,7 +847,10 @@
         "ownershipConfirmTitle": "Confirmar Transferencia de Propiedad",
         "ownershipConfirmDescription": "¿Está seguro de que desea transferir la propiedad de este caballo? Esta acción no se puede deshacer. Una vez que el destinatario acepte, perderá permanentemente todos los derechos sobre este caballo.",
         "confirmTransfer": "Entiendo, transferir propiedad",
-        "transferring": "Transfiriendo..."
+        "transferring": "Transfiriendo...",
+        "loadFailed": "No se pudieron cargar los datos. Inténtalo de nuevo.",
+        "sinceDate": "Desde {date}",
+        "removeTooltip": "Revocar acceso y eliminar este usuario de su rol."
     },
     "errors": {
         "EMAIL_NOT_VERIFIED": "Verifique su email antes de iniciar sesión.",
@@ -862,6 +890,7 @@
         "connectAsSire": "Conectar como Padre",
         "connectAsDam": "Conectar como Madre",
         "disconnect": "Desconectar",
+        "disconnectTooltip": "Eliminar esta conexión de pedigrí. El padre/madre ya no aparecerá en el linaje de este caballo.",
         "connected": "Conectado",
         "searching": "Buscando...",
         "searchError": "Búsqueda fallida",
@@ -1035,7 +1064,10 @@
         "invitationCancelled": "Invitación cancelada.",
         "invitationCancelFailed": "No se pudo cancelar la invitación.",
         "typeUnknown": "Desconocido",
-        "tableLoadFailed": "No se pudieron cargar las conexiones. Inténtalo de nuevo."
+        "tableLoadFailed": "No se pudieron cargar las conexiones. Inténtalo de nuevo.",
+        "resendInvitation": "Reenviar invitación",
+        "invitationResent": "Invitación reenviada.",
+        "invitationResendFailed": "No se pudo reenviar la invitación."
     },
     "horseHistory": {
         "title": "Historial",
@@ -1078,7 +1110,8 @@
             "document_created": "Documento añadido",
             "document_updated": "Documento actualizado",
             "document_deleted": "Documento eliminado"
-        }
+        },
+        "loadFailed": "No se pudo cargar el historial. Inténtalo de nuevo."
     },
     "subscription": {
         "title": "Suscripción",
@@ -1120,7 +1153,8 @@
             "other": "Otro"
         },
         "provider": "Proveedor",
-        "noProvider": "Sin proveedor"
+        "noProvider": "Sin proveedor",
+        "loadFailed": "No se pudieron cargar los datos de planificación. Inténtalo de nuevo."
     },
     "horseMedia": {
         "title": "Multimedia y Galería",
@@ -1145,9 +1179,19 @@
         "deleteError": "Error al eliminar multimedia.",
         "visibilityUpdateSuccess": "Visibilidad actualizada.",
         "visibilityUpdateError": "Error al actualizar visibilidad.",
+        "setAsImage": "Usar como imagen del Hub",
+        "setAsProfile": "Establecer como imagen de perfil",
+        "setAsHero": "Establecer como imagen de héroe",
+        "setAsConfirmTitle": "Usar como imagen del Hub",
+        "setAsConfirmDescription": "Elige si esta imagen será la foto de perfil o la portada (héroe) del Hub.",
+        "setAsProfileSuccess": "Imagen de perfil actualizada.",
+        "setAsHeroSuccess": "Imagen de héroe actualizada.",
+        "setAsProfileError": "No se pudo establecer la imagen de perfil.",
+        "setAsHeroError": "No se pudo establecer la imagen de héroe.",
         "previous": "Anterior",
         "next": "Siguiente",
-        "close": "Cerrar"
+        "close": "Cerrar",
+        "galleryLoadFailed": "No se pudo cargar la galería. Inténtalo de nuevo."
     },
     "horseDocuments": {
         "documentsTitle": "Documentos",
@@ -1184,7 +1228,8 @@
             "ownership": "Propiedad",
             "competition": "Competición",
             "other": "Documento"
-        }
+        },
+        "docsLoadFailed": "No se pudieron cargar los documentos. Inténtalo de nuevo."
     },
     "metadata": {
         "home": {
@@ -1399,11 +1444,8 @@
         "estimatedValue": "Valor estimado",
         "valueCurrency": "Moneda",
         "askingPrice": "Precio de venta",
-        "showValuePublicly": "Mostrar valor públicamente",
         "acquisitionDate": "Fecha de adquisición",
         "acquisitionSource": "Fuente de adquisición",
-        "yes": "Sí",
-        "no": "No",
         "noChanges": "Sin cambios para guardar",
         "saved": "Configuración de venta guardada",
         "saveFailed": "Error al guardar la configuración de venta",

@@ -23,6 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { Spinner } from "@/components/ui/spinner.tsx";
 import { fetchWithAuth } from "@/lib/api/fetchWithAuth";
 import { useHorseDocuments, useDeleteHorseDocument } from "@/hooks/queries/useHorseDocuments.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
@@ -56,7 +57,7 @@ export function HorseDocumentsTableSection({ horseId }: Props) {
   const tCommon = useTranslations("common");
   const tTypes = useTranslations("horseDocuments.types");
   const toast = useAppToast();
-  const { data: docs = [], isPending } = useHorseDocuments(horseId);
+  const { data: docs = [], isPending, isError } = useHorseDocuments(horseId);
   const deleteMutation = useDeleteHorseDocument(horseId);
   const [deleteTarget, setDeleteTarget] = useState<PublicHorseDocument | null>(null);
 
@@ -198,7 +199,7 @@ export function HorseDocumentsTableSection({ horseId }: Props) {
         cell: ({ row }) => {
           const doc = row.original;
           return (
-            <div className="flex gap-1">
+            <div className="flex justify-center gap-1">
               <TableIconAction
                 onClick={() => handleDownload(doc)}
                 title={t("download")}
@@ -222,7 +223,11 @@ export function HorseDocumentsTableSection({ horseId }: Props) {
   );
 
   if (isPending) {
-    return <Skeleton className="h-[400px] w-full rounded-lg" />;
+    return <HorseDocumentsTableSkeleton />;
+  }
+
+  if (isError) {
+    return <p className="text-sm text-destructive">{t("docsLoadFailed")}</p>;
   }
 
   return (
@@ -252,5 +257,16 @@ export function HorseDocumentsTableSection({ horseId }: Props) {
         onConfirm={handleConfirmDelete}
       />
     </>
+  );
+}
+
+function HorseDocumentsTableSkeleton() {
+  return (
+    <div className="relative w-full h-full">
+      <div className="absolute inset-0 z-10 flex items-center justify-center">
+        <Spinner className="size-6" />
+      </div>
+      <Skeleton className="h-full w-full rounded-lg" />
+    </div>
   );
 }

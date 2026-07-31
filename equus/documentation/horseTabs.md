@@ -4,11 +4,11 @@
 
 | Tab | Route | Minimum Role | Purpose |
 |-----|-------|-------------|---------|
-| Hub | `/horses/[id]` | `guest` | Read-only social profile page — hero, stats, about, gallery, upcoming events, pedigree, team, identification. Data from `useHorseView`. No visibility popovers. |
+| Hub | `/horses/[id]` | `guest` | Read-only social profile page — hero, stats, about, gallery, upcoming events, pedigree, team, identification. Data from `useHorseView`. No visibility popovers. Only tab visible to unauthenticated/guest users; EntityTabs auto-hides entirely when only hub is available. |
 | Connect | `/horses/[id]/connect` | `responsible` | Invite providers + manage connections table (Admin History `DataTable` pattern). Connections Layer-2 `hubSections.connections` via `HorseSectionVisibility` (also Hub). |
-| Planning | `/horses/[id]/planning` | `guest` (view) | Calendar management. Layer-2 `hubSections.planning` via popover + Hub block. Create: ownership team only. Owner team sees full list; others filtered. |
-| Media | `/horses/[id]/media` | `guest` (view) | Upload/view photos and videos. Gallery Layer-2 `hubSections.gallery` via popover + Hub block. Owner team sees full list; others filtered. |
-| Documents | `/horses/[id]/documents` | `guest` | Horse documents and files (Admin History `DataTable` pattern). Same delete/request policy as Media. |
+| Planning | `/horses/[id]/planning` | `related` | Calendar management. Layer-2 `hubSections.planning` via popover + Hub block. Create: ownership team only. Owner team sees full list; others filtered. |
+| Media | `/horses/[id]/media` | `related` | Upload/view photos and videos. Gallery Layer-2 `hubSections.gallery` via popover + Hub block. Owner team sees full list; others filtered. |
+| Documents | `/horses/[id]/documents` | `related` | Horse documents and files (Admin History `DataTable` pattern). Same delete/request policy as Media. |
 | Profile | `/horses/[id]/profile` | `responsible` | Edit identity / identification / pedigree / about (disciplines multi-select in About). Parent-owned form, single Save, unsaved-changes guard. |
 | Admin | `/horses/[id]/admin` | `main_owner` | Visibility (`profileVisibility` via discovery API) + sale settings (parent-owned form + Save) + ownership / responsible actions (immediate mutations). History table is the visual SoT for horse `DataTable`s. |
 | History | `/horses/[id]/history` | `responsible` | Activity/audit log (Admin History `DataTable` pattern). Columns: user (avatar), username, email, type, action, date. |
@@ -27,15 +27,15 @@ Minimum role map (`TAB_MIN_ROLE` in `lib/services/horseService.ts`):
 | Tab | Minimum viewerRole |
 |-----|--------------------|
 | hub | `guest` |
-| planning | `guest` |
-| media | `guest` |
-| documents | `guest` |
+| planning | `related` |
+| media | `related` |
+| documents | `related` |
 | connect | `responsible` |
 | profile | `responsible` |
 | history | `responsible` |
 | admin | `main_owner` |
 
-`getHorseTabs(horseId, allowedTabs)` in `lib/navigation/horseTabs.ts` filters the full tab list to only those in `allowedTabs`. Falls back to legacy `requireOwnership`/`requireMainOwner` flags when `allowedTabs` is undefined (cache miss).
+`getHorseTabs(horseId, allowedTabs)` in `lib/navigation/horseTabs.ts` filters the full tab list to only those in `allowedTabs`. Falls back to `[hub]` only when `allowedTabs` is undefined (cache miss during loading) — showing nothing rather than wrong tabs.
 
 ## Removed Tabs
 
@@ -55,20 +55,32 @@ Horse tab UI lives under `components/horses/<tab>/` with a `horse-` filename pre
 
 ## Hub tab — social profile page
 
-The Hub tab is a **read-only social profile** for the horse. Redesigned as a social media-style page. No `HorsePageShell` — no ownership gate. Sections render only when present in `horse.sections` (server already filtered by L1+L2 visibility for the viewer).
+The Hub tab is a **read-only social profile** for the horse. Redesigned as a social media-style page. No `HorsePageShell` — no ownership gate.
 
-Components (all read-only, no visibility popovers):
+**Data split:**
+- Shared chrome (`useHorseView` / layout-seeded): role, tabs, horse fields, cheap `horse.sections` (`identity`, `identification`, `pedigree`, `about`, `ownership`). Absent keys mean the viewer lacks access or the owner hid the section.
+- Hub social lists (`useHorseHubSocial` → `GET …/hub-social`, guest-safe): `gallery`, `planning`, `connections`. Not seeded by horse layout — Hub zones own this fetch when wired. Separate from Media / Planning / Connect management tab APIs (auth required).
+
+Layout: full-width hero, then a three-column body on `lg` (left details ≈25%, center media ≈45%, right pedigree/people ≈30%); stacked on smaller screens.
+
+Components (all read-only, no visibility popovers; under `components/horses/hub/`):
 ```
 HubContent (reads useHorseView — cache hit from layout.tsx)
-├── HorseHubHero          — cover/profile image, name, breed, sex, location
-├── HorseHubStats         — age, color, height as highlight cards; discipline tags
-├── HorseHubAbout         — description
-├── HorseHubGallery       — masonry/grid photo gallery with lightbox
-├── HorseHubUpcomingEvents — next 5 planning events
-├── HorseHubPedigree      — sire/dam/bloodline callout
-├── HorseHubTeam          — ownership count + connections list
-└── HorseHubIdentification — registry/microchip/passport
+├── HorseHubHero          — cover (heroImageUrl), avatar (profileImageUrl), flag, name, Share; owners upload via ProfilePhotoField
+├── Left column
+│   ├── HorseHubAbout         — metadata / identity details list
+│   ├── HorseHubDisciplines   — discipline tags
+│   └── HorseHubDescription  — biography text
+├── Center column
+│   └── HorseHubGallery      — media grid (photos/videos) → useHorseHubSocial when wired
+└── Right column
+    ├── HorseHubPedigree     — sire/dam + bloodline notes
+    └── HorseHubPeople       — owner, co-owners, representatives
 ```
+
+Owners set Hub images from Media tiles (Popover: set as profile / hero) or Hub `ProfilePhotoField` (upload → Media + PATCH `profileImageUrl` / `heroImageUrl`).
+
+Deferred (not in current Hub shell): upcoming planning events block.
 
 Market-derived Hub/profile backlog (`H-FD-*`): [`../../documentation/horseModule.md`](../../documentation/horseModule.md) §14.
 

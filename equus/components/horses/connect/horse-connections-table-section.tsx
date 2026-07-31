@@ -12,17 +12,19 @@ import { useTranslations } from "next-intl";
 import {
   DataTable,
   initialsFromLabel,
-  TableRowAction,
+  TableIconAction,
   TableUserAvatarCell,
   type DataTableColumnDef,
 } from "@/components/table";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog.tsx";
-import { HorseConnectionsTableSkeleton } from "@/components/horses/connect/horse-connections-table-skeleton.tsx";
+import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { Spinner } from "@/components/ui/spinner.tsx";
 import { useHorseProviders, useHorsePendingRelationships } from "@/hooks/queries/useHorse.ts";
-import { useEndRelationship, useCancelSentInvite } from "@/hooks/queries/useRelationship.ts";
+import { useEndRelationship, useCancelSentInvite, useCreateRelationshipInvite } from "@/hooks/queries/useRelationship.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { relationshipTypeEnums } from "@/utils/enums";
 import { relationshipTypeFilterOptions, relationshipStatusFilterOptions } from "@/utils/filter-options";
+import { Ban, Send } from "lucide-react";
 
 type Props = { horseId: string };
 
@@ -72,10 +74,11 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
   } = useHorsePendingRelationships(horseId);
   const endMutation = useEndRelationship();
   const cancelMutation = useCancelSentInvite();
+  const resendMutation = useCreateRelationshipInvite();
   const [actionTarget, setActionTarget] = useState<ActionTarget | null>(null);
 
   const isPending = isProvidersPending || isRelationshipsPending;
-  const isActionPending = endMutation.isPending || cancelMutation.isPending;
+  const isActionPending = endMutation.isPending || cancelMutation.isPending || resendMutation.isPending;
   const hasError = isProvidersError || isRelationshipsError;
 
   function formatStatus(status: ConnectionStatus): string {
@@ -114,6 +117,21 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
           status === "accepted" ? t("connectionEndFailed") : t("invitationCancelFailed"),
         ),
     });
+  }
+
+  function handleResendInvite(row: ConnectionRow) {
+    resendMutation.mutate(
+      {
+        horseId,
+        relationshipType: row.type as Parameters<typeof resendMutation.mutate>[0]["relationshipType"],
+        invitedEmail: row.email !== "-" ? row.email : undefined,
+        invitedName: row.name !== "-" ? row.name : undefined,
+      },
+      {
+        onSuccess: () => toast.success(t("invitationResent")),
+        onError: () => toast.error(t("invitationResendFailed")),
+      },
+    );
   }
 
   const dropdownOptionsByColumnKey = useMemo(
@@ -183,24 +201,39 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
           const r = row.original;
           if (r.status === "accepted") {
             return (
-              <TableRowAction
-                onClick={() =>
-                  setActionTarget({ id: r.id, status: "accepted", name: r.name })
-                }
-              >
-                {t("endConnection")}
-              </TableRowAction>
+              <div className="flex justify-center">
+                <TableIconAction
+                  onClick={() =>
+                    setActionTarget({ id: r.id, status: "accepted", name: r.name })
+                  }
+                  title={t("endConnection")}
+                  aria-label={t("endConnection")}
+                >
+                  <Ban className="h-4 w-4 text-destructive" />
+                </TableIconAction>
+              </div>
             );
           }
           if (r.status === "pending") {
             return (
-              <TableRowAction
-                onClick={() =>
-                  setActionTarget({ id: r.id, status: "pending", name: r.name })
-                }
-              >
-                {t("cancelInvitation")}
-              </TableRowAction>
+              <div className="flex justify-center gap-1">
+                <TableIconAction
+                  onClick={() =>
+                    setActionTarget({ id: r.id, status: "pending", name: r.name })
+                  }
+                  title={t("cancelInvitation")}
+                  aria-label={t("cancelInvitation")}
+                >
+                  <Ban className="h-4 w-4 text-destructive" />
+                </TableIconAction>
+                <TableIconAction
+                  onClick={() => handleResendInvite(r)}
+                  title={t("resendInvitation")}
+                  aria-label={t("resendInvitation")}
+                >
+                  <Send className="h-4 w-4" />
+                </TableIconAction>
+              </div>
             );
           }
           return null;
@@ -283,5 +316,16 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
         onConfirm={handleConfirmAction}
       />
     </>
+  );
+}
+
+function HorseConnectionsTableSkeleton() {
+  return (
+    <div className="relative w-full h-full">
+        <div className="absolute inset-0 z-10 flex items-center justify-center">
+          <Spinner className="size-6" />
+        </div>
+      <Skeleton className="inset-0 h-full w-full p-4 rounded-md" />
+    </div>
   );
 }

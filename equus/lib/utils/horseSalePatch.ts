@@ -19,9 +19,7 @@ export function emptySaleFormValues(): SaleFormValues {
     estimatedValue: "",
     valueCurrency: "USD",
     askingPrice: "",
-    showValuePublicly: "false",
     acquisitionDate: "",
-    acquisitionSource: "",
     profileVisibility: "public",
   };
 }
@@ -32,9 +30,7 @@ export function toSaleFormValues(horse: OwnerHorseSummary): SaleFormValues {
     estimatedValue: horse.estimatedValue != null ? String(horse.estimatedValue) : "",
     valueCurrency: horse.valueCurrency ?? "USD",
     askingPrice: horse.askingPrice != null ? String(horse.askingPrice) : "",
-    showValuePublicly: horse.showValuePublicly === true ? "true" : "false",
     acquisitionDate: horse.acquisitionDate ? horse.acquisitionDate.slice(0, 10) : "",
-    acquisitionSource: horse.acquisitionSource ?? "",
     profileVisibility: (horse.profileVisibility ?? "public") as SaleFormValues["profileVisibility"],
   };
 }
@@ -48,15 +44,7 @@ export function buildSaleSavePatch(
     estimatedValue: buildNumberPatch(dirty, "estimatedValue", values.estimatedValue),
     valueCurrency: buildOptionalStringPatch(dirty, "valueCurrency", values.valueCurrency),
     askingPrice: buildNumberPatch(dirty, "askingPrice", values.askingPrice),
-    showValuePublicly: dirty.showValuePublicly
-      ? values.showValuePublicly === "true"
-      : undefined,
     acquisitionDate: buildDatePatch(dirty, "acquisitionDate", values.acquisitionDate),
-    acquisitionSource: buildOptionalStringPatch(
-      dirty,
-      "acquisitionSource",
-      values.acquisitionSource,
-    ),
   });
 }
 

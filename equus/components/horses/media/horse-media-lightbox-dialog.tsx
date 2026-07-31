@@ -1,7 +1,14 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight, Eye, EyeOff, Trash2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  ImagePlus,
+  Trash2,
+} from "lucide-react";
 
 import {
   Dialog,
@@ -21,6 +28,8 @@ type HorseMediaLightboxDialogProps = {
   onNext: () => void;
   onToggleVisibility: () => void;
   onRequestDelete: () => void;
+  onRequestSetAs?: () => void;
+  setAsPending?: boolean;
 };
 
 export function HorseMediaLightboxDialog({
@@ -32,12 +41,15 @@ export function HorseMediaLightboxDialog({
   onNext,
   onToggleVisibility,
   onRequestDelete,
+  onRequestSetAs,
+  setAsPending = false,
 }: HorseMediaLightboxDialogProps) {
   const t = useTranslations("horseMedia");
   const item = items[currentIndex];
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex < items.length - 1;
   const description = item?.description?.trim() ?? "";
+  const canSetAsImage = item?.type === "image" && Boolean(onRequestSetAs);
 
   if (!item) return null;
 
@@ -93,6 +105,21 @@ export function HorseMediaLightboxDialog({
           )}
 
           <div className="absolute top-2 right-12 z-10 flex gap-1">
+            {canSetAsImage ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-overlay-foreground hover:bg-overlay-foreground/20 rounded-full"
+                disabled={setAsPending}
+                aria-label={t("setAsImage")}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRequestSetAs?.();
+                }}
+              >
+                <ImagePlus className="size-5" />
+              </Button>
+            ) : null}
             <Button
               variant="ghost"
               size="icon"

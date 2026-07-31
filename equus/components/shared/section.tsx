@@ -69,7 +69,6 @@ export function Section({
         ) : null}
       </div>
       {children}
- 
 
     </section>
   );

@@ -123,14 +123,6 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
     [tVisibility],
   );
 
-  const yesNoOptions = useMemo(
-    () => [
-      { value: "true", label: t("yesNoOptions.true") },
-      { value: "false", label: t("yesNoOptions.false") },
-    ],
-    [t],
-  );
-
   const saleStatusOptions = useMemo(
     () => [
       { value: "", label: tCommon("selectPlaceholder") },
@@ -337,10 +329,6 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
             )} />
             <TextField control={form.control} name="askingPrice" id="create-horse-askingPrice" label={t("askingPrice")} type="number" />
             <TextField control={form.control} name="acquisitionDate" id="create-horse-acquisitionDate" label={t("acquisitionDate")} type="date" />
-            <TextField control={form.control} name="acquisitionSource" id="create-horse-acquisitionSource" label={t("acquisitionSource")} />
-            <Controller name="showValuePublicly" control={form.control} render={({ field, fieldState }) => (
-              <SelectField id="create-horse-showValuePublicly" label={t("showValuePublicly")} value={field.value} onChange={field.onChange} invalid={fieldState.invalid} error={fieldState.error} options={yesNoOptions} />
-            )} />
           </div>
         </FieldGroup>
       </FieldSet>

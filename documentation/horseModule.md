@@ -58,7 +58,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | H-PROF-06 | Photo and video gallery (`FileUpload` + `POST /api/v1/media/upload`) | Parity | done |
 | H-PROF-07 | Pedigree / bloodline (manual) | Parity | done |
 | H-PROF-08 | Full owner/co-owner edit of profile fields (PATCH horse) | Parity | done |
-| H-PROF-09 | Commercial fields: estimated value, sale status, asking price, showValuePublicly | Beyond | done |
+| H-PROF-09 | Commercial fields: estimated value, sale status, asking price, acquisition date. Acquisition source is read-only (auto-set to creating owner, updated on transfer) | Beyond | done |
 | H-PROF-10 | Entity tab navigation (Hub, Edit, Discovery, History, Relations) | Beyond | done |
 
 ### Entity tab navigation
@@ -102,7 +102,7 @@ Two-layer model: horse visibility (`profileVisibility`: `public` / `relationship
 | H-DISC-02 | Per-horse `contactDisplay` (owner contact vs delegate) | Beyond | done |
 | H-DISC-03 | Public horse card with resolved contact (`GET /api/v1/horses/:id`) | Beyond | done |
 | H-DISC-04 | Owner/co-owner discovery PATCH (`PATCH /api/v1/horses/:id/discovery`) | Beyond | done |
-| H-DISC-05 | `showValuePublicly` and sale listing visibility | Beyond | done |
+| H-DISC-05 | Value section visibility via Layer-2 `hubSections.value` and sale listing visibility | Beyond | done |
 | H-DISC-06 | Discover directory / search (location, for sale) | Beyond | done |
 | H-DISC-07 | Anonymous vs relationship-scoped visibility enforcement | Beyond | done |
 

@@ -1,12 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Skeleton } from "@/components/ui/skeleton.tsx";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog.tsx";
+import { Spinner } from "@/components/ui/spinner.tsx";
 import { HorseEventsCalendar } from "@/components/horses/planning/horse-events-calendar.tsx";
-import { HorsePlanningEventForm } from "@/components/horses/planning/horse-planning-event-form.tsx";
 import { useHorsePlanning } from "@/hooks/queries/useHorsePlanning.ts";
 import { useHorseProviders } from "@/hooks/queries/useHorse.ts";
 import type { CalendarEvent } from "@/hooks/queries/useHorsePlanning.ts";
@@ -18,10 +16,8 @@ type Props = {
 
 export function HorsePlanningCalendarSection({ horseId, isAdmin }: Props) {
   const t = useTranslations("horsePlanning");
-  const { data: events = [], isPending } = useHorsePlanning(horseId);
+  const { data: events = [], isPending, isError } = useHorsePlanning(horseId);
   const { data: providers = [] } = useHorseProviders(horseId, "accepted");
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState("");
 
   const calendarEvents: CalendarEvent[] = events.map((e) => {
     const isProviderLinked =
@@ -34,37 +30,30 @@ export function HorsePlanningCalendarSection({ horseId, isAdmin }: Props) {
     return { ...e, backgroundColor: isProviderLinked ? "var(--info)" : undefined };
   });
 
-  function handleDateClick(dateStr: string) {
-    if (!isAdmin) return;
-    setSelectedDate(dateStr);
-    setDialogOpen(true);
+  if (isPending) {
+    return <HorsePlanningCalendarSkeleton />;
   }
 
-  if (isPending) {
-    return <Skeleton className="h-[600px] w-full rounded-lg" />;
+  if (isError) {
+    return <p className="text-sm text-destructive">{t("loadFailed")}</p>;
   }
 
   return (
-    <>
-      <HorseEventsCalendar
-        events={calendarEvents}
-        onDateClick={isAdmin ? handleDateClick : undefined}
-      />
-      {isAdmin && (
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{t("addEvent")}</DialogTitle>
-            </DialogHeader>
-            <HorsePlanningEventForm
-              key={selectedDate}
-              horseId={horseId}
-              defaultDate={selectedDate}
-              onSaved={() => setDialogOpen(false)}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
-    </>
+    <HorseEventsCalendar
+      horseId={horseId}
+      events={calendarEvents}
+      isAdmin={isAdmin}
+    />
+  );
+}
+
+function HorsePlanningCalendarSkeleton() {
+  return (
+    <div className="relative w-full h-full">
+      <div className="absolute inset-0 z-10 flex items-center justify-center">
+        <Spinner className="size-6" />
+      </div>
+      <Skeleton className="inset-0 h-full w-full p-4 rounded-md" />
+    </div>
   );
 }

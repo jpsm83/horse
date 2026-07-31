@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     const tokens = await authService.refresh(refreshToken);
-    const response = ok(tokens);
+    const response = ok({ ...tokens, expiresAt: Date.now() + 15 * 60 * 1000 });
     attachSessionCookies(response, tokens);
     return response;
   });

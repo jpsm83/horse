@@ -170,8 +170,14 @@ export type OwnerHorseHubSummary = {
   saleStatus?: string;
   askingPrice?: number;
   acquisitionDate?: string;
-  acquisitionSource?: string;
-  showValuePublicly?: boolean;
+  acquisitionSourceUserId?: string;
+  /** Resolved acquisition source (falls back to current owner when unset). */
+  acquisitionSourceUser?: {
+    userId: string;
+    name: string;
+    email: string;
+    imageUrl?: string;
+  };
   pedigree?: Record<string, unknown>;
   profileImageUrl?: string;
   description?: string;
@@ -192,6 +198,9 @@ export type HorseHubIdentitySection = {
   color?: string;
   heightHands?: number;
   disciplines?: string[];
+  registeredName?: string;
+  dateOfBirth?: string;
+  countryOfBirth?: string;
 };
 
 export type HorseHubIdentificationSection = {
@@ -244,6 +253,7 @@ export type HorseHubDto = {
   breed?: string;
   sex?: string;
   profileImageUrl?: string;
+  heroImageUrl?: string;
   sections: {
     identity?: HorseHubIdentitySection;
     identification?: HorseHubIdentificationSection;
@@ -257,10 +267,11 @@ export type HorseHubDto = {
 };
 
 /**
- * Unified role-scoped horse view DTO.
- * All fields are always present; owner-only fields are populated when the
- * viewer is in the ownership team (main_owner | co_owner | responsible).
- * Hub sections are always filtered by L1+L2 visibility for the viewer.
+ * Unified role-scoped horse view DTO (shared chrome for all horse tabs).
+ * Owner-only fields are populated when the viewer is on the ownership team.
+ * `sections` holds cheap Hub projections (identity, identification, pedigree,
+ * about, ownership) filtered by L1+L2. Gallery / planning / connections lists
+ * are NOT populated here — use `getHorseHubSocial` / GET …/hub-social.
  */
 export type HorseViewDto = {
   id: string;
@@ -268,9 +279,11 @@ export type HorseViewDto = {
   breed?: string;
   sex?: string;
   profileImageUrl?: string;
+  /** Hub cover / hero band (guest-visible with profileImageUrl). */
+  heroImageUrl?: string;
   profileVisibility?: string;
 
-  // Hub sections — visibility-filtered by server
+  /** Cheap Hub section projections only — no gallery/planning/connections lists. */
   sections: HorseHubDto["sections"];
 
   // Owner-team-only fields
@@ -288,8 +301,14 @@ export type HorseViewDto = {
   saleStatus?: string;
   askingPrice?: number;
   acquisitionDate?: string;
-  acquisitionSource?: string;
-  showValuePublicly?: boolean;
+  acquisitionSourceUserId?: string;
+  /** Resolved acquisition source (falls back to current owner when unset). */
+  acquisitionSourceUser?: {
+    userId: string;
+    name: string;
+    email: string;
+    imageUrl?: string;
+  };
   pedigree?: Record<string, unknown>;
   description?: string;
   notes?: string;
@@ -301,6 +320,17 @@ export type HorseViewDto = {
   coOwners?: OwnerHorseCoOwner[];
   responsibles?: OwnerHorseResponsible[];
   adminTeam?: AdminTeamMember[];
+};
+
+export type HorseHubSocialSections = {
+  gallery?: HorseHubGalleryItem[];
+  planning?: HorseHubPlanningItem[];
+  connections?: HorseHubConnectionItem[];
+};
+
+/** Guest-safe Hub social lists (Media / events / connections). */
+export type HorseHubSocialResponse = {
+  sections: HorseHubSocialSections;
 };
 
 /** Backward-compat alias for tab clients that previously used OwnerHorseSummary from horseClient. */
@@ -359,8 +389,8 @@ export async function createHorse(actorUserId: string, input: CreateHorseInput) 
   if (input.saleStatus) doc.saleStatus = input.saleStatus;
   if (input.askingPrice !== undefined) doc.askingPrice = input.askingPrice;
   if (input.acquisitionDate) doc.acquisitionDate = input.acquisitionDate;
-  if (input.acquisitionSource) doc.acquisitionSource = input.acquisitionSource;
-  if (input.showValuePublicly !== undefined) doc.showValuePublicly = input.showValuePublicly;
+  // Acquisition source is read-only: the creating owner is the initial source.
+  doc.acquisitionSourceUserId = actorUserId;
 
   // Pedigree
   if (input.pedigree) {
@@ -771,6 +801,18 @@ export async function getOwnerHorseHubSummary(
   }
 
   const mainOwnerDetails = await resolveUserDetails(String(horse.mainOwnerUserId));
+  const acquisitionSourceUserId = horse.acquisitionSourceUserId
+    ? String(horse.acquisitionSourceUserId)
+    : undefined;
+  const acquisitionSourceUser = acquisitionSourceUserId
+    ? await resolveUserDetails(acquisitionSourceUserId)
+    : mainOwnerDetails;
+  const acquisitionSourceUserResolved = {
+    userId: acquisitionSourceUserId ?? String(horse.mainOwnerUserId),
+    name: acquisitionSourceUser.label,
+    email: acquisitionSourceUser.email,
+    imageUrl: acquisitionSourceUser.imageUrl,
+  };
   const adminTeam: AdminTeamMember[] = [
     {
       userId: String(horse.mainOwnerUserId),
@@ -820,8 +862,8 @@ export async function getOwnerHorseHubSummary(
     saleStatus: horse.saleStatus as string | undefined,
     askingPrice: horse.askingPrice as number | undefined,
     acquisitionDate: horse.acquisitionDate instanceof Date ? horse.acquisitionDate.toISOString() : undefined,
-    acquisitionSource: horse.acquisitionSource as string | undefined,
-    showValuePublicly: horse.showValuePublicly as boolean | undefined,
+    acquisitionSourceUserId,
+    acquisitionSourceUser: acquisitionSourceUserResolved,
     pedigree: horse.pedigree as Record<string, unknown> | undefined,
     profileImageUrl: horse.profileImageUrl as string | undefined,
     description: horse.description as string | undefined,
@@ -909,8 +951,8 @@ export async function getHorseHub(
   const audience = await resolveHorseViewerAudience(horseDoc, requester?.id);
   assertCanViewHorseGlobal(horseDoc, audience);
 
+  // Cheap Hub projections only — social lists via getHorseHubSocial
   const sections = buildHorseHubSections(horseDoc, audience);
-  await attachHubSocialSections(sections, horseDoc, audience, horseId);
 
   return {
     id: String(horseDoc._id),
@@ -918,6 +960,7 @@ export async function getHorseHub(
     breed: horseDoc.breed as string | undefined,
     sex: horseDoc.sex as string | undefined,
     profileImageUrl: horseDoc.profileImageUrl as string | undefined,
+    heroImageUrl: horseDoc.heroImageUrl as string | undefined,
     sections,
   };
 }
@@ -937,11 +980,21 @@ export function buildHorseHubSections(
     } else if (typeof dob === "string" && dob.length > 0) {
       age = new Date().getFullYear() - new Date(dob).getFullYear();
     }
+    let dateOfBirth: string | undefined;
+    if (dob instanceof Date) {
+      dateOfBirth = dob.toISOString();
+    } else if (typeof dob === "string" && dob.length > 0) {
+      dateOfBirth = dob;
+    }
+
     sections.identity = {
       age,
       color: horseDoc.color as string | undefined,
       heightHands: horseDoc.heightHands as number | undefined,
       disciplines: horseDoc.disciplines as string[] | undefined,
+      registeredName: horseDoc.registeredName as string | undefined,
+      dateOfBirth,
+      countryOfBirth: horseDoc.countryOfBirth as string | undefined,
     };
   }
 
@@ -980,9 +1033,9 @@ export function buildHorseHubSections(
   return sections;
 }
 
-/** Layer-2 gallery / planning / connections for Hub DTO. */
+/** Layer-2 gallery / planning / connections for Hub social payload (GET …/hub-social). */
 export async function attachHubSocialSections(
-  sections: HorseHubDto["sections"],
+  sections: HorseHubSocialSections,
   horseDoc: Record<string, unknown>,
   audience: HorseViewerAudience,
   horseId: string,
@@ -1067,6 +1120,33 @@ export async function attachHubSocialSections(
   }
 }
 
+/**
+ * Guest-safe Hub social lists (gallery / planning / connections).
+ * Not part of the shared horse view — call only from Hub (GET …/hub-social).
+ */
+export async function getHorseHubSocial(
+  horseId: string,
+  userId?: string | null,
+): Promise<HorseHubSocialResponse> {
+  ensureObjectId(horseId, "horse id");
+
+  const horse = await Horse.findById(horseId).lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  await assertPublicReadAllowed(horse as Record<string, unknown>, "Horse");
+
+  const horseDoc = horse as Record<string, unknown>;
+  const audience = await resolveHorseViewerAudience(horseDoc, userId ?? undefined);
+  assertCanViewHorseGlobal(horseDoc, audience);
+
+  const sections: HorseHubSocialSections = {};
+  await attachHubSocialSections(sections, horseDoc, audience, horseId);
+
+  return { sections };
+}
+
 // --- Role derivation helpers (exported for testing) ---
 
 export const ROLE_ORDER: ViewerRole[] = [
@@ -1081,9 +1161,9 @@ export const ROLE_ORDER: ViewerRole[] = [
 /** Map of minimum role required to access each tab. */
 export const TAB_MIN_ROLE: Record<HorseTab, ViewerRole> = {
   hub: "guest",
-  planning: "guest",
-  media: "guest",
-  documents: "guest",
+  planning: "related",
+  media: "related",
+  documents: "related",
   connect: "responsible",
   profile: "responsible",
   history: "responsible",
@@ -1120,7 +1200,9 @@ export function deriveAllowedTabs(viewerRole: ViewerRole): HorseTab[] {
 /**
  * Unified role-aware horse view — single endpoint for all horse tabs.
  * Returns role-scoped horse data, the viewer's role, and the tabs they may access.
- * Owner-team viewers receive full owner fields; others receive only Hub-filtered sections.
+ * Owner-team viewers receive full owner fields; others receive only Hub-filtered
+ * cheap section projections. Gallery / planning / connections lists are loaded
+ * separately via getHorseHubSocial.
  */
 export async function getHorseView(
   horseId: string,
@@ -1142,9 +1224,8 @@ export async function getHorseView(
   const viewerRole = deriveViewerRole(audience, horseDoc, userId);
   const allowedTabs = deriveAllowedTabs(viewerRole);
 
-  // Hub sections — always built, filtered by L1+L2 visibility for this viewer
+  // Cheap Hub section projections only (no Media / Event / Relationship queries)
   const sections = buildHorseHubSections(horseDoc, audience);
-  await attachHubSocialSections(sections, horseDoc, audience, horseId);
 
   const horseView: HorseViewDto = {
     id: String(horseDoc._id),
@@ -1152,6 +1233,7 @@ export async function getHorseView(
     breed: horseDoc.breed as string | undefined,
     sex: horseDoc.sex as string | undefined,
     profileImageUrl: horseDoc.profileImageUrl as string | undefined,
+    heroImageUrl: horseDoc.heroImageUrl as string | undefined,
     profileVisibility: horseDoc.profileVisibility as string | undefined,
     sections,
   };
@@ -1178,11 +1260,32 @@ export async function getHorseView(
         : []
     ).filter((r) => r.userId != null);
 
-    const [coOwnerDetails, responsibleDetails, mainOwnerDetails] = await Promise.all([
-      Promise.all(rawCoOwners.map((c) => resolveUserDetails(String(c.userId)))),
-      Promise.all(rawResponsibles.map((r) => resolveUserDetails(String(r.userId)))),
-      resolveUserDetails(String(horseDoc.mainOwnerUserId)),
-    ]);
+    const acquisitionSourceUserId = horseDoc.acquisitionSourceUserId
+      ? String(horseDoc.acquisitionSourceUserId)
+      : undefined;
+
+    const [coOwnerDetails, responsibleDetails, mainOwnerDetails, acquisitionSourceDetails] =
+      await Promise.all([
+        Promise.all(rawCoOwners.map((c) => resolveUserDetails(String(c.userId)))),
+        Promise.all(rawResponsibles.map((r) => resolveUserDetails(String(r.userId)))),
+        resolveUserDetails(String(horseDoc.mainOwnerUserId)),
+        acquisitionSourceUserId ? resolveUserDetails(acquisitionSourceUserId) : Promise.resolve(null),
+      ]);
+
+    const resolvedAcquisitionSource =
+      acquisitionSourceUserId && acquisitionSourceDetails
+        ? {
+            userId: acquisitionSourceUserId,
+            name: acquisitionSourceDetails.label,
+            email: acquisitionSourceDetails.email,
+            imageUrl: acquisitionSourceDetails.imageUrl,
+          }
+        : {
+            userId: String(horseDoc.mainOwnerUserId),
+            name: mainOwnerDetails.label,
+            email: mainOwnerDetails.email,
+            imageUrl: mainOwnerDetails.imageUrl,
+          };
 
     const coOwners: OwnerHorseCoOwner[] = rawCoOwners.map((entry, i) => ({
       userId: String(entry.userId),
@@ -1252,8 +1355,8 @@ export async function getHorseView(
         horseDoc.acquisitionDate instanceof Date
           ? horseDoc.acquisitionDate.toISOString()
           : undefined,
-      acquisitionSource: horseDoc.acquisitionSource as string | undefined,
-      showValuePublicly: horseDoc.showValuePublicly as boolean | undefined,
+      acquisitionSourceUserId,
+      acquisitionSourceUser: resolvedAcquisitionSource,
       pedigree: horseDoc.pedigree as Record<string, unknown> | undefined,
       description: horseDoc.description as string | undefined,
       notes: horseDoc.notes as string | undefined,

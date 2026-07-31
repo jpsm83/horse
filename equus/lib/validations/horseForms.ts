@@ -64,14 +64,14 @@ function optionalEnum<T extends readonly [string, ...string[]]>(
     });
 }
 
-function optionalNumber(messages: HorseFormMessages) {
+function optionalNumber(messages: HorseFormMessages, max?: number) {
   return z
     .string()
     .refine(
       (value) => {
         if (value.trim() === "") return true;
         const num = Number(value);
-        return !Number.isNaN(num) && num >= 0;
+        return !Number.isNaN(num) && num >= 0 && (max === undefined || num <= max);
       },
       { message: messages.invalidNumber },
     );
@@ -116,7 +116,7 @@ export function createHorseFormSchemas(messages: HorseFormMessages) {
         { message: messages.invalidDate },
       ),
     color: optionalEnum(horseColorEnums, messages),
-    heightHands: optionalNumber(messages),
+    heightHands: optionalNumber(messages, 30),
     disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
     countryOfBirth: z.string().refine((v): boolean => isValidCountryCode(v), { message: "Invalid country code" }),
     // Commercial
@@ -134,10 +134,6 @@ export function createHorseFormSchemas(messages: HorseFormMessages) {
         },
         { message: messages.invalidDate },
       ),
-    acquisitionSource: optionalTrimmedString(200),
-    showValuePublicly: z.enum(["true", "false"], {
-      message: messages.invalidEnum,
-    }),
 
     // Pedigree
     pedigree: pedigreeFormSchema,
@@ -190,7 +186,7 @@ export function profileFormSchemas(messages: HorseFormMessages) {
     breed: requiredEnum(horseBreedEnums, messages),
     sex: requiredEnum(horseSexEnums, messages),
     color: optionalEnum(horseColorEnums, messages),
-    heightHands: optionalNumber(messages),
+    heightHands: optionalNumber(messages, 30),
     dateOfBirth: z.string().refine(
       (value) => {
         if (value.trim() === "") return true;
@@ -287,9 +283,6 @@ export function saleFormSchemas(messages: HorseFormMessages) {
         { message: messages.invalidEnum },
       ),
     askingPrice: optionalNumber(messages),
-    showValuePublicly: z.enum(["true", "false"], {
-      message: messages.invalidEnum,
-    }),
     acquisitionDate: z.string().refine(
       (value) => {
         if (value.trim() === "") return true;
@@ -298,7 +291,6 @@ export function saleFormSchemas(messages: HorseFormMessages) {
       },
       { message: messages.invalidDate },
     ),
-    acquisitionSource: optionalTrimmedString(200),
     profileVisibility: z.enum(visibilityEnums, {
       message: messages.invalidEnum,
     }),
@@ -366,8 +358,6 @@ export const emptyCreateHorseFormValues: CreateHorseFormValues = {
   saleStatus: "",
   askingPrice: "",
   acquisitionDate: "",
-  acquisitionSource: "",
-  showValuePublicly: "false",
   pedigree: {
     sireName: "",
     damName: "",

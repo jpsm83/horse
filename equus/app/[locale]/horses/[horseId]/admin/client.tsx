@@ -8,7 +8,6 @@ import { useForm, useFormState } from "react-hook-form";
 import { Plus, UserCog } from "lucide-react";
 
 import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
-import { HorseAdminHistorySection } from "@/components/horses/admin/horse-admin-history-section.tsx";
 import { HorseAdminRoleInviteDialog } from "@/components/horses/admin/horse-admin-role-invite-dialog.tsx";
 import { HorseCoOwnerManagementSection } from "@/components/horses/admin/horse-co-owner-management-section.tsx";
 import { HorseOwnershipChangeDialog } from "@/components/horses/admin/horse-ownership-change-dialog.tsx";
@@ -153,50 +152,48 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-        <div className="flex min-w-0 flex-col gap-4">
-          <Section
-            title={tProfile("sections.visibility")}
-            description={tProfile("sectionDescriptions.visibility")}
-          >
+    <div className="flex gap-4 w-full">
+      <div className="flex min-w-0 flex-col gap-4 w-full">
+        <Section
+          title={tProfile("sections.visibility")}
+          description={tProfile("sectionDescriptions.visibility")}
+        >
+          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+            <HorseVisibilitySection control={form.control} />
+          </ErrorBoundary>
+        </Section>
+
+        <Section
+          title={t("ownershipTitle")}
+          description={t("ownershipTransferDescription")}
+          titleAddon={
+            isMainOwner ? (
+              <SectionTitleAction onClick={() => setChangeOwnerOpen(true)}>
+                <UserCog className="size-3" />
+                {t("changeOwner")}
+              </SectionTitleAction>
+            ) : null
+          }
+          visibilityControl={
+            <HorseSectionVisibility
+              horseId={horseId}
+              sectionKey="ownership"
+              mode={hubSections.ownership.mode}
+              uiSectionKey="admin-ownership"
+            />
+          }
+        >
+          <div className="min-h-0 flex-1 overflow-auto">
             <ErrorBoundary
               fallbackRender={(p) => <InlineErrorFallback {...p} />}
             >
-              <HorseVisibilitySection control={form.control} />
+              <HorseOwnershipManagementSection horseId={horseId} />
             </ErrorBoundary>
-          </Section>
+          </div>
+        </Section>
+      </div>
 
-          <Section
-            title={t("ownershipTitle")}
-            description={t("ownershipTransferDescription")}
-            titleAddon={
-              isMainOwner ? (
-                <SectionTitleAction onClick={() => setChangeOwnerOpen(true)}>
-                  <UserCog className="size-3" />
-                  {t("changeOwner")}
-                </SectionTitleAction>
-              ) : null
-            }
-            visibilityControl={
-              <HorseSectionVisibility
-                horseId={horseId}
-                sectionKey="ownership"
-                mode={hubSections.ownership.mode}
-                uiSectionKey="admin-ownership"
-              />
-            }
-          >
-            <div className="min-h-0 flex-1 overflow-auto">
-              <ErrorBoundary
-                fallbackRender={(p) => <InlineErrorFallback {...p} />}
-              >
-                <HorseOwnershipManagementSection horseId={horseId} />
-              </ErrorBoundary>
-            </div>
-          </Section>
-        </div>
-
+      <div className="flex min-w-0 flex-col gap-4 w-full">
         <Section
           title={t("horseValueTitle")}
           description={t("horseValueDescription")}
@@ -214,13 +211,14 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
             <ErrorBoundary
               fallbackRender={(p) => <InlineErrorFallback {...p} />}
             >
-              <HorseValueSection control={form.control} />
+              <HorseValueSection
+                control={form.control}
+                acquisitionSourceUser={horse.acquisitionSourceUser}
+              />
             </ErrorBoundary>
           </div>
         </Section>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         <Section
           title={t("proactiveRepresentativesTitle")}
           description={t("proactiveRepresentativesDescription")}
@@ -272,28 +270,17 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
             <HorseCoOwnerManagementSection horseId={horseId} />
           </ErrorBoundary>
         </Section>
-      </div>
-
-      <Section
-        title={t("adminHistoryTitle")}
-        description={t("adminHistoryDescription")}
-        className="w-full"
-      >
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <HorseAdminHistorySection horseId={horseId} />
-        </ErrorBoundary>
-      </Section>
-
-      <div className="flex justify-end">
-        <Button
-          type="button"
-          onClick={form.handleSubmit(onSave, () =>
-            toast.error(tSale("validationFailed")),
-          )}
-          disabled={isSaving}
-        >
-          {isSaving ? tCommon("saving") : tCommon("save")}
-        </Button>
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            onClick={form.handleSubmit(onSave, () =>
+              toast.error(tSale("validationFailed")),
+            )}
+            disabled={isSaving}
+          >
+            {isSaving ? tCommon("saving") : tCommon("save")}
+          </Button>
+        </div>
       </div>
 
       <HorseAdminRoleInviteDialog

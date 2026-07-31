@@ -78,7 +78,12 @@ const horseSchema = new Schema(
     saleStatus: { type: String, enum: saleStatusEnums, default: "not_for_sale" },
     askingPrice: { type: Number, min: 0 },
     acquisitionDate: { type: Date },
-    acquisitionSource: { type: String },
+    /**
+     * Read-only acquisition source — user the horse was acquired from.
+     * Auto-set to the creating owner; updated on ownership transfer (sale).
+     * Falls back to the current owner for display when unset.
+     */
+    acquisitionSourceUserId: { type: Schema.Types.ObjectId, ref: "User" },
 
     /** Registration — lifecycle + payment gating per horse */
     registration: {
@@ -92,12 +97,13 @@ const horseSchema = new Schema(
 
     /** Media and profile */
     profileImageUrl: { type: String },
+    /** Hub cover / hero band image URL (denormalized from Media). */
+    heroImageUrl: { type: String },
     gallery: { type: [mediaAssetSchema], default: undefined },
     description: { type: String },
 
     /** Discovery — per horse, not per user */
     profileVisibility: { type: String, enum: visibilityEnums, default: "public" },
-    showValuePublicly: { type: Boolean, default: false },
 
     /**
      * Hub Layer-2 visibility per social section (`public` | `relationship` | `owner`).

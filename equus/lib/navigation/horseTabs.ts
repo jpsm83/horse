@@ -17,21 +17,14 @@ const ALL_HORSE_TABS: EntityTab[] = [
  *
  * @param horseId - Used to prefix all hrefs.
  * @param allowedTabs - Server-returned allowed tabs for the current viewer. When
- *   undefined (cache miss before layout fetch resolves), all tabs are shown and
- *   filtered client-side by EntityTabs via the requireOwnership/requireMainOwner flags
- *   as fallback.
+ *   undefined (cache miss before layout fetch resolves), only hub is shown as the
+ *   safest default — the server response will set the correct tabs on arrival.
  */
 export function getHorseTabs(horseId: string, allowedTabs?: HorseTab[]): EntityTab[] {
   const base = `/horses/${horseId}`;
 
   if (!allowedTabs) {
-    // Fallback while cache is empty — use legacy ownership flags
-    return ALL_HORSE_TABS.map((t) => ({
-      ...t,
-      href: t.href ? `${base}${t.href}` : base,
-      requireOwnership: ["connect", "profile", "history"].includes(t.id),
-      requireMainOwner: t.id === "admin",
-    }));
+    return [{ id: "hub", label: "Hub", href: base }];
   }
 
   const allowed = new Set(allowedTabs);
