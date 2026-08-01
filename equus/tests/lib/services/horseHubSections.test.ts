@@ -28,13 +28,22 @@ describe("buildHorseHubSections", () => {
     microchipId: "CHIP-1",
     passportNumber: "PASS-1",
     coOwners: [{ userId: "x" }],
+    responsibles: [{ userId: "y" }],
     pedigree: { sireName: "Sire", damName: "Dam" },
+    saleStatus: "for_sale",
+    askingPrice: 12000,
+    estimatedValue: 15000,
+    valueCurrency: "USD",
+    acquisitionDate: new Date("2021-06-01T00:00:00.000Z"),
     hubSections: {
       identity: { mode: "public" },
       identification: { mode: "relationship" },
       pedigree: { mode: "relationship" },
       about: { mode: "owner" },
       ownership: { mode: "relationship" },
+      value: { mode: "owner" },
+      proactiveRepresentatives: { mode: "owner" },
+      coOwnerManagement: { mode: "owner" },
     },
   };
 
@@ -74,12 +83,21 @@ describe("buildHorseHubSections", () => {
     const sections = buildHorseHubSections(horse, ownerTeam);
     expect(Object.keys(sections).sort()).toEqual([
       "about",
+      "coOwnerManagement",
       "identification",
       "identity",
       "ownership",
       "pedigree",
+      "proactiveRepresentatives",
+      "value",
     ]);
     expect(sections.about?.description).toBe("Friendly");
+    expect(sections.value?.saleStatus).toBe("for_sale");
+    expect(sections.value?.askingPrice).toBe(12000);
+    expect(sections.value?.estimatedValue).toBe(15000);
+    expect(sections.value?.valueCurrency).toBe("USD");
+    expect(sections.proactiveRepresentatives).toEqual({ members: [] });
+    expect(sections.coOwnerManagement).toEqual({ members: [] });
   });
 
   it("includes bloodlineNotes in pedigree when present", () => {
@@ -90,6 +108,55 @@ describe("buildHorseHubSections", () => {
     };
     const sections = buildHorseHubSections(withNotes, guest);
     expect(sections.pedigree?.bloodlineNotes).toBe("Warmblood line");
+  });
+
+  it("includes value section for guests when value is public", () => {
+    const publicValue = {
+      ...horse,
+      hubSections: { ...horse.hubSections, value: { mode: "public" } },
+    };
+    const sections = buildHorseHubSections(publicValue, guest);
+    expect(sections.value).toEqual({
+      saleStatus: "for_sale",
+      askingPrice: 12000,
+      estimatedValue: 15000,
+      valueCurrency: "USD",
+      acquisitionDate: "2021-06-01T00:00:00.000Z",
+    });
+  });
+
+  it("omits value section for guests by default (owner mode)", () => {
+    const sections = buildHorseHubSections(horse, guest);
+    expect(sections.value).toBeUndefined();
+  });
+
+  it("includes value section for related viewers when value is relationship", () => {
+    const relationshipValue = {
+      ...horse,
+      hubSections: { ...horse.hubSections, value: { mode: "relationship" } },
+    };
+    const sections = buildHorseHubSections(relationshipValue, related);
+    expect(sections.value?.estimatedValue).toBe(15000);
+  });
+
+  it("omits proactive/co-owner sections for guests by default", () => {
+    const sections = buildHorseHubSections(horse, guest);
+    expect(sections.proactiveRepresentatives).toBeUndefined();
+    expect(sections.coOwnerManagement).toBeUndefined();
+  });
+
+  it("includes proactive/co-owner sections for guests when public", () => {
+    const publicTeam = {
+      ...horse,
+      hubSections: {
+        ...horse.hubSections,
+        proactiveRepresentatives: { mode: "public" },
+        coOwnerManagement: { mode: "public" },
+      },
+    };
+    const sections = buildHorseHubSections(publicTeam, guest);
+    expect(sections.proactiveRepresentatives).toEqual({ members: [] });
+    expect(sections.coOwnerManagement).toEqual({ members: [] });
   });
 });
 
