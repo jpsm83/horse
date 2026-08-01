@@ -271,3 +271,77 @@ describe("horseService", () => {
   });
 });
 
+describe("getHorseView hub section enrichment", () => {
+  it("resolves acquisition source and team members for guests when sections are public", async () => {
+    const owner = await createUser("hub-enrich-owner@example.com");
+    const coOwner = await createUser("hub-enrich-coowner@example.com");
+    const responsible = await createUser("hub-enrich-responsible@example.com");
+    const created = await horseService.createHorse(String(owner._id), {
+      name: "Enriched",
+      breed: "Lusitano",
+      sex: "Gelding",
+      countryOfBirth: "US",
+      saleStatus: "for_sale",
+      askingPrice: 12000,
+      estimatedValue: 15000,
+      valueCurrency: "USD",
+    });
+
+    await Horse.updateOne(
+      { _id: created._id },
+      {
+        $set: {
+          "hubSections.value.mode": "public",
+          "hubSections.proactiveRepresentatives.mode": "public",
+          "hubSections.coOwnerManagement.mode": "public",
+        },
+        $push: {
+          coOwners: { userId: coOwner._id, ownershipPercentage: 25 },
+          responsibles: { userId: responsible._id },
+        },
+      },
+    );
+
+    const view = await horseService.getHorseView(String(created._id));
+    expect(view.viewerRole).toBe("guest");
+    expect(view.horse.sections.value?.saleStatus).toBe("for_sale");
+    expect(view.horse.sections.value?.acquisitionSourceUser).toMatchObject({
+      userId: String(owner._id),
+      name: expect.any(String),
+    });
+    expect(
+      (view.horse.sections.value?.acquisitionSourceUser as { email?: string } | undefined)?.email,
+    ).toBeUndefined();
+    expect(view.horse.sections.proactiveRepresentatives?.members).toEqual([
+      {
+        userId: String(responsible._id),
+        name: expect.any(String),
+        imageUrl: undefined,
+      },
+    ]);
+    expect(view.horse.sections.coOwnerManagement?.members).toEqual([
+      {
+        userId: String(coOwner._id),
+        name: expect.any(String),
+        imageUrl: undefined,
+      },
+    ]);
+  });
+
+  it("omits value section for guests when value is owner-only", async () => {
+    const owner = await createUser("hub-enrich-private@example.com");
+    const created = await horseService.createHorse(String(owner._id), {
+      name: "Private",
+      breed: "Arabian",
+      sex: "Mare",
+      countryOfBirth: "US",
+      estimatedValue: 5000,
+    });
+
+    const view = await horseService.getHorseView(String(created._id));
+    expect(view.horse.sections.value).toBeUndefined();
+    expect(view.horse.sections.proactiveRepresentatives).toBeUndefined();
+    expect(view.horse.sections.coOwnerManagement).toBeUndefined();
+  });
+});
+

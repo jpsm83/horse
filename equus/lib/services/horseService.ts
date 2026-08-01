@@ -1278,6 +1278,50 @@ export async function getHorseView(
   // Cheap Hub section projections only (no Media / Event / Relationship queries)
   const sections = buildHorseHubSections(horseDoc, audience);
 
+  // Hub-safe enrichment for value / proactive / co-owner sections (L2 + L1 only —
+  // NOT gated by isOwnerTeam). No email or phone on Hub projections.
+  if (sections.value) {
+    const acquisitionSourceUserId = horseDoc.acquisitionSourceUserId
+      ? String(horseDoc.acquisitionSourceUserId)
+      : undefined;
+    const acquisitionSourceDetails = acquisitionSourceUserId
+      ? await resolveUserDetails(acquisitionSourceUserId)
+      : await resolveUserDetails(String(horseDoc.mainOwnerUserId));
+    sections.value.acquisitionSourceUser = {
+      userId: acquisitionSourceUserId ?? String(horseDoc.mainOwnerUserId),
+      name: acquisitionSourceDetails.label,
+      imageUrl: acquisitionSourceDetails.imageUrl,
+    };
+  }
+
+  if (sections.proactiveRepresentatives) {
+    const rawResponsibles = (
+      Array.isArray(horseDoc.responsibles) ? horseDoc.responsibles : []
+    ).filter((r) => r.userId != null);
+    const details = await Promise.all(
+      rawResponsibles.map((r) => resolveUserDetails(String(r.userId))),
+    );
+    sections.proactiveRepresentatives.members = rawResponsibles.map((entry, i) => ({
+      userId: String(entry.userId),
+      name: details[i]?.label,
+      imageUrl: details[i]?.imageUrl,
+    }));
+  }
+
+  if (sections.coOwnerManagement) {
+    const rawCoOwners = (
+      Array.isArray(horseDoc.coOwners) ? horseDoc.coOwners : []
+    ).filter((c) => c.userId != null);
+    const details = await Promise.all(
+      rawCoOwners.map((c) => resolveUserDetails(String(c.userId))),
+    );
+    sections.coOwnerManagement.members = rawCoOwners.map((entry, i) => ({
+      userId: String(entry.userId),
+      name: details[i]?.label,
+      imageUrl: details[i]?.imageUrl,
+    }));
+  }
+
   const horseView: HorseViewDto = {
     id: String(horseDoc._id),
     name: horseDoc.name as string | undefined,
