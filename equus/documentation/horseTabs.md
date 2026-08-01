@@ -4,7 +4,7 @@
 
 | Tab | Route | Minimum Role | Purpose |
 |-----|-------|-------------|---------|
-| Hub | `/horses/[id]` | `guest` | Read-only social profile page — hero, stats, about, gallery, upcoming events, pedigree, team, identification. Data from `useHorseView`. No visibility popovers. Only tab visible to unauthenticated/guest users; EntityTabs auto-hides entirely when only hub is available. |
+| Hub | `/horses/[id]` | `guest` | Read-only social profile page — hero, about, value, gallery, pedigree, people. Data from `useHorseView`. No visibility popovers. Only tab visible to unauthenticated/guest users; EntityTabs auto-hides entirely when only hub is available. |
 | Connect | `/horses/[id]/connect` | `responsible` | Invite providers + manage connections table (Admin History `DataTable` pattern). Connections Layer-2 `hubSections.connections` via `HorseSectionVisibility` (also Hub). |
 | Planning | `/horses/[id]/planning` | `related` | Calendar management. Layer-2 `hubSections.planning` via popover + Hub block. Create: ownership team only. Owner team sees full list; others filtered. |
 | Media | `/horses/[id]/media` | `related` | Upload/view photos and videos. Gallery Layer-2 `hubSections.gallery` via popover + Hub block. Owner team sees full list; others filtered. |
@@ -58,7 +58,7 @@ Horse tab UI lives under `components/horses/<tab>/` with a `horse-` filename pre
 The Hub tab is a **read-only social profile** for the horse. Redesigned as a social media-style page. No `HorsePageShell` — no ownership gate.
 
 **Data split:**
-- Shared chrome (`useHorseView` / layout-seeded): role, tabs, horse fields, cheap `horse.sections` (`identity`, `identification`, `pedigree`, `about`, `ownership`). Absent keys mean the viewer lacks access or the owner hid the section.
+- Shared chrome (`useHorseView` / layout-seeded): role, tabs, horse fields, cheap `horse.sections` (`identity`, `identification`, `pedigree`, `about`, `ownership`, `value`, `proactiveRepresentatives`, `coOwnerManagement`). Absent keys mean the viewer lacks access or the owner hid the section.
 - Hub social lists (`useHorseHubSocial` → `GET …/hub-social`, guest-safe): `gallery`, `planning`, `connections`. Not seeded by horse layout — Hub zones own this fetch when wired. Separate from Media / Planning / Connect management tab APIs (auth required).
 
 Layout: full-width hero, then a three-column body on `lg` (left details ≈25%, center media ≈45%, right pedigree/people ≈30%); stacked on smaller screens.
@@ -68,9 +68,9 @@ Components (all read-only, no visibility popovers; under `components/horses/hub/
 HubContent (reads useHorseView — cache hit from layout.tsx)
 ├── HorseHubHero          — cover (heroImageUrl), avatar (profileImageUrl), flag, name, Share; owners upload via ProfilePhotoField
 ├── Left column
-│   ├── HorseHubAbout         — metadata / identity details list
+│   ├── HorseHubAbout         — profile description
 │   ├── HorseHubDisciplines   — discipline tags
-│   └── HorseHubDescription  — biography text
+│   └── HorseHubValue         — read-only sale/value fields
 ├── Center column
 │   └── HorseHubGallery      — media grid (photos/videos) → useHorseHubSocial when wired
 └── Right column

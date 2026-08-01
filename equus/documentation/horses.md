@@ -47,7 +47,7 @@ type HorseViewResponse = {
 };
 ```
 
-`horse.sections` on this endpoint holds **cheap Hub projections** only (`identity`, `identification`, `pedigree`, `about`, `ownership`) — field slices from the horse document after L1+L2. It does **not** include `gallery` / `planning` / `connections` lists (those require Media / Event / Relationship queries).
+`horse.sections` on this endpoint holds **cheap Hub projections** only (`identity`, `identification`, `pedigree`, `about`, `ownership`, `value`, `proactiveRepresentatives`, `coOwnerManagement`) — field slices from the horse document after L1+L2. It does **not** include `gallery` / `planning` / `connections` lists (those require Media / Event / Relationship queries).
 
 Guest-visible chrome also includes `profileImageUrl` and `heroImageUrl` (Hub avatar + cover). Owners set them from Hub (`ProfilePhotoField` upload → media + PATCH) or Media tab (“Set as profile/hero”).
 
@@ -86,9 +86,9 @@ Components under `components/horses/hub/`:
 HubContent
 ├── HorseHubHero          — cover, avatar, name, quick stats, actions  (useHorseView)
 ├── Left column
-│   ├── HorseHubAbout         — metadata / identity details list  (useHorseView sections)
+│   ├── HorseHubAbout         — profile description  (useHorseView sections)
 │   ├── HorseHubDisciplines   — discipline tags
-│   └── HorseHubDescription  — biography text
+│   └── HorseHubValue         — read-only sale/value fields
 ├── Center column
 │   └── HorseHubGallery      — media grid → useHorseHubSocial (when wired)
 └── Right column
@@ -105,7 +105,7 @@ Deferred: upcoming planning events block (would also use hub-social `planning`).
 
 ---
 
-## Two-layer visibility model
+## Three-control visibility model
 
 ```mermaid
 flowchart TB
@@ -132,6 +132,8 @@ flowchart TB
 
 **Layer 2 — Hub sections:** `Horse.hubSections` — which Hub blocks appear? Every section visibility popover is Layer-2 only.
 
+Tabs are a separate, role-based control (`viewerRole` → `allowedTabs`); Layer 1 only gates whether the horse opens at all (404). Layer 2 (`hubSections[key]`) gates which content blocks appear, independent of viewer role.
+
 ```ts
 hubSections: {
   identity: { mode },                 // default public — Profile Identity + Hub
@@ -139,16 +141,16 @@ hubSections: {
   pedigree: { mode },                 // default public — Hub
   about: { mode },                    // default public — Hub
   ownership: { mode },                // default relationship — Admin Ownership + Hub
-  value: { mode },                    // default owner — Admin Horse Value (not Hub-facing)
-  proactiveRepresentatives: { mode }, // default owner — Admin (not Hub-facing)
-  coOwnerManagement: { mode },        // default owner — Admin (not Hub-facing)
+  value: { mode },                    // default owner — Admin Horse Value + Hub
+  proactiveRepresentatives: { mode }, // default owner — Admin + Hub
+  coOwnerManagement: { mode },        // default owner — Admin + Hub
   gallery: { mode },                  // default public — Media Gallery + Hub
   planning: { mode },                 // default public — Planning + Hub
   connections: { mode },              // default relationship — Connect Connections + Hub
 }
 ```
 
-Keys match section responsibility (1:1 with Profile/Admin/Media/Planning/Connect sections that have popovers). **Hub-facing data:** cheap projections on `GET …/horses/:id` (`identity`, `identification`, `pedigree`, `about`, `ownership`); list sections on `GET …/hub-social` (`gallery`, `planning`, `connections`). Admin-only keys stay off Hub. No per-section `entityIds`.
+Keys match section responsibility (1:1 with Profile/Admin/Media/Planning/Connect sections that have popovers). **Hub-facing cheap keys:** `identity` | `identification` | `pedigree` | `about` | `ownership` | `value` | `proactiveRepresentatives` | `coOwnerManagement` projected on `GET …/horses/:id`; **list keys** on `GET …/hub-social` (`gallery`, `planning`, `connections`). No per-section `entityIds`.
 
 **Read flow:** Layer 1 → Layer 2 → render/return only allowed data. Do **not** ship full horse and hide in React.
 
@@ -221,7 +223,7 @@ On success the UI toasts and redirects to `/horses/{horseId}`. Profile visibilit
 Read-only social profile page (optional auth). The Hub tab is the public face of a horse. Data flows from the `layout.tsx` RSC (pre-seeded TanStack cache) — no extra network call.
 
 - Page: `app/[locale]/horses/[horseId]/page.tsx` + `client.tsx`
-- Components: `components/horses/hub/horse-hub-hero.tsx`, `horse-hub-stats.tsx`, `horse-hub-about.tsx`, `horse-hub-gallery.tsx`, `horse-hub-upcoming-events.tsx`, `horse-hub-pedigree.tsx`, `horse-hub-team.tsx`, `horse-hub-identification.tsx`
+- Components: `components/horses/hub/horse-hub-hero.tsx`, `horse-hub-about.tsx`, `horse-hub-disciplines.tsx`, `horse-hub-value.tsx`, `horse-hub-gallery.tsx`, `horse-hub-pedigree.tsx`, `horse-hub-people.tsx`
 - Data: `useHorseView(horseId)` — reads from cache seeded by layout, no additional fetch
 - i18n: `horseHub` namespace
 
