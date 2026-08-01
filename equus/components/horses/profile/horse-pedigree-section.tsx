@@ -47,10 +47,20 @@ function PedigreeParentEntityChip({
   const parent = view?.horse;
   const title = parent?.name ?? fallbackName;
   const imageUrl = parent?.profileImageUrl;
+  const countryCode =
+    parent?.sections?.identity?.countryOfBirth ?? parent?.countryOfBirth;
   const ownerEmail =
     parent?.adminTeam?.find((m) => m.type === "owner")?.email ||
     parent?.adminTeam?.find((m) => m.type === "responsible")?.email ||
     parent?.adminTeam?.[0]?.email;
+
+  if (!horseId) {
+    return (
+      <div className="rounded-md border border-border px-2 py-1.5">
+        <span className="truncate text-sm font-medium text-foreground">{fallbackName}</span>
+      </div>
+    );
+  }
 
   return (
     <EntityChip
@@ -59,6 +69,7 @@ function PedigreeParentEntityChip({
       title={title}
       subtitle={ownerEmail || undefined}
       imageUrl={imageUrl}
+      countryCode={countryCode}
       clearLabel={clearLabel}
       clearTooltip={clearTooltip}
       clearDisabled={clearDisabled}

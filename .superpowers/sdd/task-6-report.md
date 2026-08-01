@@ -1,55 +1,54 @@
-# Task 6 Report: Make countryOfBirth Required in Validations
+# Task 6 Report — Visibility comment / SoT cleanup in code
 
-## What I Implemented
+## What I implemented
 
-1. **Modified `lib/validations/horseForms.ts`**:
-   - Added `import { isValidCountryCode } from "../data/countries.ts"`
-   - Changed `createHorseFormSchema.countryOfBirth` from `optionalTrimmedString(100)` to `z.string().refine((v): boolean => isValidCountryCode(v), { message: "Invalid country code" })`
-   - Changed `identityFormSchema.countryOfBirth` same way
-   - Used explicit `: boolean` return type to suppress Zod's type predicate inference from `isValidCountryCode`'s branded return type
+Replaced the two file-header comments verbatim from the brief, updating them from the stale "two-layer" model to the corrected three-control visibility model (Layer 1 open/404 gate, Tabs role-based navigation, Layer 2 Hub content blocks):
 
-2. **Modified `lib/validations/horse.ts`**:
-   - Added `import { isValidCountryCode } from "../data/countries.ts"`
-   - Changed `createHorseSchema.countryOfBirth` from `z.string().trim().max(100).optional()` to required: `z.string().refine((v): boolean => isValidCountryCode(v), { message: "Invalid country code" })`
-   - Changed `updateHorseProfileSchema.countryOfBirth` to: `z.string().refine((v): boolean => isValidCountryCode(v), { message: "Invalid country code" }).optional()` (still optional for PATCH)
+1. **`equus/lib/horses/horseVisibilityAccess.ts`** — lines 1-14 header replaced. Old: "Horse two-layer visibility" with Layer 1 / Layer 2 only. New: "Horse visibility" describing three independent controls (L1 profileVisibility → 404, Tabs via `viewerRole`/`allowedTabs`/`deriveAllowedTabs`, L2 hubSections mode), modes, nested inclusion, and audience.
+2. **`equus/lib/horses/hubSections.ts`** — lines 1-6 header replaced. Old: "Hub read DTO uses the Hub-facing subset; Admin-only keys still persist here." New: "All keys are Hub-facing" with `buildHorseHubSections` / `attachHubSocialSections`.
 
-3. **Modified `lib/utils/horseProfilePatch.ts`**:
-   - Changed `buildOptionalStringPatch` to `buildStringPatch` for `countryOfBirth` (consistent with name, breed, sex)
+`horseService.ts` required no changes (its Hub DTO comments were already updated in Task 2).
 
-4. **Modified `lib/utils/horseFormMapping.ts`**:
-   - Changed initial payload from typed `const payload: CreateHorsePayload = {...}` to `as CreateHorsePayload` cast to accommodate the new required field (payload is built up conditionally)
+## What I tested and results
 
-5. **Updated 12 test files** — added `countryOfBirth: "US"` to all `horseService.createHorse()` calls in test fixtures
+### Step 3 — grep for stale wording
 
-## What I Tested
+Searched for `not Hub-facing|Admin-only|Hub-facing` in the three scoped files (`horseService.ts`, `horseVisibilityAccess.ts`, `hubSections.ts`):
 
-- `npx tsc --noEmit` — **passes** (only pre-existing unrelated errors remain in table components, profile form mapping, and some test files)
+- `equus/lib/services/horseService.ts` — no matches.
+- `equus/lib/horses/` — one match: the new correct text in `hubSections.ts` line 5 ("All keys are Hub-facing …").
 
-## Files Changed
+No stale "not Hub-facing" / "Admin-only" wording remains for `value`, `proactiveRepresentatives`, or `coOwnerManagement`. `rg` was not required; used the native grep tool.
 
-- `equus/lib/validations/horseForms.ts` — 3 edits (import + 2 field defs)
-- `equus/lib/validations/horse.ts` — 3 edits (import + 2 field defs)
-- `equus/lib/utils/horseProfilePatch.ts` — 1 edit (change patch builder)
-- `equus/lib/utils/horseFormMapping.ts` — 1 edit (cast for required field)
-- `equus/tests/lib/services/horseService.test.ts` — 9 additions
-- `equus/tests/lib/services/breederService.test.ts` — 1 addition
-- `equus/tests/lib/services/coachService.test.ts` — 1 addition
-- `equus/tests/lib/services/farrierService.test.ts` — 1 addition
-- `equus/tests/lib/services/groomService.test.ts` — 1 addition
-- `equus/tests/lib/services/riderService.test.ts` — 1 addition
-- `equus/tests/lib/services/ridingClubService.test.ts` — 1 addition
-- `equus/tests/lib/services/stableService.test.ts` — 1 addition
-- `equus/tests/lib/services/trainerService.test.ts` — 1 addition
-- `equus/tests/lib/services/transportService.test.ts` — 1 addition
-- `equus/tests/lib/services/veterinaryService.test.ts` — 1 addition
-- `equus/tests/lib/horses/horseSubscriptionBilling.test.ts` — 2 additions
+### Step 4 — API test suite
 
-## Self-Review Findings
+`npm test -- tests/lib/services/horseHubSections.test.ts tests/lib/services/horseService.test.ts` from `equus/`:
 
-- **Type predicate issue**: `isValidCountryCode` returns `code is CountryCode` (type predicate/narrowing), causing Zod to infer `countryOfBirth` as the `CountryCode` branded union type instead of `string`. This made empty string defaults (`""`) and conditional payload builds fail type-checking. Fixed by annotating refine callbacks with `: boolean` return type.
-- The existing `emptyCreateHorseFormValues` and `emptyProfileFormValues` have `countryOfBirth: ""` which validation rejects — this is the intended UX (user must pick a valid country).
-- Pre-existing type errors in table components, profile form mapping, and some test files remain unchanged.
+```
+Test Files  2 passed (2)
+     Tests  28 passed (28)
+```
 
-## Issues or Concerns
+PASS — no functional change.
 
-None. Implementation is correct and type-checking passes for the affected code.
+## Files changed
+
+- `equus/lib/horses/horseVisibilityAccess.ts` (12 insertions, 4 deletions — comment only)
+- `equus/lib/horses/hubSections.ts` (3 insertions, 1 deletion — comment only)
+
+`horseService.ts` staged per brief but unchanged (no diff, not part of commit).
+
+## Self-review findings
+
+- Both file headers transcribed exactly as the brief specified (diff verified against brief text).
+- Grep confirms no stale "not Hub-facing"/"Admin-only" wording for the three now-Hub-facing keys.
+- API tests pass (28/28).
+- No logic, types, or behavior altered — `git show` diff is comment-only.
+
+## Issues or concerns
+
+- None functional. Note: `equus/AGENTS.md` still contains the stale line "Admin-only: `value` | `proactiveRepresentatives` | `coOwnerManagement`." in its Horse visibility policy section. It is outside this task's three-file scope and was left untouched per scope discipline, but flagging it as a potential follow-up cleanup.
+
+## Commit
+
+- `9545d45` docs: align horse visibility comments with three-control model

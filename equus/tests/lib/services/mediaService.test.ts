@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import mongoose from "mongoose";
-import { deleteMedia, createMedia, listMedia } from "@/lib/services/mediaService";
+import { deleteMedia, createMedia, listMedia, listHorseHubGallery } from "@/lib/services/mediaService";
 import Media from "@/models/Media";
 import Horse from "@/models/Horse";
 import User from "@/models/User";
@@ -286,5 +286,154 @@ describe("listMedia", () => {
     const items = await listMedia(horse._id.toHexString());
     expect(items).toHaveLength(1);
     expect(items[0]?.url).toContain("public.jpg");
+  });
+});
+
+describe("listHorseHubGallery", () => {
+  it("paginates hub-visible public media for guests", async () => {
+    await connectDb();
+    const owner = await User.create({
+      personalDetails: {
+        email: `hub-gal-owner-${Date.now()}@example.com`,
+        password: "hash",
+      },
+      authProvider: "credentials",
+    });
+    const horse = await Horse.create({
+      mainOwnerUserId: owner._id,
+      createdByUserId: owner._id,
+      name: "Hub Gallery Horse",
+      breed: "Arabian",
+      sex: "Mare",
+      profileVisibility: "public",
+      hubSections: { gallery: { mode: "public" } },
+    });
+    const horseId = horse._id.toHexString();
+
+    await Media.create(
+      Array.from({ length: 5 }, (_, i) => ({
+        horseId: horse._id,
+        uploadedByUserId: owner._id,
+        type: i % 2 === 0 ? "image" : "video",
+        url: `https://example.com/m${i}.jpg`,
+        isActive: true,
+        isVisibleOnHub: true,
+        visibilityMode: "public",
+        createdAt: new Date(Date.now() - i * 1000),
+      })),
+    );
+
+    const page1 = await listHorseHubGallery(horseId, null, {
+      page: 1,
+      pageSize: 2,
+      type: "all",
+    });
+    expect(page1.total).toBe(5);
+    expect(page1.items).toHaveLength(2);
+    expect(page1.page).toBe(1);
+    expect(page1.pageSize).toBe(2);
+
+    const photos = await listHorseHubGallery(horseId, null, {
+      page: 1,
+      pageSize: 12,
+      type: "photos",
+    });
+    expect(photos.total).toBe(3);
+    expect(photos.items.every((m) => m.type === "image")).toBe(true);
+  });
+
+  it("excludes hub-hidden and owner-only media for guests", async () => {
+    await connectDb();
+    const owner = await User.create({
+      personalDetails: {
+        email: `hub-gal-hide-${Date.now()}@example.com`,
+        password: "hash",
+      },
+      authProvider: "credentials",
+    });
+    const horse = await Horse.create({
+      mainOwnerUserId: owner._id,
+      createdByUserId: owner._id,
+      name: "Hub Hide Horse",
+      breed: "Arabian",
+      sex: "Mare",
+      profileVisibility: "public",
+      hubSections: { gallery: { mode: "public" } },
+    });
+    const horseId = horse._id.toHexString();
+
+    await Media.create([
+      {
+        horseId: horse._id,
+        uploadedByUserId: owner._id,
+        type: "image",
+        url: "https://example.com/visible.jpg",
+        isActive: true,
+        isVisibleOnHub: true,
+        visibilityMode: "public",
+      },
+      {
+        horseId: horse._id,
+        uploadedByUserId: owner._id,
+        type: "image",
+        url: "https://example.com/hub-off.jpg",
+        isActive: true,
+        isVisibleOnHub: false,
+        visibilityMode: "public",
+      },
+      {
+        horseId: horse._id,
+        uploadedByUserId: owner._id,
+        type: "image",
+        url: "https://example.com/owner-mode.jpg",
+        isActive: true,
+        isVisibleOnHub: true,
+        visibilityMode: "owner",
+      },
+    ]);
+
+    const result = await listHorseHubGallery(horseId, null, {
+      page: 1,
+      pageSize: 12,
+      type: "all",
+    });
+    expect(result.total).toBe(1);
+    expect(result.items[0]?.url).toContain("visible.jpg");
+  });
+
+  it("returns empty when Layer 2 gallery is owner-only for guests", async () => {
+    await connectDb();
+    const owner = await User.create({
+      personalDetails: {
+        email: `hub-gal-l2-${Date.now()}@example.com`,
+        password: "hash",
+      },
+      authProvider: "credentials",
+    });
+    const horse = await Horse.create({
+      mainOwnerUserId: owner._id,
+      createdByUserId: owner._id,
+      name: "Private Gallery Section",
+      breed: "Arabian",
+      sex: "Mare",
+      profileVisibility: "public",
+      hubSections: { gallery: { mode: "owner" } },
+    });
+    await Media.create({
+      horseId: horse._id,
+      uploadedByUserId: owner._id,
+      type: "image",
+      url: "https://example.com/x.jpg",
+      isActive: true,
+      isVisibleOnHub: true,
+      visibilityMode: "public",
+    });
+
+    const result = await listHorseHubGallery(horse._id.toHexString(), null, {
+      page: 1,
+      pageSize: 12,
+    });
+    expect(result.total).toBe(0);
+    expect(result.items).toEqual([]);
   });
 });

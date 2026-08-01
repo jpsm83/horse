@@ -8,6 +8,10 @@ import type { PublicRelationship } from "@/lib/services/relationshipService";
 import type { CreateHorsePayload } from "@/lib/utils/horseFormMapping";
 import type { PublicOwnershipTransfer } from "@/lib/services/ownershipTransferService";
 import type { HorseListResult, HorseListFilters, HorseViewResponse, HorseHubSocialResponse } from "@/lib/services/horseService.ts";
+import type {
+  HorseHubGalleryPage,
+  HubGalleryTypeFilter,
+} from "@/lib/services/mediaService.ts";
 
 // --- Horse view (unified role-aware chrome — no Hub social lists) ---
 
@@ -40,6 +44,35 @@ export function useHorseHubSocial(horseId: string | undefined) {
     queryKey: queryKeys.horses.hubSocial(horseId!),
     queryFn: () => fetchHorseHubSocial(horseId!),
     enabled: !!horseId,
+    placeholderData: (previousData) => previousData,
+  });
+}
+
+// --- Paginated Hub Media gallery ---
+
+async function fetchHorseHubGallery(
+  horseId: string,
+  params: { page: number; pageSize: number; type: HubGalleryTypeFilter },
+): Promise<HorseHubGalleryPage> {
+  const search = new URLSearchParams({
+    page: String(params.page),
+    pageSize: String(params.pageSize),
+    type: params.type,
+  });
+  const response = await fetchWithAuth(
+    `/api/v1/horses/${encodeURIComponent(horseId)}/hub-gallery?${search}`,
+  );
+  return parseApiResponse<HorseHubGalleryPage>(response);
+}
+
+export function useHorseHubGallery(
+  horseId: string | undefined,
+  params: { page: number; pageSize: number; type: HubGalleryTypeFilter },
+) {
+  return useQuery({
+    queryKey: queryKeys.horses.hubGallery(horseId!, params),
+    queryFn: () => fetchHorseHubGallery(horseId!, params),
+    enabled: !!horseId && params.pageSize > 0,
     placeholderData: (previousData) => previousData,
   });
 }

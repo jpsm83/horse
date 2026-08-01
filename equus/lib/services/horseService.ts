@@ -129,6 +129,8 @@ export type OwnerHorseCoOwner = {
   email?: string;
   phone?: string;
   imageUrl?: string;
+  /** ISO alpha-2 from personalDetails.nationality. */
+  countryCode?: string;
   joinedAt?: string;
 };
 
@@ -138,6 +140,8 @@ export type OwnerHorseResponsible = {
   email?: string;
   phone?: string;
   imageUrl?: string;
+  /** ISO alpha-2 from personalDetails.nationality. */
+  countryCode?: string;
   joinedAt?: string;
 };
 
@@ -148,6 +152,8 @@ export type AdminTeamMember = {
   email: string;
   phone?: string;
   imageUrl?: string;
+  /** ISO alpha-2 from personalDetails.nationality. */
+  countryCode?: string;
   joinedAt: string;
 };
 
@@ -177,6 +183,7 @@ export type OwnerHorseHubSummary = {
     name: string;
     email: string;
     imageUrl?: string;
+    countryCode?: string;
   };
   pedigree?: Record<string, unknown>;
   profileImageUrl?: string;
@@ -213,21 +220,27 @@ export type HorseHubPedigreeSection = {
   sireName?: string;
   damName?: string;
   bloodlineNotes?: string;
+  sireHorseId?: string;
+  damHorseId?: string;
 };
 
 export type HorseHubAboutSection = {
   description?: string;
 };
 
-export type HorseHubOwnershipSection = {
-  coOwnerCount: number;
-  soleOwner: boolean;
-};
-
 export type HorseHubMemberSummary = {
   userId: string;
   name?: string;
   imageUrl?: string;
+  /** ISO alpha-2 from personalDetails.nationality (hub-safe). */
+  countryCode?: string;
+};
+
+export type HorseHubOwnershipSection = {
+  coOwnerCount: number;
+  soleOwner: boolean;
+  /** Hub-safe main owner summary (no email/phone). */
+  mainOwner?: HorseHubMemberSummary;
 };
 
 export type HorseHubValueSection = {
@@ -336,6 +349,7 @@ export type HorseViewDto = {
     name: string;
     email: string;
     imageUrl?: string;
+    countryCode?: string;
   };
   pedigree?: Record<string, unknown>;
   description?: string;
@@ -745,10 +759,11 @@ async function resolveUserDetails(userId: string): Promise<{
   email: string;
   phone?: string;
   imageUrl?: string;
+  countryCode?: string;
 }> {
   const user = await User.findById(userId)
     .select(
-      "personalDetails.firstName personalDetails.lastName personalDetails.username personalDetails.email personalDetails.phoneNumber personalDetails.imageUrl",
+      "personalDetails.firstName personalDetails.lastName personalDetails.username personalDetails.email personalDetails.phoneNumber personalDetails.imageUrl personalDetails.nationality",
     )
     .lean();
   const pd = user?.personalDetails as
@@ -759,10 +774,14 @@ async function resolveUserDetails(userId: string): Promise<{
         email?: string;
         phoneNumber?: string;
         imageUrl?: string;
+        nationality?: string;
       }
     | undefined;
   const imageUrl =
     typeof pd?.imageUrl === "string" && pd.imageUrl.trim() ? pd.imageUrl.trim() : undefined;
+  const nationality =
+    typeof pd?.nationality === "string" ? pd.nationality.trim().toUpperCase() : "";
+  const countryCode = nationality.length === 2 ? nationality : undefined;
   return {
     label:
       [pd?.firstName, pd?.lastName].filter(Boolean).join(" ").trim() ||
@@ -771,6 +790,7 @@ async function resolveUserDetails(userId: string): Promise<{
     email: pd?.email ?? "",
     phone: pd?.phoneNumber,
     imageUrl,
+    countryCode,
   };
 }
 
@@ -805,6 +825,7 @@ export async function getOwnerHorseHubSummary(
       email: details.email,
       phone: details.phone,
       imageUrl: details.imageUrl,
+      countryCode: details.countryCode,
       joinedAt: entry.joinedAt instanceof Date ? entry.joinedAt.toISOString() : undefined,
     });
   }
@@ -824,6 +845,7 @@ export async function getOwnerHorseHubSummary(
       email: details.email,
       phone: details.phone,
       imageUrl: details.imageUrl,
+      countryCode: details.countryCode,
       joinedAt: entry.joinedAt instanceof Date ? entry.joinedAt.toISOString() : undefined,
     });
   }
@@ -840,6 +862,7 @@ export async function getOwnerHorseHubSummary(
     name: acquisitionSourceUser.label,
     email: acquisitionSourceUser.email,
     imageUrl: acquisitionSourceUser.imageUrl,
+    countryCode: acquisitionSourceUser.countryCode,
   };
   const adminTeam: AdminTeamMember[] = [
     {
@@ -849,6 +872,7 @@ export async function getOwnerHorseHubSummary(
       email: mainOwnerDetails.email,
       phone: mainOwnerDetails.phone,
       imageUrl: mainOwnerDetails.imageUrl,
+      countryCode: mainOwnerDetails.countryCode,
       joinedAt: (horse.createdAt instanceof Date ? horse.createdAt : new Date()).toISOString(),
     },
     ...coOwners.map((c) => ({
@@ -858,6 +882,7 @@ export async function getOwnerHorseHubSummary(
       email: c.email ?? "",
       phone: c.phone,
       imageUrl: c.imageUrl,
+      countryCode: c.countryCode,
       joinedAt: c.joinedAt ?? "",
     })),
     ...responsibles.map((r) => ({
@@ -867,6 +892,7 @@ export async function getOwnerHorseHubSummary(
       email: r.email ?? "",
       phone: r.phone,
       imageUrl: r.imageUrl,
+      countryCode: r.countryCode,
       joinedAt: r.joinedAt ?? "",
     })),
   ];
@@ -1036,10 +1062,16 @@ export function buildHorseHubSections(
 
   if (canViewHorseHubSection(horseDoc, "pedigree", audience)) {
     const pedigree = (horseDoc.pedigree ?? {}) as Record<string, unknown>;
+    const sireHorseId =
+      pedigree.sireHorseId != null ? String(pedigree.sireHorseId) : undefined;
+    const damHorseId =
+      pedigree.damHorseId != null ? String(pedigree.damHorseId) : undefined;
     sections.pedigree = {
       sireName: pedigree.sireName as string | undefined,
       damName: pedigree.damName as string | undefined,
       bloodlineNotes: pedigree.bloodlineNotes as string | undefined,
+      sireHorseId,
+      damHorseId,
     };
   }
 
@@ -1278,8 +1310,8 @@ export async function getHorseView(
   // Cheap Hub section projections only (no Media / Event / Relationship queries)
   const sections = buildHorseHubSections(horseDoc, audience);
 
-  // Hub-safe enrichment for value / proactive / co-owner sections (L2 + L1 only —
-  // NOT gated by isOwnerTeam). No email or phone on Hub projections.
+  // Hub-safe enrichment for value / ownership / proactive / co-owner sections
+  // (L2 + L1 only — NOT gated by isOwnerTeam). No email or phone on Hub projections.
   if (sections.value) {
     const acquisitionSourceUserId = horseDoc.acquisitionSourceUserId
       ? String(horseDoc.acquisitionSourceUserId)
@@ -1291,6 +1323,18 @@ export async function getHorseView(
       userId: acquisitionSourceUserId ?? String(horseDoc.mainOwnerUserId),
       name: acquisitionSourceDetails.label,
       imageUrl: acquisitionSourceDetails.imageUrl,
+      countryCode: acquisitionSourceDetails.countryCode,
+    };
+  }
+
+  if (sections.ownership) {
+    const mainOwnerUserId = String(horseDoc.mainOwnerUserId);
+    const mainOwnerDetails = await resolveUserDetails(mainOwnerUserId);
+    sections.ownership.mainOwner = {
+      userId: mainOwnerUserId,
+      name: mainOwnerDetails.label,
+      imageUrl: mainOwnerDetails.imageUrl,
+      countryCode: mainOwnerDetails.countryCode,
     };
   }
 
@@ -1305,6 +1349,7 @@ export async function getHorseView(
       userId: String(entry.userId),
       name: details[i]?.label,
       imageUrl: details[i]?.imageUrl,
+      countryCode: details[i]?.countryCode,
     }));
   }
 
@@ -1319,6 +1364,7 @@ export async function getHorseView(
       userId: String(entry.userId),
       name: details[i]?.label,
       imageUrl: details[i]?.imageUrl,
+      countryCode: details[i]?.countryCode,
     }));
   }
 
@@ -1374,12 +1420,14 @@ export async function getHorseView(
             name: acquisitionSourceDetails.label,
             email: acquisitionSourceDetails.email,
             imageUrl: acquisitionSourceDetails.imageUrl,
+            countryCode: acquisitionSourceDetails.countryCode,
           }
         : {
             userId: String(horseDoc.mainOwnerUserId),
             name: mainOwnerDetails.label,
             email: mainOwnerDetails.email,
             imageUrl: mainOwnerDetails.imageUrl,
+            countryCode: mainOwnerDetails.countryCode,
           };
 
     const coOwners: OwnerHorseCoOwner[] = rawCoOwners.map((entry, i) => ({
@@ -1389,6 +1437,7 @@ export async function getHorseView(
       email: coOwnerDetails[i].email,
       phone: coOwnerDetails[i].phone,
       imageUrl: coOwnerDetails[i].imageUrl,
+      countryCode: coOwnerDetails[i].countryCode,
       joinedAt: entry.joinedAt instanceof Date ? entry.joinedAt.toISOString() : undefined,
     }));
 
@@ -1398,6 +1447,7 @@ export async function getHorseView(
       email: responsibleDetails[i].email,
       phone: responsibleDetails[i].phone,
       imageUrl: responsibleDetails[i].imageUrl,
+      countryCode: responsibleDetails[i].countryCode,
       joinedAt: entry.joinedAt instanceof Date ? entry.joinedAt.toISOString() : undefined,
     }));
 
@@ -1409,6 +1459,7 @@ export async function getHorseView(
         email: mainOwnerDetails.email,
         phone: mainOwnerDetails.phone,
         imageUrl: mainOwnerDetails.imageUrl,
+        countryCode: mainOwnerDetails.countryCode,
         joinedAt: (horseDoc.createdAt instanceof Date ? horseDoc.createdAt : new Date()).toISOString(),
       },
       ...coOwners.map((c) => ({
@@ -1418,6 +1469,7 @@ export async function getHorseView(
         email: c.email ?? "",
         phone: c.phone,
         imageUrl: c.imageUrl,
+        countryCode: c.countryCode,
         joinedAt: c.joinedAt ?? "",
       })),
       ...responsibles.map((r) => ({
@@ -1427,6 +1479,7 @@ export async function getHorseView(
         email: r.email ?? "",
         phone: r.phone,
         imageUrl: r.imageUrl,
+        countryCode: r.countryCode,
         joinedAt: r.joinedAt ?? "",
       })),
     ];

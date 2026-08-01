@@ -1,0 +1,15 @@
+---
+description: Horse/Equus project — follow repo rules.md and equus/AGENTS.md
+alwaysApply: true
+---
+
+# Horse / Equus project rules
+
+On every task in this repo:
+
+1. Follow [`rules.md`](../../rules.md) (senior engineer workflow and decision priority).
+2. When working under `equus/`, also follow [`equus/AGENTS.md`](../../equus/AGENTS.md) and [`equus/CLAUDE.md`](../../equus/CLAUDE.md).
+
+If `rules.md` and `AGENTS.md` conflict, **prefer `equus/AGENTS.md`** (it is the current Equus SoT: Next.js layered structure, horse tab conventions, visibility, TanStack Query, etc.).
+
+Before coding: state understanding, affected areas, and plan. Ask when business logic is unclear.

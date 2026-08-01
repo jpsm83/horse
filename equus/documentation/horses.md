@@ -21,7 +21,8 @@ Related:
 | `GET` | `/api/v1/horses?mine=true&page=1&limit=20` | List horses — optional auth; `mine` filters to owned/co-owned for authenticated users; returns public horses for guests |
 | `POST` | `/api/v1/horses` | Create a horse owned by the authenticated user (`mainOwnerUserId`, `createdByUserId`) |
 | `GET` | `/api/v1/horses/:id` | **Unified role-aware horse view** — returns `{ viewerRole, allowedTabs, horse }` (replaces the retired `/owner` and `/hub` endpoints). Auth optional; `viewerRole` determines payload scope. Slim chrome: cheap Hub section projections only — **no** gallery/planning/connections lists. |
-| `GET` | `/api/v1/horses/:id/hub-social` | **Hub social lists** (guest-safe) — `{ sections: { gallery?, planning?, connections? } }` filtered by L1+L2. Auth optional. Hub tab only — not seeded by horse layout. |
+| `GET` | `/api/v1/horses/:id/hub-social` | **Hub social lists** (guest-safe) — `{ sections: { gallery?, planning?, connections? } }` filtered by L1+L2. Auth optional. Hub tab only — not seeded by horse layout. Full gallery array (legacy/companion); prefer `hub-gallery` for Hub Media UI. |
+| `GET` | `/api/v1/horses/:id/hub-gallery` | **Paginated Hub Media** — `{ items, total, page, pageSize }` with `page`, `pageSize` (1–24), `type=all\|photos\|videos`. Hub-visible only (`isVisibleOnHub`), audience `visibilityMode`, Layer-2 `gallery`. Auth optional. |
 | `PATCH` | `/api/v1/horses/:id` | Owner profile field patch (not section visibility) |
 | `GET` | `/api/v1/horses/:id/relationships?status=pending` | Outbound pending invites sent by the owner for this horse |
 | `PATCH` | `/api/v1/horses/:id/discovery` | Layer-1 `profileVisibility` only (Admin Visibility form Save) |
@@ -77,7 +78,7 @@ Auth optional (same L1 rules as the horse view). Used by Hub zones via `useHorse
 
 ### Hub tab — social profile page
 
-The Hub tab at `/horses/[horseId]` is a **read-only social profile** for the horse. It reads the slim horse view from the TanStack cache (seeded by `layout.tsx` RSC — no Media/Event/Relationship queries). Cheap `horse.sections` keys gate presence for identity/about/pedigree/etc. Gallery / planning / connections **lists** load via `GET /api/v1/horses/:id/hub-social` (`useHorseHubSocial`) when those Hub zones are wired — guest-safe and Hub-only (not seeded by the shared layout).
+The Hub tab at `/horses/[horseId]` is a **read-only social profile** for the horse. It reads the slim horse view from the TanStack cache (seeded by `layout.tsx` RSC — no Media/Event/Relationship queries). Cheap `horse.sections` keys gate presence for identity/about/pedigree/etc. Hub **Media** loads via `GET /api/v1/horses/:id/hub-gallery` (`useHorseHubGallery`) with pagination sized to the responsive grid. Planning / connections lists still use `GET …/hub-social` when those zones are wired.
 
 Layout: full-width hero, then a three-column body on `lg` (left details, center media, right pedigree/people); stacked on smaller screens.
 
@@ -224,10 +225,12 @@ Read-only social profile page (optional auth). The Hub tab is the public face of
 
 - Page: `app/[locale]/horses/[horseId]/page.tsx` + `client.tsx`
 - Components: `components/horses/hub/horse-hub-hero.tsx`, `horse-hub-about.tsx`, `horse-hub-disciplines.tsx`, `horse-hub-value.tsx`, `horse-hub-gallery.tsx`, `horse-hub-pedigree.tsx`, `horse-hub-people.tsx`
-- Data: `useHorseView(horseId)` — reads from cache seeded by layout, no additional fetch
+- Data: `useHorseView(horseId)` for chrome sections; Hub Media via `useHorseHubGallery` → `GET …/hub-gallery` (paginated, responsive page size)
 - i18n: `horseHub` namespace
 
 Layer 1 deny → 404. Guests may view when Layer 1 allows. No visibility popovers on Hub; those live on Profile/Admin/Media/Planning/Connect.
+
+**Hub Media:** `horse-hub-gallery.tsx` — All/Photos/Videos tabs, responsive grid (6/9/12), pagination, view-only lightbox (`HorseMediaLightboxDialog`). Only Hub-visible items (`isVisibleOnHub`) with audience `visibilityMode` after Layer-2 `gallery`.
 
 ### Horse profile (`/horses/[horseId]/profile`)
 
@@ -314,7 +317,7 @@ Single **Media Gallery Control** section: tile dropzone as the first gallery cel
 - i18n: `horseMedia` namespace
 
 **Cloudinary folder structure:** `horses/{horseId}/media/{sourceEntityType}/`
-**Visibility:** Layer-2 `hubSections.gallery` (section visibility Popover) gates Hub gallery and filters `GET …/media` for non–owner-team viewers. Per-item Eye toggles `isVisibleOnHub` (Hub gallery requires Hub-visible items). Owner-uploaded media defaults to public; entity-uploaded media defaults to owner-only. Management tab still uses `HorsePageShell` (auth + owner summary).
+**Visibility:** Layer-2 `hubSections.gallery` (section visibility Popover) gates Hub gallery and filters `GET …/media` for non–owner-team viewers. Per-item Eye toggles `isVisibleOnHub` (Hub gallery requires Hub-visible items). Owner-uploaded media defaults to public; entity-uploaded media defaults to owner-only. Hub Media UI uses `GET …/hub-gallery` (paginated). Management tab still uses `HorsePageShell` (auth + owner summary).
 
 ### Deletion policy (Media and Documents)
 

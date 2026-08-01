@@ -55,6 +55,9 @@ export function useUploadMedia(horseId: string) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.horses.media(horseId),
       });
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.horses.all, horseId, "hub-gallery"],
+      });
     },
   });
 }
@@ -73,6 +76,9 @@ export function useDeleteMedia(horseId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.horses.media(horseId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.horses.all, horseId, "hub-gallery"],
       });
     },
   });
@@ -96,6 +102,9 @@ export function useToggleMediaVisibility(horseId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.horses.media(horseId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.horses.all, horseId, "hub-gallery"],
       });
     },
   });

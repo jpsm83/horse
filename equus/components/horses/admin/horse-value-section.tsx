@@ -115,6 +115,7 @@ export function HorseValueSection({
             title={acquisitionSourceUser.name}
             subtitle={acquisitionSourceUser.email || undefined}
             imageUrl={acquisitionSourceUser.imageUrl}
+            countryCode={acquisitionSourceUser.countryCode}
           />
         </div>
       ) : null}

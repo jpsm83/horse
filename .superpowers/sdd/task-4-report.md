@@ -1,28 +1,34 @@
-# Task 4 Report: Replace countryOfBirth with FlagSelectField
+# Task 4 Report: Wire Hub About section
 
-## What was implemented
+## Status: DONE
 
-- Added imports: `useLocale` from `next-intl`, `FlagSelectField` from `@/components/shared/flag-select-field`, `getCountrySelectOptions` from `@/components/shared/country-options`, `AppLocale` type from `@/i18n/resolveLocale`
-- Added `currentLocale` (cast as `AppLocale`) and `countryOptions` (via `useMemo`) inside `IdentitySection`
-- Replaced the plain `<TextField>` for `countryOfBirth` with `<Controller>` + `<FlagSelectField>`, matching the same pattern used in `profile-form.tsx` for `nationality`
+## What I implemented
 
-## Testing
+- **`equus/components/horses/hub/horse-hub-about.tsx`** — Replaced the placeholder (which rendered skeleton rows and took no props) with the real component transcribed verbatim from the brief. `HorseHubAbout({ horse, className })` now:
+  - Reads `horse.sections.about` (Layer-2 `about` section).
+  - Returns `null` when the section is absent.
+  - Renders a `Section` titled `t("about")` containing the description, falling back to `t("aboutEmpty")` when the description is blank/whitespace-only.
+- **`equus/app/[locale]/horses/[horseId]/client.tsx`** — Changed `<HorseHubAbout />` to `<HorseHubAbout horse={horse} />` inside the existing ErrorBoundary. `horse` is already in scope (`const horse = view?.horse;`).
 
-- Ran `npx tsc --noEmit` — no errors in `identity-section.tsx`
-- Pre-existing errors in other files (unrelated to this change): `admin-history-section.tsx`, `color-range-badge.tsx`, `data-table.tsx`, `profileFormMapping.ts`, and test files
+## What I tested
+
+- **Lint**: `npm run lint -- "app/[locale]/horses/[horseId]/client.tsx" "components/horses/hub/horse-hub-about.tsx"` → PASS (no output, exit 0, no errors).
+- **TypeScript**: `npx tsc --noEmit` → 42 errors, all pre-existing baseline errors (tests, table components, horse-create-form, horseService sireId/notes typing, etc.). **Zero errors** in either touched file.
 
 ## Files changed
 
-- `equus/components/horses/profile/identity-section.tsx` — 24 insertions, 5 deletions
+- `equus/components/horses/hub/horse-hub-about.tsx` (rewritten)
+- `equus/app/[locale]/horses/[horseId]/client.tsx` (1 line: pass `horse`)
 
-## Self-review
+## Self-review findings
 
-- Change follows the exact pattern from `profile-form.tsx` lines 475-489
-- Uses `control` prop (not `form.control`) consistent with the component's existing pattern
-- `currentLocale` cast to `AppLocale` to match `getCountrySelectOptions` parameter type — same approach as `profile-form.tsx`
-- No dead imports or code left behind
-- Import for `useMemo` was already present
+- [x] Component transcribed exactly as the brief specified (verbatim, including file header docblock).
+- [x] Returns `null` when `sections.about` is absent (`if (!about) return null;`).
+- [x] Shows description or `aboutEmpty` fallback.
+- [x] `horse` passed in client.tsx; type `HorseViewDto` matches `view.horse`.
+- [x] Imports verified: `Section` exists and accepts `title` + `className`; `HorseHubAboutSection.description` exists; `about` / `aboutEmpty` keys present in `horseHub` namespace in both `messages/en.json` and `messages/es.json`.
+- [x] Lint clean on touched files.
 
 ## Issues or concerns
 
-None.
+- None. No unit tests exist for these hub UI components in this repo (confirmed per task description); verification was lint + typecheck.

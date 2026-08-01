@@ -61,31 +61,31 @@ export function HubContent({ horseId }: HubContentProps) {
         />
       </ErrorBoundary>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.5fr_1fr] lg:items-start">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.5fr_1fr] lg:items-stretch">
         <div className="flex min-w-0 flex-col gap-4">
           <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
             <HorseHubAbout horse={horse} />
           </ErrorBoundary>
           <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-            <HorseHubDisciplines />
+            <HorseHubDisciplines horse={horse} />
           </ErrorBoundary>
           <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
             <HorseHubValue horse={horse} />
           </ErrorBoundary>
         </div>
 
-        <div className="flex min-w-0 flex-col gap-4 lg:min-h-0">
+        <div className="flex min-h-0 min-w-0 flex-col lg:h-full">
           <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-            <HorseHubGallery />
+            <HorseHubGallery horseId={horseId} className="h-full min-h-0 flex-1" />
           </ErrorBoundary>
         </div>
 
         <div className="flex min-w-0 flex-col gap-4">
           <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-            <HorseHubPedigree />
+            <HorseHubPedigree horse={horse} />
           </ErrorBoundary>
           <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-            <HorseHubPeople />
+            <HorseHubPeople horse={horse} />
           </ErrorBoundary>
         </div>
       </div>

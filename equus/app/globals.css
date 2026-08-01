@@ -71,6 +71,28 @@
   --color-badge-band-pink-foreground: var(--badge-band-pink-foreground);
   --color-badge-band-neutral: var(--badge-band-neutral);
   --color-badge-band-neutral-foreground: var(--badge-band-neutral-foreground);
+  --color-discipline-jumping: var(--discipline-jumping);
+  --color-discipline-jumping-foreground: var(--discipline-jumping-foreground);
+  --color-discipline-dressage: var(--discipline-dressage);
+  --color-discipline-dressage-foreground: var(--discipline-dressage-foreground);
+  --color-discipline-eventing: var(--discipline-eventing);
+  --color-discipline-eventing-foreground: var(--discipline-eventing-foreground);
+  --color-discipline-racing: var(--discipline-racing);
+  --color-discipline-racing-foreground: var(--discipline-racing-foreground);
+  --color-discipline-breeding: var(--discipline-breeding);
+  --color-discipline-breeding-foreground: var(--discipline-breeding-foreground);
+  --color-discipline-rehabilitation: var(--discipline-rehabilitation);
+  --color-discipline-rehabilitation-foreground: var(--discipline-rehabilitation-foreground);
+  --color-discipline-leisure: var(--discipline-leisure);
+  --color-discipline-leisure-foreground: var(--discipline-leisure-foreground);
+  --color-discipline-western: var(--discipline-western);
+  --color-discipline-western-foreground: var(--discipline-western-foreground);
+  --color-discipline-endurance: var(--discipline-endurance);
+  --color-discipline-endurance-foreground: var(--discipline-endurance-foreground);
+  --color-discipline-driving: var(--discipline-driving);
+  --color-discipline-driving-foreground: var(--discipline-driving-foreground);
+  --color-discipline-other: var(--discipline-other);
+  --color-discipline-other-foreground: var(--discipline-other-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -150,6 +172,29 @@
   --badge-band-pink-foreground: #be185d;
   --badge-band-neutral: #e5e7eb;
   --badge-band-neutral-foreground: #6b7280;
+  /* Hub discipline pills — dark fills + light text for contrast on cards */
+  --discipline-jumping: #355f45;
+  --discipline-jumping-foreground: #ffffff;
+  --discipline-dressage: #3a5568;
+  --discipline-dressage-foreground: #ffffff;
+  --discipline-eventing: #2f5c5c;
+  --discipline-eventing-foreground: #ffffff;
+  --discipline-racing: #8b3535;
+  --discipline-racing-foreground: #ffffff;
+  --discipline-breeding: #5a3d6a;
+  --discipline-breeding-foreground: #ffffff;
+  --discipline-rehabilitation: #6a3d52;
+  --discipline-rehabilitation-foreground: #ffffff;
+  --discipline-leisure: #445a4d;
+  --discipline-leisure-foreground: #ffffff;
+  --discipline-western: #8a4a18;
+  --discipline-western-foreground: #ffffff;
+  --discipline-endurance: #6b5a28;
+  --discipline-endurance-foreground: #ffffff;
+  --discipline-driving: #3d5059;
+  --discipline-driving-foreground: #ffffff;
+  --discipline-other: #5c5b5b;
+  --discipline-other-foreground: #ffffff;
   --excel-gridline: #000000;
   --excel-header-fill: #d1d0ce;
 }
@@ -197,6 +242,28 @@
   --sidebar-ring: #57463a;
   --nav-tab-background: #2e2b26;
   --nav-tab-foreground: #e5e7eb;
+  --discipline-jumping: #3d5248;
+  --discipline-jumping-foreground: #ffffff;
+  --discipline-dressage: #3f4a58;
+  --discipline-dressage-foreground: #ffffff;
+  --discipline-eventing: #3a4f52;
+  --discipline-eventing-foreground: #ffffff;
+  --discipline-racing: #6b3a3a;
+  --discipline-racing-foreground: #ffffff;
+  --discipline-breeding: #4d4058;
+  --discipline-breeding-foreground: #ffffff;
+  --discipline-rehabilitation: #5a3f4a;
+  --discipline-rehabilitation-foreground: #ffffff;
+  --discipline-leisure: #454850;
+  --discipline-leisure-foreground: #ffffff;
+  --discipline-western: #57463a;
+  --discipline-western-foreground: #ffffff;
+  --discipline-endurance: #524a38;
+  --discipline-endurance-foreground: #ffffff;
+  --discipline-driving: #434750;
+  --discipline-driving-foreground: #ffffff;
+  --discipline-other: #4a4c52;
+  --discipline-other-foreground: #ffffff;
 }
 
 /* Table color-range badge bands — class names used by COLOR_BAND_CONFIGS */
@@ -255,6 +322,52 @@
   .badge-band-swatch-blue { background-color: var(--badge-band-blue); }
   .badge-band-swatch-purple { background-color: var(--badge-band-purple); }
   .badge-band-swatch-pink { background-color: var(--badge-band-pink); }
+
+  /* Hub discipline pills — dark semantic fills (default + onyx) */
+  .discipline-badge-jumping {
+    background-color: var(--discipline-jumping);
+    color: var(--discipline-jumping-foreground);
+  }
+  .discipline-badge-dressage {
+    background-color: var(--discipline-dressage);
+    color: var(--discipline-dressage-foreground);
+  }
+  .discipline-badge-eventing {
+    background-color: var(--discipline-eventing);
+    color: var(--discipline-eventing-foreground);
+  }
+  .discipline-badge-racing {
+    background-color: var(--discipline-racing);
+    color: var(--discipline-racing-foreground);
+  }
+  .discipline-badge-breeding {
+    background-color: var(--discipline-breeding);
+    color: var(--discipline-breeding-foreground);
+  }
+  .discipline-badge-rehabilitation {
+    background-color: var(--discipline-rehabilitation);
+    color: var(--discipline-rehabilitation-foreground);
+  }
+  .discipline-badge-leisure {
+    background-color: var(--discipline-leisure);
+    color: var(--discipline-leisure-foreground);
+  }
+  .discipline-badge-western {
+    background-color: var(--discipline-western);
+    color: var(--discipline-western-foreground);
+  }
+  .discipline-badge-endurance {
+    background-color: var(--discipline-endurance);
+    color: var(--discipline-endurance-foreground);
+  }
+  .discipline-badge-driving {
+    background-color: var(--discipline-driving);
+    color: var(--discipline-driving-foreground);
+  }
+  .discipline-badge-other {
+    background-color: var(--discipline-other);
+    color: var(--discipline-other-foreground);
+  }
 
   /*
    * Durable overlay for shadcn dialog/sheet/alert-dialog.

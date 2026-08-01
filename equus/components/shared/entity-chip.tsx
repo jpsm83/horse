@@ -1,8 +1,8 @@
 /**
  * EntityChip — shared identity card for users, horses, and future entities.
  *
- * Presentational: callers supply title/subtitle/image. Links via entityHubPath
- * when entityId is set and a hub route exists for that type.
+ * Presentational: callers supply title/subtitle/image. Always links to the
+ * entity hub via entityHubPath (entityId is required).
  *
  * Display conventions:
  * - user: title = username (or display name), subtitle = email → /user/:id
@@ -15,6 +15,7 @@ import { Link2Off } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { FlagIcon } from "@/components/shared/country-flag.tsx";
 import {
   Tooltip,
   TooltipContent,
@@ -31,12 +32,15 @@ export type { EntityChipEntityType };
 
 export type EntityChipProps = {
   entityType: EntityChipEntityType;
-  entityId?: string;
+  /** Required — chips always navigate to the entity hub. */
+  entityId: string;
   /** Primary line: username (user) or horse name (horse). */
   title: string;
   /** Secondary line: user email, or owner email for a horse. */
   subtitle?: string;
   imageUrl?: string;
+  /** ISO alpha-2 country code; shows a circular flag badge on the avatar. */
+  countryCode?: string;
   clearLabel?: string;
   clearTooltip?: string;
   onClear?: () => void;
@@ -57,6 +61,7 @@ export function EntityChip({
   title,
   subtitle,
   imageUrl,
+  countryCode,
   clearLabel,
   clearTooltip,
   onClear,
@@ -66,26 +71,33 @@ export function EntityChip({
   const href = entityHubPath(entityType, entityId);
 
   const identity = (
-    <>
-      <Avatar className="size-10 shrink-0 rounded-full">
-        {imageUrl ? <AvatarImage src={imageUrl} alt="" /> : null}
-        <AvatarFallback className="bg-muted text-xs text-muted-foreground">
-          {initialsFromName(title)}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-sm font-medium text-foreground">{title}</span>
+    <div className="flex items-center gap-6">
+      <div className="relative size-18 shrink-0 overflow-visible">
+        <Avatar className="size-18 rounded-full">
+          {imageUrl ? <AvatarImage src={imageUrl} alt="" /> : null}
+          <AvatarFallback className="bg-muted text-xs text-muted-foreground">
+            {initialsFromName(title)}
+          </AvatarFallback>
+        </Avatar>
+        {countryCode ? (
+          <span className="pointer-events-none absolute bottom-1 -right-3 z-10 flex size-8 items-center justify-center rounded-full border-2 border-card bg-card shadow-sm">
+            <FlagIcon code={countryCode} sizeClass="size-full" withBorder={false} />
+          </span>
+        ) : null}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <span className="truncate text-md font-medium text-foreground">{title}</span>
         {subtitle ? (
           <span className="truncate text-xs text-muted-foreground">{subtitle}</span>
         ) : null}
       </div>
-    </>
+    </div>
   );
 
   return (
     <div
       className={cn(
-        "flex min-w-0 items-center gap-2 rounded-md border border-border px-2 py-1.5 hover:bg-accent/50",
+        "flex min-w-0 items-center gap-2 rounded-md border border-border p-2 hover:bg-accent/50",
         className,
       )}
     >

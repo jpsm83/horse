@@ -1,3 +1,10 @@
+/**
+ * HorseMediaLightboxDialog — full-screen media viewer (image / video).
+ *
+ * Used by Media tab (with Eye / delete / set-as) and Hub gallery (view-only
+ * when admin callbacks are omitted).
+ */
+
 "use client";
 
 import { useTranslations } from "next-intl";
@@ -26,8 +33,10 @@ type HorseMediaLightboxDialogProps = {
   onOpenChange: (open: boolean) => void;
   onPrevious: () => void;
   onNext: () => void;
-  onToggleVisibility: () => void;
-  onRequestDelete: () => void;
+  /** Omit for Hub view-only. */
+  onToggleVisibility?: () => void;
+  /** Omit for Hub view-only. */
+  onRequestDelete?: () => void;
   onRequestSetAs?: () => void;
   setAsPending?: boolean;
 };
@@ -50,6 +59,7 @@ export function HorseMediaLightboxDialog({
   const hasNext = currentIndex < items.length - 1;
   const description = item?.description?.trim() ?? "";
   const canSetAsImage = item?.type === "image" && Boolean(onRequestSetAs);
+  const showAdminActions = Boolean(onToggleVisibility || onRequestDelete || onRequestSetAs);
 
   if (!item) return null;
 
@@ -104,49 +114,55 @@ export function HorseMediaLightboxDialog({
             </Button>
           )}
 
-          <div className="absolute top-2 right-12 z-10 flex gap-1">
-            {canSetAsImage ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-overlay-foreground hover:bg-overlay-foreground/20 rounded-full"
-                disabled={setAsPending}
-                aria-label={t("setAsImage")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRequestSetAs?.();
-                }}
-              >
-                <ImagePlus className="size-5" />
-              </Button>
-            ) : null}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-overlay-foreground hover:bg-overlay-foreground/20 rounded-full"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleVisibility();
-              }}
-            >
-              {item.isVisibleOnHub !== false ? (
-                <Eye className="size-5" />
-              ) : (
-                <EyeOff className="size-5" />
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-overlay-foreground hover:bg-overlay-foreground/20 rounded-full"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRequestDelete();
-              }}
-            >
-              <Trash2 className="size-5" />
-            </Button>
-          </div>
+          {showAdminActions ? (
+            <div className="absolute top-2 right-12 z-10 flex gap-1">
+              {canSetAsImage ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-overlay-foreground hover:bg-overlay-foreground/20 rounded-full"
+                  disabled={setAsPending}
+                  aria-label={t("setAsImage")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRequestSetAs?.();
+                  }}
+                >
+                  <ImagePlus className="size-5" />
+                </Button>
+              ) : null}
+              {onToggleVisibility ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-overlay-foreground hover:bg-overlay-foreground/20 rounded-full"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleVisibility();
+                  }}
+                >
+                  {item.isVisibleOnHub !== false ? (
+                    <Eye className="size-5" />
+                  ) : (
+                    <EyeOff className="size-5" />
+                  )}
+                </Button>
+              ) : null}
+              {onRequestDelete ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-overlay-foreground hover:bg-overlay-foreground/20 rounded-full"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRequestDelete();
+                  }}
+                >
+                  <Trash2 className="size-5" />
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
 
           {description ? (
             <div className="absolute bottom-0 inset-x-0 z-10 bg-overlay/70 px-4 py-3">

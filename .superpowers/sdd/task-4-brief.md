@@ -1,38 +1,73 @@
-### Task 4: Replace countryOfBirth with FlagSelectField in profile identity section
+# Task 4: Wire Hub About section
 
 **Files:**
-- Modify: `equus/components/horses/profile/identity-section.tsx`
+- Modify: `equus/components/horses/hub/horse-hub-about.tsx`
+- Modify: `equus/app/[locale]/horses/[horseId]/client.tsx`
 
-- [ ] **Step 1: Add imports** at top of identity-section.tsx:
-  - Add `import { FlagSelectField } from "@/components/shared/flag-select-field"`
-  - Add `import { getCountrySelectOptions } from "@/components/shared/country-options"`
-  - Add `import { useLocale } from "next-intl"` (if not already imported)
-  - Add `import { Controller } from "react-hook-form"` (if not already imported — currently imported as `{ Controller, type Control }`)
+**Interfaces:**
+- Consumes: `HorseViewDto` from `@/lib/services/horseService.ts` (already passed as `horse` to `HorseHubHero`).
+- Produces: `HorseHubAbout({ horse, className })` — returns `null` when `sections.about` absent; shows description text or `aboutEmpty`.
 
-- [ ] **Step 2: Add countryOptions computation** inside the IdentitySection component:
-  ```tsx
-  const currentLocale = useLocale();
-  const countryOptions = useMemo(() => getCountrySelectOptions(currentLocale), [currentLocale]);
-  ```
+- [ ] **Step 1: Rewrite `HorseHubAbout` to render `sections.about`**
 
-- [ ] **Step 3: Replace the `<TextField>` for `countryOfBirth`** (lines 120-125) with a `<Controller>` + `<FlagSelectField>`:
-  ```tsx
-  <Controller
-    name="countryOfBirth"
-    control={control}
-    render={({ field, fieldState }) => (
-      <FlagSelectField
-        id="profile-countryOfBirth"
-        label={t("countryOfBirth")}
-        placeholder={tCommon("selectPlaceholder")}
-        value={field.value}
-        onChange={field.onChange}
-        invalid={fieldState.invalid}
-        error={fieldState.error}
-        options={countryOptions}
-      />
-    )}
-  />
-  ```
+Replace the entire contents of `equus/components/horses/hub/horse-hub-about.tsx`:
 
-- [ ] **Step 4: Verify** — run `npx tsc --noEmit`
+```tsx
+/**
+ * HorseHubAbout — Hub tab About card. Shows the horse profile description
+ * when the Layer-2 `about` section allows it; renders nothing otherwise.
+ *
+ * Assembled by HubContent. Reads `horse.sections.about` from useHorseView.
+ */
+
+"use client";
+
+import { useTranslations } from "next-intl";
+
+import { Section } from "@/components/shared/section.tsx";
+import type { HorseViewDto } from "@/lib/services/horseService.ts";
+import { cn } from "@/lib/utils";
+
+type HorseHubAboutProps = {
+  horse: HorseViewDto;
+  className?: string;
+};
+
+export function HorseHubAbout({ horse, className }: HorseHubAboutProps) {
+  const t = useTranslations("horseHub");
+  const about = horse.sections.about;
+  if (!about) return null;
+
+  return (
+    <Section title={t("about")} className={cn(className)}>
+      <p className="text-sm text-muted-foreground">
+        {about.description?.trim() ? about.description : t("aboutEmpty")}
+      </p>
+    </Section>
+  );
+}
+```
+
+- [ ] **Step 2: Pass `horse` to `HorseHubAbout` in `client.tsx`**
+
+In `equus/app/[locale]/horses/[horseId]/client.tsx`, change:
+
+```tsx
+<HorseHubAbout />
+```
+to:
+```tsx
+<HorseHubAbout horse={horse} />
+```
+
+- [ ] **Step 3: Run lint**
+
+Run: `npm run lint -- "app/[locale]/horses/[horseId]/client.tsx" "components/horses/hub/horse-hub-about.tsx"`
+Expected: PASS (no errors).
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add "equus/app/[locale]/horses/[horseId]/client.tsx" equus/components/horses/hub/horse-hub-about.tsx
+git commit -m "feat: wire hub about section to horse description"
+```

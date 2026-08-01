@@ -95,6 +95,7 @@ export function HorseAdminRoleInviteSection({
                 title={member.label}
                 subtitle={member.email}
                 imageUrl={member.imageUrl}
+                countryCode={member.countryCode}
                 clearLabel={t("remove")}
                 clearTooltip={t("removeTooltip")}
                 clearDisabled={createTransfer.isPending}

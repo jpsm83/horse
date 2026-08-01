@@ -90,6 +90,87 @@ export async function listMedia(
     .map((item) => toPublic(item as Record<string, unknown>));
 }
 
+export type HubGalleryTypeFilter = "all" | "photos" | "videos";
+
+export type HorseHubGalleryPage = {
+  items: PublicMedia[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+/**
+ * Paginated Hub gallery — Hub-visible items only (isVisibleOnHub), Layer-2 gallery,
+ * audience-scoped visibilityMode. Does not return management-only hidden media.
+ */
+export async function listHorseHubGallery(
+  horseId: string,
+  requesterUserId: string | null | undefined,
+  options: {
+    page?: number;
+    pageSize?: number;
+    type?: HubGalleryTypeFilter;
+  } = {},
+): Promise<HorseHubGalleryPage> {
+  if (!mongoose.Types.ObjectId.isValid(horseId)) {
+    throw new ApiError(400, "Invalid horse id", "VALIDATION_ERROR");
+  }
+
+  const page = Math.max(1, Math.floor(options.page ?? 1));
+  const pageSize = Math.min(24, Math.max(1, Math.floor(options.pageSize ?? 12)));
+  const type: HubGalleryTypeFilter = options.type ?? "all";
+
+  const horse = await Horse.findById(horseId).lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  const horseDoc = horse as Record<string, unknown>;
+  await assertPublicReadAllowed(horseDoc, "Horse");
+
+  const audience = await resolveHorseViewerAudience(horseDoc, requesterUserId);
+  assertCanViewHorseGlobal(horseDoc, audience);
+
+  if (!canViewHorseHubSection(horseDoc, "gallery", audience)) {
+    return { items: [], total: 0, page, pageSize };
+  }
+
+  const query: Record<string, unknown> = {
+    horseId,
+    isActive: true,
+    isVisibleOnHub: { $ne: false },
+  };
+
+  if (type === "photos") {
+    query.type = "image";
+  } else if (type === "videos") {
+    query.type = "video";
+  }
+
+  // Item visibilityMode: guests see public; relationship sees public + entities;
+  // owner team sees all hub-visible modes.
+  if (!audience.isOwnerTeam) {
+    if (audience.isRelationshipAudience) {
+      query.visibilityMode = { $in: ["public", "entities"] };
+    } else {
+      query.visibilityMode = "public";
+    }
+  }
+
+  const skip = (page - 1) * pageSize;
+  const [total, rows] = await Promise.all([
+    Media.countDocuments(query),
+    Media.find(query).sort({ createdAt: -1 }).skip(skip).limit(pageSize).lean(),
+  ]);
+
+  return {
+    items: rows.map((item) => toPublic(item as Record<string, unknown>)),
+    total,
+    page,
+    pageSize,
+  };
+}
+
 export async function createMedia(
   userId: string,
   horseId: string,

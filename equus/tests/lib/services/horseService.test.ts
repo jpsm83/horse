@@ -292,6 +292,7 @@ describe("getHorseView hub section enrichment", () => {
       {
         $set: {
           "hubSections.value.mode": "public",
+          "hubSections.ownership.mode": "public",
           "hubSections.proactiveRepresentatives.mode": "public",
           "hubSections.coOwnerManagement.mode": "public",
         },
@@ -313,19 +314,94 @@ describe("getHorseView hub section enrichment", () => {
       (view.horse.sections.value?.acquisitionSourceUser as { email?: string } | undefined)?.email,
     ).toBeUndefined();
     expect(view.horse.sections.proactiveRepresentatives?.members).toEqual([
-      {
+      expect.objectContaining({
         userId: String(responsible._id),
         name: expect.any(String),
-        imageUrl: undefined,
-      },
+      }),
     ]);
     expect(view.horse.sections.coOwnerManagement?.members).toEqual([
-      {
+      expect.objectContaining({
         userId: String(coOwner._id),
         name: expect.any(String),
-        imageUrl: undefined,
-      },
+      }),
     ]);
+    expect(view.horse.sections.ownership?.mainOwner).toMatchObject({
+      userId: String(owner._id),
+      name: expect.any(String),
+    });
+    expect(
+      (view.horse.sections.ownership?.mainOwner as { email?: string } | undefined)?.email,
+    ).toBeUndefined();
+  });
+
+  it("projects nationality as countryCode on hub member summaries", async () => {
+    const owner = await createUser("hub-flag-owner@example.com");
+    await User.updateOne(
+      { _id: owner._id },
+      { $set: { "personalDetails.nationality": "PT" } },
+    );
+    const created = await horseService.createHorse(String(owner._id), {
+      name: "Flagged",
+      breed: "Lusitano",
+      sex: "Gelding",
+      countryOfBirth: "PT",
+    });
+    await Horse.updateOne(
+      { _id: created._id },
+      { $set: { "hubSections.ownership.mode": "public" } },
+    );
+
+    const view = await horseService.getHorseView(String(created._id));
+    expect(view.horse.sections.ownership?.mainOwner?.countryCode).toBe("PT");
+  });
+
+  it("projects pedigree parent horse ids for guests when pedigree is visible", async () => {
+    const owner = await createUser("hub-pedigree-ids@example.com");
+    const sireOwner = await createUser("hub-pedigree-sire-owner@example.com");
+    const damOwner = await createUser("hub-pedigree-dam-owner@example.com");
+    const sire = await horseService.createHorse(String(sireOwner._id), {
+      name: "Sire Horse",
+      breed: "Lusitano",
+      sex: "Stallion",
+      countryOfBirth: "US",
+    });
+    const dam = await horseService.createHorse(String(damOwner._id), {
+      name: "Dam Horse",
+      breed: "Lusitano",
+      sex: "Mare",
+      countryOfBirth: "CA",
+    });
+    const created = await horseService.createHorse(String(owner._id), {
+      name: "Foal",
+      breed: "Lusitano",
+      sex: "Gelding",
+      countryOfBirth: "US",
+    });
+
+    await Horse.updateOne(
+      { _id: created._id },
+      {
+        $set: {
+          "hubSections.pedigree.mode": "public",
+          pedigree: {
+            sireName: "Sire Horse",
+            sireHorseId: sire._id,
+            damName: "Dam Horse",
+            damHorseId: dam._id,
+            bloodlineNotes: "Strong bloodline",
+          },
+        },
+      },
+    );
+
+    const view = await horseService.getHorseView(String(created._id));
+    expect(view.horse.sections.pedigree).toMatchObject({
+      sireName: "Sire Horse",
+      damName: "Dam Horse",
+      bloodlineNotes: "Strong bloodline",
+      sireHorseId: String(sire._id),
+      damHorseId: String(dam._id),
+    });
   });
 
   it("omits value section for guests when value is owner-only", async () => {

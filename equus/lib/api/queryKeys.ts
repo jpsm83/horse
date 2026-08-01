@@ -23,6 +23,19 @@ export const queryKeys = {
     view: (horseId: string) => [...queryKeys.horses.all, horseId, "view"] as const,
     /** Guest-safe Hub gallery / planning / connections — Hub tab only. */
     hubSocial: (horseId: string) => [...queryKeys.horses.all, horseId, "hub-social"] as const,
+    /** Paginated Hub Media gallery. */
+    hubGallery: (
+      horseId: string,
+      params: { page: number; pageSize: number; type: string },
+    ) =>
+      [
+        ...queryKeys.horses.all,
+        horseId,
+        "hub-gallery",
+        params.page,
+        params.pageSize,
+        params.type,
+      ] as const,
     owner: (horseId: string) => [...queryKeys.horses.all, horseId, "owner"] as const,
     hub: (horseId: string) => [...queryKeys.horses.all, horseId, "hub"] as const,
     relationships: (horseId: string) => [...queryKeys.horses.all, horseId, "relationships"] as const,

@@ -1,22 +1,67 @@
-### Task 6: Make countryOfBirth required in validations
+# Task 6: Visibility comment / SoT cleanup in code
 
 **Files:**
-- Modify: `equus/lib/validations/horseForms.ts`
-- Modify: `equus/lib/validations/horse.ts`
-- Modify: `equus/lib/utils/horseProfilePatch.ts`
+- Modify: `equus/lib/horses/horseVisibilityAccess.ts`
+- Modify: `equus/lib/horses/hubSections.ts`
+- Modify: `equus/lib/services/horseService.ts` (Hub DTO comment already updated in Task 2)
 
-- [ ] **Step 1: Update client validation** — in `lib/validations/horseForms.ts`:
-  - Import `isValidCountryCode` from `@/lib/data/countries`
-  - In `createHorseFormSchema` (line 166): change `countryOfBirth: optionalTrimmedString(100)` to `countryOfBirth: z.string().refine((v) => isValidCountryCode(v), { message: "Invalid country code" })`
-  - In `identityFormSchema` (line 261): same change
-  - Keep the default value `countryOfBirth: ""` in `emptyCreateHorseFormValues` (form needs an initial value; validation will require it)
+**Interfaces:**
+- Consumes: nothing new.
+- Produces: accurate file-header comments describing L1 / tabs / L2 and the full Hub-facing key set.
 
-- [ ] **Step 2: Update server validation** — in `lib/validations/horse.ts`:
-  - Import `isValidCountryCode` from `@/lib/data/countries`
-  - In `createHorseSchema` (line 82): change `countryOfBirth: z.string().trim().max(100).optional()` to `countryOfBirth: z.string().refine((v) => isValidCountryCode(v), { message: "Invalid country code" })`
-  - In `updateHorseProfileSchema` (line 122): keep it as optional (PATCH can omit the field; only validate if present). Update it to: `countryOfBirth: z.string().refine((v) => isValidCountryCode(v), { message: "Invalid country code" }).optional()`
+- [ ] **Step 1: Update `horseVisibilityAccess.ts` header**
 
-- [ ] **Step 3: Update profile patch** — in `lib/utils/horseProfilePatch.ts`:
-  - Line 175: change `countryOfBirth: buildOptionalStringPatch(dirty, "countryOfBirth", values.countryOfBirth)` to `countryOfBirth: buildStringPatch(dirty, "countryOfBirth", values.countryOfBirth)` (consistent with other required fields like name, breed, sex)
+Replace lines 1-14 (the file header) with:
 
-- [ ] **Step 4: Verify** — run `npx tsc --noEmit`
+```ts
+/**
+ * Horse visibility — single source of truth for audiences and checks.
+ *
+ * Three independent controls:
+ * 1. Layer 1: `Horse.profileVisibility` — can the viewer open the horse at all?
+ *    Deny → 404.
+ * 2. Tabs: `viewerRole` → `allowedTabs` — which management pages appear
+ *    (role-based; see `deriveAllowedTabs` in horseService).
+ * 3. Layer 2: `Horse.hubSections[key].mode` — which Hub blocks appear.
+ *
+ * Modes (Layers 1 and 2): `public` | `relationship` | `owner`
+ * Nested inclusion: owner ⊆ relationship ⊆ public
+ *
+ * Audience:
+ * - owner team: main owner + co-owners + responsibles (`userOwnsEntity`)
+ * - relationship: owner team + accepted horse Relationship + active workplace
+ *   collaborators on related host entity profiles (stable / breeder / transport / ridingClub)
+ */
+```
+
+- [ ] **Step 2: Update `hubSections.ts` header**
+
+Replace lines 1-6 (the file header) with:
+
+```ts
+/**
+ * Horse section visibility — shared Zod shapes and defaults.
+ *
+ * Keys match Profile/Admin section responsibilities (not parent form state).
+ * All keys are Hub-facing: `buildHorseHubSections` projects cheap keys and
+ * `attachHubSocialSections` projects list keys when Layer 2 allows.
+ */
+```
+
+- [ ] **Step 3: Verify `horseService.ts` Hub DTO comments are accurate**
+
+Grep for stale "Admin-only" / "not Hub-facing" wording:
+Run: `rg -n "not Hub-facing|Admin-only|Hub-facing" equus/lib/services/horseService.ts equus/lib/horses/horseVisibilityAccess.ts equus/lib/horses/hubSections.ts`
+Expected: no "not Hub-facing" or "Admin-only" for the three now-Hub-facing keys. The Task 2 comment update already covers `HorseViewDto`.
+
+- [ ] **Step 4: Run full API test suite**
+
+Run: `npm test -- tests/lib/services/horseHubSections.test.ts tests/lib/services/horseService.test.ts`
+Expected: PASS.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add equus/lib/horses/horseVisibilityAccess.ts equus/lib/horses/hubSections.ts equus/lib/services/horseService.ts
+git commit -m "docs: align horse visibility comments with three-control model"
+```

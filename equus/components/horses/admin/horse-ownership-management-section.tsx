@@ -51,6 +51,7 @@ export function HorseOwnershipManagementSection({
         title={currentOwner.name}
         subtitle={currentOwner.email || undefined}
         imageUrl={currentOwner.imageUrl}
+        countryCode={currentOwner.countryCode}
       />
       {currentOwner.joinedAt ? (
         <p className="text-xs text-muted-foreground text-end">
