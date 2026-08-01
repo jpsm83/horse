@@ -343,5 +343,32 @@ describe("getHorseView hub section enrichment", () => {
     expect(view.horse.sections.proactiveRepresentatives).toBeUndefined();
     expect(view.horse.sections.coOwnerManagement).toBeUndefined();
   });
+
+  it("resolves the stored acquisition source user when one is set", async () => {
+    const owner = await createUser("hub-enrich-source-owner@example.com");
+    const source = await createUser("hub-enrich-source-user@example.com");
+    const created = await horseService.createHorse(String(owner._id), {
+      name: "Sourced",
+      breed: "Lusitano",
+      sex: "Gelding",
+      countryOfBirth: "US",
+    });
+
+    await Horse.updateOne(
+      { _id: created._id },
+      {
+        $set: {
+          "hubSections.value.mode": "public",
+          acquisitionSourceUserId: source._id,
+        },
+      },
+    );
+
+    const view = await horseService.getHorseView(String(created._id));
+    expect(view.horse.sections.value?.acquisitionSourceUser).toMatchObject({
+      userId: String(source._id),
+      name: expect.any(String),
+    });
+  });
 });
 

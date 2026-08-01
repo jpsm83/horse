@@ -48,58 +48,70 @@ export function HorseHubValue({ horse, className }: HorseHubValueProps) {
         : String(value.estimatedValue)
       : undefined;
 
+  const hasContent = Boolean(
+    saleStatusLabel ||
+      (value.saleStatus === "for_sale" && value.askingPrice != null) ||
+      estimatedValueLabel ||
+      acquisitionDateLabel ||
+      value.acquisitionSourceUser,
+  );
+
   return (
     <Section title={t("value")} className={cn(className)}>
-      <dl className="flex flex-col gap-3">
-        {saleStatusLabel ? (
-          <div className="flex flex-col gap-1">
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-              {tSale("saleStatus")}
-            </dt>
-            <dd className="text-sm text-foreground">{saleStatusLabel}</dd>
-          </div>
-        ) : null}
-        {value.saleStatus === "for_sale" && value.askingPrice != null ? (
-          <div className="flex flex-col gap-1">
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-              {tSale("askingPrice")}
-            </dt>
-            <dd className="text-sm text-foreground">{value.askingPrice}</dd>
-          </div>
-        ) : null}
-        {estimatedValueLabel ? (
-          <div className="flex flex-col gap-1">
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-              {tSale("estimatedValue")}
-            </dt>
-            <dd className="text-sm text-foreground">{estimatedValueLabel}</dd>
-          </div>
-        ) : null}
-        {acquisitionDateLabel ? (
-          <div className="flex flex-col gap-1">
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-              {tSale("acquisitionDate")}
-            </dt>
-            <dd className="text-sm text-foreground">{acquisitionDateLabel}</dd>
-          </div>
-        ) : null}
-        {value.acquisitionSourceUser ? (
-          <div className="flex flex-col gap-1">
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-              {tSale("acquisitionSource")}
-            </dt>
-            <dd>
-              <EntityChip
-                entityType="user"
-                entityId={value.acquisitionSourceUser.userId}
-                title={value.acquisitionSourceUser.name ?? ""}
-                subtitle={undefined}
-                imageUrl={value.acquisitionSourceUser.imageUrl}
-              />
-            </dd>
-          </div>
-        ) : null}
-      </dl>
+      {hasContent ? (
+        <dl className="flex flex-col gap-3">
+          {saleStatusLabel ? (
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                {tSale("saleStatus")}
+              </dt>
+              <dd className="text-sm text-foreground">{saleStatusLabel}</dd>
+            </div>
+          ) : null}
+          {value.saleStatus === "for_sale" && value.askingPrice != null ? (
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                {tSale("askingPrice")}
+              </dt>
+              <dd className="text-sm text-foreground">{value.askingPrice}</dd>
+            </div>
+          ) : null}
+          {estimatedValueLabel ? (
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                {tSale("estimatedValue")}
+              </dt>
+              <dd className="text-sm text-foreground">{estimatedValueLabel}</dd>
+            </div>
+          ) : null}
+          {acquisitionDateLabel ? (
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                {tSale("acquisitionDate")}
+              </dt>
+              <dd className="text-sm text-foreground">{acquisitionDateLabel}</dd>
+            </div>
+          ) : null}
+          {value.acquisitionSourceUser ? (
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                {tSale("acquisitionSource")}
+              </dt>
+              <dd>
+                <EntityChip
+                  entityType="user"
+                  entityId={value.acquisitionSourceUser.userId}
+                  title={value.acquisitionSourceUser.name ?? ""}
+                  subtitle={undefined}
+                  imageUrl={value.acquisitionSourceUser.imageUrl}
+                />
+              </dd>
+            </div>
+          ) : null}
+        </dl>
+      ) : (
+        <p className="text-sm text-muted-foreground">{t("valueEmpty")}</p>
+      )}
     </Section>
   );
 }
