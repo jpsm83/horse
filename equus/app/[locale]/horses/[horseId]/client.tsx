@@ -64,7 +64,7 @@ export function HubContent({ horseId }: HubContentProps) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.5fr_1fr] lg:items-start">
         <div className="flex min-w-0 flex-col gap-4">
           <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-            <HorseHubAbout />
+            <HorseHubAbout horse={horse} />
           </ErrorBoundary>
           <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
             <HorseHubDisciplines />

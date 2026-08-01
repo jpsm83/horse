@@ -1,8 +1,8 @@
 /**
- * HorseHubAbout — Hub tab metadata / identity details card (placeholder).
+ * HorseHubAbout — Hub tab About card. Shows the horse profile description
+ * when the Layer-2 `about` section allows it; renders nothing otherwise.
  *
- * Assembled by HubContent. Breed, sex, color, height, birthday, registry
- * fields, etc. will be wired in a later pass — no horse props yet.
+ * Assembled by HubContent. Reads `horse.sections.about` from useHorseView.
  */
 
 "use client";
@@ -10,27 +10,24 @@
 import { useTranslations } from "next-intl";
 
 import { Section } from "@/components/shared/section.tsx";
-import { Skeleton } from "@/components/ui/skeleton.tsx";
+import type { HorseViewDto } from "@/lib/services/horseService.ts";
 import { cn } from "@/lib/utils";
 
 type HorseHubAboutProps = {
+  horse: HorseViewDto;
   className?: string;
 };
 
-export function HorseHubAbout({ className }: HorseHubAboutProps) {
+export function HorseHubAbout({ horse, className }: HorseHubAboutProps) {
   const t = useTranslations("horseHub");
+  const about = horse.sections.about;
+  if (!about) return null;
 
   return (
     <Section title={t("about")} className={cn(className)}>
-      <div className="flex flex-col gap-3">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <div key={index} className="flex items-center gap-3">
-            <Skeleton className="size-4 shrink-0 rounded-sm" />
-            <Skeleton className="h-4 flex-1" />
-          </div>
-        ))}
-      </div>
-      <p className="sr-only">{t("placeholder")}</p>
+      <p className="text-sm text-muted-foreground">
+        {about.description?.trim() ? about.description : t("aboutEmpty")}
+      </p>
     </Section>
   );
 }
