@@ -1,10 +1,14 @@
 /**
- * Horse two-layer visibility — single source of truth for audiences and checks.
+ * Horse visibility — single source of truth for audiences and checks.
  *
- * Layer 1: `Horse.profileVisibility` — can the viewer open Hub / public card?
- * Layer 2: `Horse.hubSections[key].mode` — which Hub blocks appear?
+ * Three independent controls:
+ * 1. Layer 1: `Horse.profileVisibility` — can the viewer open the horse at all?
+ *    Deny → 404.
+ * 2. Tabs: `viewerRole` → `allowedTabs` — which management pages appear
+ *    (role-based; see `deriveAllowedTabs` in horseService).
+ * 3. Layer 2: `Horse.hubSections[key].mode` — which Hub blocks appear.
  *
- * Modes (both layers): `public` | `relationship` | `owner`
+ * Modes (Layers 1 and 2): `public` | `relationship` | `owner`
  * Nested inclusion: owner ⊆ relationship ⊆ public
  *
  * Audience:

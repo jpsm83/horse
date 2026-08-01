@@ -2,7 +2,8 @@
  * Horse section visibility — shared Zod shapes and defaults.
  *
  * Keys match Profile/Admin section responsibilities (not parent form state).
- * Hub read DTO uses the Hub-facing subset; Admin-only keys still persist here.
+ * All keys are Hub-facing: `buildHorseHubSections` projects cheap keys and
+ * `attachHubSocialSections` projects list keys when Layer 2 allows.
  */
 
 import { z } from "zod";
