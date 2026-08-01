@@ -4,18 +4,20 @@ import { useQuery } from "@tanstack/react-query";
 
 import { fetchWithAuth, parseApiResponse } from "@/lib/api/fetchWithAuth";
 import { queryKeys } from "@/lib/api/queryKeys";
-import type { PublicUserProfileCard } from "@/lib/privacy/userPublicProfile";
+import type { UserHubSectionsProjection } from "@/lib/users/userHubSections.ts";
 
-async function fetchPublicUser(userId: string): Promise<PublicUserProfileCard> {
-  const response = await fetchWithAuth(`/api/v1/users/${encodeURIComponent(userId)}`);
-  const data = await parseApiResponse<{ user: PublicUserProfileCard }>(response);
-  return data.user;
+async function fetchUserHub(userId: string): Promise<UserHubSectionsProjection> {
+  const response = await fetchWithAuth(
+    `/api/v1/users/${encodeURIComponent(userId)}/hub`,
+  );
+  const data = await parseApiResponse<{ sections: UserHubSectionsProjection }>(response);
+  return data.sections;
 }
 
-export function usePublicUser(userId: string | undefined) {
+export function useUserHub(userId: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.users.detail(userId!),
-    queryFn: () => fetchPublicUser(userId!),
+    queryKey: queryKeys.users.hub(userId!),
+    queryFn: () => fetchUserHub(userId!),
     enabled: !!userId,
   });
 }

@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Eye, Users, Globe, Lock } from "lucide-react";
 
@@ -47,12 +47,15 @@ export function SectionVisibilityPopover({
   const t = useTranslations("visibility");
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<VisibilityMode>(current.mode);
+  const [lastCurrentMode, setLastCurrentMode] = useState(current.mode);
 
-  useEffect(() => {
-    if (open) {
-      setMode(current.mode);
-    }
-  }, [open, current.mode]);
+  // Re-sync the local draft to the persisted mode when the source value changes
+  // (adjusting state during render — the recommended replacement for a
+  // setState-in-effect sync; see React docs "You Might Not Need an Effect").
+  if (lastCurrentMode !== current.mode) {
+    setLastCurrentMode(current.mode);
+    setMode(current.mode);
+  }
 
   const Icon = MODE_ICONS[current.mode] ?? Eye;
 

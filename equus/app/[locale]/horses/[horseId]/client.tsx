@@ -1,9 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ErrorBoundary } from "react-error-boundary";
 
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { HorseHubAbout } from "@/components/horses/hub/horse-hub-about.tsx";
 import { HorseHubValue } from "@/components/horses/hub/horse-hub-value.tsx";
 import { HorseHubDisciplines } from "@/components/horses/hub/horse-hub-disciplines.tsx";
@@ -54,39 +53,39 @@ export function HubContent({ horseId }: HubContentProps) {
       className="flex w-full flex-1 flex-col gap-4"
       suppressHydrationWarning
     >
-      <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+      <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
         <HorseHubHero
           horse={horse}
           canEditImages={horse.isAdmin === true}
         />
-      </ErrorBoundary>
+      </SectionErrorBoundary>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.5fr_1fr] lg:items-stretch">
         <div className="flex min-w-0 flex-col gap-4">
-          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
             <HorseHubAbout horse={horse} />
-          </ErrorBoundary>
-          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          </SectionErrorBoundary>
+          <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
             <HorseHubDisciplines horse={horse} />
-          </ErrorBoundary>
-          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          </SectionErrorBoundary>
+          <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
             <HorseHubValue horse={horse} />
-          </ErrorBoundary>
+          </SectionErrorBoundary>
         </div>
 
         <div className="flex min-h-0 min-w-0 flex-col lg:h-full">
-          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
             <HorseHubGallery horseId={horseId} className="h-full min-h-0 flex-1" />
-          </ErrorBoundary>
+          </SectionErrorBoundary>
         </div>
 
         <div className="flex min-w-0 flex-col gap-4">
-          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
             <HorseHubPedigree horse={horse} />
-          </ErrorBoundary>
-          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          </SectionErrorBoundary>
+          <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
             <HorseHubPeople horse={horse} />
-          </ErrorBoundary>
+          </SectionErrorBoundary>
         </div>
       </div>
     </div>

@@ -11,23 +11,12 @@ import {
   EyeOff,
   Upload,
   Loader2,
-  UserCircle,
-  PanelTop,
 } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner.tsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog.tsx";
 import { PendingDialog } from "@/components/shared/pending-dialog.tsx";
 import {
@@ -36,6 +25,8 @@ import {
   fileUploadIconForMime,
   formatUploadFileSize,
 } from "@/components/shared/file-upload.tsx";
+import { HorseMediaLightboxDialog } from "@/components/horses/media/horse-media-lightbox-dialog.tsx";
+import { HorseMediaSetAsDialog } from "@/components/horses/media/horse-media-set-as-dialog.tsx";
 import {
   useMedia,
   useDeleteMedia,
@@ -44,7 +35,6 @@ import {
 } from "@/hooks/queries/useMedia.ts";
 import { useUpdateHorse } from "@/hooks/queries/useHorse.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
-import { HorseMediaLightboxDialog } from "@/components/horses/media/horse-media-lightbox-dialog.tsx";
 import type { PublicMedia } from "@/lib/services/mediaService";
 
 type HorseMediaGallerySectionProps = {
@@ -571,45 +561,15 @@ export function HorseMediaGallerySection({
         />
       )}
 
-      <AlertDialog
+      <HorseMediaSetAsDialog
         open={setAsTarget !== null}
         onOpenChange={(open) => {
-          if (!open && !updateHorse.isPending) setSetAsTarget(null);
+          if (!open) setSetAsTarget(null);
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("setAsConfirmTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("setAsConfirmDescription")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
-            <Button
-              type="button"
-              disabled={updateHorse.isPending}
-              onClick={() => handleSetAsImage("profile")}
-              className="w-full sm:w-full"
-            >
-              <UserCircle className="size-4" aria-hidden />
-              {t("setAsProfile")}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={updateHorse.isPending}
-              onClick={() => handleSetAsImage("hero")}
-              className="w-full sm:w-full"
-            >
-              <PanelTop className="size-4" aria-hidden />
-              {t("setAsHero")}
-            </Button>
-            <AlertDialogCancel disabled={updateHorse.isPending}>
-              {tCommon("cancel")}
-            </AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        isPending={updateHorse.isPending}
+        onSetAsProfile={() => handleSetAsImage("profile")}
+        onSetAsHero={() => handleSetAsImage("hero")}
+      />
 
       <ConfirmDeleteDialog
         open={deleteTarget !== null}

@@ -1,12 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ErrorBoundary } from "react-error-boundary";
 
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { HorsePlanningCalendarSection } from "@/components/horses/planning/horse-planning-calendar-section.tsx";
 import { HorseSectionVisibility } from "@/components/horses/shared/horse-section-visibility.tsx";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { Section } from "@/components/shared/section.tsx";
 import type { OwnerHorseSummary } from "@/lib/services/horseService.ts";
 import { normalizeHubSections } from "@/lib/horses/hubSections.ts";
@@ -48,9 +47,12 @@ function PlanningSections({ horseId, horse }: PlanningSectionsProps) {
         ) : undefined
       }
     >
-      <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-        <HorsePlanningCalendarSection horseId={horseId} isAdmin={horse.isAdmin} />
-      </ErrorBoundary>
+      <SectionErrorBoundary resetKeys={[horseId]}>
+        <HorsePlanningCalendarSection
+          horseId={horseId}
+          isAdmin={horse.isAdmin === true}
+        />
+      </SectionErrorBoundary>
     </Section>
   );
 }

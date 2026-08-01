@@ -9,6 +9,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { HorsePageContentSkeleton } from "@/components/horses/horse-page-content-skeleton.tsx";
@@ -36,6 +37,7 @@ export function HorsePageShell({
   requireMainOwner,
   children,
 }: HorsePageShellProps) {
+  const t = useTranslations("common");
   const router = useRouter();
   const { isAuthenticated, isLoading: isAuthLoading } = useAppAuth();
   const { data: view, isLoading: isViewLoading } = useHorseView(horseId);
@@ -68,12 +70,12 @@ export function HorsePageShell({
   if (blocked) {
     return (
       <div className="mx-auto p-6">
-        <p className="text-muted-foreground">You don&apos;t have permission to view this page.</p>
+        <p className="text-muted-foreground">{t("permissionDenied")}</p>
         <Link
           href={"/horses/" + horseId}
           className="text-sm font-medium text-primary underline underline-offset-4 hover:text-foreground"
         >
-          Back to hub
+          {t("backToHub")}
         </Link>
       </div>
     );

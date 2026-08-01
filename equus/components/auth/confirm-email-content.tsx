@@ -20,6 +20,8 @@ export function ConfirmEmailContent() {
   const token = searchParams.get("token");
   const [state, setState] = useState<FlowState>(token ? "loading" : "missing");
   const [message, setMessage] = useState<string | null>(null);
+  // Non-DOM guard: ensure the confirmation effect runs exactly once even if the
+  // component re-renders/remounts (state would re-trigger the async call).
   const submittedRef = useRef(false);
 
   useEffect(() => {

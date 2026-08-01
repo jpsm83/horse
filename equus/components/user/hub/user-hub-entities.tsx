@@ -1,42 +1,37 @@
 /**
- * UserHubEntities — preview of the user's horses and entity profiles.
- * Shows navigation summary from the server-seeded cache.
+ * UserHubEntities — read-only list of the user's owned horses for the shared
+ * user hub. Consumes the server-filtered `entities` list projection.
  */
 
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useUserNavigation } from "@/hooks/queries/useCurrentUser.ts";
-import { Skeleton } from "@/components/ui/skeleton.tsx";
+
+import { EntityChip } from "@/components/shared/entity-chip.tsx";
+import type { UserHubEntityItem } from "@/lib/users/userHubSections.ts";
 
 type Props = {
-  userId: string;
+  entities: UserHubEntityItem[];
 };
 
-export function UserHubEntities({ userId }: Props) {
+export function UserHubEntities({ entities }: Props) {
   const t = useTranslations("userHub");
-  const { data: navigation, isPending } = useUserNavigation(true);
 
-  if (isPending) {
-    return (
-      <div className="flex flex-col gap-2">
-        <Skeleton className="h-5 w-48" />
-        <Skeleton className="h-5 w-40" />
-      </div>
-    );
-  }
-
-  const hasHorses = navigation?.horses === true;
-
-  if (!hasHorses) {
+  if (entities.length === 0) {
     return <p className="text-sm text-muted-foreground">{t("noEntities")}</p>;
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <p className="text-sm text-muted-foreground">
-        {t("hasHorses")}
-      </p>
-    </div>
+    <ul className="flex flex-col gap-2">
+      {entities.map((entity) => (
+        <EntityChip
+          key={entity.entityId}
+          entityType="horse"
+          entityId={entity.entityId}
+          title={entity.name}
+          imageUrl={entity.imageUrl}
+        />
+      ))}
+    </ul>
   );
 }

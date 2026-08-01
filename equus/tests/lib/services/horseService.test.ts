@@ -402,6 +402,18 @@ describe("getHorseView hub section enrichment", () => {
       sireHorseId: String(sire._id),
       damHorseId: String(dam._id),
     });
+
+    // Server-side parent summaries keep the Hub chip from fetching each parent.
+    expect(view.horse.sections.pedigree?.sireSummary).toMatchObject({
+      horseId: String(sire._id),
+      name: "Sire Horse",
+      countryCode: "US",
+    });
+    expect(view.horse.sections.pedigree?.damSummary).toMatchObject({
+      horseId: String(dam._id),
+      name: "Dam Horse",
+      countryCode: "CA",
+    });
   });
 
   it("omits value section for guests when value is owner-only", async () => {

@@ -1,11 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ErrorBoundary } from "react-error-boundary";
 
 import { UserPageShell } from "@/components/user/user-page-shell.tsx";
 import { Section } from "@/components/shared/section.tsx";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { UserWorkplaceInvitationsSection } from "@/components/user/workplace/user-workplace-invitations-section.tsx";
 import { UserWorkplaceListSection } from "@/components/user/workplace/user-workplace-list-section.tsx";
 
@@ -30,15 +29,15 @@ function WorkplaceBody({ userId: _userId }: Props) {
       </div>
 
       <Section title={t("sections.invitations")} description={t("sections.invitationsDescription")}>
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+        <SectionErrorBoundary>
           <UserWorkplaceInvitationsSection />
-        </ErrorBoundary>
+        </SectionErrorBoundary>
       </Section>
 
       <Section title={t("sections.active")} description={t("sections.activeDescription")}>
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+        <SectionErrorBoundary>
           <UserWorkplaceListSection />
-        </ErrorBoundary>
+        </SectionErrorBoundary>
       </Section>
     </div>
   );

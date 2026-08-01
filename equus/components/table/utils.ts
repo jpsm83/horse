@@ -679,6 +679,8 @@ export async function exportToExcel<TData = Record<string, unknown>>(
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
   const url = window.URL.createObjectURL(blob);
+  // Programmatic download requires an imperatively-clicked anchor — no
+  // declarative React equivalent forces a browser save without navigation.
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = `${timestampedFileName}.xlsx`;

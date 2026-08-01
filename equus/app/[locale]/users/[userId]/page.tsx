@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 
-import { PublicUserProfilePage } from "@/components/user/public/public-user-profile-page.tsx";
-import { Skeleton } from "@/components/ui/skeleton";
+import { UserHubPublicPage } from "./client";
 import { userIdParamSchema } from "@/lib/validations/user.ts";
 import { generateUserMetadata } from "@/lib/seo/entity-metadata.ts";
 import User from "@/models/User.ts";
@@ -37,9 +35,5 @@ export default async function Page({ params }: UserProfilePageProps) {
     notFound();
   }
 
-  return (
-    <Suspense fallback={<Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />}>
-      <PublicUserProfilePage userId={parsedUserId.data} />
-    </Suspense>
-  );
+  return <UserHubPublicPage userId={parsedUserId.data} />;
 }

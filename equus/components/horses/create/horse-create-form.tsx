@@ -59,6 +59,8 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
   const [galleryFiles, setGalleryFiles] = useState<UploadedFileState[]>([]);
   const [profileFile, setProfileFile] = useState<File | undefined>();
   const [profilePreview, setProfilePreview] = useState<string | undefined>();
+  // Non-DOM: AbortController held across renders so the in-flight upload can be
+  // cancelled from unmount cleanup (an object reference, not a DOM node).
   const abortRef = useRef<AbortController | null>(null);
 
   const photoLabels = useMemo(
@@ -169,7 +171,7 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
           abortRef.current.signal,
         );
 
-        for (const [index, result] of results.entries()) {
+        for (const result of results) {
           if (result.error) {
             toast.error(result.error);
             setIsSubmitting(false);
@@ -343,9 +345,7 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
         <FieldGroup>
           <div className="grid gap-5 sm:grid-cols-2">
             <TextField control={form.control} name="pedigree.sireName" id="create-horse-sireName" label={t("sireName")} />
-            <TextField control={form.control} name="pedigree.sireId" id="create-horse-sireId" label={t("sireId")} />
             <TextField control={form.control} name="pedigree.damName" id="create-horse-damName" label={t("damName")} />
-            <TextField control={form.control} name="pedigree.damId" id="create-horse-damId" label={t("damId")} />
           </div>
           <Controller name="pedigree.bloodlineNotes" control={form.control} render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>

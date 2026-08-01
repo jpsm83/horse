@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+import * as React from "react";
 import { act } from "react";
 import { createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -35,6 +36,20 @@ vi.mock("@/components/shared/confirm-action-dialog.tsx", () => ({
         )
       : null,
 }));
+
+type ProviderProps = Omit<
+  React.ComponentProps<typeof UnsavedChangesProvider>,
+  "children"
+>;
+
+/** Render the provider with children as a separate createElement argument. */
+function renderProvider(props: ProviderProps, children: React.ReactNode) {
+  return createElement(
+    UnsavedChangesProvider as React.FC<ProviderProps>,
+    props,
+    children,
+  );
+}
 
 function Controls({ href }: { href: string }) {
   const { setDirty, requestNavigation } = useUnsavedChanges();
@@ -87,16 +102,15 @@ describe("UnsavedChangesProvider onDiscard", () => {
 
     act(() => {
       root.render(
-        createElement(
-          UnsavedChangesProvider,
+        renderProvider(
           {
             dialogTitle: "Unsaved",
             dialogDescription: "Leave?",
             stayLabel: "Stay",
             leaveLabel: "Leave",
             onDiscard,
-            children: createElement(Controls, { href: "/user/1/profile" }),
           },
+          createElement(Controls, { href: "/user/1/profile" }),
         ),
       );
     });
@@ -129,16 +143,15 @@ describe("UnsavedChangesProvider onDiscard", () => {
 
     act(() => {
       root.render(
-        createElement(
-          UnsavedChangesProvider,
+        renderProvider(
           {
             dialogTitle: "Unsaved",
             dialogDescription: "Leave?",
             stayLabel: "Stay",
             leaveLabel: "Leave",
             onDiscard,
-            children: createElement(Controls, { href: "/user/1/preferences" }),
           },
+          createElement(Controls, { href: "/user/1/preferences" }),
         ),
       );
     });

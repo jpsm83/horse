@@ -19,6 +19,8 @@ type HorseValueSectionProps = {
     name: string;
     email: string;
     imageUrl?: string;
+    /** ISO alpha-2 from personalDetails.nationality. */
+    countryCode?: string;
   };
 };
 

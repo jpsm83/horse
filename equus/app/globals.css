@@ -370,12 +370,11 @@
   }
 
   /*
-   * Durable overlay for shadcn dialog/sheet/alert-dialog.
+   * Durable overlay for shadcn dialog/sheet.
    * Survives `ui:sync` reintroducing bg-black/10 on the slot.
    */
   [data-slot="dialog-overlay"],
-  [data-slot="sheet-overlay"],
-  [data-slot="alert-dialog-overlay"] {
+  [data-slot="sheet-overlay"] {
     background-color: color-mix(in oklab, var(--overlay) 10%, transparent);
   }
 

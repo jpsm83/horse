@@ -1,11 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ErrorBoundary } from "react-error-boundary";
 
 import { UserPageShell } from "@/components/user/user-page-shell.tsx";
 import { Section } from "@/components/shared/section.tsx";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { UserSubscriptionPlanSection } from "@/components/user/subscription/user-subscription-plan-section.tsx";
 
 type Props = { userId: string };
@@ -29,9 +28,9 @@ function SubscriptionBody({ userId }: Props) {
       </div>
 
       <Section title={t("sections.plan")}>
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+        <SectionErrorBoundary>
           <UserSubscriptionPlanSection userId={userId} />
-        </ErrorBoundary>
+        </SectionErrorBoundary>
       </Section>
     </div>
   );

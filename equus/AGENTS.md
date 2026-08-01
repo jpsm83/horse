@@ -54,7 +54,7 @@ tests/         → Vitest tests mirroring lib/
 
 #### Horse UI layout and naming
 
-* **Tab folders** — section components for a horse tab live under `components/horses/<tab>/` (`admin/`, `profile/`, `connect/`, `media/`, `documents/`, `planning/`, `hub/`, `create/`, `list/`, `history/`). Chrome shared by all horseId tabs stays at `components/horses/horse-page-shell.tsx` / `horse-page-skeleton.tsx`.
+* **Tab folders** — section components for a horse tab live under `components/horses/<tab>/` (`admin/`, `profile/`, `connect/`, `media/`, `documents/`, `planning/`, `hub/`, `create/`, `list/`, `history/`). Chrome shared by all horseId tabs stays at `components/horses/horse-page-shell.tsx`.
 * **`horse-` filename prefix** — every horse-specific component file starts with `horse-`; export name matches (e.g. `horse-visibility-section.tsx` → `HorseVisibilitySection`).
 * **`components/horses/shared/`** — helpers used by two or more horse tabs only (e.g. select field adapters).
 * **`components/shared/`** — only multi-module primitives (`Section`, `FileUpload`, `EntityChip`, `PendingDialog`, `SectionTitleAction`, …). Do not put horse-only UI there. **`EntityChip`** is the canonical identity card for users/horses (extend `entityHubPath` for stable, groom, etc.); callers supply title/subtitle — chip does not fetch.
@@ -63,6 +63,16 @@ tests/         → Vitest tests mirroring lib/
 * **Section visibility (Layer 2)** — shared `SectionVisibilityControl` + `Section` `visibilityControl` slot; entity adapters own PATCH. Horse: `HorseSectionVisibility` → `PATCH /api/v1/horses/:id/hub-sections` (Profile, Admin, Media Gallery, Planning, Connect Connections). Modes `public` | `relationship` | `owner`. Never parent form dirty/Save for section modes. New entity: add `*SectionVisibility` adapter + entity PATCH; reuse control unchanged. Types: `lib/visibility/sectionVisibility.ts`.
 * **Horse visibility policy** — owner audience = ownership team (`userOwnsEntity`). Relationship audience = team + accepted `Relationship` + active host-entity workplace collaborators (stable/breeder/transport/ridingClub). Three controls: tabs = `viewerRole` → `allowedTabs` (role-based); Layer 1 = `profileVisibility` (open/404); Layer 2 = `hubSections[key]` (Hub content blocks, independent of role). Hub-facing cheap keys: `identity` | `identification` | `pedigree` | `about` | `ownership` | `value` | `proactiveRepresentatives` | `coOwnerManagement`; list keys: `gallery` | `planning` | `connections` (`GET …/hub-social`). Item modes `entities` map to `relationship`. Enforce in `lib/horses/horseVisibilityAccess.ts`; Hub renders only `horse.sections` keys present; media/planning lists enforce L1→L2 (owner team full list).
 * Canonical detail: [`documentation/page-flow-blueprint.md`](documentation/page-flow-blueprint.md) §1 and [`documentation/horseTabs.md`](documentation/horseTabs.md).
+
+#### User UI layout and naming
+
+* **Tab folders** — section components for a user tab live under `components/user/<tab>/` (`hub/`, `profile/`, `preferences/`, `notifications/`, `workplace/`, `relationships/`, `subscription/`). Chrome shared by all /user/[userId] tabs: `user-layout-chrome.tsx` (layout) + `user-page-shell.tsx` (auth/self gate).
+* **`user-` filename prefix** — every user-specific component file starts with `user-`; export name matches (e.g. `user-hub-content.tsx` → `UserHubContent`).
+* **`components/user/shared/`** — helpers used by two or more user tabs only (e.g. `UserSectionVisibility`).
+* **`components/shared/`** — only multi-module primitives; do not put user-only UI there.
+* **User hub (shared)** — `UserHubContent` is used by both the owner hub tab (`/user/[userId]`, from cached `user.sections`) and the public page (`/users/[userId]`, via `useUserHub` → `GET /api/v1/users/:id/hub`). Read-only, no visibility popovers; sections are server-filtered by `buildUserHubSections`.
+* **User visibility** — Layer-1 `preferences.profileVisibility` (public/platform/relationships/private) on the Preferences tab; Layer-2 `hubSections[key]` (`identity` | `identification` | `address` | `contact` | `entities`, modes `public` | `relationship` | `owner`). Enforce in `lib/privacy/userPublicProfile.ts` (`getUserHub`); owner view seeds `user.sections` via `getUserView`. Popovers live on the Profile tab sections (Personal/Identification/Address → `UserSectionVisibility` → `PATCH /api/v1/users/me/hub-sections`), not on the hub.
+* Canonical detail: [`documentation/page-flow-blueprint.md`](documentation/page-flow-blueprint.md) §12, [`documentation/users.md`](documentation/users.md), [`documentation/userTabs.md`](documentation/userTabs.md).
 
 ### Critical Business Rules
 
@@ -121,7 +131,7 @@ Example from the reference implementations:
 
 #### Error handling (web UI)
 
-* **Component-level boundaries** — wrap each independent data section in its own `ErrorBoundary` with `InlineErrorFallback`. A failing section never takes down the chrome or other sections. See [`documentation/component-resilience.md`](documentation/component-resilience.md).
+* **Component-level boundaries** — wrap each independent data section in its own error boundary. Use the shared **`SectionErrorBoundary`** (`components/errors/section-error-boundary.tsx`) — it composes react-error-boundary with `InlineErrorFallback`, reports crashes via `logClientError`, and supports `resetKeys` (e.g. `[horseId]`) + a translated `message`. A failing section never takes down the chrome or other sections. See [`documentation/component-resilience.md`](documentation/component-resilience.md) and [`documentation/errors.md`](documentation/errors.md).
 * **Uncaught render errors** — `react-error-boundary` via `AppErrorBoundary` in `AppProviders`; Next.js `app/[locale]/error.tsx` and `app/global-error.tsx`. Shared UI: `components/errors/error-recovery-page.tsx`. See [`documentation/errors.md`](documentation/errors.md).
 * **API / auth failures** — `try/catch` in features; toasts (`useAppToast`) or redirect — **not** error boundaries. Auth-load failures (network down on initial load) render the unauthenticated view with `console.error` + toast — never an infinite spinner.
 * **Do not** use error boundaries for expected load failures; use skeleton + redirect patterns from [`component-resilience.md`](documentation/component-resilience.md).
@@ -239,7 +249,7 @@ Your primary goals are:
 * To add or sync components: `npm run ui:sync` or `npx shadcn add <name> --overwrite --yes`.
 * Do **not** use native HTML form controls (`<select>`, `<textarea>`, `<input>`) in pages or feature components — use shadcn primitives from `components/ui/` (wrapped with RHF `Controller` + `Field` when needed).
 * RHF adapters in `components/forms/` (e.g. `text-field.tsx`) are allowed when reused across screens; prefer inline `Controller` + shadcn for one-off fields.
-* **Overlays:** Blocking UI uses shadcn **`Dialog`** / **`AlertDialog`** (via `ConfirmActionDialog` / `ConfirmDeleteDialog`) with blur + focus trap. Mutation dialogs compose on shared **`PendingDialog`** (Spinner + block dismiss). Anchored pickers use **`Popover`**. Mobile nav uses **`Sheet`**. Section `titleAddon` actions use **`SectionTitleAction`**. Never invent a custom blur modal. Full rules: [`documentation/page-flow-blueprint.md`](documentation/page-flow-blueprint.md) §5.5.1.
+* **Overlays:** Blocking UI uses shadcn **`Dialog`** (via `ConfirmActionDialog` / `ConfirmDeleteDialog` / `PendingDialog`) with blur + focus trap. Every dialog closes on outside click + Escape when idle; dismissal is blocked while a mutation is pending via the shared `Dialog` `blockDismiss` prop. Anchored pickers use **`Popover`**. Mobile nav uses **`Sheet`**. Section `titleAddon` actions use **`SectionTitleAction`**. Never invent a custom blur modal. Full rules: [`documentation/page-flow-blueprint.md`](documentation/page-flow-blueprint.md) §5.5.1.
 
 #### Color convention — semantic tokens only
 
@@ -257,7 +267,7 @@ Your primary goals are:
   color names (`text-orange-500`, `bg-gray-200`, `text-red-600`), raw `bg-black` / `text-white` /
   `bg-white`, or inline hex values (`#ff0000`, `"#3b82f6"`).
 - **Overlays / scrims**: use `bg-overlay` (with opacity modifiers), `bg-overlay-heavy`, and
-  `text-overlay-foreground`. Dialog/sheet/alert-dialog backdrops are also forced via
+  `text-overlay-foreground`. Dialog/sheet backdrops are also forced via
   `[data-slot="*-overlay"]` rules in `globals.css` so they survive `npm run ui:sync`.
 - **Badge bands**: table color-range badges use `--badge-band-*` tokens and `.badge-band-*` classes.
 - **Non-CSS contexts** (HTML email, Excel ARGB, browser `theme-color`): import hex from

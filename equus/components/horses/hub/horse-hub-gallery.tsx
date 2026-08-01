@@ -3,14 +3,15 @@
  * thumbnail grid, pagination, and view-only lightbox.
  *
  * Fetches via useHorseHubGallery (GET …/hub-gallery) — page size follows
- * breakpoints (2×3=6, 3×3=9, 4×3=12).
+ * breakpoints (2×3=6, 3×3=9, 4×3=12). No setState-in-effect: the grid density
+ * changes on resize (event callback) and the clamped page is derived in render.
  */
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageIcon, Play, VideoIcon } from "lucide-react";
 
 import { HorseMediaLightboxDialog } from "@/components/horses/media/horse-media-lightbox-dialog.tsx";
 import { Section } from "@/components/shared/section.tsx";
@@ -31,6 +32,27 @@ function resolvePageSize(width: number): number {
   return 6; // 2 × 3
 }
 
+/** Centered, icon-led empty state for the Hub media grid (type-aware copy). */
+function HubGalleryEmptyState({ type }: { type: HubGalleryTypeFilter }) {
+  const t = useTranslations("horseHub");
+  const EmptyIcon = type === "videos" ? VideoIcon : ImageIcon;
+  const message =
+    type === "photos"
+      ? t("mediaEmptyPhotos")
+      : type === "videos"
+        ? t("mediaEmptyVideos")
+        : t("mediaEmpty");
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 py-10 text-center">
+      <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+        <EmptyIcon className="size-6 text-muted-foreground" aria-hidden />
+      </div>
+      <p className="text-sm font-medium text-foreground">{message}</p>
+    </div>
+  );
+}
+
 export function HorseHubGallery({ horseId, className }: HorseHubGalleryProps) {
   const t = useTranslations("horseHub");
   const [type, setType] = useState<HubGalleryTypeFilter>("all");
@@ -39,19 +61,23 @@ export function HorseHubGallery({ horseId, className }: HorseHubGalleryProps) {
     typeof window !== "undefined" ? resolvePageSize(window.innerWidth) : 12,
   );
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const pageSizeRef = useRef(pageSize);
 
+  // Resize drives the grid density (6/9/12). Reset to the first page only when
+  // the page size actually crosses a breakpoint; tracking the applied value in a
+  // ref avoids resetting the page on every resize tick.
   useEffect(() => {
-    function updatePageSize() {
-      setPageSize(resolvePageSize(window.innerWidth));
+    function handleResize() {
+      const next = resolvePageSize(window.innerWidth);
+      if (next !== pageSizeRef.current) {
+        pageSizeRef.current = next;
+        setPageSize(next);
+        setPage(1);
+      }
     }
-    updatePageSize();
-    window.addEventListener("resize", updatePageSize);
-    return () => window.removeEventListener("resize", updatePageSize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  useEffect(() => {
-    setPage(1);
-  }, [pageSize]);
 
   const { data, isPending, isError } = useHorseHubGallery(horseId, {
     page,
@@ -62,10 +88,11 @@ export function HorseHubGallery({ horseId, className }: HorseHubGalleryProps) {
   const items = data?.items ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
-  useEffect(() => {
-    if (page > totalPages) setPage(totalPages);
-  }, [page, totalPages]);
+  // Clamp the page during render (never setState in an effect). If a stale page
+  // lands past the last page, the query returns empty items and the pagination
+  // row below re-anchors the user instead of showing a false "no media".
+  const safePage = Math.min(page, totalPages);
+  const outOfRange = total > 0 && items.length === 0;
 
   function selectType(next: HubGalleryTypeFilter) {
     setType(next);
@@ -119,8 +146,8 @@ export function HorseHubGallery({ horseId, className }: HorseHubGalleryProps) {
           </div>
         ) : isError ? (
           <p className="text-sm text-muted-foreground">{t("mediaLoadFailed")}</p>
-        ) : items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("mediaEmpty")}</p>
+        ) : outOfRange || items.length === 0 ? (
+          <HubGalleryEmptyState type={type} />
         ) : (
           <div className="grid min-h-0 flex-1 grid-cols-2 content-start gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {items.map((item, index) => (
@@ -153,7 +180,7 @@ export function HorseHubGallery({ horseId, className }: HorseHubGalleryProps) {
               type="button"
               variant="ghost"
               size="sm"
-              disabled={page <= 1}
+              disabled={safePage <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               aria-label={t("mediaPrev")}
             >
@@ -161,13 +188,13 @@ export function HorseHubGallery({ horseId, className }: HorseHubGalleryProps) {
               {t("mediaPrev")}
             </Button>
             <span className="text-sm text-muted-foreground">
-              {t("mediaPage", { page, total: totalPages })}
+              {t("mediaPage", { page: safePage, total: totalPages })}
             </span>
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              disabled={page >= totalPages}
+              disabled={safePage >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               aria-label={t("mediaNext")}
             >

@@ -222,6 +222,18 @@ export type HorseHubPedigreeSection = {
   bloodlineNotes?: string;
   sireHorseId?: string;
   damHorseId?: string;
+  /** Hub-safe linked parent summary (no email) when the linked horse resolves. */
+  sireSummary?: HorseHubPedigreeParentSummary;
+  damSummary?: HorseHubPedigreeParentSummary;
+};
+
+/** Hub-safe pedigree parent projection — avoids per-parent client fetches. */
+export type HorseHubPedigreeParentSummary = {
+  horseId: string;
+  name?: string;
+  imageUrl?: string;
+  /** ISO alpha-2 country of birth. */
+  countryCode?: string;
 };
 
 export type HorseHubAboutSection = {
@@ -438,9 +450,7 @@ export async function createHorse(actorUserId: string, input: CreateHorseInput) 
   if (input.pedigree) {
     const pedigree: Record<string, unknown> = {};
     if (input.pedigree.sireName) pedigree.sireName = input.pedigree.sireName;
-    if (input.pedigree.sireId) pedigree.sireId = input.pedigree.sireId;
     if (input.pedigree.damName) pedigree.damName = input.pedigree.damName;
-    if (input.pedigree.damId) pedigree.damId = input.pedigree.damId;
     if (input.pedigree.bloodlineNotes) pedigree.bloodlineNotes = input.pedigree.bloodlineNotes;
     doc.pedigree = pedigree;
   }
@@ -454,7 +464,6 @@ export async function createHorse(actorUserId: string, input: CreateHorseInput) 
     }));
   }
   if (input.description) doc.description = input.description;
-  if (input.notes) doc.notes = input.notes;
 
   // Discovery
   if (input.profileVisibility) doc.profileVisibility = input.profileVisibility;
@@ -740,20 +749,6 @@ export async function getHorseForOwner(actorUserId: string, horseId: string) {
   return horse as Record<string, unknown>;
 }
 
-async function resolveUserLabel(userId: string): Promise<string> {
-  const user = await User.findById(userId)
-    .select("personalDetails.firstName personalDetails.lastName personalDetails.username")
-    .lean();
-  const pd = user?.personalDetails as
-    | { firstName?: string; lastName?: string; username?: string }
-    | undefined;
-  return (
-    [pd?.firstName, pd?.lastName].filter(Boolean).join(" ").trim() ||
-    pd?.username?.trim() ||
-    "A user"
-  );
-}
-
 async function resolveUserDetails(userId: string): Promise<{
   label: string;
   email: string;
@@ -791,6 +786,22 @@ async function resolveUserDetails(userId: string): Promise<{
     phone: pd?.phoneNumber,
     imageUrl,
     countryCode,
+  };
+}
+
+/** Hub-safe pedigree parent projection (name/image/country only — no email/phone). */
+async function resolvePedigreeParentSummary(
+  horseId: string,
+): Promise<HorseHubPedigreeParentSummary | undefined> {
+  const parent = await Horse.findById(horseId)
+    .select("name profileImageUrl countryOfBirth")
+    .lean();
+  if (!parent) return undefined;
+  return {
+    horseId: String(parent._id),
+    name: parent.name as string | undefined,
+    imageUrl: parent.profileImageUrl as string | undefined,
+    countryCode: parent.countryOfBirth as string | undefined,
   };
 }
 
@@ -1366,6 +1377,21 @@ export async function getHorseView(
       imageUrl: details[i]?.imageUrl,
       countryCode: details[i]?.countryCode,
     }));
+  }
+
+  // Pedigree — inline hub-safe parent summaries so the Hub renders chips without
+  // a per-parent client fetch (kills the N+1 on HorseHubPedigree).
+  if (sections.pedigree) {
+    const [sireSummary, damSummary] = await Promise.all([
+      sections.pedigree.sireHorseId
+        ? resolvePedigreeParentSummary(sections.pedigree.sireHorseId)
+        : Promise.resolve(undefined),
+      sections.pedigree.damHorseId
+        ? resolvePedigreeParentSummary(sections.pedigree.damHorseId)
+        : Promise.resolve(undefined),
+    ]);
+    sections.pedigree.sireSummary = sireSummary;
+    sections.pedigree.damSummary = damSummary;
   }
 
   const horseView: HorseViewDto = {

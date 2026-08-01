@@ -23,17 +23,31 @@ Related:
 
 | Piece | Path |
 |-------|------|
-| Shell | `components/user/user-page-shell.tsx` + `lib/navigation/userTabs.ts` |
+| Shell | `components/user/user-page-shell.tsx` + `components/user/user-layout-chrome.tsx` + `lib/navigation/userTabs.ts` |
 | Profile route | `app/[locale]/user/[userId]/profile/{page,client,loading}.tsx` |
 | Preferences route | `app/[locale]/user/[userId]/preferences/{page,client,loading}.tsx` |
 | Legacy redirect | `app/[locale]/profile/page.tsx` → `/user/{id}/profile` |
-| Skeleton | `components/user/user-page-skeleton.tsx` |
-| Profile form | `components/profile/profile-form.tsx` |
+| Skeleton | `components/user/user-page-content-skeleton.tsx` |
+| Profile form | `app/[locale]/user/[userId]/profile/client.tsx` (parent-owned `useForm`) + `components/user/profile/user-{personal,identification,address,account-type}-section.tsx` |
 | Preferences mapping | `lib/validations/preferencesForms.ts`, `lib/utils/preferencesFormMapping.ts` |
-| Client fetch | `useAppAuth()` + `useUserProfile()` — see [`auth.md`](./auth.md) |
+| Client fetch | `useAppAuth()` + `useUserView()` — see [`auth.md`](./auth.md) |
 | API | `PATCH /api/v1/users/me` — JSON or `multipart/form-data` (avatar on profile) |
 
 Unauthenticated users are redirected to sign-in. `userId` in the URL must match the session user (otherwise redirect to own profile).
+
+## Profile tab — sections
+
+The Profile tab is a deferred form (parent owns `useForm` + one Save, §6.5) composed of `<Section>` components, each wrapped in `SectionErrorBoundary`:
+
+| Section | Content | Visibility control |
+|---------|---------|--------------------|
+| **Personal** | profile image, username, bio, first/last name, gender, birth date | Layer-2 `identity` popover |
+| **Identification** | nationality, phone number, ID type, ID number | Layer-2 `identification` popover |
+| **Address** | address fields + geocoded map | Layer-2 `address` popover |
+| **Security** | password set/change (immediate) | — |
+| **Account** | account type (individual/business + business details, main form) + deactivation (`ConfirmActionDialog`, immediate) | — |
+
+Layer-1 `profileVisibility` + DM audience live on the **Preferences** tab (Privacy section). Layer-2 modes persist via `UserSectionVisibility` → `PATCH /api/v1/users/me/hub-sections`. See [`users.md`](./users.md) and [`userTabs.md`](./userTabs.md).
 
 ---
 

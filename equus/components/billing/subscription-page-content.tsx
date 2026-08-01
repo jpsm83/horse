@@ -6,6 +6,7 @@ import { SUBSCRIPTION_PLANS, type TierId } from "@/lib/billing/plans";
 import { useAppAuth } from "@/hooks/use-app-auth";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
+import { redirectToExternal } from "@/lib/navigation/externalRedirect";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect";
 
 async function fetchBilling() {
@@ -42,12 +43,12 @@ export function SubscriptionPageContent() {
 
   async function handleUpgrade(tierId: TierId) {
     if (!isAuthenticated) {
-      window.location.href = buildSignInPath("/subscription");
+      redirectToExternal(buildSignInPath("/subscription"));
       return;
     }
     try {
       const { url } = await createCheckout(tierId);
-      window.location.href = url;
+      redirectToExternal(url);
     } catch {
       // Toast error handled by UI
     }
@@ -55,12 +56,12 @@ export function SubscriptionPageContent() {
 
   async function handlePortal() {
     if (!isAuthenticated) {
-      window.location.href = buildSignInPath("/subscription");
+      redirectToExternal(buildSignInPath("/subscription"));
       return;
     }
     try {
       const { url } = await openPortal();
-      window.location.href = url;
+      redirectToExternal(url);
     } catch {
       // Toast error handled by UI
     }

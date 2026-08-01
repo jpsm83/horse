@@ -1,7 +1,8 @@
 "use client";
 
 /**
- * Account deactivation on `/profile` — confirm dialog, `DELETE /api/v1/users/me`, sign-in redirect.
+ * Account deactivation on `/profile` — confirm dialog (shared ConfirmActionDialog),
+ * `DELETE /api/v1/users/me`, sign-in redirect.
  * Tombstones the user document; does not hard-delete. See `documentation/profile.md`.
  */
 
@@ -11,19 +12,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  FieldGroup,
-  FieldLegend,
-  FieldSet,
-} from "@/components/ui/field";
+import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog.tsx";
 import { useRouter } from "@/i18n/navigation.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { deactivateCurrentUserAccount } from "@/lib/api/auth/profile";
@@ -72,63 +61,32 @@ export function ProfileDeactivateAccount({
   }
 
   return (
-    <>
-      <hr className="my-4" />
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+      <Button
+        type="button"
+        variant="destructive"
+        className="w-full sm:w-auto"
+        disabled={isDeactivating}
+        onClick={() => setDialogOpen(true)}
+      >
+        <UserX className="size-4" aria-hidden />
+        {t("deactivateAccount")}
+      </Button>
+      <p className="text-sm text-muted-foreground">{t("deactivateDescription")}</p>
 
-      <FieldSet>
-        <FieldLegend className="pb-3 font-semibold">
-          {t("sections.account")}
-        </FieldLegend>
-        <FieldGroup>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-            <Button
-              type="button"
-              variant="destructive"
-              className="w-full sm:w-auto"
-              disabled={isDeactivating}
-              onClick={() => setDialogOpen(true)}
-            >
-              <UserX className="size-4" aria-hidden />
-              {t("deactivateAccount")}
-            </Button>
-            <p className="text-sm text-muted-foreground">{t("deactivateDescription")}</p>
-          </div>
-        </FieldGroup>
-      </FieldSet>
-
-      <Dialog
+      <ConfirmActionDialog
         open={dialogOpen}
         onOpenChange={(open) => {
-          if (!isDeactivating) {
-            setDialogOpen(open);
-          }
+          if (!isDeactivating) setDialogOpen(open);
         }}
-      >
-        <DialogContent showCloseButton={!isDeactivating}>
-          <DialogHeader>
-            <DialogTitle>{t("deactivateDialogTitle")}</DialogTitle>
-            <DialogDescription>{t("deactivateDialogDescription")}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isDeactivating}
-              onClick={() => setDialogOpen(false)}
-            >
-              {t("deactivateCancel")}
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={isDeactivating}
-              onClick={() => void handleConfirmDeactivate()}
-            >
-              {isDeactivating ? t("deactivateSubmitting") : t("deactivateConfirm")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+        title={t("deactivateDialogTitle")}
+        description={t("deactivateDialogDescription")}
+        confirmLabel={isDeactivating ? t("deactivateSubmitting") : t("deactivateConfirm")}
+        cancelLabel={t("deactivateCancel")}
+        isPending={isDeactivating}
+        variant="destructive"
+        onConfirm={() => void handleConfirmDeactivate()}
+      />
+    </div>
   );
 }

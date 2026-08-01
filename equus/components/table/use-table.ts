@@ -40,6 +40,8 @@ export function useEnhancedTable<TData = Record<string, unknown>>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
+  // Non-DOM: drag-in-progress flag shared across native drag events without
+  // causing re-renders on every dragEnter/Leave.
   const dragActive = useRef(false);
 
   const handleSortingChange = useCallback(

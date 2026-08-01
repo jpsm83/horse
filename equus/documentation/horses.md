@@ -48,7 +48,7 @@ type HorseViewResponse = {
 };
 ```
 
-`horse.sections` on this endpoint holds **cheap Hub projections** only (`identity`, `identification`, `pedigree`, `about`, `ownership`, `value`, `proactiveRepresentatives`, `coOwnerManagement`) — field slices from the horse document after L1+L2. It does **not** include `gallery` / `planning` / `connections` lists (those require Media / Event / Relationship queries).
+`horse.sections` on this endpoint holds **cheap Hub projections** only (`identity`, `identification`, `pedigree`, `about`, `ownership`, `value`, `proactiveRepresentatives`, `coOwnerManagement`) — field slices from the horse document after L1+L2. It does **not** include `gallery` / `planning` / `connections` lists (those require Media / Event / Relationship queries). When `pedigree` is visible, linked parents (`sireHorseId` / `damHorseId`) are enriched with hub-safe `sireSummary` / `damSummary` (`{ horseId, name?, imageUrl?, countryCode? }`) so the Hub renders parent chips without per-parent client fetches.
 
 Guest-visible chrome also includes `profileImageUrl` and `heroImageUrl` (Hub avatar + cover). Owners set them from Hub (`ProfilePhotoField` upload → media + PATCH) or Media tab (“Set as profile/hero”).
 
@@ -64,7 +64,7 @@ type HorseHubSocialResponse = {
 };
 ```
 
-Auth optional (same L1 rules as the horse view). Used by Hub zones via `useHorseHubSocial` — not by Media / Planning / Connect management tabs (those keep their auth-required list APIs).
+Auth optional (same L1 rules as the horse view). Part of the API contract for future Hub zones; currently no client hook consumes it. Separate from Media / Planning / Connect management tab APIs (those keep their auth-required list APIs).
 
 `viewerRole` derivation (server-side):
 - `main_owner` — `horse.mainOwnerUserId === userId`
@@ -78,30 +78,31 @@ Auth optional (same L1 rules as the horse view). Used by Hub zones via `useHorse
 
 ### Hub tab — social profile page
 
-The Hub tab at `/horses/[horseId]` is a **read-only social profile** for the horse. It reads the slim horse view from the TanStack cache (seeded by `layout.tsx` RSC — no Media/Event/Relationship queries). Cheap `horse.sections` keys gate presence for identity/about/pedigree/etc. Hub **Media** loads via `GET /api/v1/horses/:id/hub-gallery` (`useHorseHubGallery`) with pagination sized to the responsive grid. Planning / connections lists still use `GET …/hub-social` when those zones are wired.
+The Hub tab at `/horses/[horseId]` is a **read-only social profile** for the horse. It reads the slim horse view from the TanStack cache (seeded by `layout.tsx` RSC — no Media/Event/Relationship queries). Cheap `horse.sections` keys gate presence for identity/about/pedigree/etc. Hub **Media** loads via `GET /api/v1/horses/:id/hub-gallery` (`useHorseHubGallery`) with pagination sized to the responsive grid. Planning / connections lists would use `GET …/hub-social` when those zones are wired.
 
 Layout: full-width hero, then a three-column body on `lg` (left details, center media, right pedigree/people); stacked on smaller screens.
 
-Components under `components/horses/hub/`:
+Components under `components/horses/hub/` (each wrapped in `SectionErrorBoundary` in `client.tsx`):
 ```
 HubContent
-├── HorseHubHero          — cover, avatar, name, quick stats, actions  (useHorseView)
+├── HorseHubHero          — cover, avatar, name, quick stats, Share  (useHorseView)
 ├── Left column
 │   ├── HorseHubAbout         — profile description  (useHorseView sections)
 │   ├── HorseHubDisciplines   — discipline tags
 │   └── HorseHubValue         — read-only sale/value fields
 ├── Center column
-│   └── HorseHubGallery      — media grid → useHorseHubSocial (when wired)
+│   └── HorseHubGallery      — media grid  (useHorseHubGallery — paginated, responsive page size)
 └── Right column
-    ├── HorseHubPedigree     — sire/dam + bloodline notes
+    ├── HorseHubPedigree     — sire/dam + bloodline notes; linked parents render EntityChip from
+    │                           server-side `sireSummary`/`damSummary` (no per-parent client fetch)
     └── HorseHubPeople       — owner, co-owners, representatives
 ```
 
-Deferred: upcoming planning events block (would also use hub-social `planning`).
+Deferred (not in current Hub shell): upcoming planning events block (would use hub-social `planning`).
 
 - Page: `app/[locale]/horses/[horseId]/page.tsx` + `client.tsx`
 - Chrome data: `useHorseView(horseId)` — cache hit from layout RSC
-- Social lists: `useHorseHubSocial(horseId)` — Hub-only, not layout-seeded
+- Hub Media: `useHorseHubGallery(horseId)` → `GET …/hub-gallery` (paginated)
 - i18n: `horseHub` namespace
 
 ---

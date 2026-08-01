@@ -56,6 +56,25 @@ import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.t
 </section>
 ```
 
+### Canonical section boundary: `SectionErrorBoundary`
+
+Prefer the shared **`SectionErrorBoundary`** (`components/errors/section-error-boundary.tsx`) over hand-rolled `ErrorBoundary` blocks in page `client.tsx` assemblies. It composes `react-error-boundary` the same way `AppErrorBoundary` does — but at section scope:
+
+- **`fallbackRender` → `InlineErrorFallback`** — compact card with a "Try again" button wired to `resetErrorBoundary`.
+- **`onError` → `logClientError`** — every caught section crash is reported through the single client error-reporting channel (`lib/errors/logClientError.ts`). Hand-rolled boundaries silently swallowed section crashes.
+- **`resetKeys`** — pass `[horseId]` (or the entity id) so the boundary auto-resets when navigating between entities instead of showing a stale fallback.
+- **`message`** — user-facing fallback copy (translated). Pass this so raw `Error.message` is never shown to end users; the full error still goes to the log.
+
+```tsx
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
+
+<Section title={t("title")}>
+  <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
+    <DataSection horseId={horseId} />
+  </SectionErrorBoundary>
+</Section>
+```
+
 `InlineErrorFallback` renders a compact bordered card with the error message and a "Try again" button. It is designed for component-level boundaries where the surrounding page chrome must remain visible. For full-page recovery use `ErrorRecoveryPage` via `ErrorFallback`.
 
 ### Retry semantics

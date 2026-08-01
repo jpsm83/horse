@@ -38,6 +38,8 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [authRevision, setAuthRevision] = useState(0);
+  // Non-DOM guards: prevent re-entrant session restore / resolve while an
+  // async auth flow is in flight (state alone can't serialize across awaits).
   const isLoadingRef = useRef(false);
   const hasResolvedUserRef = useRef(false);
 

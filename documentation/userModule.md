@@ -128,14 +128,16 @@ There is **no** planned global people directory, people search index, or user `s
 
 ### Public user profile (U-PRIV-05 — shipped)
 
-Entity-linked view-only user card. Users are **not** searchable; entry is only from future entity owner/operator links (e.g. stable card → owner).
+Entity-linked view-only user **hub**. Users are **not** searchable; entry is only from entity owner/operator links (e.g. stable card → owner).
 
 | Surface | Path | Auth | Notes |
 |---------|------|------|-------|
-| API | `GET /api/v1/users/:id` | Optional (httpOnly cookie or `Authorization: Bearer`) | Returns `{ user: PublicUserProfileCard }`; `404 NOT_FOUND` when user missing, inactive, or `profileVisibility` blocks requester |
-| Web | `/users/[userId]` (locale-prefixed, e.g. `/es/users/…`) | Optional | Skeleton on route nav; card loaded client-side via `lib/api/userClient.ts`; not in discover navigation |
+| API card | `GET /api/v1/users/:id` | Optional | Returns `{ user: PublicUserProfileCard }`; 404 when user missing, inactive, or `profileVisibility` blocks requester |
+| API hub | `GET /api/v1/users/:id/hub` | Optional | Returns `{ sections: { identity?, about?, contact?, entities? } }` — audience-filtered by L1 `profileVisibility` + L2 `hubSections` modes |
+| Web | `/users/[userId]` (locale-prefixed, e.g. `/es/users/…`) | Optional | Horse-hub-style page: identity band + About/Contact/Entities sections via `useUserHub`; not in discover navigation |
+| Web (owner) | `/user/[userId]` hub tab | Self only | Same `UserHubContent` from cached `user.sections` (no extra request) |
 
-**Service:** `lib/privacy/userPublicProfile.ts` — `getPublicUserForRequester(targetUserId, requester?)` resolves requester audience (`public` / `platform` / `relationship` / `collaboration`) from accepted horse `Relationship` and active host `WorkplaceRelationship`, then maps via `toPublicUserIdentity` + safe display fields.
+**Service:** `lib/privacy/userPublicProfile.ts` — `getPublicUserForRequester` (card) + `getUserHub` (sections) resolve requester audience (`public` / `platform` / `relationship` / `collaboration`) from accepted horse `Relationship` and active host `WorkplaceRelationship`. Cheap section projections in `lib/users/userHubSections.ts` (`buildUserHubSections`). Developer detail: [`equus/documentation/users.md`](../equus/documentation/users.md).
 
 **Response card fields** (subset; identity fields gated by U-PRIV-01 matrix):
 
@@ -149,7 +151,7 @@ No `preferences`, credentials, or full `personalDetails` / address. Full account
 
 **Tests:** `tests/lib/privacy/userPublicProfile.visibilityMatrix.test.ts`, `tests/app/api/v1/users/[id]/route.get.test.ts`.
 
-Developer detail: [`equus/documentation/profile.md`](../equus/documentation/profile.md) § Public read.
+Developer detail: [`equus/documentation/users.md`](../equus/documentation/users.md) and [`equus/documentation/profile.md`](../equus/documentation/profile.md).
 
 Horse discovery (`Horse.profileVisibility`, `Horse.contactDisplay`) is documented in [`horseModule.md`](horseModule.md) §3 and [`equus/documentation/horses.md`](../equus/documentation/horses.md).
 
@@ -231,7 +233,7 @@ Create routes: canonical `/<entity>/new` pattern — `/horses/new`, `/trainers/n
 | U-NAV-03 | Create-horse web flow (`/horses/new`) | Beyond | done |
 | U-NAV-04 | Create flows for other role types (web UI) | Parity | planned |
 | U-NAV-05 | Owned hubs with real lists (`/<entity>`) | Parity | planned |
-| U-NAV-06 | Public user profile page (`/users/[userId]`) + `GET /api/v1/users/:id` | Beyond | done |
+| U-NAV-06 | Public user hub (`/users/[userId]`) + `GET /api/v1/users/:id/hub` | Beyond | done |
 
 ---
 

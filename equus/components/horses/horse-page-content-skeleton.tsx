@@ -3,6 +3,7 @@ import { Spinner } from "../ui/spinner";
 
 export function HorsePageContentSkeleton({
   suppressHydrationWarning,
+  showSpinner = true,
 }: {
   suppressHydrationWarning?: boolean;
   showSpinner?: boolean;
@@ -12,9 +13,11 @@ export function HorsePageContentSkeleton({
       className="relative w-full h-full"
       suppressHydrationWarning={suppressHydrationWarning}
     >
-      <div className="absolute inset-0 z-10 flex items-center justify-center">
-        <Spinner className="size-6" />
-      </div>
+      {showSpinner && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center">
+          <Spinner className="size-6" />
+        </div>
+      )}
       <Skeleton className="inset-0 h-full w-full p-4 rounded-md" />
     </div>
   );

@@ -1,5 +1,5 @@
-import { UserPageSkeleton } from "@/components/user/user-page-skeleton.tsx";
+import { UserPageContentSkeleton } from "@/components/user/user-page-content-skeleton.tsx";
 
 export default function ProfileLoading() {
-  return <UserPageSkeleton />;
+  return <UserPageContentSkeleton />;
 }

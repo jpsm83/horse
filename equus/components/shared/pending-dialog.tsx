@@ -42,13 +42,8 @@ export function PendingDialog({
 }: PendingDialogProps) {
   const tCommon = useTranslations("common");
 
-  function handleOpenChange(next: boolean) {
-    if (pending && !next) return;
-    onOpenChange(next);
-  }
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} blockDismiss={pending}>
       <DialogContent
         className={cn("sm:max-w-lg", className)}
         showCloseButton={!pending}

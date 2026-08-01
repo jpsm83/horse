@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { flexRender } from "@tanstack/react-table";
 import { GripVertical, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
@@ -31,7 +31,10 @@ import {
 } from "./utils";
 
 function getColumnId<TData>(col: DataTableColumnDef<TData>): string {
-  return (col as Record<string, unknown>).accessorKey as string ?? col.id ?? "";
+  if ("accessorKey" in col && typeof col.accessorKey === "string") {
+    return col.accessorKey;
+  }
+  return col.id ?? "";
 }
 
 export function DataTable<TData extends Record<string, unknown>>({
@@ -64,8 +67,6 @@ export function DataTable<TData extends Record<string, unknown>>({
   showFilterRow = true,
   className,
 }: DataTableProps<TData>) {
-  const tableRef = useRef<HTMLDivElement>(null);
-
   const derivedFilterColumns = useMemo(() => {
     if (filterColumns && filterColumns.length > 0) return filterColumns;
     return columns
@@ -192,7 +193,7 @@ export function DataTable<TData extends Record<string, unknown>>({
   const isEmpty = rows.length === 0;
 
   return (
-    <div ref={tableRef} className={cn("flex flex-1 flex-col overflow-hidden", className)}>
+    <div className={cn("flex flex-1 flex-col overflow-hidden", className)}>
       <div className="rounded-md border overflow-auto flex-1">
         <table className="w-full caption-bottom text-sm">
           <TableHeader className="sticky top-0 z-10 bg-background">

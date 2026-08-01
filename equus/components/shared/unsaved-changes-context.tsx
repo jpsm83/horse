@@ -23,6 +23,9 @@ type UnsavedChangesContextValue = {
 };
 
 const UnsavedChangesContext = createContext<UnsavedChangesContextValue | null>(null);
+const DiscardHandlerContext = createContext<
+  ((handler: (() => void) | undefined) => void) | null
+>(null);
 
 type UnsavedChangesProviderProps = {
   children: ReactNode;
@@ -46,9 +49,14 @@ export function UnsavedChangesProvider({
   const [isDirty, setDirty] = useState(false);
   const [isSaving, setSaving] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  // Non-DOM latest-refs: pending nav target + latest onDiscard callback, read by
+  // the confirm dialog without re-creating it on every provider render.
   const pendingHrefRef = useRef<string | null>(null);
   const onDiscardRef = useRef(onDiscard);
-  onDiscardRef.current = onDiscard;
+  // Keep the ref synced after render (never write refs during render).
+  useEffect(() => {
+    onDiscardRef.current = onDiscard;
+  }, [onDiscard]);
 
   useEffect(() => {
     if (!isDirty) return;
@@ -80,6 +88,15 @@ export function UnsavedChangesProvider({
     if (href) router.push(href);
   }, [router]);
 
+  // Lets a nested form (e.g. preferences) override the discard handler when the
+  // provider lives at the layout level (no per-page onDiscard prop).
+  const setDiscardHandler = useCallback(
+    (handler: (() => void) | undefined) => {
+      onDiscardRef.current = handler;
+    },
+    [],
+  );
+
   const value = useMemo(
     () => ({ isDirty, setDirty, isSaving, setSaving, requestNavigation }),
     [isDirty, isSaving, requestNavigation],
@@ -87,20 +104,22 @@ export function UnsavedChangesProvider({
 
   return (
     <UnsavedChangesContext.Provider value={value}>
-      {children}
-      <ConfirmActionDialog
-        open={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) pendingHrefRef.current = null;
-        }}
-        title={dialogTitle}
-        description={dialogDescription}
-        cancelLabel={stayLabel}
-        confirmLabel={leaveLabel}
-        variant="destructive"
-        onConfirm={confirmLeave}
-      />
+      <DiscardHandlerContext.Provider value={setDiscardHandler}>
+        {children}
+        <ConfirmActionDialog
+          open={dialogOpen}
+          onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) pendingHrefRef.current = null;
+          }}
+          title={dialogTitle}
+          description={dialogDescription}
+          cancelLabel={stayLabel}
+          confirmLabel={leaveLabel}
+          variant="destructive"
+          onConfirm={confirmLeave}
+        />
+      </DiscardHandlerContext.Provider>
     </UnsavedChangesContext.Provider>
   );
 }
@@ -115,4 +134,9 @@ export function useUnsavedChanges(): UnsavedChangesContextValue {
 
 export function useUnsavedChangesOptional(): UnsavedChangesContextValue | null {
   return useContext(UnsavedChangesContext);
+}
+
+/** Register/override the discard handler when the provider sits above the page. */
+export function useSetUnsavedDiscardHandler() {
+  return useContext(DiscardHandlerContext);
 }

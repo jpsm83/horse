@@ -2,7 +2,7 @@
 
 import { FileIcon, ImageIcon, Loader2, Trash2, Upload, VideoIcon, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -72,7 +72,6 @@ export function FileUpload({
   className,
 }: FileUploadProps) {
   const t = useTranslations("common");
-  const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
   const [dragOver, setDragOver] = useState(false);
   const [internalFiles, setInternalFiles] = useState<UploadedFileState[]>([]);
@@ -165,24 +164,17 @@ export function FileUpload({
 
   return (
     <div className={cn(isTile ? "size-full" : "space-y-3", className)}>
-      <div
+      {/* Label wraps the dropzone so clicking it opens the picker natively
+          (declarative <label htmlFor> — no ref.click() DOM manipulation). */}
+      <label
         data-slot="file-upload-dropzone"
-        role="button"
-        tabIndex={0}
-        aria-label={t("uploadFiles")}
+        htmlFor={inputId}
         onDragOver={(e) => {
           e.preventDefault();
           if (!disabled && !uploading) setDragOver(true);
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            inputRef.current?.click();
-          }
-        }}
-        onClick={() => inputRef.current?.click()}
         className={cn(
           "flex cursor-pointer flex-col items-center justify-center text-center transition-colors",
           isTile
@@ -196,7 +188,6 @@ export function FileUpload({
         )}
       >
         <input
-          ref={inputRef}
           id={inputId}
           type="file"
           accept={accept}
@@ -224,7 +215,7 @@ export function FileUpload({
             </p>
           </div>
         )}
-      </div>
+      </label>
 
       {showPreviewList && hasFiles ? (
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">

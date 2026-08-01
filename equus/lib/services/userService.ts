@@ -31,9 +31,13 @@ import {
   userProfileVisibilityEnums,
 } from "@/utils/enums.ts";
 import {
+  buildUserHubSections,
+  canViewUserHubSection,
   normalizeUserHubSections,
   type UserHubSections,
+  type UserHubSectionsProjection,
 } from "@/lib/users/userHubSections.ts";
+import { loadUserHubEntities } from "@/lib/privacy/userPublicProfile.ts";
 import type { UploadInputFile } from "../cloudinary/types.ts";
 import type { z } from "zod";
 import type { updatePersonalDetailsSchema } from "../validations/user.ts";
@@ -73,6 +77,8 @@ export type PublicUser = {
   isActive: boolean;
   /** Hub section visibility settings (Layer-2). Included when fetched by the owner. */
   hubSections?: Required<UserHubSections>;
+  /** Hub section projections (identity/about/contact/entities). Owner view only. */
+  sections?: UserHubSectionsProjection;
   /** Email notification opt-in flags. Included when fetched by the owner. */
   notificationPreferences?: {
     email?: {
@@ -249,10 +255,25 @@ export async function getUserView(
 
   const isOwner = viewerUserId !== null && viewerUserId === String((user as Record<string, unknown>)._id);
 
+  const base = toPublicUser(user as Record<string, unknown>, {
+    includeOwnerFields: isOwner,
+  });
+
+  // Owner hub view — seed `sections` so the /user/[userId] hub tab renders from
+  // the cached view with no extra request (mirrors horse.sections).
+  if (isOwner) {
+    const doc = user as Record<string, unknown>;
+    const sections: UserHubSectionsProjection = buildUserHubSections(doc, "self");
+    if (canViewUserHubSection(doc, "entities", "self")) {
+      sections.entities = {
+        entities: await loadUserHubEntities(String(doc._id), "self"),
+      };
+    }
+    base.sections = sections;
+  }
+
   return {
-    user: toPublicUser(user as Record<string, unknown>, {
-      includeOwnerFields: isOwner,
-    }),
+    user: base,
     isOwner,
   };
 }

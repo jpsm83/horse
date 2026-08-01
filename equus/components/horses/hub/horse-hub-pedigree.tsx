@@ -2,7 +2,8 @@
  * HorseHubPedigree — Hub tab sire/dam + bloodline card.
  *
  * Assembled by HubContent. Reads `horse.sections.pedigree` from useHorseView.
- * Linked parents use EntityChip (hub link); name-only parents render as text.
+ * Linked parents render as EntityChip using the server-side `sireSummary` /
+ * `damSummary` (no per-parent client fetch); name-only parents render as text.
  */
 
 "use client";
@@ -11,8 +12,10 @@ import { useTranslations } from "next-intl";
 
 import { EntityChip } from "@/components/shared/entity-chip.tsx";
 import { Section } from "@/components/shared/section.tsx";
-import { useHorseView } from "@/hooks/queries/useHorse.ts";
-import type { HorseViewDto } from "@/lib/services/horseService.ts";
+import type {
+  HorseHubPedigreeParentSummary,
+  HorseViewDto,
+} from "@/lib/services/horseService.ts";
 import { cn } from "@/lib/utils";
 
 type HorseHubPedigreeProps = {
@@ -20,59 +23,30 @@ type HorseHubPedigreeProps = {
   className?: string;
 };
 
-type HubPedigreeParentChipProps = {
-  horseId: string;
-  fallbackName: string;
-};
-
-/** Resolves parent horse view → EntityChip (keeps EntityChip fetch-free). */
-function HubPedigreeParentChip({
-  horseId,
-  fallbackName,
-}: HubPedigreeParentChipProps) {
-  const { data: view } = useHorseView(horseId);
-  const parent = view?.horse;
-  const title = parent?.name ?? fallbackName;
-  const imageUrl = parent?.profileImageUrl;
-  const countryCode =
-    parent?.sections?.identity?.countryOfBirth ?? parent?.countryOfBirth;
-  const ownerEmail =
-    parent?.adminTeam?.find((m) => m.type === "owner")?.email ||
-    parent?.adminTeam?.find((m) => m.type === "responsible")?.email ||
-    parent?.adminTeam?.[0]?.email;
-
-  return (
-    <EntityChip
-      entityType="horse"
-      entityId={horseId}
-      title={title}
-      subtitle={ownerEmail || undefined}
-      imageUrl={imageUrl}
-      countryCode={countryCode}
-    />
-  );
-}
-
 function ParentRow({
   label,
-  horseId,
   name,
+  summary,
 }: {
   label: string;
-  horseId?: string;
   name?: string;
+  summary?: HorseHubPedigreeParentSummary;
 }) {
-  if (!horseId && !name?.trim()) return null;
+  if (!summary && !name?.trim()) return null;
 
   return (
     <div className="flex flex-col gap-1.5">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
-      {horseId ? (
-        <HubPedigreeParentChip
-          horseId={horseId}
-          fallbackName={name?.trim() || label}
+      {summary ? (
+        <EntityChip
+          entityType="horse"
+          entityId={summary.horseId}
+          title={summary.name ?? name?.trim() ?? label}
+          subtitle={undefined}
+          imageUrl={summary.imageUrl}
+          countryCode={summary.countryCode}
         />
       ) : (
         <p className="truncate text-sm font-medium text-foreground">
@@ -102,13 +76,13 @@ export function HorseHubPedigree({ horse, className }: HorseHubPedigreeProps) {
           <div className="flex flex-col gap-3">
             <ParentRow
               label={t("sire")}
-              horseId={pedigree.sireHorseId}
               name={pedigree.sireName}
+              summary={pedigree.sireSummary}
             />
             <ParentRow
               label={t("dam")}
-              horseId={pedigree.damHorseId}
               name={pedigree.damName}
+              summary={pedigree.damSummary}
             />
           </div>
           {bloodlineNotes ? (

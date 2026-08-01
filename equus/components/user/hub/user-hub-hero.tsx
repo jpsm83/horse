@@ -1,49 +1,59 @@
 /**
- * UserHubHero — avatar, name, username, and member-since badge.
- * Owner-facing preview of the identity section of the public profile.
+ * UserHubHero — horse-hub-style identity band (avatar, display name, @username,
+ * business badge) for the shared user hub. Read-only; consumes the server-filtered
+ * `identity` section projection (no visibility popovers on the hub).
  */
 
 "use client";
 
 import { useTranslations } from "next-intl";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
-import type { PublicUser } from "@/lib/services/userService.ts";
+import type { UserHubIdentitySection } from "@/lib/users/userHubSections.ts";
 
 type Props = {
-  user: PublicUser;
+  identity: UserHubIdentitySection;
 };
 
-function initials(pd: Record<string, unknown>): string {
-  const first = typeof pd.firstName === "string" ? pd.firstName.trim() : "";
-  const last = typeof pd.lastName === "string" ? pd.lastName.trim() : "";
-  return [first[0], last[0]].filter(Boolean).join("").toUpperCase() || "?";
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return `${parts[0]![0] ?? ""}${parts[1]![0] ?? ""}`.toUpperCase();
 }
 
-export function UserHubHero({ user }: Props) {
+export function UserHubHero({ identity }: Props) {
   const t = useTranslations("userHub");
-  const pd = (user.personalDetails ?? {}) as Record<string, unknown>;
   const displayName =
-    [pd.firstName, pd.lastName].filter(Boolean).join(" ").trim() || t("anonymousMember");
-  const username = typeof pd.username === "string" && pd.username.trim() ? pd.username : undefined;
-  const imageUrl = typeof pd.imageUrl === "string" && pd.imageUrl ? pd.imageUrl : undefined;
-  const userType = user.userType ?? "individual";
+    [identity.firstName, identity.lastName].filter(Boolean).join(" ").trim() ||
+    identity.businessName?.trim() ||
+    identity.username?.trim() ||
+    t("anonymousMember");
 
   return (
-    <div className="flex items-center gap-4">
-      <Avatar className="h-16 w-16 shrink-0">
-        <AvatarImage src={imageUrl} alt={displayName} />
-        <AvatarFallback className="text-lg">{initials(pd)}</AvatarFallback>
-      </Avatar>
-      <div className="min-w-0 flex-1">
-        <h2 className="truncate text-xl font-semibold">{displayName}</h2>
-        {username ? (
-          <p className="text-sm text-muted-foreground">@{username}</p>
-        ) : null}
-        <div className="mt-1.5 flex flex-wrap gap-1.5">
-          <Badge variant="secondary">{t("eyebrow")}</Badge>
-          {userType === "business" ? (
-            <Badge variant="outline">{t("businessBadge")}</Badge>
+    <div className="relative overflow-hidden rounded-lg border bg-linear-to-r from-primary/8 via-card to-accent/10 px-4 py-6 sm:px-6">
+      <div className="flex items-center gap-4">
+        <Avatar className="size-16 shrink-0 sm:size-20">
+          <AvatarImage src={identity.imageUrl} alt={displayName} />
+          <AvatarFallback className="text-lg">{initials(displayName)}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">
+            {displayName}
+          </h1>
+          {identity.username ? (
+            <p className="text-sm text-muted-foreground">@{identity.username}</p>
+          ) : null}
+          {identity.businessName ? (
+            <Badge variant="secondary" className="mt-1.5">
+              {t("businessBadge")}
+            </Badge>
+          ) : null}
+          {identity.bio?.trim() ? (
+            <p className="mt-2 line-clamp-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              {identity.bio}
+            </p>
           ) : null}
         </div>
       </div>

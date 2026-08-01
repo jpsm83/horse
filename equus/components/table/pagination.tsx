@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { type Column } from "@tanstack/react-table";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -41,12 +41,6 @@ export function PaginationBar<TData = Record<string, unknown>>({
 
   const [isColumnDropdownOpen, setIsColumnDropdownOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const isMountedRef = useRef(false);
-
-  useEffect(() => {
-    isMountedRef.current = true;
-    return () => { isMountedRef.current = false; };
-  }, []);
 
   const hideableColumns = useMemo(() => {
     const all = table
@@ -68,7 +62,7 @@ export function PaginationBar<TData = Record<string, unknown>>({
 
   const handleExport = useCallback(async () => {
     if (!onExport || isExporting) return;
-    if (isMountedRef.current) setIsExporting(true);
+    setIsExporting(true);
     try {
       await onExport();
       toast.success(t("pagination.exportSuccess"), {
@@ -82,7 +76,7 @@ export function PaginationBar<TData = Record<string, unknown>>({
         closeButton: false,
       });
     } finally {
-      if (isMountedRef.current) setIsExporting(false);
+      setIsExporting(false);
     }
   }, [onExport, isExporting, t]);
 

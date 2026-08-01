@@ -7,6 +7,7 @@
 
 import mongoose from "mongoose";
 import User from "@/models/User.ts";
+import Horse from "@/models/Horse.ts";
 import Relationship from "@/models/Relationship.ts";
 import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
 import Stable from "@/models/Stable.ts";
@@ -24,7 +25,14 @@ import {
   canExposeUserIdentity,
   resolveAudienceForRequester,
   toPublicUserIdentity,
+  type UserVisibilityAudience,
 } from "@/lib/privacy/userVisibility.ts";
+import {
+  buildUserHubSections,
+  canViewUserHubSection,
+  type UserHubEntityItem,
+  type UserHubSectionsProjection,
+} from "@/lib/users/userHubSections.ts";
 
 export type PublicUserProfileRequester = {
   id?: string;
@@ -54,7 +62,7 @@ function workplaceKey(roleType: string, profileId: unknown): string {
   return `${roleType}:${String(profileId)}`;
 }
 
-async function hasAcceptedRelationshipBetweenUsers(
+export async function hasAcceptedRelationshipBetweenUsers(
   requesterUserId: string,
   targetUserId: string,
 ): Promise<boolean> {
@@ -108,7 +116,7 @@ async function hasActiveCollaborationAtHost(
   return exists !== null;
 }
 
-async function hasActiveCollaborationBetweenUsers(
+export async function hasActiveCollaborationBetweenUsers(
   requesterUserId: string,
   targetUserId: string,
 ): Promise<boolean> {
@@ -243,4 +251,88 @@ export async function getPublicUserForRequester(
   }
 
   return mapPublicUserProfileCard(doc, audience);
+}
+
+/**
+ * Load the hub `entities` list — the user's owned horses, filtered for the
+ * requester audience (non-owner viewers see only public horses).
+ */
+export async function loadUserHubEntities(
+  userId: string,
+  audience: UserVisibilityAudience,
+): Promise<UserHubEntityItem[]> {
+  const query: Record<string, unknown> = {
+    mainOwnerUserId: userId,
+    isActive: { $ne: false },
+  };
+  if (audience === "public" || audience === "platform") {
+    query.profileVisibility = "public";
+  }
+
+  const horses = await Horse.find(query)
+    .select("name profileImageUrl profileVisibility")
+    .lean();
+
+  return horses.map((doc) => ({
+    entityType: "horse",
+    entityId: String(doc._id),
+    name: (doc.name as string | undefined) ?? "Horse",
+    imageUrl: doc.profileImageUrl as string | undefined,
+  }));
+}
+
+/**
+ * Role-aware user hub sections for the public profile page.
+ * `GET /api/v1/users/:id/hub` — auth optional. 404s when the user is missing,
+ * inactive, or Layer-1 `profileVisibility` blocks the requester. Sections are
+ * then filtered by Layer-2 `hubSections` modes (mirrors getHorseHub).
+ */
+export async function getUserHub(
+  targetUserId: string,
+  requester?: PublicUserProfileRequester,
+): Promise<UserHubSectionsProjection> {
+  ensureObjectId(targetUserId, "user id");
+
+  const user = await User.findById(targetUserId).lean();
+  if (!user || !isDocumentActive(user)) {
+    throw new ApiError(404, "User not found", "NOT_FOUND");
+  }
+
+  const requesterUserId = requester?.id;
+  const isSelf =
+    typeof requesterUserId === "string" &&
+    requesterUserId.length > 0 &&
+    requesterUserId === targetUserId;
+
+  const hasRelationship =
+    requesterUserId && !isSelf
+      ? await hasAcceptedRelationshipBetweenUsers(requesterUserId, targetUserId)
+      : false;
+  const hasCollaboration =
+    requesterUserId && !isSelf
+      ? await hasActiveCollaborationBetweenUsers(requesterUserId, targetUserId)
+      : false;
+
+  const audience = resolveAudienceForRequester({
+    isAuthenticated: requester?.isAuthenticated === true || isSelf,
+    hasRelationship,
+    hasCollaboration,
+    isSelf,
+  });
+
+  const doc = user as Record<string, unknown>;
+  const preferences = (doc.preferences ?? {}) as Record<string, unknown>;
+
+  if (!canExposeUserIdentity(preferences, audience)) {
+    throw new ApiError(404, "User not found", "NOT_FOUND");
+  }
+
+  const sections: UserHubSectionsProjection = buildUserHubSections(doc, audience);
+  if (canViewUserHubSection(doc, "entities", audience)) {
+    sections.entities = {
+      entities: await loadUserHubEntities(targetUserId, audience),
+    };
+  }
+
+  return sections;
 }

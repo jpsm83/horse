@@ -22,7 +22,7 @@ interface EntityTabsProps {
 }
 
 const navClassName =
-  "sticky top-[var(--sticky-chrome-offset,0px)] z-20 flex h-14 w-full items-center justify-center bg-nav-tab-background text-nav-tab-foreground";
+  "sticky top-[var(--sticky-chrome-offset,0px)] z-20 flex h-14 w-full items-center overflow-x-auto bg-nav-tab-background text-nav-tab-foreground [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
 
 export function EntityTabs({ tabs, isAdmin, isMainOwner, isPending }: EntityTabsProps) {
   const pathname = usePathname();
@@ -61,7 +61,7 @@ export function EntityTabs({ tabs, isAdmin, isMainOwner, isPending }: EntityTabs
 
   return (
     <nav className={navClassName}>
-      <div className="inline-flex items-center gap-1 rounded-lg p-1">
+      <div className="m-auto flex items-center gap-1 rounded-lg p-1">
         {visibleTabs.map((tab) => {
           const isParentOfOtherTab = visibleTabs.some(
             (t) => t.href !== tab.href && t.href.startsWith(tab.href + "/"),
@@ -78,7 +78,7 @@ export function EntityTabs({ tabs, isAdmin, isMainOwner, isPending }: EntityTabs
               href={tab.href}
               onClick={(event) => handleTabNavigate(event, tab.href, isActive)}
               className={cn(
-                "relative inline-flex h-7 flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-0.5 text-sm font-medium whitespace-nowrap transition-all",
+                "relative inline-flex h-7 flex-none items-center justify-center gap-1.5 rounded-md px-3 py-0.5 text-sm font-medium whitespace-nowrap transition-all",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-nav-tab-foreground hover:bg-primary/20 hover:text-primary-foreground",

@@ -70,6 +70,8 @@ export function HorseDocumentsTableSection({ horseId }: Props) {
         if (!response.ok) throw new Error("Download failed");
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
+        // Programmatic download requires an imperatively-clicked anchor — no
+        // declarative React equivalent forces a browser save without navigation.
         const a = document.createElement("a");
         a.href = url;
         a.download = doc.fileName;

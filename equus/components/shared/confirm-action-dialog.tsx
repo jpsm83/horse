@@ -1,15 +1,14 @@
 "use client";
 
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export type ConfirmActionDialogProps = {
@@ -24,7 +23,14 @@ export type ConfirmActionDialogProps = {
   onConfirm: () => void;
 };
 
-/** Shared confirmation dialog for destructive actions and navigation guards. */
+/**
+ * Shared confirmation dialog for destructive actions and navigation guards.
+ *
+ * Built on the `Dialog` primitive (not AlertDialog) so it closes on outside
+ * click / Escape like every other dialog in the app. While `isPending`,
+ * dismissal is blocked via `blockDismiss` and the close button is hidden —
+ * matching PendingDialog behavior.
+ */
 export function ConfirmActionDialog({
   open,
   onOpenChange,
@@ -37,17 +43,25 @@ export function ConfirmActionDialog({
   onConfirm,
 }: ConfirmActionDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={onConfirm}
+    <Dialog open={open} onOpenChange={onOpenChange} blockDismiss={isPending}>
+      <DialogContent showCloseButton={!isPending}>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
             disabled={isPending}
+            onClick={() => onOpenChange(false)}
+          >
+            {cancelLabel}
+          </Button>
+          <Button
+            type="button"
+            disabled={isPending}
+            onClick={onConfirm}
             className={cn(
               variant === "destructive" &&
                 "bg-destructive text-destructive-foreground hover:bg-destructive/90",
@@ -61,9 +75,9 @@ export function ConfirmActionDialog({
             ) : (
               confirmLabel
             )}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

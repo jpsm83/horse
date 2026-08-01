@@ -72,14 +72,10 @@ export function HorsePlanningEventForm({
         eventType: values.eventType,
         title: values.title.trim(),
         startDate: values.startDate,
-        ...(values.endDate.trim() ? { endDate: values.endDate } : {}),
-        ...(values.location.trim() ? { location: values.location.trim() } : {}),
-        ...(provider
-          ? {
-              sourceEntityType: provider.relationshipType,
-              sourceEntityId: provider.receiverAccountId,
-            }
-          : {}),
+        endDate: values.endDate.trim() || undefined,
+        location: values.location.trim() || undefined,
+        sourceEntityType: provider?.relationshipType,
+        sourceEntityId: provider?.receiverAccountId,
       });
       toast.success(t("eventCreated"));
       onSaved();

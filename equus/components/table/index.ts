@@ -21,7 +21,6 @@ export type {
   FilterType,
   TableColumnFilterConfig,
   ColumnFilterConfig,
-  ColumnDef,
   TableColumnColorRange,
   ITableColumnCellConfig,
   ColorBandConfig,

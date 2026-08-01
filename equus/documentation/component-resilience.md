@@ -71,14 +71,16 @@ Every page component should be built so the **shell renders immediately** and **
    if (isError) return <p className="text-destructive">{t("loadFailed")}</p>;
    return <DataTable data={data} />;
    ```
-5. Wrap the section in `ErrorBoundary` inside the `client.tsx` parent:
-   ```tsx
-   <Section title={t("sectionTitle")}>
-     <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-       <HorseConnectionsTableSection horseId={horseId} />
-     </ErrorBoundary>
-   </Section>
-   ```
+5. Wrap the section in `SectionErrorBoundary` inside the `client.tsx` parent (composes react-error-boundary with `InlineErrorFallback`, logs via `logClientError`, and auto-resets on `resetKeys` change):
+    ```tsx
+    import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
+
+    <Section title={t("sectionTitle")}>
+      <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
+        <HorseConnectionsTableSection horseId={horseId} />
+      </SectionErrorBoundary>
+    </Section>
+    ```
 
 ---
 
@@ -238,7 +240,7 @@ Not yet implemented in the codebase; add when needed.
 - [ ] Each data section uses `useQuery` with `placeholderData: (prev) => prev` (defined inside the hook)
 - [ ] Each data section destructures `{ data = [], isPending, isError }` — shows skeleton on pending, error message on error
 - [ ] Each data section's skeleton uses the `Skeleton` component with `variant="skeleton"` (default, `bg-skeleton`) + `Spinner` overlay
-- [ ] Each data section is wrapped in its own `ErrorBoundary` with `InlineErrorFallback` in the parent `client.tsx`
+- [ ] Each data section is wrapped in its own `SectionErrorBoundary` (`InlineErrorFallback` + `logClientError` + `resetKeys`) in the parent `client.tsx`
 - [ ] `loading.tsx` uses a minimal skeleton (not a full-page duplicate)
 - [ ] No `useSuspenseQuery` for cookie-authenticated data
 - [ ] No `<Suspense>` wrapping page content components (causes hydration instrumentation errors)

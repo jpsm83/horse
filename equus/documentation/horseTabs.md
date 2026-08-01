@@ -59,11 +59,11 @@ The Hub tab is a **read-only social profile** for the horse. Redesigned as a soc
 
 **Data split:**
 - Shared chrome (`useHorseView` / layout-seeded): role, tabs, horse fields, cheap `horse.sections` (`identity`, `identification`, `pedigree`, `about`, `ownership`, `value`, `proactiveRepresentatives`, `coOwnerManagement`). Absent keys mean the viewer lacks access or the owner hid the section.
-- Hub social lists (`useHorseHubSocial` → `GET …/hub-social`, guest-safe): `gallery`, `planning`, `connections`. Not seeded by horse layout — Hub zones own this fetch when wired. Separate from Media / Planning / Connect management tab APIs (auth required).
+- Hub Media (`useHorseHubGallery` → `GET …/hub-gallery`, guest-safe, paginated): photos/videos grid. Not seeded by horse layout. Separate from Media / Planning / Connect management tab APIs (auth required).
 
 Layout: full-width hero, then a three-column body on `lg` (left details ≈25%, center media ≈45%, right pedigree/people ≈30%); stacked on smaller screens.
 
-Components (all read-only, no visibility popovers; under `components/horses/hub/`):
+Components (all read-only, no visibility popovers; under `components/horses/hub/`, each wrapped in `SectionErrorBoundary`):
 ```
 HubContent (reads useHorseView — cache hit from layout.tsx)
 ├── HorseHubHero          — cover (heroImageUrl), avatar (profileImageUrl), flag, name, Share; owners upload via ProfilePhotoField
@@ -72,9 +72,9 @@ HubContent (reads useHorseView — cache hit from layout.tsx)
 │   ├── HorseHubDisciplines   — discipline tags
 │   └── HorseHubValue         — read-only sale/value fields
 ├── Center column
-│   └── HorseHubGallery      — media grid (photos/videos) → useHorseHubSocial when wired
+│   └── HorseHubGallery      — media grid (photos/videos) via useHorseHubGallery (paginated, responsive)
 └── Right column
-    ├── HorseHubPedigree     — sire/dam + bloodline notes
+    ├── HorseHubPedigree     — sire/dam + bloodline notes; linked parents via server-side sireSummary/damSummary
     └── HorseHubPeople       — owner, co-owners, representatives
 ```
 

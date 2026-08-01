@@ -2,7 +2,7 @@
  * TanStack Query key factory — centralized cache keys for targeted invalidation.
  *
  * Usage:
- *   queryClient.invalidateQueries({ queryKey: queryKeys.horses.detail(id) })
+ *   queryClient.invalidateQueries({ queryKey: queryKeys.horses.view(id) })
  *   queryClient.invalidateQueries({ queryKey: queryKeys.horses.lists() })
  */
 
@@ -12,6 +12,8 @@ export const queryKeys = {
     me: ["users", "me"] as const,
     /** Role-aware owner view — pre-seeded by layout.tsx RSC via HydrationBoundary. */
     view: (userId: string) => ["users", userId, "view"] as const,
+    /** Audience-filtered user hub sections (public profile page). */
+    hub: (userId: string) => ["users", userId, "hub"] as const,
     navigation: ["users", "me", "navigation"] as const,
     workplaces: ["users", "me", "workplaces"] as const,
     notifications: (userId: string) => ["users", userId, "notifications"] as const,
@@ -19,10 +21,7 @@ export const queryKeys = {
   horses: {
     all: ["horses"] as const,
     lists: () => [...queryKeys.horses.all, "list"] as const,
-    detail: (horseId: string) => [...queryKeys.horses.all, horseId] as const,
     view: (horseId: string) => [...queryKeys.horses.all, horseId, "view"] as const,
-    /** Guest-safe Hub gallery / planning / connections — Hub tab only. */
-    hubSocial: (horseId: string) => [...queryKeys.horses.all, horseId, "hub-social"] as const,
     /** Paginated Hub Media gallery. */
     hubGallery: (
       horseId: string,
@@ -36,8 +35,6 @@ export const queryKeys = {
         params.pageSize,
         params.type,
       ] as const,
-    owner: (horseId: string) => [...queryKeys.horses.all, horseId, "owner"] as const,
-    hub: (horseId: string) => [...queryKeys.horses.all, horseId, "hub"] as const,
     relationships: (horseId: string) => [...queryKeys.horses.all, horseId, "relationships"] as const,
     providers: (horseId: string) => [...queryKeys.horses.all, horseId, "providers"] as const,
     ownershipTransfers: (horseId: string) => [...queryKeys.horses.all, horseId, "ownership-transfers"] as const,

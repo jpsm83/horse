@@ -1,11 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ErrorBoundary } from "react-error-boundary";
 
 import { UserPageShell } from "@/components/user/user-page-shell.tsx";
 import { Section } from "@/components/shared/section.tsx";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { UserNotificationEmailSection } from "@/components/user/notifications/user-notification-email-section.tsx";
 
 type Props = { userId: string };
@@ -29,9 +28,9 @@ function NotificationsBody({ userId }: Props) {
       </div>
 
       <Section title={t("sections.email")} description={t("sections.emailDescription")}>
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+        <SectionErrorBoundary>
           <UserNotificationEmailSection userId={userId} />
-        </ErrorBoundary>
+        </SectionErrorBoundary>
       </Section>
     </div>
   );

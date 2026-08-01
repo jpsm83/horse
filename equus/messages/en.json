@@ -5,6 +5,8 @@
         "signUp": "Sign up",
         "loading": "Loading...",
         "tryAgain": "Try again",
+        "permissionDenied": "You don't have permission to view this page.",
+        "backToHub": "Back to hub",
         "signOut": "Sign out",
         "signingOut": "Signing out...",
         "email": "Email",
@@ -366,11 +368,13 @@
         "saved": "Profile saved.",
         "noChanges": "No changes to save.",
         "saveFailed": "Failed to save profile",
+        "validationFailed": "Please fix the errors before saving",
         "emailVerified": "Email verified",
         "emailNotVerified": "Email not verified",
         "authProvider": "Sign-in method",
         "sections": {
             "personal": "Personal",
+            "identification": "Identification",
             "visibility": "Visibility and privacy",
             "address": "Address",
             "photo": "Photo",
@@ -638,7 +642,6 @@
     "userProfile": {
         "title": "User profile",
         "description": "Equus member profile linked from horses and other listings. Users are not searchable.",
-        "eyebrow": "Equus member",
         "about": "About",
         "noBio": "No bio provided.",
         "contact": "Contact",
@@ -682,16 +685,11 @@
     },
     "horseHub": {
         "backToHorses": "Back to my horses",
-        "subtitle": "Horse overview",
-        "identity": "Identity",
         "identification": "Identification",
         "registryId": "Registry ID",
         "microchipId": "Microchip ID",
         "passportNumber": "Passport number",
         "identificationEmpty": "No identification records yet.",
-        "overview": "Overview",
-        "age": "Age",
-        "ageYears": "{count} years",
         "color": "Color",
         "height": "Height",
         "heightHands": "{value} hh",
@@ -711,6 +709,8 @@
         "mediaPhotos": "Photos",
         "mediaVideos": "Videos",
         "mediaEmpty": "No media yet.",
+        "mediaEmptyPhotos": "No photos yet.",
+        "mediaEmptyVideos": "No videos yet.",
         "mediaLoadFailed": "Could not load media.",
         "mediaPage": "Page {page} of {total}",
         "mediaPrev": "Previous",
@@ -720,7 +720,6 @@
         "owner": "Owner",
         "coOwners": "Co-owners",
         "representatives": "Representatives",
-        "placeholder": "Content coming soon.",
         "emptyValue": "—",
         "share": "Share",
         "shareCopied": "Link copied to clipboard.",
@@ -748,18 +747,10 @@
         "heroImageUpdated": "Hero image updated.",
         "profileImageError": "Failed to update profile image.",
         "heroImageError": "Failed to update hero image.",
-        "gallery": "Gallery",
-        "galleryEmpty": "No media to show.",
-        "galleryItemAlt": "Horse media",
         "planning": "Upcoming",
         "planningEmpty": "No upcoming events.",
-        "eventsEmpty": "No upcoming events.",
         "connections": "Connections",
         "connectionsEmpty": "No connections to show.",
-        "teamEmpty": "No team information available.",
-        "ownership": "Ownership",
-        "soleOwner": "Sole ownership",
-        "coOwnersCount": "Shared with {count} co-owner(s)",
         "eventTypes": {
             "appointment": "Appointment",
             "competition": "Competition",
@@ -768,30 +759,7 @@
             "other": "Other"
         },
         "notFound": "This horse is not available.",
-        "loadFailed": "Could not load this horse.",
-        "ownershipSection": {
-            "title": "Ownership",
-            "description": "Transfer this horse or manage co-owners.",
-            "soleOwner": "Sole ownership.",
-            "withCoOwners": "Shared with {count} co-owner(s).",
-            "transferTitle": "Transfer ownership",
-            "transferDescription": "Send ownership to another person by email.",
-            "coOwnersTitle": "Manage co-owners",
-            "coOwnersDescription": "Remove or promote co-owners.",
-            "coOwnersBlockTransfer": "Remove all co-owners before you can transfer main ownership.",
-            "emailLabel": "New owner email",
-            "nameLabel": "Name (optional)",
-            "sendTransfer": "Send transfer request",
-            "removeCoOwner": "Remove",
-            "promoteCoOwner": "Promote to main owner",
-            "pending": "Pending",
-            "cancelPending": "Cancel request",
-            "transferSent": "Ownership transfer request sent.",
-            "removeSent": "Co-owner removal request sent.",
-            "promoteSent": "Promotion request sent.",
-            "cancelled": "Request cancelled.",
-            "ownershipPercentage": "{percentage}% ownership"
-        }
+        "loadFailed": "Could not load this horse."
     },
     "horseAdmin": {
         "pageTitle": "Admin",
@@ -1486,39 +1454,32 @@
         "contactEmailInvalid": "Please provide a valid email address"
     },
     "userHub": {
-        "eyebrow": "Member",
         "businessBadge": "Business",
         "anonymousMember": "Anonymous Member",
-        "previewCallout": "This is a preview of your public profile. Use the visibility controls to choose who can see each section.",
-        "noAbout": "No bio or location added yet.",
         "noEntities": "No horses or entities linked yet.",
-        "businessLabel": "Business:",
-        "locationLabel": "Location:",
-        "hasHorses": "Horses are linked to this profile.",
         "sections": {
             "identity": "Identity",
-            "about": "About",
+            "identification": "Identification",
+            "address": "Address",
             "entities": "Horses & Entities",
             "contact": "Contact"
         },
+        "identification": {
+            "nationality": "Nationality",
+            "phone": "Phone",
+            "idType": "ID type",
+            "idNumber": "ID number"
+        },
+        "address": {
+            "location": "Location",
+            "empty": "No address shared."
+        },
         "contact": {
             "email": "Email",
-            "phone": "Phone",
-            "visibilityHint": "Visibility is controlled by the section toggle above."
+            "empty": "No contact details shared."
         },
-        "visibilitySection": {
-            "title": "Visibility Overview",
-            "description": "Manage who can see your public profile and each section.",
-            "profileVisibility": "Profile visibility",
-            "profileVisibilityHint": "Controls who can discover your profile.",
-            "change": "Change in Profile tab",
-            "section": "Section",
-            "visibility": "Visibility"
-        },
-        "notFound": "Profile not found.",
         "loadFailed": "Failed to load your profile."
-    },
-    "userNotifications": {
+    },    "userNotifications": {
         "title": "Notifications",
         "description": "Manage your email notification preferences.",
         "saveFailed": "Failed to save notification settings.",

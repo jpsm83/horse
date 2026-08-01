@@ -1,11 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ErrorBoundary } from "react-error-boundary";
 
 import { UserPageShell } from "@/components/user/user-page-shell.tsx";
 import { Section } from "@/components/shared/section.tsx";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { UserRelationshipRequestsSection } from "@/components/user/relationships/user-relationship-requests-section.tsx";
 import { UserRelationshipListSection } from "@/components/user/relationships/user-relationship-list-section.tsx";
 
@@ -30,15 +29,15 @@ function RelationshipsBody({ userId: _userId }: Props) {
       </div>
 
       <Section title={t("sections.requests")} description={t("sections.requestsDescription")}>
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+        <SectionErrorBoundary>
           <UserRelationshipRequestsSection />
-        </ErrorBoundary>
+        </SectionErrorBoundary>
       </Section>
 
       <Section title={t("sections.active")} description={t("sections.activeDescription")}>
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+        <SectionErrorBoundary>
           <UserRelationshipListSection />
-        </ErrorBoundary>
+        </SectionErrorBoundary>
       </Section>
     </div>
   );

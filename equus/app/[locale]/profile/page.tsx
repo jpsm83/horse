@@ -6,7 +6,7 @@
 
 import { useEffect } from "react";
 
-import { UserPageSkeleton } from "@/components/user/user-page-skeleton.tsx";
+import { UserPageContentSkeleton } from "@/components/user/user-page-content-skeleton.tsx";
 import { useAppAuth } from "@/hooks/use-app-auth.ts";
 import { useRouter } from "@/i18n/navigation.ts";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
@@ -27,5 +27,5 @@ export default function ProfileRedirectPage() {
     router.replace(userProfilePath(user.id));
   }, [isLoading, isAuthenticated, user, router]);
 
-  return <UserPageSkeleton suppressHydrationWarning />;
+  return <UserPageContentSkeleton suppressHydrationWarning />;
 }

@@ -28,7 +28,6 @@ components/horses/
   horse-page-shell.tsx    ← auth gate + ownership gate for all ownership-gated tabs
   horse-layout-chrome.tsx ← EntityTabs + content wrapper (rendered in layout.tsx)
   horse-page-content-skeleton.tsx  ← canonical body skeleton (used by loading.tsx + HorsePageShell)
-  horse-page-skeleton.tsx          ← legacy hub page tab-level skeleton
 components/shared/        ← ONLY multi-module primitives (Section, FileUpload, …)
 ```
 
@@ -142,14 +141,13 @@ The single Client Component that composes the shell + sections using the `<Secti
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { ErrorBoundary } from "react-error-boundary";
 
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { Section } from "@/components/shared/section.tsx";
 import { SectionTitleAction } from "@/components/shared/section-title-action.tsx";
 import { HorseConnectionsTableSection } from "@/components/horses/connect/horse-connections-table-section.tsx";
 import { HorseSectionVisibility } from "@/components/horses/shared/horse-section-visibility.tsx";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 
 type Props = { horseId: string };
 
@@ -177,9 +175,9 @@ export function ConnectContent({ horseId }: Props) {
             />
           }
         >
-          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
             <HorseConnectionsTableSection horseId={horseId} />
-          </ErrorBoundary>
+          </SectionErrorBoundary>
         </Section>
       )}
     </HorsePageShell>
@@ -189,10 +187,10 @@ export function ConnectContent({ horseId }: Props) {
 
 Rules:
 - No raw `fetch()` — all API calls go through TanStack Query hooks
-- Every data section is wrapped in `<ErrorBoundary>` inside the `<Section>` children slot — the section header (title, visibility) survives section crashes
+- Every data section is wrapped in `<SectionErrorBoundary>` inside the `<Section>` children slot — the section header (title, visibility) survives section crashes
 - The shell gates ownership via `requireOwnership` / `requireMainOwner`, passing horse data via render props `{ horse, isOwner }`
 - `Section` renders immediately (no data dependencies). Only the section's children wait on data.
-- Invite/mutation dialogs mount beside the section, **not inside** the ErrorBoundary
+- Invite/mutation dialogs mount beside the section, **not inside** the boundary
 - Section visibility uses the entity adapter (`HorseSectionVisibility`) wired through the Section's `visibilityControl` slot
 
 ## 5.5 The `Section` Component (`components/shared/section.tsx`)
@@ -226,7 +224,7 @@ type SectionProps = {
   ├── <header> shrink-0
   │   ├── title + titleAddon? + description?
   │   └── headerActions? + visibilityControl? (entity adapter → SectionVisibilityControl → allowed Popover)
-  └── children (rendered as-is — ErrorBoundary lives in client.tsx)
+  └── children (rendered as-is — SectionErrorBoundary lives in client.tsx)
 ```### Section visibility architecture (reuse across entities)
 
 ```
@@ -242,19 +240,22 @@ Section (layout slot)
 - **Horse adapter:** `components/horses/shared/horse-section-visibility.tsx` → `PATCH …/horses/:id/hub-sections`
 - **New entity:** add `*SectionVisibility` adapter + entity PATCH; reuse control unchanged. Do **not** wire `persistMode` / PATCH in page `client.tsx`.
 
-### 5.5.1 Overlays (Dialog / AlertDialog / Popover / Sheet)
+### 5.5.1 Overlays (Dialog / Popover / Sheet)
 
 Canonical overlay rules for all Equus UI. Do **not** invent a custom blur wrapper — use shadcn primitives.
 
 | Primitive | When | Backdrop / page lock |
 |-----------|------|----------------------|
-| **`Dialog`** | Blocking task UI (media upload review, documents upload, connect invite, lightbox, planning create, deactivate account, command palette) | Yes (`DialogOverlay` blur) |
-| **`AlertDialog`** via `ConfirmActionDialog` / `ConfirmDeleteDialog` | Confirmations (delete, unsaved leave, ownership confirm) | Yes (`AlertDialogOverlay` blur) |
-| **`Popover`** | Non-blocking anchored controls (multi-select, invite picker, color badge legend, section visibility) | No — intentional |
+| **`Dialog`** (incl. shared `ConfirmActionDialog` / `ConfirmDeleteDialog` / `PendingDialog`) | Blocking task UI + confirmations (media upload review, documents upload, connect invite, lightbox, planning create, deactivate account, command palette, delete/ownership/unsaved-leave confirms) | Yes (`DialogOverlay` blur) |
+| **`Popover`** | Non-blocking anchored controls (multi-select, invite picker, color badge legend, section visibility, share) | No — intentional |
 | **`Sheet`** | Mobile nav drawer only (`sidebar.tsx`) | Side panel — keep |
 
+**Dismissal contract (uniform across every dialog):**
+- Every dialog closes on **outside click + Escape** when idle, and on its Cancel/close button.
+- While a mutation is pending, dismissal is **blocked** via the shared `Dialog` `blockDismiss` prop — passed by `PendingDialog` (`pending`) and `ConfirmActionDialog` (`isPending`). Do not hand-roll this guard per dialog.
+
 **Rules:**
-- Blocking flows **must** use `Dialog` or `AlertDialog` (blur + focus trap). Never use `Popover` for upload review, deletes, or multi-step confirmations.
+- Blocking flows **must** use `Dialog` (blur + focus trap). Never use `Popover` for upload review, deletes, or multi-step confirmations.
 - Anchored form/select UX stays on `Popover` (or `Select`); do not reinvent with Dialog.
 - Prefer shared `ConfirmActionDialog` / `ConfirmDeleteDialog` for yes/no confirms.
 - **Pending mutations in Dialogs:** use shared **`PendingDialog`** (`components/shared/pending-dialog.tsx`) — Dialog shell + centered shadcn **`Spinner`** overlay, block dismiss while `pending`. Do **not** re-copy overlay markup per feature. Domain dialogs (Connect invite, pedigree parent, documents upload, media upload review) compose on top of it.
@@ -268,7 +269,7 @@ Canonical overlay rules for all Equus UI. Do **not** invent a custom blur wrappe
 - **`EntityChip`** (`components/shared/entity-chip.tsx`) — canonical cross-entity identity card; hub URLs via `entityHubPath` (`lib/navigation/entityPaths.ts`). User + horse now; extend the union/path map for stable, groom, etc. later.
 ### Rules
 - **Always** use `<Section>` for page sections — never raw `<section>` elements
-- Section is **pure layout** — it does NOT wrap children in ErrorBoundary. Wrap children in `ErrorBoundary` at the `client.tsx` level (see section 7)
+- Section is **pure layout** — it does NOT wrap children in an error boundary. Wrap children in `SectionErrorBoundary` at the `client.tsx` level (see section 7)
 - **Toggle is optional** — omit `visibilityControl` to render a section without visibility control
 - **Header actions are optional** — use `headerActions` for section-level buttons opposite the title when needed
 - **Title addon is optional** — use `titleAddon` for content immediately after the title with a left border (same visual pattern as description; e.g. Connect Invite, Documents Upload)
@@ -350,7 +351,7 @@ export function HorsePageShell({ horseId, requireOwnership, requireMainOwner, ch
 - **Render props pattern** — children receive `{ horse, isOwner }` directly, no prop drilling.
 
 ### Hub exception
-Hub (`/horses/[horseId]`) does NOT use `HorsePageShell` — it is public-facing. Its `client.tsx` reads from `useHorseView()` directly and renders its own `EntityTabs`. Data is already in the cache from `layout.tsx`.
+Hub (`/horses/[horseId]`) does NOT use `HorsePageShell` — it is public-facing. Its `client.tsx` reads from `useHorseView()` directly. `EntityTabs` still renders via `HorseLayoutChrome` (mounted in `layout.tsx`) and auto-hides when only `hub` is available. Data is already in the cache from `layout.tsx`. Hub **Media** loads via `useHorseHubGallery` (`GET …/hub-gallery`, paginated).
 
 ## 5.7 viewerRole and allowedTabs
 
@@ -403,7 +404,7 @@ Each **action or list** section is a `"use client"` component that:
 - Shows inline skeleton during `isPending`
 - Shows error state when `isError` is true (not an empty table)
 - Uses `placeholderData: (prev) => prev` on all queries (handled inside hook definitions)
-- Does NOT define its own `ErrorBoundary` — the `client.tsx` assembly wraps each section child in `<ErrorBoundary fallbackRender={InlineErrorFallback}>`
+- Does NOT define its own error boundary — the `client.tsx` assembly wraps each section child in `<SectionErrorBoundary>`
 - Does NOT use raw `fetch()` — always through hooks
 
 ### Pattern
@@ -542,14 +543,14 @@ global-error.tsx              ← Root layout crash (unrecoverable)
                   └─ HorsePageShell   ← gates auth/ownership, shows body skeleton
                       └─ <Section>    ← pure layout (title + addon + visibility header)
                           ├─ header → survives section crashes
-                          └─ ErrorBoundary → <SectionComponent />   ← from client.tsx
+                          └─ SectionErrorBoundary → <SectionComponent />   ← from client.tsx
                               (fails → InlineErrorFallback card, header + tabs survive)
                       (+ invite/mutation Dialogs mounted beside sections — not inside ErrorBoundary)
 ```
 
 Rules:
-- `ErrorBoundary` lives in `client.tsx`, wrapping each data-dependent section child inside `<Section>`
-- `ErrorBoundary` only wraps **data-dependent children**, not the section header — if children throw, the section title + visibility toggle stay visible
+- `SectionErrorBoundary` (`components/errors/section-error-boundary.tsx`) lives in `client.tsx`, wrapping each data-dependent section child inside `<Section>`. It composes react-error-boundary with `InlineErrorFallback`, reports crashes via `logClientError`, and accepts `resetKeys` (e.g. `[horseId]`) + a translated `message` (raw `Error.message` is never shown to end users).
+- The boundary only wraps **data-dependent children**, not the section header — if children throw, the section title + visibility toggle stay visible
 - Each section is isolated — one failing does not cascade
 - `AppErrorBoundary` is the last resort, not the first line of defense
 - `InlineErrorFallback` is compact (card + Try Again button) — never full-page
@@ -592,13 +593,13 @@ Rules:
     [ ] Extract into a dedicated "use client" section component under components/horses/<tab>/
     [ ] Filename starts with horse- (e.g. horse-connections-table-section.tsx)
     [ ] Wrap it in <Section title={...} className="flex-1"> (never raw <section>)
-    [ ] Wrap children inside <Section> with <ErrorBoundary fallbackRender={InlineErrorFallback}>
+    [ ] Wrap children inside <Section> with <SectionErrorBoundary resetKeys={[horseId]} message={...}>
     [ ] Add visibilityControl={<HorseSectionVisibility … />} when section needs Layer-2 visibility
     [ ] Use TanStack Query hooks with destructured { data = [], isPending, isError }
     [ ] Section hooks use placeholderData: (prev) => prev (defined inside hook, not passed by caller)
     [ ] Show skeleton + Spinner overlay during isPending (create a <Name>Skeleton component)
     [ ] Show error message when isError (not an empty table)
-    [ ] Invite/mutation Dialogs mount beside sections, not inside ErrorBoundary
+    [ ] Invite/mutation Dialogs mount beside sections, not inside the boundary
 [ ] If the tab is a deferred form (Profile / Admin sale settings):
     [ ] Parent owns useForm + single Save + dirty → useUnsavedChanges
     [ ] Field sections receive control only (no per-section Save)
@@ -617,8 +618,20 @@ Rules:
 | Type | Shell Component | Body Skeleton |
 |------|----------------|---------------|
 | Horse sub-page | `HorsePageShell` | `HorsePageContentSkeleton` |
+| User account sub-page | `UserPageShell` | `UserPageContentSkeleton` |
 | Stable sub-page | `StablePageShell` | `StablePageContentSkeleton` |
 | Breeder sub-page | `BreederPageShell` | `BreederPageContentSkeleton` |
 | (other entities) | `*PageShell` | `*PageContentSkeleton` |
 
 Each entity type creates its own shell + skeleton following the exact same pattern. New entity shells should also follow the `layout.tsx` RSC prefetch pattern (§2) with a corresponding `getEntityView` service function.
+
+### User exception — public vs owner hub
+
+Unlike the horse (single public hub), the user has two surfaces that share one component:
+
+- **`/users/[userId]` (public)** — renders `UserHubContent` from `GET /api/v1/users/:id/hub` (`useUserHub`). No shell; audience-filtered by L1 (`profileVisibility`) + L2 (`hubSections`).
+- **`/user/[userId]` (owner account)** — the Hub tab renders the **same** `UserHubContent` from the layout-seeded `user.sections` (no extra request), gated by `UserPageShell`.
+
+`UserLayoutChrome` (in `layout.tsx`) renders `EntityTabs` + `UnsavedChangesProvider` so tabs persist; `UserPageShell` only gates auth/self. The owner layout uses `PreferHydrationBoundary` (guest RSC seed cannot overwrite an owner cache).
+
+See [`users.md`](./users.md) and [`userTabs.md`](./userTabs.md).

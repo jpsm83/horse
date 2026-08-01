@@ -76,12 +76,13 @@ export const createHorseSchema = z
     profileVisibility: z.enum(visibilityEnums).optional(),
   })
   .transform((data) => {
+    // Spread `ids` (optional-keyed) so the inferred output type keeps the
+    // identity fields optional — assigning `ids.registryId` directly would force
+    // `registryId: string | undefined` (required key) on the output type.
     const ids = normalizeHorseIdentityFields(data);
     return {
       ...data,
-      registryId: ids.registryId,
-      microchipId: ids.microchipId,
-      passportNumber: ids.passportNumber,
+      ...ids,
     };
   });
 

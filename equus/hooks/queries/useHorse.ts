@@ -7,7 +7,7 @@ import { queryKeys } from "@/lib/api/queryKeys";
 import type { PublicRelationship } from "@/lib/services/relationshipService";
 import type { CreateHorsePayload } from "@/lib/utils/horseFormMapping";
 import type { PublicOwnershipTransfer } from "@/lib/services/ownershipTransferService";
-import type { HorseListResult, HorseListFilters, HorseViewResponse, HorseHubSocialResponse } from "@/lib/services/horseService.ts";
+import type { HorseListResult, HorseListFilters, HorseViewResponse } from "@/lib/services/horseService.ts";
 import type {
   HorseHubGalleryPage,
   HubGalleryTypeFilter,
@@ -26,25 +26,10 @@ export function useHorseView(horseId: string | undefined) {
     queryFn: () => fetchHorseView(horseId!),
     enabled: !!horseId,
     placeholderData: (previousData) => previousData,
+    // Deliberate deviation from the global retry: 1 — this public, role-aware
+    // view 404s for ineligible viewers (Layer-1 deny). Retrying would hammer the
+    // server pointlessly; the Hub/tab shells render the not-found state instead.
     retry: false,
-  });
-}
-
-// --- Hub social lists (guest-safe gallery / planning / connections) ---
-
-async function fetchHorseHubSocial(horseId: string): Promise<HorseHubSocialResponse> {
-  const response = await fetchWithAuth(
-    `/api/v1/horses/${encodeURIComponent(horseId)}/hub-social`,
-  );
-  return parseApiResponse<HorseHubSocialResponse>(response);
-}
-
-export function useHorseHubSocial(horseId: string | undefined) {
-  return useQuery({
-    queryKey: queryKeys.horses.hubSocial(horseId!),
-    queryFn: () => fetchHorseHubSocial(horseId!),
-    enabled: !!horseId,
-    placeholderData: (previousData) => previousData,
   });
 }
 

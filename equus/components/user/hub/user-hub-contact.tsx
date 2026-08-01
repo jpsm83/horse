@@ -1,37 +1,31 @@
 /**
- * UserHubContact — email and phone number preview section.
+ * UserHubContact — read-only email for the shared user hub.
+ * Consumes the server-filtered `contact` section projection (email; phone moved
+ * to the Identification section).
  */
 
 "use client";
 
+import { Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { PublicUser } from "@/lib/services/userService.ts";
+import type { UserHubContactSection } from "@/lib/users/userHubSections.ts";
 
 type Props = {
-  user: PublicUser;
+  contact: UserHubContactSection;
 };
 
-export function UserHubContact({ user }: Props) {
+export function UserHubContact({ contact }: Props) {
   const t = useTranslations("userHub");
-  const pd = (user.personalDetails ?? {}) as Record<string, unknown>;
 
-  const email = typeof pd.email === "string" && pd.email.trim() ? pd.email.trim() : null;
-  const phone =
-    typeof pd.phoneNumber === "string" && pd.phoneNumber.trim() ? pd.phoneNumber.trim() : null;
+  if (!contact.email?.trim()) {
+    return <p className="text-sm text-muted-foreground">{t("contact.empty")}</p>;
+  }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <p className="text-xs font-medium text-muted-foreground">{t("contact.email")}</p>
-          <p className="text-sm">{email ?? <span className="text-muted-foreground">—</span>}</p>
-        </div>
-        <div>
-          <p className="text-xs font-medium text-muted-foreground">{t("contact.phone")}</p>
-          <p className="text-sm">{phone ?? <span className="text-muted-foreground">—</span>}</p>
-        </div>
-      </div>
-      <p className="text-xs text-muted-foreground">{t("contact.visibilityHint")}</p>
-    </div>
+    <p className="flex items-center gap-2 text-sm">
+      <Mail className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+      <span className="text-xs font-medium text-muted-foreground">{t("contact.email")}:</span>
+      <span>{contact.email}</span>
+    </p>
   );
 }

@@ -1,18 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm, useFormState } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ErrorBoundary } from "react-error-boundary";
 
 import { Section } from "@/components/shared/section.tsx";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { Button } from "@/components/ui/button";
 import { UserPageShell } from "@/components/user/user-page-shell.tsx";
 import { UserAppearanceSection } from "@/components/user/preferences/user-appearance-section.tsx";
 import { UserPrivacySection } from "@/components/user/preferences/user-privacy-section.tsx";
-import { useUnsavedChanges } from "@/components/shared/unsaved-changes-context.tsx";
+import {
+  useSetUnsavedDiscardHandler,
+  useUnsavedChanges,
+} from "@/components/shared/unsaved-changes-context.tsx";
 import { useUpdateProfile, useUserView } from "@/hooks/queries/useCurrentUser.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { usePathname, useRouter } from "@/i18n/navigation.ts";
@@ -39,27 +41,25 @@ type PreferencesContentProps = {
 };
 
 export function PreferencesContent({ userId }: PreferencesContentProps) {
-  const onDiscardRef = useRef<(() => void) | undefined>(undefined);
-
   return (
-    <UserPageShell userId={userId} onDiscard={() => onDiscardRef.current?.()}>
-      <PreferencesForm userId={userId} onDiscardRef={onDiscardRef} />
+    <UserPageShell userId={userId}>
+      <PreferencesForm userId={userId} />
     </UserPageShell>
   );
 }
 
 type PreferencesFormProps = {
   userId: string;
-  onDiscardRef: MutableRefObject<(() => void) | undefined>;
 };
 
-function PreferencesForm({ userId, onDiscardRef }: PreferencesFormProps) {
+function PreferencesForm({ userId }: PreferencesFormProps) {
   const t = useTranslations("preferences");
   const tValidation = useTranslations("validation");
   const toast = useAppToast();
   const router = useRouter();
   const pathname = usePathname();
   const currentLocale = useLocale() as AppLocale;
+  const setDiscardHandler = useSetUnsavedDiscardHandler();
   const { setDirty, setSaving } = useUnsavedChanges();
 
   // Reads from HydrationBoundary cache — no extra fetch when layout.tsx RSC succeeded.
@@ -80,6 +80,7 @@ function PreferencesForm({ userId, onDiscardRef }: PreferencesFormProps) {
     defaultValues: emptyPreferencesFormValues,
   });
 
+  // Non-DOM: last-persisted values snapshot for dirty detection across saves.
   const savedValuesRef = useRef<PreferencesFormValues>(emptyPreferencesFormValues);
 
   useEffect(() => {
@@ -120,15 +121,17 @@ function PreferencesForm({ userId, onDiscardRef }: PreferencesFormProps) {
   }, [watchedLanguage, currentLocale, pathname, router, isDirty]);
 
   useEffect(() => {
-    onDiscardRef.current = () => {
+    // Register the discard restore with the layout-level provider (no per-page
+    // onDiscard prop once UnsavedChangesProvider lives in UserLayoutChrome).
+    setDiscardHandler?.(() => {
       const saved = savedValuesRef.current;
       applyThemeToDocument(normalizeTheme(saved.preferredTheme));
       if (saved.preferredLanguage !== currentLocale) {
         router.replace(pathname, { locale: saved.preferredLanguage as AppLocale });
       }
       form.reset(saved);
-    };
-  }, [onDiscardRef, form, currentLocale, pathname, router]);
+    });
+  }, [setDiscardHandler, form, currentLocale, pathname, router]);
 
   async function onSave(values: PreferencesFormValues) {
     const patch = mapPreferencesFormValuesToPatch(values, form.formState.dirtyFields);
@@ -183,18 +186,18 @@ function PreferencesForm({ userId, onDiscardRef }: PreferencesFormProps) {
           title={t("sections.appearance")}
           description={t("sectionDescriptions.appearance")}
         >
-          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <SectionErrorBoundary>
             <UserAppearanceSection control={form.control} />
-          </ErrorBoundary>
+          </SectionErrorBoundary>
         </Section>
 
         <Section
           title={t("sections.privacy")}
           description={t("sectionDescriptions.privacy")}
         >
-          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <SectionErrorBoundary>
             <UserPrivacySection control={form.control} />
-          </ErrorBoundary>
+          </SectionErrorBoundary>
         </Section>
 
         <div className="flex">

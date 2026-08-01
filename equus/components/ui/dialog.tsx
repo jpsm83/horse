@@ -7,8 +7,23 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
-function Dialog({ ...props }: DialogPrimitive.Root.Props) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+function Dialog({
+  blockDismiss = false,
+  onOpenChange,
+  ...props
+}: DialogPrimitive.Root.Props & { blockDismiss?: boolean }) {
+  return (
+    <DialogPrimitive.Root
+      data-slot="dialog"
+      onOpenChange={(open, eventDetails) => {
+        // Shared "cannot dismiss while pending" guard (outside-click, Escape,
+        // close button) — used by PendingDialog / ConfirmActionDialog.
+        if (blockDismiss && !open) return;
+        onOpenChange?.(open, eventDetails);
+      }}
+      {...props}
+    />
+  )
 }
 
 function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {

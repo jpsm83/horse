@@ -175,7 +175,7 @@ function ColorPickerPopover({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverTrigger>{children}</PopoverTrigger>
       <PopoverContent className="w-auto p-2" align="start">
         {keys.length === 0 ? (
           <p className="text-xs text-muted-foreground">No colors left</p>
@@ -209,7 +209,6 @@ export interface ColorRangeEditorProps {
   canEdit: boolean;
   disabled: boolean;
   errors: string[];
-  t: (key: string, options?: Record<string, unknown>) => string;
   onEndChange: (endIndex: number, end: number) => void;
   onAddBand: (newPaletteKey: string) => void;
   onRemoveBand: (bandIndex: number) => void;
@@ -221,7 +220,6 @@ export function ColorRangeEditor({
   canEdit,
   disabled,
   errors,
-  t,
   onEndChange,
   onAddBand,
   onRemoveBand,

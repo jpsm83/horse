@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { type Table } from "@tanstack/react-table";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -48,21 +48,6 @@ function serializeDropdownOptionsMap(
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, opts]) => `${key}:${opts.map((o) => o.value).join("\x1f")}`)
     .join(";");
-}
-
-function areDropdownSelectionsEqual(
-  prev: Record<string, string[]>,
-  next: Record<string, string[]>,
-): boolean {
-  const prevKeys = Object.keys(prev);
-  const nextKeys = Object.keys(next);
-  if (prevKeys.length !== nextKeys.length) return false;
-  return nextKeys.every((key) => {
-    const prevValues = prev[key];
-    const nextValues = next[key];
-    if (!prevValues || !nextValues || prevValues.length !== nextValues.length) return false;
-    return prevValues.every((value, index) => value === nextValues[index]);
-  });
 }
 
 export function useTableFilters<TData = Record<string, unknown>>({
@@ -110,13 +95,15 @@ export function useTableFilters<TData = Record<string, unknown>>({
   );
 
   const [dropdownSelections, setDropdownSelections] = useState<Record<string, string[]>>({});
+  const [lastDropdownOptionsKey, setLastDropdownOptionsKey] = useState(dropdownOptionsKey);
 
-  useEffect(() => {
-    const nextSelections = buildAllSelectedMap(dropdownColumns);
-    setDropdownSelections((prev) =>
-      areDropdownSelectionsEqual(prev, nextSelections) ? prev : nextSelections,
-    );
-  }, [dropdownOptionsKey]);
+  // Reset dropdown selections to all-selected when the dropdown options change
+  // (adjusting state during render — the recommended replacement for a
+  // setState-in-effect sync; see React docs "You Might Not Need an Effect").
+  if (lastDropdownOptionsKey !== dropdownOptionsKey) {
+    setLastDropdownOptionsKey(dropdownOptionsKey);
+    setDropdownSelections(buildAllSelectedMap(dropdownColumns));
+  }
 
   useEffect(() => {
     if (!table?.getAllColumns?.() || table.getAllColumns().length === 0) return;
