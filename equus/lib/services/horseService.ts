@@ -224,6 +224,30 @@ export type HorseHubOwnershipSection = {
   soleOwner: boolean;
 };
 
+export type HorseHubMemberSummary = {
+  userId: string;
+  name?: string;
+  imageUrl?: string;
+};
+
+export type HorseHubValueSection = {
+  saleStatus?: string;
+  askingPrice?: number;
+  estimatedValue?: number;
+  valueCurrency?: string;
+  acquisitionDate?: string; // ISO date string
+  /** Resolved acquisition source (falls back to current owner when unset). */
+  acquisitionSourceUser?: HorseHubMemberSummary;
+};
+
+export type HorseHubProactiveRepresentativesSection = {
+  members: HorseHubMemberSummary[];
+};
+
+export type HorseHubCoOwnerManagementSection = {
+  members: HorseHubMemberSummary[];
+};
+
 export type HorseHubGalleryItem = {
   id: string;
   type: string;
@@ -260,6 +284,9 @@ export type HorseHubDto = {
     pedigree?: HorseHubPedigreeSection;
     about?: HorseHubAboutSection;
     ownership?: HorseHubOwnershipSection;
+    value?: HorseHubValueSection;
+    proactiveRepresentatives?: HorseHubProactiveRepresentativesSection;
+    coOwnerManagement?: HorseHubCoOwnerManagementSection;
     gallery?: HorseHubGalleryItem[];
     planning?: HorseHubPlanningItem[];
     connections?: HorseHubConnectionItem[];
@@ -270,8 +297,9 @@ export type HorseHubDto = {
  * Unified role-scoped horse view DTO (shared chrome for all horse tabs).
  * Owner-only fields are populated when the viewer is on the ownership team.
  * `sections` holds cheap Hub projections (identity, identification, pedigree,
- * about, ownership) filtered by L1+L2. Gallery / planning / connections lists
- * are NOT populated here — use `getHorseHubSocial` / GET …/hub-social.
+ * about, ownership, value, proactiveRepresentatives, coOwnerManagement)
+ * filtered by L1+L2. Gallery / planning / connections lists are NOT populated
+ * here — use `getHorseHubSocial` / GET …/hub-social.
  */
 export type HorseViewDto = {
   id: string;
@@ -1028,6 +1056,29 @@ export function buildHorseHubSections(
       coOwnerCount,
       soleOwner: coOwnerCount === 0,
     };
+  }
+
+  if (canViewHorseHubSection(horseDoc, "value", audience)) {
+    sections.value = {
+      saleStatus: horseDoc.saleStatus as string | undefined,
+      askingPrice: horseDoc.askingPrice as number | undefined,
+      estimatedValue: horseDoc.estimatedValue as number | undefined,
+      valueCurrency: horseDoc.valueCurrency as string | undefined,
+      acquisitionDate:
+        horseDoc.acquisitionDate instanceof Date
+          ? horseDoc.acquisitionDate.toISOString()
+          : typeof horseDoc.acquisitionDate === "string"
+            ? horseDoc.acquisitionDate
+            : undefined,
+    };
+  }
+
+  if (canViewHorseHubSection(horseDoc, "proactiveRepresentatives", audience)) {
+    sections.proactiveRepresentatives = { members: [] };
+  }
+
+  if (canViewHorseHubSection(horseDoc, "coOwnerManagement", audience)) {
+    sections.coOwnerManagement = { members: [] };
   }
 
   return sections;
