@@ -5,7 +5,7 @@ import { ErrorBoundary } from "react-error-boundary";
 
 import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { HorseHubAbout } from "@/components/horses/hub/horse-hub-about.tsx";
-import { HorseHubDescription } from "@/components/horses/hub/horse-hub-description.tsx";
+import { HorseHubValue } from "@/components/horses/hub/horse-hub-value.tsx";
 import { HorseHubDisciplines } from "@/components/horses/hub/horse-hub-disciplines.tsx";
 import { HorseHubGallery } from "@/components/horses/hub/horse-hub-gallery.tsx";
 import { HorseHubHero } from "@/components/horses/hub/horse-hub-hero.tsx";
@@ -70,7 +70,7 @@ export function HubContent({ horseId }: HubContentProps) {
             <HorseHubDisciplines />
           </ErrorBoundary>
           <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-            <HorseHubDescription />
+            <HorseHubValue horse={horse} />
           </ErrorBoundary>
         </div>
 
