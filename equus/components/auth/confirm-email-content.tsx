@@ -1,8 +1,16 @@
+/**
+ * ConfirmEmailContent — token confirmation flow for `/confirm-email`.
+ *
+ * Receives `token` from `ConfirmEmailClient`. Runs the confirmation request in
+ * a `useEffect` guarded by state (not a ref) so it fires once per token change,
+ * and renders loading / success / error / missing states. Pure client
+ * component — no search params, no refs.
+ */
+
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -13,20 +21,18 @@ import { cn } from "@/lib/utils";
 
 type FlowState = "loading" | "success" | "error" | "missing";
 
-export function ConfirmEmailContent() {
-  const searchParams = useSearchParams();
+type ConfirmEmailContentProps = {
+  token: string | null;
+};
+
+export function ConfirmEmailContent({ token }: ConfirmEmailContentProps) {
   const t = useTranslations("auth.confirmEmail");
   const tCommon = useTranslations("common");
-  const token = searchParams.get("token");
   const [state, setState] = useState<FlowState>(token ? "loading" : "missing");
   const [message, setMessage] = useState<string | null>(null);
-  // Non-DOM guard: ensure the confirmation effect runs exactly once even if the
-  // component re-renders/remounts (state would re-trigger the async call).
-  const submittedRef = useRef(false);
 
   useEffect(() => {
-    if (!token || submittedRef.current) return;
-    submittedRef.current = true;
+    if (!token || state !== "loading") return;
 
     void (async () => {
       try {
@@ -38,7 +44,7 @@ export function ConfirmEmailContent() {
         setState("error");
       }
     })();
-  }, [token, t]);
+  }, [token, state, t]);
 
   const description =
     state === "loading"

@@ -1,5 +1,6 @@
-import { ForgotPasswordContent } from "@/components/auth/forgot-password-content.tsx";
 import type { Metadata } from "next";
+
+import { ForgotPasswordClient } from "./client";
 import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -10,5 +11,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default function ForgotPasswordPage() {
-  return <ForgotPasswordContent />;
+  return <ForgotPasswordClient />;
 }

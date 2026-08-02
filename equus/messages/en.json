@@ -151,7 +151,8 @@
         "profilesDescription": "Jump straight into the areas you already manage on Equus.",
         "subsectionsLabel": "Your profiles",
         "getStartedTitle": "Get started",
-        "getStartedDescription": "Sign in or create a free account to add horses and build your Equus presence."
+        "getStartedDescription": "Sign in or create a free account to add horses and build your Equus presence.",
+        "loadFailed": "Failed to load home content."
     },
     "auth": {
         "signIn": {
@@ -239,7 +240,8 @@
             "accept": "Accept",
             "decline": "Decline",
             "accepted": "Invitation accepted.",
-            "declined": "Invitation declined."
+            "declined": "Invitation declined.",
+            "loadFailed": "Failed to load your workplaces."
         },
         "relationships": {
             "title": "Relationship invitations",
@@ -248,7 +250,8 @@
             "accept": "Accept",
             "decline": "Decline",
             "accepted": "Relationship accepted.",
-            "declined": "Relationship declined."
+            "declined": "Relationship declined.",
+            "loadFailed": "Failed to load relationship requests."
         },
         "ownershipTransfers": {
             "title": "Ownership transfer requests",
@@ -271,7 +274,8 @@
                 "promote_co_owner": "Promote co-owner",
                 "add_responsible": "Add responsible person",
                 "remove_responsible": "Remove responsible person"
-            }
+            },
+            "loadFailed": "Failed to load ownership transfer requests."
         },
         "pedigreeConnections": {
             "title": "Pedigree connection requests",
@@ -288,7 +292,8 @@
             "childLine": "Requested for offspring: {childName}",
             "unknownParent": "Parent horse",
             "unknownChild": "Unknown horse",
-            "ackHint": "Accepting only confirms the pedigree link on their horse profile. You keep full ownership of your horse."
+            "ackHint": "Accepting only confirms the pedigree link on their horse profile. You keep full ownership of your horse.",
+            "loadFailed": "Failed to load pedigree connection requests."
         },
         "signup": {
             "staffBanner": "You were invited to join a workplace on Equus. Sign up with the invited email address.",
@@ -1001,7 +1006,6 @@
         "invalidDate": "Please enter a valid date",
         "invalidEnum": "Please select a valid option",
         "invalidNumber": "Please enter a valid number",
-        "identityRequired": "At least one of registry ID, microchip ID, or passport number is required",
         "contactNameRequired": "Contact name is required when not using owner contact",
         "contactPhoneRequired": "Contact phone is required when not using owner contact",
         "contactEmailRequired": "Contact email is required when not using owner contact",
@@ -1105,7 +1109,681 @@
         "subscribe": "Subscribe",
         "change": "Change plan",
         "updatePayment": "Update payment method",
-        "billingHistory": "Billing history"
+        "billingHistory": "Billing history",
+        "plans": "Plans",
+        "unlimitedHorses": "Unlimited horses",
+        "upToHorses": "Up to {count} horses",
+        "signInToSubscribe": "Sign in to manage your subscription.",
+        "loadFailed": "Failed to load subscription info."
+    },
+    "notifications": {
+        "title": "Notifications",
+        "empty": "You have no notifications.",
+        "markRead": "Mark as read",
+        "loadFailed": "Failed to load notifications.",
+        "previous": "Previous",
+        "next": "Next",
+        "pageOf": "Page {page} of {total}"
+    },
+    "stable": {
+        "hub": {
+            "title": "Stable",
+            "about": "About",
+            "contact": "Contact",
+            "disciplines": "Disciplines",
+            "services": "Services",
+            "acceptsNewHorses": "Accepting new horses",
+            "email": "Email",
+            "phone": "Phone",
+            "website": "Website",
+            "loadFailed": "Failed to load this stable.",
+            "backToStables": "Back to stables"
+        },
+        "profile": {
+            "title": "Stable profile",
+            "description": "Description",
+            "identitySection": "Identity",
+            "contactSection": "Contact",
+            "addressSection": "Address",
+            "tradeName": "Trade name",
+            "disciplines": "Disciplines",
+            "services": "Services",
+            "email": "Email",
+            "phone": "Phone",
+            "website": "Website",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "save": "Save",
+            "saving": "Saving...",
+            "saved": "Stable updated.",
+            "saveFailed": "Failed to save stable.",
+            "loadFailed": "Failed to load stable."
+        },
+        "admin": {
+            "title": "Admin",
+            "description": "Manage visibility, discovery, and ownership.",
+            "visibilitySection": "Visibility",
+            "visibilityDescription": "Control who can discover this stable.",
+            "isPublic": "Public",
+            "isPublicDescription": "Allow anyone to find this stable in discovery.",
+            "acceptsNewHorses": "Accepting new horses",
+            "acceptsNewHorsesDescription": "Indicate that the stable is open to new horses.",
+            "ownershipSection": "Ownership",
+            "ownershipDescription": "Manage who owns and operates this stable.",
+            "manageOwnership": "Manage ownership",
+            "visibilityLabel": "Section visibility",
+            "saved": "Saved.",
+            "saveFailed": "Failed to save.",
+            "loadFailed": "Failed to load stable."
+        },
+        "create": {
+            "title": "Add a stable",
+            "description": "Description",
+            "tradeName": "Trade name",
+            "email": "Email",
+            "phone": "Phone",
+            "website": "Website",
+            "address": "Address",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "submit": "Create stable",
+            "submitting": "Creating stable..."
+        },
+        "list": {
+            "title": "My stables",
+            "description": "Stables you own or manage.",
+            "empty": "You have not added any stables yet.",
+            "addStable": "Add a stable",
+            "acceptsNewHorses": "Accepting new horses",
+            "loadFailed": "Failed to load your stables."
+        }
+    },
+    "breeder": {
+        "hub": {
+            "title": "Breeder",
+            "about": "About",
+            "contact": "Contact",
+            "disciplines": "Disciplines",
+            "bloodlines": "Bloodlines",
+            "email": "Email",
+            "phone": "Phone",
+            "loadFailed": "Failed to load this breeder.",
+            "backToBreeders": "Back to breeders"
+        },
+        "profile": {
+            "title": "Breeder profile",
+            "description": "Description",
+            "identitySection": "Identity",
+            "contactSection": "Contact",
+            "addressSection": "Address",
+            "operationName": "Operation name",
+            "disciplines": "Disciplines",
+            "bloodlines": "Bloodlines",
+            "email": "Email",
+            "phone": "Phone",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "save": "Save",
+            "saving": "Saving...",
+            "saved": "Breeder updated.",
+            "saveFailed": "Failed to save breeder.",
+            "loadFailed": "Failed to load breeder."
+        },
+        "admin": {
+            "title": "Admin",
+            "description": "Manage visibility, discovery, and ownership.",
+            "visibilitySection": "Visibility",
+            "visibilityDescription": "Control who can discover this breeder.",
+            "isPublic": "Public",
+            "isPublicDescription": "Allow anyone to find this breeder in discovery.",
+            "ownershipSection": "Ownership",
+            "ownershipDescription": "Manage who owns and operates this breeding operation.",
+            "manageOwnership": "Manage ownership",
+            "saved": "Saved.",
+            "saveFailed": "Failed to save.",
+            "loadFailed": "Failed to load breeder."
+        },
+        "create": {
+            "title": "Add a breeder",
+            "description": "Description",
+            "operationName": "Operation name",
+            "email": "Email",
+            "phone": "Phone",
+            "address": "Address",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "submit": "Create breeder",
+            "submitting": "Creating breeder..."
+        },
+        "list": {
+            "title": "My breeders",
+            "description": "Breeding operations you own or manage.",
+            "empty": "You have not added any breeders yet.",
+            "addBreeder": "Add a breeder",
+            "loadFailed": "Failed to load your breeders."
+        }
+    },
+    "transport": {
+        "hub": {
+            "title": "Transport",
+            "about": "About",
+            "contact": "Contact",
+            "specialties": "Specialties",
+            "serviceAreas": "Service areas",
+            "acceptsNewBookings": "Accepting new bookings",
+            "email": "Email",
+            "phone": "Phone",
+            "emergencyPhone": "Emergency phone",
+            "loadFailed": "Failed to load this transport company.",
+            "backToTransport": "Back to transport"
+        },
+        "profile": {
+            "title": "Transport profile",
+            "description": "Description",
+            "identitySection": "Identity",
+            "contactSection": "Contact",
+            "addressSection": "Address",
+            "companyName": "Company name",
+            "specialties": "Specialties",
+            "serviceAreas": "Service areas",
+            "email": "Email",
+            "phone": "Phone",
+            "emergencyPhone": "Emergency phone",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "save": "Save",
+            "saving": "Saving...",
+            "saved": "Transport company updated.",
+            "saveFailed": "Failed to save transport company.",
+            "loadFailed": "Failed to load transport company."
+        },
+        "admin": {
+            "title": "Admin",
+            "description": "Manage visibility, discovery, and ownership.",
+            "visibilitySection": "Visibility",
+            "visibilityDescription": "Control who can discover this transport company.",
+            "isPublic": "Public",
+            "isPublicDescription": "Allow anyone to find this company in discovery.",
+            "acceptsNewBookings": "Accepting new bookings",
+            "acceptsNewBookingsDescription": "Indicate that the company is open to new bookings.",
+            "ownershipSection": "Ownership",
+            "ownershipDescription": "Manage who owns and operates this company.",
+            "manageOwnership": "Manage ownership",
+            "saved": "Saved.",
+            "saveFailed": "Failed to save.",
+            "loadFailed": "Failed to load transport company."
+        },
+        "create": {
+            "title": "Add a transport company",
+            "description": "Description",
+            "companyName": "Company name",
+            "email": "Email",
+            "phone": "Phone",
+            "emergencyPhone": "Emergency phone",
+            "address": "Address",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "submit": "Create company",
+            "submitting": "Creating company..."
+        },
+        "list": {
+            "title": "My transport",
+            "description": "Transport companies you own or manage.",
+            "empty": "You have not added any transport companies yet.",
+            "addTransport": "Add a transport company",
+            "acceptsNewBookings": "Accepting new bookings",
+            "loadFailed": "Failed to load your transport companies."
+        }
+    },
+    "ridingClub": {
+        "hub": {
+            "title": "Riding club",
+            "about": "About",
+            "contact": "Contact",
+            "disciplines": "Disciplines",
+            "facilities": "Facilities",
+            "email": "Email",
+            "phone": "Phone",
+            "loadFailed": "Failed to load this riding club.",
+            "backToClubs": "Back to riding clubs"
+        },
+        "profile": {
+            "title": "Riding club profile",
+            "description": "Description",
+            "identitySection": "Identity",
+            "contactSection": "Contact",
+            "addressSection": "Address",
+            "clubName": "Club name",
+            "disciplines": "Disciplines",
+            "facilities": "Facilities",
+            "membershipInfo": "Membership info",
+            "membershipFee": "Membership fee",
+            "email": "Email",
+            "phone": "Phone",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "save": "Save",
+            "saving": "Saving...",
+            "saved": "Riding club updated.",
+            "saveFailed": "Failed to save riding club.",
+            "loadFailed": "Failed to load riding club."
+        },
+        "admin": {
+            "title": "Admin",
+            "description": "Manage visibility, discovery, and ownership.",
+            "visibilitySection": "Visibility",
+            "visibilityDescription": "Control who can discover this riding club.",
+            "isPublic": "Public",
+            "isPublicDescription": "Allow anyone to find this club in discovery.",
+            "acceptsNewMembers": "Accepting new members",
+            "acceptsNewMembersDescription": "Indicate that the club is open to new members.",
+            "ownershipSection": "Ownership",
+            "ownershipDescription": "Manage who owns and operates this club.",
+            "manageOwnership": "Manage ownership",
+            "saved": "Saved.",
+            "saveFailed": "Failed to save.",
+            "loadFailed": "Failed to load riding club."
+        },
+        "create": {
+            "title": "Add a riding club",
+            "description": "Description",
+            "clubName": "Club name",
+            "email": "Email",
+            "phone": "Phone",
+            "address": "Address",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "submit": "Create club",
+            "submitting": "Creating club..."
+        },
+        "list": {
+            "title": "My riding clubs",
+            "description": "Riding clubs you own or manage.",
+            "empty": "You have not added any riding clubs yet.",
+            "addClub": "Add a riding club",
+            "loadFailed": "Failed to load your riding clubs."
+        }
+    },
+    "trainer": {
+        "hub": {
+            "title": "Trainer",
+            "about": "About",
+            "contact": "Contact",
+            "specialties": "Specialties",
+            "email": "Email",
+            "phone": "Phone",
+            "loadFailed": "Failed to load this trainer.",
+            "backToTrainers": "Back to trainers"
+        },
+        "profile": {
+            "title": "Trainer profile",
+            "description": "Update your trainer identity, contact, and visibility.",
+            "identitySection": "Identity",
+            "contactSection": "Contact",
+            "visibilitySection": "Visibility",
+            "displayName": "Display name",
+            "bio": "Bio",
+            "specialties": "Specialties",
+            "experienceYears": "Experience (years)",
+            "email": "Email",
+            "phone": "Phone",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "isPublic": "Public",
+            "acceptsNewClients": "Accepting new clients",
+            "save": "Save",
+            "saving": "Saving...",
+            "saved": "Trainer updated.",
+            "saveFailed": "Failed to save trainer.",
+            "loadFailed": "Failed to load trainer."
+        },
+        "create": {
+            "title": "Add a trainer profile",
+            "description": "Register your trainer profile.",
+            "displayName": "Display name",
+            "bio": "Bio",
+            "email": "Email",
+            "phone": "Phone",
+            "address": "Address",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "submit": "Create trainer profile",
+            "submitting": "Creating trainer profile..."
+        },
+        "list": {
+            "title": "My trainer profile",
+            "description": "Your trainer profile.",
+            "empty": "You have not created a trainer profile yet.",
+            "addTrainer": "Add a trainer profile",
+            "acceptsNewClients": "Accepting new clients",
+            "loadFailed": "Failed to load your trainer profile."
+        }
+    },
+    "veterinary": {
+        "hub": {
+            "title": "Veterinary",
+            "about": "About",
+            "contact": "Contact",
+            "email": "Email",
+            "phone": "Phone",
+            "emergencyPhone": "Emergency phone",
+            "emergencyAvailability": "Emergency availability",
+            "loadFailed": "Failed to load this veterinary practice.",
+            "backToVets": "Back to veterinaries"
+        },
+        "profile": {
+            "title": "Veterinary profile",
+            "description": "Description",
+            "identitySection": "Identity",
+            "contactSection": "Contact",
+            "visibilitySection": "Visibility",
+            "practiceName": "Practice name",
+            "email": "Email",
+            "phone": "Phone",
+            "emergencyPhone": "Emergency phone",
+            "serviceAreaKm": "Service area (km)",
+            "emergencyAvailability": "Emergency availability",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "isPublic": "Public",
+            "acceptsNewPatients": "Accepting new patients",
+            "save": "Save",
+            "saving": "Saving...",
+            "saved": "Veterinary updated.",
+            "saveFailed": "Failed to save veterinary.",
+            "loadFailed": "Failed to load veterinary."
+        },
+        "create": {
+            "title": "Add a veterinary practice",
+            "description": "Description",
+            "practiceName": "Practice name",
+            "email": "Email",
+            "phone": "Phone",
+            "emergencyPhone": "Emergency phone",
+            "address": "Address",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "submit": "Create veterinary practice",
+            "submitting": "Creating veterinary practice..."
+        },
+        "list": {
+            "title": "My veterinary practice",
+            "description": "Your veterinary practice.",
+            "empty": "You have not created a veterinary practice yet.",
+            "addVet": "Add a veterinary practice",
+            "acceptsNewPatients": "Accepting new patients",
+            "loadFailed": "Failed to load your veterinary practice."
+        }
+    },
+    "groom": {
+        "hub": {
+            "title": "Groom",
+            "about": "About",
+            "contact": "Contact",
+            "specialties": "Specialties",
+            "email": "Email",
+            "phone": "Phone",
+            "loadFailed": "Failed to load this groom.",
+            "backToGrooms": "Back to groomers"
+        },
+        "profile": {
+            "title": "Groom profile",
+            "description": "Update your groom identity, contact, and visibility.",
+            "identitySection": "Identity",
+            "contactSection": "Contact",
+            "visibilitySection": "Visibility",
+            "displayName": "Display name",
+            "bio": "Bio",
+            "specialties": "Specialties",
+            "experienceYears": "Experience (years)",
+            "email": "Email",
+            "phone": "Phone",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "isPublic": "Public",
+            "acceptsNewClients": "Accepting new clients",
+            "save": "Save",
+            "saving": "Saving...",
+            "saved": "Groom updated.",
+            "saveFailed": "Failed to save groom.",
+            "loadFailed": "Failed to load groom."
+        },
+        "create": {
+            "title": "Add a groom profile",
+            "description": "Register your groom profile.",
+            "displayName": "Display name",
+            "bio": "Bio",
+            "email": "Email",
+            "phone": "Phone",
+            "submit": "Create groom profile",
+            "submitting": "Creating groom profile..."
+        },
+        "list": {
+            "title": "My groom profile",
+            "description": "Your groom profile.",
+            "empty": "You have not created a groom profile yet.",
+            "addGroom": "Add a groom profile",
+            "loadFailed": "Failed to load your groom profile."
+        }
+    },
+    "farrier": {
+        "hub": {
+            "title": "Farrier",
+            "about": "About",
+            "contact": "Contact",
+            "email": "Email",
+            "phone": "Phone",
+            "loadFailed": "Failed to load this farrier.",
+            "backToFarriers": "Back to farriers"
+        },
+        "profile": {
+            "title": "Farrier profile",
+            "description": "Update your farrier identity, contact, and visibility.",
+            "identitySection": "Identity",
+            "contactSection": "Contact",
+            "visibilitySection": "Visibility",
+            "displayName": "Display name",
+            "bio": "Bio",
+            "experienceYears": "Experience (years)",
+            "serviceAreaKm": "Service area (km)",
+            "email": "Email",
+            "phone": "Phone",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "isPublic": "Public",
+            "acceptsNewClients": "Accepting new clients",
+            "save": "Save",
+            "saving": "Saving...",
+            "saved": "Farrier updated.",
+            "saveFailed": "Failed to save farrier.",
+            "loadFailed": "Failed to load farrier."
+        },
+        "create": {
+            "title": "Add a farrier profile",
+            "description": "Register your farrier profile.",
+            "displayName": "Display name",
+            "bio": "Bio",
+            "email": "Email",
+            "phone": "Phone",
+            "submit": "Create farrier profile",
+            "submitting": "Creating farrier profile..."
+        },
+        "list": {
+            "title": "My farrier profile",
+            "description": "Your farrier profile.",
+            "empty": "You have not created a farrier profile yet.",
+            "addFarrier": "Add a farrier profile",
+            "loadFailed": "Failed to load your farrier profile."
+        }
+    },
+    "coach": {
+        "hub": {
+            "title": "Coach",
+            "about": "About",
+            "contact": "Contact",
+            "disciplines": "Disciplines",
+            "email": "Email",
+            "phone": "Phone",
+            "loadFailed": "Failed to load this coach.",
+            "backToCoaches": "Back to coaches"
+        },
+        "profile": {
+            "title": "Coach profile",
+            "description": "Update your coach identity, contact, and visibility.",
+            "identitySection": "Identity",
+            "contactSection": "Contact",
+            "visibilitySection": "Visibility",
+            "displayName": "Display name",
+            "bio": "Bio",
+            "disciplines": "Disciplines",
+            "competitionLevels": "Competition levels",
+            "preparationServices": "Preparation services",
+            "experienceYears": "Experience (years)",
+            "email": "Email",
+            "phone": "Phone",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "isPublic": "Public",
+            "acceptsNewClients": "Accepting new clients",
+            "save": "Save",
+            "saving": "Saving...",
+            "saved": "Coach updated.",
+            "saveFailed": "Failed to save coach.",
+            "loadFailed": "Failed to load coach."
+        },
+        "create": {
+            "title": "Add a coach profile",
+            "description": "Register your coach profile.",
+            "displayName": "Display name",
+            "bio": "Bio",
+            "email": "Email",
+            "phone": "Phone",
+            "submit": "Create coach profile",
+            "submitting": "Creating coach profile..."
+        },
+        "list": {
+            "title": "My coach profile",
+            "description": "Your coach profile.",
+            "empty": "You have not created a coach profile yet.",
+            "addCoach": "Add a coach profile",
+            "loadFailed": "Failed to load your coach profile."
+        }
+    },
+    "rider": {
+        "hub": {
+            "title": "Rider",
+            "about": "About",
+            "contact": "Contact",
+            "disciplines": "Disciplines",
+            "email": "Email",
+            "phone": "Phone",
+            "loadFailed": "Failed to load this rider.",
+            "backToRiders": "Back to riders"
+        },
+        "profile": {
+            "title": "Rider profile",
+            "description": "Update your rider identity, contact, and visibility.",
+            "identitySection": "Identity",
+            "contactSection": "Contact",
+            "visibilitySection": "Visibility",
+            "displayName": "Display name",
+            "bio": "Bio",
+            "disciplines": "Disciplines",
+            "experienceYears": "Experience (years)",
+            "competitionHighlights": "Competition highlights",
+            "email": "Email",
+            "phone": "Phone",
+            "country": "Country",
+            "city": "City",
+            "state": "State",
+            "street": "Street",
+            "buildingNumber": "Building number",
+            "postCode": "Postal code",
+            "isPublic": "Public",
+            "acceptsNewClients": "Accepting new clients",
+            "save": "Save",
+            "saving": "Saving...",
+            "saved": "Rider updated.",
+            "saveFailed": "Failed to save rider.",
+            "loadFailed": "Failed to load rider."
+        },
+        "create": {
+            "title": "Add a rider profile",
+            "description": "Register your rider profile.",
+            "displayName": "Display name",
+            "bio": "Bio",
+            "email": "Email",
+            "phone": "Phone",
+            "submit": "Create rider profile",
+            "submitting": "Creating rider profile..."
+        },
+        "list": {
+            "title": "My rider profile",
+            "description": "Your rider profile.",
+            "empty": "You have not created a rider profile yet.",
+            "addRider": "Add a rider profile",
+            "loadFailed": "Failed to load your rider profile."
+        }
     },
     "horsePlanning": {
         "title": "Planning",
@@ -1234,6 +1912,26 @@
             "title": "Stables | Equus",
             "description": "Find stables and boarding facilities in the Equus network.",
             "keywords": "horse stables, boarding, equestrian facilities"
+        },
+        "stableHub": {
+            "title": "Stable | Equus",
+            "description": "View a stable profile in the Equus network.",
+            "keywords": ""
+        },
+        "stableProfile": {
+            "title": "Stable Profile | Equus",
+            "description": "Manage your stable profile.",
+            "keywords": ""
+        },
+        "stableAdmin": {
+            "title": "Stable Admin | Equus",
+            "description": "Manage stable visibility and ownership.",
+            "keywords": ""
+        },
+        "stableCreate": {
+            "title": "Add a Stable | Equus",
+            "description": "Register your stable on Equus.",
+            "keywords": ""
         },
         "breeders": {
             "title": "Breeders | Equus",
@@ -1414,6 +2112,156 @@
             "title": "Workplace | Equus",
             "description": "Manage your workplace memberships.",
             "keywords": ""
+        },
+        "breederHub": {
+            "title": "Breeder | Equus",
+            "description": "View a breeder profile in the Equus network.",
+            "keywords": ""
+        },
+        "breederProfile": {
+            "title": "Breeder Profile | Equus",
+            "description": "Manage your breeder profile.",
+            "keywords": ""
+        },
+        "breederAdmin": {
+            "title": "Breeder Admin | Equus",
+            "description": "Manage breeder visibility and ownership.",
+            "keywords": ""
+        },
+        "breederCreate": {
+            "title": "Add a Breeder | Equus",
+            "description": "Register your breeding operation on Equus.",
+            "keywords": ""
+        },
+        "transportHub": {
+            "title": "Transport | Equus",
+            "description": "View a transport company profile in the Equus network.",
+            "keywords": ""
+        },
+        "transportProfile": {
+            "title": "Transport Profile | Equus",
+            "description": "Manage your transport company profile.",
+            "keywords": ""
+        },
+        "transportAdmin": {
+            "title": "Transport Admin | Equus",
+            "description": "Manage transport visibility and ownership.",
+            "keywords": ""
+        },
+        "transportCreate": {
+            "title": "Add a Transport Company | Equus",
+            "description": "Register your transport company on Equus.",
+            "keywords": ""
+        },
+        "ridingClubHub": {
+            "title": "Riding Club | Equus",
+            "description": "View a riding club profile in the Equus network.",
+            "keywords": ""
+        },
+        "ridingClubProfile": {
+            "title": "Riding Club Profile | Equus",
+            "description": "Manage your riding club profile.",
+            "keywords": ""
+        },
+        "ridingClubAdmin": {
+            "title": "Riding Club Admin | Equus",
+            "description": "Manage riding club visibility and ownership.",
+            "keywords": ""
+        },
+        "ridingClubCreate": {
+            "title": "Add a Riding Club | Equus",
+            "description": "Register your riding club on Equus.",
+            "keywords": ""
+        },
+        "trainerHub": {
+            "title": "Trainer | Equus",
+            "description": "View a trainer profile in the Equus network.",
+            "keywords": ""
+        },
+        "trainerProfile": {
+            "title": "Trainer Profile | Equus",
+            "description": "Manage your trainer profile.",
+            "keywords": ""
+        },
+        "trainerCreate": {
+            "title": "Add a Trainer Profile | Equus",
+            "description": "Register your trainer profile on Equus.",
+            "keywords": ""
+        },
+        "veterinaryHub": {
+            "title": "Veterinary | Equus",
+            "description": "View a veterinary practice profile in the Equus network.",
+            "keywords": ""
+        },
+        "veterinaryProfile": {
+            "title": "Veterinary Profile | Equus",
+            "description": "Manage your veterinary practice profile.",
+            "keywords": ""
+        },
+        "veterinaryCreate": {
+            "title": "Add a Veterinary Practice | Equus",
+            "description": "Register your veterinary practice on Equus.",
+            "keywords": ""
+        },
+        "groomHub": {
+            "title": "Groom | Equus",
+            "description": "View a groom profile in the Equus network.",
+            "keywords": ""
+        },
+        "groomProfile": {
+            "title": "Groom Profile | Equus",
+            "description": "Manage your groom profile.",
+            "keywords": ""
+        },
+        "groomCreate": {
+            "title": "Add a Groom Profile | Equus",
+            "description": "Register your groom profile on Equus.",
+            "keywords": ""
+        },
+        "farrierHub": {
+            "title": "Farrier | Equus",
+            "description": "View a farrier profile in the Equus network.",
+            "keywords": ""
+        },
+        "farrierProfile": {
+            "title": "Farrier Profile | Equus",
+            "description": "Manage your farrier profile.",
+            "keywords": ""
+        },
+        "farrierCreate": {
+            "title": "Add a Farrier Profile | Equus",
+            "description": "Register your farrier profile on Equus.",
+            "keywords": ""
+        },
+        "coachHub": {
+            "title": "Coach | Equus",
+            "description": "View a coach profile in the Equus network.",
+            "keywords": ""
+        },
+        "coachProfile": {
+            "title": "Coach Profile | Equus",
+            "description": "Manage your coach profile.",
+            "keywords": ""
+        },
+        "coachCreate": {
+            "title": "Add a Coach Profile | Equus",
+            "description": "Register your coach profile on Equus.",
+            "keywords": ""
+        },
+        "riderHub": {
+            "title": "Rider | Equus",
+            "description": "View a rider profile in the Equus network.",
+            "keywords": ""
+        },
+        "riderProfile": {
+            "title": "Rider Profile | Equus",
+            "description": "Manage your rider profile.",
+            "keywords": ""
+        },
+        "riderCreate": {
+            "title": "Add a Rider Profile | Equus",
+            "description": "Register your rider profile on Equus.",
+            "keywords": ""
         }
     },
     "horseSale": {
@@ -1479,7 +2327,8 @@
             "empty": "No contact details shared."
         },
         "loadFailed": "Failed to load your profile."
-    },    "userNotifications": {
+    },
+    "userNotifications": {
         "title": "Notifications",
         "description": "Manage your email notification preferences.",
         "saveFailed": "Failed to save notification settings.",

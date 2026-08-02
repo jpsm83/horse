@@ -1,3 +1,10 @@
+/**
+ * ResendConfirmationContent — email verification resend form for
+ * `/resend-confirmation`. Pure form: email input + submit. Shows a success
+ * state after submit and an "already verified" state on a 400 response.
+ * No search params — routed through the thin `ResendConfirmationClient`.
+ */
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";

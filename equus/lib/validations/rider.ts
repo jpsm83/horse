@@ -24,3 +24,16 @@ export const updateRiderDiscoverySchema = z.object({
   isPublic: z.boolean().optional(),
   acceptsNewClients: z.boolean().optional(),
 });
+
+export const updateRiderProfileSchema = z.object({
+  displayName: z.string().trim().min(1).max(120).optional(),
+  bio: z.string().trim().min(1).max(2000).optional(),
+  email: emailSchema.optional(),
+  phoneNumber: z.string().trim().min(1).max(40).optional(),
+  address: stableAddressSchema.partial().optional(),
+  disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
+  experienceYears: z.number().int().min(0).optional(),
+  competitionHighlights: z.array(z.string().trim().min(1).max(120)).optional(),
+  isPublic: z.boolean().optional(),
+  acceptsNewClients: z.boolean().optional(),
+});

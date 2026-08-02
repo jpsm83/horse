@@ -1,9 +1,17 @@
+/**
+ * ResetPasswordContent — new password form for the reset-password flow.
+ *
+ * Receives `token` from `ResetPasswordClient`, which has already cleared any
+ * existing REST session. Handles missing-token and success states inline. On
+ * submit calls `resetPassword` then clears the session again before redirecting
+ * to sign-in. Pure form component — no search params, no session side effects.
+ */
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
@@ -21,36 +29,20 @@ import {
   type ResetPasswordFormValues,
 } from "@/lib/validations/authForms.ts";
 
-export function ResetPasswordContent() {
+type ResetPasswordContentProps = {
+  token: string | null;
+};
+
+export function ResetPasswordContent({ token }: ResetPasswordContentProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const t = useTranslations("auth.resetPassword");
   const tForgot = useTranslations("auth.forgotPassword");
   const tCommon = useTranslations("common");
   const tAuth = useTranslations("auth");
   const tStatus = useTranslations("status");
   const tValidation = useTranslations("validation");
-  const token = searchParams.get("token");
   const [apiError, setApiError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [sessionCleared, setSessionCleared] = useState(!token);
-
-  useEffect(() => {
-    if (!token) return;
-
-    let cancelled = false;
-    void (async () => {
-      await clearClientAuthSession();
-      if (!cancelled) {
-        router.refresh();
-        setSessionCleared(true);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [token, router]);
 
   const { resetPasswordFormSchema } = useMemo(
     () =>
@@ -80,20 +72,6 @@ export function ResetPasswordContent() {
     } catch (err) {
       setApiError(err instanceof Error ? err.message : tStatus("requestFailed"));
     }
-  }
-
-  if (!sessionCleared) {
-    return (
-      <AuthPageShell
-        title={t("title")}
-        description={tCommon("loading")}
-        footer={<span>{tCommon("loading")}</span>}
-      >
-        <Alert>
-          <AlertDescription>{tCommon("loading")}</AlertDescription>
-        </Alert>
-      </AuthPageShell>
-    );
   }
 
   if (!token) {

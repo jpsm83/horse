@@ -1,6 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
-
+import { RelationshipsPageContentSkeleton } from "@/components/invites/relationships-page-content-skeleton.tsx";
 
 export default function RelationshipsLoading() {
-  return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
+  return <RelationshipsPageContentSkeleton />;
 }

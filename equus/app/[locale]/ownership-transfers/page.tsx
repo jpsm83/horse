@@ -1,6 +1,6 @@
-import { Suspense } from "react";
-import { OwnershipTransfersContent } from "@/components/invites/ownership-transfers-content.tsx";
 import type { Metadata } from "next";
+
+import { OwnershipTransfersClient } from "./client";
 import { generatePublicMetadata } from "@/lib/seo/metadata-factory.ts";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -11,9 +11,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default function OwnershipTransfersPage() {
-  return (
-    <Suspense fallback={null}>
-      <OwnershipTransfersContent />
-    </Suspense>
-  );
+  return <OwnershipTransfersClient />;
 }

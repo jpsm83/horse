@@ -15,8 +15,10 @@ Related:
 | Method | Path | Purpose |
 |--------|------|---------|
 | `POST` | `/api/v1/farriers` | Create a farrier profile linked to the authenticated user (`userId` + `User.farrierProfileId`) |
+| `GET` | `/api/v1/farriers?mine=true` | List farrier profiles owned by the authenticated user (one profile per user) |
 | `PATCH` | `/api/v1/farriers/:id/discovery` | Update discovery settings (`isPublic`, `acceptsNewClients`) for profile owner |
 | `GET` | `/api/v1/farriers/:id` | Return public farrier card filtered by `isPublic` and requester context |
+| `PATCH` | `/api/v1/farriers/:id` | Update the farrier profile for the owner (dirty-field `$set`/`$unset`; empty strings clear optional fields) |
 
 Farriers are **user-linked**: one profile per User. A second `POST` returns **409** when `farrierProfileId` is already set.
 

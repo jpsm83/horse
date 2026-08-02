@@ -1,6 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
-
+import { OwnershipTransfersPageContentSkeleton } from "@/components/invites/ownership-transfers-page-content-skeleton.tsx";
 
 export default function OwnershipTransfersLoading() {
-  return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
+  return <OwnershipTransfersPageContentSkeleton />;
 }

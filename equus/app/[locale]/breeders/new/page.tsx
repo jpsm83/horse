@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
 
-import { EntityPageContent } from "@/components/layout/entity-page-content.tsx";
+import { BreederCreateClient } from "./client";
+import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  return generatePrivateMetadata(locale, "/breeders/new", "metadata.breeders");
+  return generatePrivateMetadata(locale, "/breeders/new", "metadata.breederCreate");
 }
 
-export default function CreatePage() {
-  return <EntityPageContent entity="breeders" showSignIn={false} />;
+export default function CreateBreederPage() {
+  return <BreederCreateClient />;
 }

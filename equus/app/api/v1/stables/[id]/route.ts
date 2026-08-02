@@ -7,7 +7,9 @@
 import connectDb from "@/lib/db.ts";
 import { withRoute, ok } from "@/lib/api/response.ts";
 import { getAccessTokenFromRequest, verifyAccessToken } from "@/lib/auth/jwt.ts";
+import { requireAuthFromRequest } from "@/lib/auth/requireAuth.ts";
 import * as stableService from "@/lib/services/stableService.ts";
+import { updateStableProfileSchema } from "@/lib/validations/stable.ts";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -33,6 +35,22 @@ export async function GET(request: Request, context: RouteContext) {
     const { id } = await context.params;
     const requester = await readOptionalSession(request);
     const stable = await stableService.getPublicStableCard(id, requester);
+    return ok({ stable });
+  });
+}
+
+/**
+ * Owner profile update.
+ *
+ * `PATCH` `/api/v1/stables/[id]`
+ */
+export async function PATCH(request: Request, context: RouteContext) {
+  return withRoute(async () => {
+    await connectDb();
+    const session = await requireAuthFromRequest(request);
+    const { id } = await context.params;
+    const input = updateStableProfileSchema.parse(await request.json());
+    const stable = await stableService.updateStableProfile(session.id, id, input);
     return ok({ stable });
   });
 }

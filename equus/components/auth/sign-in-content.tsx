@@ -1,9 +1,17 @@
+/**
+ * SignInContent — email/password sign-in form + Google OAuth button.
+ *
+ * Receives `postAuthPath` (resolved safe post-auth destination) from
+ * `SignInClient`. Calls `loginWithCredentials` (direct API call via the auth
+ * observer pattern — auth state lives in `lib/api/auth/session.ts`, not TanStack
+ * Query). Uses `useRedirectIfAuthenticated` to bounce already-signed-in users.
+ */
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
@@ -17,17 +25,19 @@ import { Link, usePathname, useRouter } from "@/i18n/navigation.ts";
 import { normalizeLocale } from "@/i18n/resolveLocale.ts";
 import { loginWithCredentials } from "@/lib/api/auth/credentials";
 import { isApiClientError } from "@/lib/api/auth/session";
-import { resolvePostAuthPath } from "@/lib/navigation/postAuthRedirect.ts";
 import {
   authFormMessagesFromTranslations,
   createAuthFormSchemas,
   type SignInFormValues,
 } from "@/lib/validations/authForms.ts";
 
-export function SignInContent() {
+type SignInContentProps = {
+  postAuthPath: string;
+};
+
+export function SignInContent({ postAuthPath }: SignInContentProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const locale = useLocale();
   const t = useTranslations("auth.signIn");
   const tCommon = useTranslations("common");
@@ -35,7 +45,6 @@ export function SignInContent() {
   const tErrors = useTranslations("errors");
   const [apiError, setApiError] = useState<string | null>(null);
   const [showResendLink, setShowResendLink] = useState(false);
-  const postAuthPath = resolvePostAuthPath(searchParams.get("next"));
 
   useRedirectIfAuthenticated(postAuthPath);
 

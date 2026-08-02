@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
 
-import { EntityPageContent } from "@/components/layout/entity-page-content.tsx";
+import { RidingClubCreateClient } from "./client";
+import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  return generatePrivateMetadata(locale, "/riding-clubs/new", "metadata.ridingClubs");
+  return generatePrivateMetadata(locale, "/riding-clubs/new", "metadata.ridingClubCreate");
 }
 
-export default function CreatePage() {
-  return <EntityPageContent entity="riding-clubs" showSignIn={false} />;
+export default function CreateRidingClubPage() {
+  return <RidingClubCreateClient />;
 }

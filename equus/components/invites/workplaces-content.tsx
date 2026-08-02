@@ -1,11 +1,21 @@
+/**
+ * WorkplacesContent — workplace collaboration inbox (`/workplaces`).
+ *
+ * Auth-gated list of workplace memberships and pending invitations with
+ * Accept/Decline. Receives `membershipId` from `WorkplacesClient` (deep link
+ * from signup with a membership ref). Mutations are direct TanStack Query calls;
+ * the list is wrapped in `SectionErrorBoundary` so a crash never takes down the
+ * inbox chrome.
+ */
+
 "use client";
 
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
+import { WorkplacePageContentSkeleton } from "@/components/invites/workplace-page-content-skeleton.tsx";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { AppHomeLink } from "@/components/navigation/app-home-link.tsx";
@@ -20,18 +30,16 @@ import { isApiClientError } from "@/lib/api/auth/session";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { cn } from "@/lib/utils";
 
-function WorkplacesLoadingShell() {
-  return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
-}
+type WorkplacesContentProps = {
+  membershipId: string | null;
+};
 
-export function WorkplacesContent() {
+export function WorkplacesContent({ membershipId }: WorkplacesContentProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const t = useTranslations("invites.workplaces");
   const tCommon = useTranslations("common");
   const tStatus = useTranslations("status");
   const toast = useAppToast();
-  const highlightInvitationId = searchParams.get("membership");
 
   const { isAuthenticated, isLoading: authLoading } = useAppAuth();
   const { data: workplaces = [], isPending } = useWorkplaces();
@@ -81,7 +89,7 @@ export function WorkplacesContent() {
   }
 
   if (isPending || authLoading) {
-    return <WorkplacesLoadingShell />;
+    return <WorkplacePageContentSkeleton suppressHydrationWarning />;
   }
 
   return (
@@ -94,66 +102,67 @@ export function WorkplacesContent() {
         </AppHomeLink>
       }
     >
-      {workplaces.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
-      ) : (
-        <ul className="space-y-3">
-          {workplaces.map((workplace) => {
-            const isHighlighted =
-              highlightInvitationId &&
-              workplace.membershipId === highlightInvitationId;
-            const isInvited = workplace.status === "invited";
-            const invitationId = workplace.membershipId;
+      <SectionErrorBoundary message={t("loadFailed")}>
+        {workplaces.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        ) : (
+          <ul className="space-y-3">
+            {workplaces.map((workplace) => {
+              const isHighlighted =
+                membershipId && workplace.membershipId === membershipId;
+              const isInvited = workplace.status === "invited";
+              const invitationId = workplace.membershipId;
 
-            return (
-              <li
-                key={`${workplace.roleType}-${workplace.roleProfileId}-${workplace.membershipId ?? "owner"}`}
-                className={cn(
-                  "rounded-lg border p-4",
-                  isHighlighted && "border-primary ring-1 ring-primary/30",
-                )}
-              >
-                <div className="space-y-1">
-                  <p className="font-medium">
-                    {workplace.profileName ?? workplace.roleType}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {workplace.access === "owner"
-                      ? tCommon("owner")
-                      : (workplace.hierarchyLevel ?? workplace.staffRole)}
-                    {workplace.status ? ` · ${workplace.status}` : ""}
-                  </p>
-                  {isInvited ? (
-                    <p className="text-sm font-medium text-primary">
-                      {t("invited")}
+              return (
+                <li
+                  key={`${workplace.roleType}-${workplace.roleProfileId}-${workplace.membershipId ?? "owner"}`}
+                  className={cn(
+                    "rounded-lg border p-4",
+                    isHighlighted && "border-primary ring-1 ring-primary/30",
+                  )}
+                >
+                  <div className="space-y-1">
+                    <p className="font-medium">
+                      {workplace.profileName ?? workplace.roleType}
                     </p>
-                  ) : null}
-                </div>
-
-                {isInvited && invitationId ? (
-                  <div className="mt-3 flex gap-2">
-                    <Button
-                      size="sm"
-                      disabled={actingId === invitationId}
-                      onClick={() => void handleAccept(invitationId)}
-                    >
-                      {t("accept")}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={actingId === invitationId}
-                      onClick={() => void handleDecline(invitationId)}
-                    >
-                      {t("decline")}
-                    </Button>
+                    <p className="text-sm text-muted-foreground">
+                      {workplace.access === "owner"
+                        ? tCommon("owner")
+                        : (workplace.hierarchyLevel ?? workplace.staffRole)}
+                      {workplace.status ? ` · ${workplace.status}` : ""}
+                    </p>
+                    {isInvited ? (
+                      <p className="text-sm font-medium text-primary">
+                        {t("invited")}
+                      </p>
+                    ) : null}
                   </div>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+
+                  {isInvited && invitationId ? (
+                    <div className="mt-3 flex gap-2">
+                      <Button
+                        size="sm"
+                        disabled={actingId === invitationId}
+                        onClick={() => void handleAccept(invitationId)}
+                      >
+                        {t("accept")}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={actingId === invitationId}
+                        onClick={() => void handleDecline(invitationId)}
+                      >
+                        {t("decline")}
+                      </Button>
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </SectionErrorBoundary>
     </AuthPageShell>
   );
 }

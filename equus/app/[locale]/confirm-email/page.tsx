@@ -1,6 +1,6 @@
-import { Suspense } from "react";
-import { ConfirmEmailContent } from "@/components/auth/confirm-email-content.tsx";
 import type { Metadata } from "next";
+
+import { ConfirmEmailClient } from "./client";
 import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -11,9 +11,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default function ConfirmEmailPage() {
-  return (
-    <Suspense fallback={null}>
-      <ConfirmEmailContent />
-    </Suspense>
-  );
+  return <ConfirmEmailClient />;
 }

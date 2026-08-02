@@ -1,9 +1,19 @@
+/**
+ * SignUpContent — registration form with invite banner support, user type
+ * selector, and optional business details section.
+ *
+ * Receives `postAuthPath`, `ref?` (invite reference), and `isStaffRef`
+ * (whether the reference is a staff membership ref) from `SignUpClient`. Calls
+ * `registerWithCredentials` (direct API call — auth state is not TanStack
+ * Query). Shows an invite banner when a relationship or staff reference is
+ * present.
+ */
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
@@ -16,8 +26,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated.ts";
 import { Link, useRouter } from "@/i18n/navigation.ts";
 import { registerWithCredentials } from "@/lib/api/auth/credentials";
-import { resolvePostAuthPath } from "@/lib/navigation/postAuthRedirect.ts";
-import { isStaffMembershipRef } from "@/lib/utils/inviteRef.ts";
 import {
   authFormMessagesFromTranslations,
   createAuthFormSchemas,
@@ -25,17 +33,19 @@ import {
 } from "@/lib/validations/authForms.ts";
 import { useInvitePreview } from "@/hooks/queries/useInvite";
 
-export function SignUpContent() {
+type SignUpContentProps = {
+  postAuthPath: string;
+  ref?: string;
+  isStaffRef: boolean;
+};
+
+export function SignUpContent({ postAuthPath, ref, isStaffRef }: SignUpContentProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const t = useTranslations("auth.signUp");
   const tCommon = useTranslations("common");
   const tInvites = useTranslations("invites.signup");
   const tAuth = useTranslations("auth");
   const tValidation = useTranslations("validation");
-  const ref = searchParams.get("ref")?.trim() ?? "";
-  const isStaffRef = ref ? isStaffMembershipRef(ref) : false;
-  const postAuthPath = resolvePostAuthPath(searchParams.get("next"));
 
   useRedirectIfAuthenticated(postAuthPath);
 
@@ -105,7 +115,7 @@ export function SignUpContent() {
       } else if (ref && !isStaffRef) {
         router.push("/relationships");
       } else {
-        router.push(resolvePostAuthPath(searchParams.get("next")));
+        router.push(postAuthPath);
       }
       router.refresh();
     } catch (err) {

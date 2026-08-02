@@ -25,3 +25,18 @@ export const updateCoachDiscoverySchema = z.object({
   isPublic: z.boolean().optional(),
   acceptsNewClients: z.boolean().optional(),
 });
+
+export const updateCoachProfileSchema = z.object({
+  displayName: z.string().trim().min(1).max(120).optional(),
+  bio: z.string().trim().min(1).max(2000).optional(),
+  email: emailSchema.optional(),
+  phoneNumber: z.string().trim().min(1).max(40).optional(),
+  address: stableAddressSchema.partial().optional(),
+  legalName: z.string().trim().max(120).optional(),
+  disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
+  competitionLevels: z.array(z.string().trim().min(1).max(80)).optional(),
+  preparationServices: z.array(z.string().trim().min(1).max(120)).optional(),
+  experienceYears: z.number().int().min(0).optional(),
+  isPublic: z.boolean().optional(),
+  acceptsNewClients: z.boolean().optional(),
+});

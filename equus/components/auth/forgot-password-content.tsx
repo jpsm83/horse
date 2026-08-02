@@ -1,3 +1,10 @@
+/**
+ * ForgotPasswordContent — password reset request form for `/forgot-password`.
+ *
+ * Pure form: email input + submit. On success shows a confirmation state.
+ * No search params — routed through the thin `ForgotPasswordClient`.
+ */
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";

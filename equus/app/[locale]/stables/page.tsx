@@ -1,5 +1,6 @@
-import { EntityPageContent } from "@/components/layout/entity-page-content.tsx";
 import type { Metadata } from "next";
+
+import { StableListClient } from "./client";
 import { generatePublicMetadata } from "@/lib/seo/metadata-factory.ts";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -9,6 +10,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return generatePublicMetadata(locale, "/stables", "metadata.stables");
 }
 
-export default function EntityPage() {
-  return <EntityPageContent entity="stables" owned={true} />;
+export default function StablesPage() {
+  return <StableListClient />;
 }

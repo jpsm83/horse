@@ -22,3 +22,15 @@ export const createBreederSchema = z.object({
 export const updateBreederDiscoverySchema = z.object({
   isPublic: z.boolean().optional(),
 });
+
+export const updateBreederProfileSchema = z.object({
+  operationName: z.string().trim().min(1).max(120).optional(),
+  description: z.string().trim().min(1).max(2000).optional(),
+  email: emailSchema.optional(),
+  phoneNumber: z.string().trim().min(1).max(40).optional(),
+  legalName: z.string().trim().max(120).optional(),
+  disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
+  bloodlines: z.array(z.string().trim().min(1)).optional(),
+  isPublic: z.boolean().optional(),
+  address: stableAddressSchema.partial().optional(),
+});

@@ -37,3 +37,15 @@ export const updateStableDiscoverySchema = z.object({
   isPublic: z.boolean().optional(),
   acceptsNewHorses: z.boolean().optional(),
 });
+
+export const updateStableProfileSchema = z.object({
+  tradeName: z.string().trim().min(1).max(120).optional(),
+  description: z.string().trim().min(1).max(2000).optional(),
+  email: emailSchema.optional(),
+  phoneNumber: z.string().trim().min(1).max(40).optional(),
+  legalName: z.string().trim().max(120).optional(),
+  websiteUrl: z.string().trim().url().optional().or(z.literal("")),
+  disciplines: z.array(z.enum(horseDisciplineEnums)).optional(),
+  services: z.array(z.enum(stableServiceEnums)).optional(),
+  address: stableAddressSchema.partial().optional(),
+});

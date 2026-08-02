@@ -1,11 +1,20 @@
+/**
+ * RelationshipsContent — pending horse relationship inbox (`/relationships`).
+ *
+ * Auth-gated list of pending relationship requests with Accept/Decline. Receives
+ * `highlightRelationshipId` from `RelationshipsClient` (deep link from email).
+ * Mutations are direct TanStack Query calls; list is wrapped in
+ * `SectionErrorBoundary` so a crash never takes down the inbox chrome.
+ */
+
 "use client";
 
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
+import { RelationshipsPageContentSkeleton } from "@/components/invites/relationships-page-content-skeleton.tsx";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { AppHomeLink } from "@/components/navigation/app-home-link.tsx";
@@ -20,18 +29,18 @@ import { isApiClientError } from "@/lib/api/auth/session";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { cn } from "@/lib/utils";
 
-function RelationshipsLoadingShell() {
-  return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
-}
+type RelationshipsContentProps = {
+  highlightRelationshipId: string | null;
+};
 
-export function RelationshipsContent() {
+export function RelationshipsContent({
+  highlightRelationshipId,
+}: RelationshipsContentProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const t = useTranslations("invites.relationships");
   const tCommon = useTranslations("common");
   const tStatus = useTranslations("status");
   const toast = useAppToast();
-  const highlightRelationshipId = searchParams.get("relationship");
 
   const { isAuthenticated, isLoading: authLoading } = useAppAuth();
   const { data: relationships = [], isPending } = usePendingRelationships();
@@ -84,7 +93,7 @@ export function RelationshipsContent() {
   }
 
   if (isPending || authLoading) {
-    return <RelationshipsLoadingShell />;
+    return <RelationshipsPageContentSkeleton suppressHydrationWarning />;
   }
 
   return (
@@ -97,56 +106,58 @@ export function RelationshipsContent() {
         </AppHomeLink>
       }
     >
-      {relationships.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
-      ) : (
-        <ul className="space-y-3">
-          {relationships.map((relationship) => {
-            const isHighlighted =
-              highlightRelationshipId && relationship.id === highlightRelationshipId;
+      <SectionErrorBoundary message={t("loadFailed")}>
+        {relationships.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        ) : (
+          <ul className="space-y-3">
+            {relationships.map((relationship) => {
+              const isHighlighted =
+                highlightRelationshipId && relationship.id === highlightRelationshipId;
 
-            return (
-            <li
-              key={relationship.id}
-              id={`relationship-${relationship.id}`}
-              className={cn(
-                "rounded-lg border p-4",
-                isHighlighted && "border-primary ring-1 ring-primary/30",
-              )}
-            >
-              <div className="space-y-1">
-                <p className="font-medium">
-                  {relationship.horseName ?? tCommon("horseFallback")} · {relationship.relationshipType}
-                </p>
-                {relationship.requesterLabel ? (
-                  <p className="text-sm text-muted-foreground">
-                    {tCommon("from", { label: relationship.requesterLabel })}
-                  </p>
-                ) : null}
-              </div>
+              return (
+                <li
+                  key={relationship.id}
+                  id={`relationship-${relationship.id}`}
+                  className={cn(
+                    "rounded-lg border p-4",
+                    isHighlighted && "border-primary ring-1 ring-primary/30",
+                  )}
+                >
+                  <div className="space-y-1">
+                    <p className="font-medium">
+                      {relationship.horseName ?? tCommon("horseFallback")} · {relationship.relationshipType}
+                    </p>
+                    {relationship.requesterLabel ? (
+                      <p className="text-sm text-muted-foreground">
+                        {tCommon("from", { label: relationship.requesterLabel })}
+                      </p>
+                    ) : null}
+                  </div>
 
-              <div className="mt-3 flex gap-2">
-                <Button
-                  size="sm"
-                  disabled={actingId === relationship.id}
-                  onClick={() => void handleAccept(relationship.id)}
-                >
-                  {t("accept")}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={actingId === relationship.id}
-                  onClick={() => void handleDecline(relationship.id)}
-                >
-                  {t("decline")}
-                </Button>
-              </div>
-            </li>
-            );
-          })}
-        </ul>
-      )}
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      size="sm"
+                      disabled={actingId === relationship.id}
+                      onClick={() => void handleAccept(relationship.id)}
+                    >
+                      {t("accept")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={actingId === relationship.id}
+                      onClick={() => void handleDecline(relationship.id)}
+                    >
+                      {t("decline")}
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </SectionErrorBoundary>
     </AuthPageShell>
   );
 }

@@ -1,6 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
-
+import { WorkplacePageContentSkeleton } from "@/components/invites/workplace-page-content-skeleton.tsx";
 
 export default function WorkplacesLoading() {
-  return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
+  return <WorkplacePageContentSkeleton />;
 }

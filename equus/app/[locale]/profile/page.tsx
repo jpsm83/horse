@@ -1,8 +1,14 @@
-"use client";
-
 /**
  * Legacy `/profile` bookmark — redirects to `/user/{id}/profile`.
+ *
+ * Client component because it needs the REST auth session (`useAppAuth`) to
+ * resolve the current user id before redirecting. Unauthenticated users are
+ * sent to sign-in with the `/profile` destination preserved. Called by the
+ * `[locale]` layout via `AppShell`; the canonical settings pages live under
+ * `app/[locale]/user/[userId]/profile`.
  */
+
+"use client";
 
 import { useEffect } from "react";
 

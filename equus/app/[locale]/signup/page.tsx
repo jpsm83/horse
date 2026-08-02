@@ -1,6 +1,6 @@
-import { Suspense } from "react";
-import { SignUpContent } from "@/components/auth/sign-up-content.tsx";
 import type { Metadata } from "next";
+
+import { SignUpClient } from "./client";
 import { generatePrivateMetadata } from "@/lib/seo/metadata-factory.ts";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -11,9 +11,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default function SignUpPage() {
-  return (
-    <Suspense fallback={null}>
-      <SignUpContent />
-    </Suspense>
-  );
+  return <SignUpClient />;
 }

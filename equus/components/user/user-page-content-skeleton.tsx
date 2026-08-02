@@ -1,7 +1,16 @@
+/**
+ * UserPageContentSkeleton — body skeleton for all `/user/[userId]` sub-pages
+ * (hub, profile, preferences, notifications, workplace, relationships,
+ * subscription) and the public `/users/[userId]` page.
+ *
+ * Used by each route's `loading.tsx` (SSR streaming) and by `UserPageShell` /
+ * hub content while auth or view data is loading. Sharing one component means
+ * there is no visual swap when SSR transitions to client hydration. Mirrors
+ * `HorsePageContentSkeleton`.
+ */
+
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { Spinner } from "@/components/ui/spinner.tsx";
-
-/** Canonical body skeleton for /user/[userId]/* pages (loading.tsx + UserPageShell). */
 export function UserPageContentSkeleton({
   suppressHydrationWarning,
   showSpinner = true,

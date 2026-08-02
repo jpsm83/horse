@@ -48,6 +48,61 @@ export const queryKeys = {
     all: ["stables"] as const,
     lists: () => [...queryKeys.stables.all, "list"] as const,
     detail: (stableId: string) => [...queryKeys.stables.all, stableId] as const,
+    view: (stableId: string) => [...queryKeys.stables.all, stableId, "view"] as const,
+  },
+  breeders: {
+    all: ["breeders"] as const,
+    lists: () => [...queryKeys.breeders.all, "list"] as const,
+    detail: (breederId: string) => [...queryKeys.breeders.all, breederId] as const,
+    view: (breederId: string) => [...queryKeys.breeders.all, breederId, "view"] as const,
+  },
+  transports: {
+    all: ["transports"] as const,
+    lists: () => [...queryKeys.transports.all, "list"] as const,
+    detail: (transportId: string) => [...queryKeys.transports.all, transportId] as const,
+    view: (transportId: string) => [...queryKeys.transports.all, transportId, "view"] as const,
+  },
+  ridingClubs: {
+    all: ["riding-clubs"] as const,
+    lists: () => [...queryKeys.ridingClubs.all, "list"] as const,
+    detail: (clubId: string) => [...queryKeys.ridingClubs.all, clubId] as const,
+    view: (clubId: string) => [...queryKeys.ridingClubs.all, clubId, "view"] as const,
+  },
+  trainers: {
+    all: ["trainers"] as const,
+    lists: () => [...queryKeys.trainers.all, "list"] as const,
+    detail: (trainerId: string) => [...queryKeys.trainers.all, trainerId] as const,
+    view: (trainerId: string) => [...queryKeys.trainers.all, trainerId, "view"] as const,
+  },
+  veterinaries: {
+    all: ["veterinaries"] as const,
+    lists: () => [...queryKeys.veterinaries.all, "list"] as const,
+    detail: (vetId: string) => [...queryKeys.veterinaries.all, vetId] as const,
+    view: (vetId: string) => [...queryKeys.veterinaries.all, vetId, "view"] as const,
+  },
+  grooms: {
+    all: ["grooms"] as const,
+    lists: () => [...queryKeys.grooms.all, "list"] as const,
+    detail: (groomId: string) => [...queryKeys.grooms.all, groomId] as const,
+    view: (groomId: string) => [...queryKeys.grooms.all, groomId, "view"] as const,
+  },
+  farriers: {
+    all: ["farriers"] as const,
+    lists: () => [...queryKeys.farriers.all, "list"] as const,
+    detail: (farrierId: string) => [...queryKeys.farriers.all, farrierId] as const,
+    view: (farrierId: string) => [...queryKeys.farriers.all, farrierId, "view"] as const,
+  },
+  coaches: {
+    all: ["coaches"] as const,
+    lists: () => [...queryKeys.coaches.all, "list"] as const,
+    detail: (coachId: string) => [...queryKeys.coaches.all, coachId] as const,
+    view: (coachId: string) => [...queryKeys.coaches.all, coachId, "view"] as const,
+  },
+  riders: {
+    all: ["riders"] as const,
+    lists: () => [...queryKeys.riders.all, "list"] as const,
+    detail: (riderId: string) => [...queryKeys.riders.all, riderId] as const,
+    view: (riderId: string) => [...queryKeys.riders.all, riderId, "view"] as const,
   },
   relationships: {
     all: ["relationships"] as const,
@@ -77,5 +132,13 @@ export const queryKeys = {
     entities: (q: string) => ["search", "entities", q] as const,
     horses: (q: string) => ["search", "horses", q] as const,
     users: (q: string) => ["search", "users", q] as const,
+  },
+  billing: {
+    current: ["billing", "current"] as const,
+  },
+  notifications: {
+    all: ["notifications"] as const,
+    lists: () => [...queryKeys.notifications.all, "list"] as const,
+    list: (page: number) => [...queryKeys.notifications.all, "list", page] as const,
   },
 };

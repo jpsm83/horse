@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm, useFormState } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -80,8 +80,8 @@ function PreferencesForm({ userId }: PreferencesFormProps) {
     defaultValues: emptyPreferencesFormValues,
   });
 
-  // Non-DOM: last-persisted values snapshot for dirty detection across saves.
-  const savedValuesRef = useRef<PreferencesFormValues>(emptyPreferencesFormValues);
+  // Last-persisted values snapshot for dirty detection across saves.
+  const [savedValues, setSavedValues] = useState<PreferencesFormValues>(emptyPreferencesFormValues);
 
   useEffect(() => {
     if (!profile) return;
@@ -89,7 +89,7 @@ function PreferencesForm({ userId }: PreferencesFormProps) {
       profile.personalDetails as Record<string, unknown>,
       profile.preferences as Record<string, unknown> | undefined,
     );
-    savedValuesRef.current = next;
+    setSavedValues(next);
     form.reset(next);
   }, [profile, form]);
 
@@ -124,14 +124,13 @@ function PreferencesForm({ userId }: PreferencesFormProps) {
     // Register the discard restore with the layout-level provider (no per-page
     // onDiscard prop once UnsavedChangesProvider lives in UserLayoutChrome).
     setDiscardHandler?.(() => {
-      const saved = savedValuesRef.current;
-      applyThemeToDocument(normalizeTheme(saved.preferredTheme));
-      if (saved.preferredLanguage !== currentLocale) {
-        router.replace(pathname, { locale: saved.preferredLanguage as AppLocale });
+      applyThemeToDocument(normalizeTheme(savedValues.preferredTheme));
+      if (savedValues.preferredLanguage !== currentLocale) {
+        router.replace(pathname, { locale: savedValues.preferredLanguage as AppLocale });
       }
-      form.reset(saved);
+      form.reset(savedValues);
     });
-  }, [setDiscardHandler, form, currentLocale, pathname, router]);
+  }, [setDiscardHandler, form, currentLocale, pathname, router, savedValues]);
 
   async function onSave(values: PreferencesFormValues) {
     const patch = mapPreferencesFormValuesToPatch(values, form.formState.dirtyFields);
@@ -149,7 +148,7 @@ function PreferencesForm({ userId }: PreferencesFormProps) {
       );
 
       form.reset(savedValues);
-      savedValuesRef.current = savedValues;
+      setSavedValues(savedValues);
 
       const theme = normalizeTheme(savedValues.preferredTheme);
       applyThemeToDocument(theme);

@@ -1,3 +1,9 @@
+/**
+ * AuthPageShell — centered auth card layout used by all auth content
+ * components. Renders a shadcn Card with title + description + children and a
+ * footer slot below the card. Pure layout; no data fetching or auth logic.
+ */
+
 import {
   Card,
   CardContent,

@@ -15,8 +15,10 @@ Related:
 | Method | Path | Purpose |
 |--------|------|---------|
 | `POST` | `/api/v1/grooms` | Create a groom profile linked to the authenticated user (`userId` + `User.groomProfileId`) |
+| `GET` | `/api/v1/grooms?mine=true` | List groom profiles owned by the authenticated user (one profile per user) |
 | `PATCH` | `/api/v1/grooms/:id/discovery` | Update discovery settings (`isPublic`, `acceptsNewClients`) for profile owner |
 | `GET` | `/api/v1/grooms/:id` | Return public groom card filtered by `isPublic` and requester context |
+| `PATCH` | `/api/v1/grooms/:id` | Update the groom profile for the owner (dirty-field `$set`/`$unset`; empty strings clear optional fields) |
 
 Grooms are **user-linked**: one profile per User. A second `POST` returns **409** when `groomProfileId` is already set.
 

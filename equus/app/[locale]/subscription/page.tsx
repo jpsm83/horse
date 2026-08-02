@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+
+import { SubscriptionClient } from "./client";
 import { generatePublicMetadata } from "@/lib/seo/metadata-factory.ts";
-import { SubscriptionPageContent } from "@/components/billing/subscription-page-content.tsx";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -10,5 +11,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default function SubscriptionPage() {
-  return <SubscriptionPageContent />;
+  return <SubscriptionClient />;
 }

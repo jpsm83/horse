@@ -33,3 +33,21 @@ export const updateVeterinaryDiscoverySchema = z.object({
   isPublic: z.boolean().optional(),
   acceptsNewPatients: z.boolean().optional(),
 });
+
+export const updateVeterinaryProfileSchema = z.object({
+  practiceName: z.string().trim().min(1).max(120).optional(),
+  description: z.string().trim().min(1).max(2000).optional(),
+  email: emailSchema.optional(),
+  phoneNumber: z.string().trim().min(1).max(40).optional(),
+  legalName: z.string().trim().max(120).optional().or(z.literal("")),
+  emergencyPhoneNumber: z.string().trim().max(40).optional().or(z.literal("")),
+  equineSpecializations: z.array(equineSpecializationSchema).optional(),
+  certifications: z.array(z.string().trim().min(1).max(120)).optional(),
+  licenseNumber: z.string().trim().max(80).optional().or(z.literal("")),
+  emergencyAvailability: z.boolean().optional(),
+  emergencyCoverageNotes: z.string().trim().max(1000).optional().or(z.literal("")),
+  serviceAreaKm: z.number().min(0).optional(),
+  address: stableAddressSchema.partial().optional(),
+  isPublic: z.boolean().optional(),
+  acceptsNewPatients: z.boolean().optional(),
+});

@@ -26,3 +26,18 @@ export const updateTransportDiscoverySchema = z.object({
   isPublic: z.boolean().optional(),
   acceptsNewBookings: z.boolean().optional(),
 });
+
+export const updateTransportProfileSchema = z.object({
+  companyName: z.string().trim().min(1).max(120).optional(),
+  description: z.string().trim().min(1).max(2000).optional(),
+  email: emailSchema.optional(),
+  phoneNumber: z.string().trim().min(1).max(40).optional(),
+  legalName: z.string().trim().max(120).optional(),
+  websiteUrl: z.string().trim().url().optional().or(z.literal("")),
+  emergencyPhoneNumber: z.string().trim().max(40).optional().or(z.literal("")),
+  specialties: z.array(z.enum(transportSpecialtyEnums)).optional(),
+  serviceAreas: z.array(z.string().trim().min(1)).optional(),
+  isPublic: z.boolean().optional(),
+  acceptsNewBookings: z.boolean().optional(),
+  address: stableAddressSchema.partial().optional(),
+});

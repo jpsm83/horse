@@ -1,11 +1,22 @@
+/**
+ * PedigreeConnectionsContent — pending pedigree connection inbox
+ * (`/pedigree-connections`).
+ *
+ * Auth-gated list of pending pedigree acknowledgment requests with
+ * Accept/Decline. Receives `highlightConnectionId` from
+ * `PedigreeConnectionsClient` (deep link from email). Mutations are direct
+ * TanStack Query calls; list is wrapped in `SectionErrorBoundary` so a crash
+ * never takes down the inbox chrome.
+ */
+
 "use client";
 
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
 import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
+import { PedigreeConnectionsPageContentSkeleton } from "@/components/invites/pedigree-connections-page-content-skeleton.tsx";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import { AppHomeLink } from "@/components/navigation/app-home-link.tsx";
@@ -20,18 +31,18 @@ import { isApiClientError } from "@/lib/api/auth/session";
 import { buildSignInPath } from "@/lib/navigation/postAuthRedirect.ts";
 import { cn } from "@/lib/utils";
 
-function PedigreeConnectionsLoadingShell() {
-  return <Skeleton className="h-[calc(100vh-5rem)] w-full rounded-none" />;
-}
+type PedigreeConnectionsContentProps = {
+  highlightConnectionId: string | null;
+};
 
-export function PedigreeConnectionsContent() {
+export function PedigreeConnectionsContent({
+  highlightConnectionId,
+}: PedigreeConnectionsContentProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const t = useTranslations("invites.pedigreeConnections");
   const tCommon = useTranslations("common");
   const tStatus = useTranslations("status");
   const toast = useAppToast();
-  const highlightConnectionId = searchParams.get("connection");
 
   const { isAuthenticated, isLoading: authLoading } = useAppAuth();
   const { data: connections = [], isPending } = usePendingPedigreeConnections();
@@ -82,7 +93,7 @@ export function PedigreeConnectionsContent() {
   }
 
   if (isPending || authLoading) {
-    return <PedigreeConnectionsLoadingShell />;
+    return <PedigreeConnectionsPageContentSkeleton suppressHydrationWarning />;
   }
 
   return (
@@ -95,63 +106,65 @@ export function PedigreeConnectionsContent() {
         </AppHomeLink>
       }
     >
-      {connections.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
-      ) : (
-        <ul className="space-y-3">
-          {connections.map((connection) => {
-            const isHighlighted =
-              highlightConnectionId && connection.id === highlightConnectionId;
+      <SectionErrorBoundary message={t("loadFailed")}>
+        {connections.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        ) : (
+          <ul className="space-y-3">
+            {connections.map((connection) => {
+              const isHighlighted =
+                highlightConnectionId && connection.id === highlightConnectionId;
 
-            return (
-              <li
-                key={connection.id}
-                id={`pedigree-connection-${connection.id}`}
-                className={cn(
-                  "rounded-lg border p-4",
-                  isHighlighted && "border-primary ring-1 ring-primary/30",
-                )}
-              >
-                <div className="space-y-1">
-                  <p className="font-medium">
-                    {t(`roles.${connection.role}` as "roles.sire")} ·{" "}
-                    {connection.parentHorseName ?? t("unknownParent")}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {t("childLine", {
-                      childName: connection.childHorseName ?? t("unknownChild"),
-                    })}
-                  </p>
-                  {connection.initiatorLabel ? (
-                    <p className="text-sm text-muted-foreground">
-                      {tCommon("from", { label: connection.initiatorLabel })}
+              return (
+                <li
+                  key={connection.id}
+                  id={`pedigree-connection-${connection.id}`}
+                  className={cn(
+                    "rounded-lg border p-4",
+                    isHighlighted && "border-primary ring-1 ring-primary/30",
+                  )}
+                >
+                  <div className="space-y-1">
+                    <p className="font-medium">
+                      {t(`roles.${connection.role}` as "roles.sire")} ·{" "}
+                      {connection.parentHorseName ?? t("unknownParent")}
                     </p>
-                  ) : null}
-                  <p className="text-xs text-muted-foreground">{t("ackHint")}</p>
-                </div>
+                    <p className="text-sm text-muted-foreground">
+                      {t("childLine", {
+                        childName: connection.childHorseName ?? t("unknownChild"),
+                      })}
+                    </p>
+                    {connection.initiatorLabel ? (
+                      <p className="text-sm text-muted-foreground">
+                        {tCommon("from", { label: connection.initiatorLabel })}
+                      </p>
+                    ) : null}
+                    <p className="text-xs text-muted-foreground">{t("ackHint")}</p>
+                  </div>
 
-                <div className="mt-3 flex gap-2">
-                  <Button
-                    size="sm"
-                    disabled={actingId === connection.id}
-                    onClick={() => void handleAccept(connection.id)}
-                  >
-                    {t("accept")}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={actingId === connection.id}
-                    onClick={() => void handleDecline(connection.id)}
-                  >
-                    {t("decline")}
-                  </Button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      size="sm"
+                      disabled={actingId === connection.id}
+                      onClick={() => void handleAccept(connection.id)}
+                    >
+                      {t("accept")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={actingId === connection.id}
+                      onClick={() => void handleDecline(connection.id)}
+                    >
+                      {t("decline")}
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </SectionErrorBoundary>
     </AuthPageShell>
   );
 }

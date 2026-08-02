@@ -1,7 +1,9 @@
 /**
- * Coach profile creation route.
+ * Coach routes — creation and owned-list.
  *
- * `POST` `/api/v1/coaches`
+ * `POST` `/api/v1/coaches` — create a coach profile for the authenticated user
+ *          (returns 409 when the user already has one).
+ * `GET`  `/api/v1/coaches` — list coach profiles owned by the user.
  */
 
 import connectDb from "@/lib/db.ts";
@@ -17,5 +19,14 @@ export async function POST(request: Request) {
     const input = createCoachSchema.parse(await request.json());
     const coach = await coachService.createCoach(session.id, input);
     return ok({ coach }, 201);
+  });
+}
+
+export async function GET(request: Request) {
+  return withRoute(async () => {
+    await connectDb();
+    const session = await requireAuthFromRequest(request);
+    const data = await coachService.listCoachesForOwner(session.id);
+    return ok(data);
   });
 }

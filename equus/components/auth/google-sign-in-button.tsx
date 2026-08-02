@@ -1,3 +1,10 @@
+/**
+ * GoogleSignInButton — Google OAuth sign-in/sign-up button via NextAuth
+ * `signIn()`. Renders the "or" divider plus a button; used by sign-in and
+ * sign-up content. NextAuth is OAuth transport only — web session truth is the
+ * REST session bridged by `POST /api/v1/auth/session`.
+ */
+
 "use client";
 
 import { signIn } from "next-auth/react";

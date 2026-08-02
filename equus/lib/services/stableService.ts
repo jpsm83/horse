@@ -10,7 +10,7 @@ import Stable from "@/models/Stable.ts";
 import Relationship from "@/models/Relationship.ts";
 import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
-import { ownedByUserQuery } from "@/lib/ownership/entityOwnership.ts";
+import { ownedByUserQuery, userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
 import {
   canViewStableDiscovery,
   type StableDiscoveryRequesterContext,
@@ -24,12 +24,80 @@ import type { z } from "zod";
 import type {
   createStableSchema,
   updateStableDiscoverySchema,
+  updateStableProfileSchema,
 } from "@/lib/validations/stable.ts";
 
 export type CreateStableInput = z.infer<typeof createStableSchema>;
 export type UpdateStableDiscoveryInput = z.infer<typeof updateStableDiscoverySchema>;
+export type UpdateStableProfileInput = z.infer<typeof updateStableProfileSchema>;
 
 export type { PublicStableCard };
+
+// --- Role-aware view types ---
+
+export type StableTab = "hub" | "profile" | "admin";
+
+export type StableViewerRole =
+  | "main_owner"
+  | "co_owner"
+  | "related"
+  | "public"
+  | "guest";
+
+/** Role-scoped stable view DTO for the shared detail chrome. */
+export type StableViewDto = {
+  id: string;
+  tradeName: string;
+  description?: string;
+  email?: string;
+  phoneNumber?: string;
+  websiteUrl?: string;
+  imageUrl?: string;
+  disciplines?: string[];
+  services?: string[];
+  facilities?: string[];
+  address?: {
+    city?: string;
+    country?: string;
+    state?: string;
+    street?: string;
+    postCode?: string;
+    buildingNumber?: string;
+  };
+  isPublic?: boolean;
+  acceptsNewHorses?: boolean;
+  isMainOwner?: boolean;
+  isCoOwner?: boolean;
+  isAdmin?: boolean;
+};
+
+export type StableViewResponse = {
+  viewerRole: StableViewerRole;
+  allowedTabs: StableTab[];
+  stable: StableViewDto;
+};
+
+// --- List types ---
+
+export type StableListItem = {
+  id: string;
+  tradeName: string;
+  city?: string;
+  country?: string;
+  description?: string;
+  imageUrl?: string;
+  disciplines?: string[];
+  isPublic?: boolean;
+  acceptsNewHorses?: boolean;
+  updatedAt?: string;
+};
+
+export type StableListResult = {
+  stables: StableListItem[];
+  total: number;
+  page: number;
+  limit: number;
+};
 
 function ensureObjectId(id: string, fieldName: string): void {
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -122,6 +190,58 @@ export async function updateStableDiscovery(
   return stable.toObject();
 }
 
+export async function updateStableProfile(
+  actorUserId: string,
+  stableId: string,
+  input: UpdateStableProfileInput,
+) {
+  ensureObjectId(actorUserId, "user id");
+  ensureObjectId(stableId, "stable id");
+
+  const stable = await Stable.findOne({
+    _id: stableId,
+    ...ownedByUserQuery(actorUserId),
+  });
+  if (!stable) {
+    throw new ApiError(404, "Stable not found", "NOT_FOUND");
+  }
+
+  const updates: Record<string, unknown> = {};
+  const unset: Record<string, 1> = {};
+
+  for (const [key, value] of Object.entries(input)) {
+    if (value === undefined) continue;
+
+    if (key === "address") {
+      if (typeof value === "object" && value !== null) {
+        for (const [addrKey, addrValue] of Object.entries(value)) {
+          if (addrValue !== undefined) {
+            updates[`address.${addrKey}`] = addrValue;
+          }
+        }
+      }
+      continue;
+    }
+
+    if (typeof value === "string" && value.trim() === "") {
+      unset[key] = 1;
+      continue;
+    }
+
+    updates[key] = value;
+  }
+
+  const updateOps: Record<string, unknown> = {};
+  if (Object.keys(updates).length > 0) updateOps.$set = updates;
+  if (Object.keys(unset).length > 0) updateOps.$unset = unset;
+
+  const updated = await Stable.findByIdAndUpdate(stableId, updateOps, { new: true }).lean();
+  if (!updated) {
+    throw new ApiError(404, "Stable not found", "NOT_FOUND");
+  }
+  return updated as Record<string, unknown>;
+}
+
 export async function getStableForOwner(actorUserId: string, stableId: string) {
   ensureObjectId(actorUserId, "user id");
   ensureObjectId(stableId, "stable id");
@@ -168,4 +288,163 @@ export async function getPublicStableCard(
   }
 
   return buildPublicStableCard(stable as Record<string, unknown>);
+}
+
+// --- Role derivation ---
+
+export const STABLE_ROLE_ORDER: StableViewerRole[] = [
+  "guest",
+  "public",
+  "related",
+  "co_owner",
+  "main_owner",
+];
+
+export const STABLE_TAB_MIN_ROLE: Record<StableTab, StableViewerRole> = {
+  hub: "guest",
+  profile: "related",
+  admin: "main_owner",
+};
+
+function deriveStableViewerRole(
+  stable: Record<string, unknown>,
+  userId?: string | null,
+): StableViewerRole {
+  if (!userId) return "guest";
+  if (String(stable.mainOwnerUserId) === userId) return "main_owner";
+  const isCoOwner = (Array.isArray(stable.coOwners) ? stable.coOwners : []).some(
+    (c: { userId?: unknown }) => c.userId != null && String(c.userId) === userId,
+  );
+  if (isCoOwner) return "co_owner";
+  return "public";
+}
+
+export function deriveStableAllowedTabs(viewerRole: StableViewerRole): StableTab[] {
+  const roleIndex = STABLE_ROLE_ORDER.indexOf(viewerRole);
+  return (Object.keys(STABLE_TAB_MIN_ROLE) as StableTab[]).filter((tab) => {
+    const minIndex = STABLE_ROLE_ORDER.indexOf(STABLE_TAB_MIN_ROLE[tab]);
+    return roleIndex >= minIndex;
+  });
+}
+
+// --- List ---
+
+function toStableListItem(doc: Record<string, unknown>): StableListItem {
+  const address = (doc.address ?? {}) as Record<string, unknown>;
+  return {
+    id: String(doc._id),
+    tradeName: doc.tradeName as string,
+    city: address.city as string | undefined,
+    country: address.country as string | undefined,
+    description: doc.description as string | undefined,
+    imageUrl: doc.imageUrl as string | undefined,
+    disciplines: doc.disciplines as string[] | undefined,
+    isPublic: doc.isPublic as boolean | undefined,
+    acceptsNewHorses: doc.acceptsNewHorses as boolean | undefined,
+    updatedAt: (doc.updatedAt as Date | undefined)?.toISOString(),
+  };
+}
+
+/** List stables owned by the authenticated user ("my stables"). */
+export async function listStablesForOwner(
+  actorUserId: string,
+  page = 1,
+  limit = 20,
+): Promise<StableListResult> {
+  ensureObjectId(actorUserId, "user id");
+  const safePage = Math.max(1, page);
+  const safeLimit = Math.min(100, Math.max(1, limit));
+  const skip = (safePage - 1) * safeLimit;
+
+  const query = { ...ownedByUserQuery(actorUserId), isActive: { $ne: false } };
+  const [docs, total] = await Promise.all([
+    Stable.find(query).sort({ updatedAt: -1 }).skip(skip).limit(safeLimit).lean(),
+    Stable.countDocuments(query),
+  ]);
+
+  return {
+    stables: (docs as unknown as Record<string, unknown>[]).map(toStableListItem),
+    total,
+    page: safePage,
+    limit: safeLimit,
+  };
+}
+
+function toStableView(stable: Record<string, unknown>): StableViewDto {
+  const address = (stable.address ?? {}) as Record<string, unknown>;
+  return {
+    id: String(stable._id),
+    tradeName: stable.tradeName as string,
+    description: stable.description as string | undefined,
+    email: stable.email as string | undefined,
+    phoneNumber: stable.phoneNumber as string | undefined,
+    websiteUrl: stable.websiteUrl as string | undefined,
+    imageUrl: stable.imageUrl as string | undefined,
+    disciplines: stable.disciplines as string[] | undefined,
+    services: stable.services as string[] | undefined,
+    facilities: stable.facilities as string[] | undefined,
+    address: {
+      city: address.city as string | undefined,
+      country: address.country as string | undefined,
+      state: address.state as string | undefined,
+      street: address.street as string | undefined,
+      postCode: address.postCode as string | undefined,
+      buildingNumber: address.buildingNumber as string | undefined,
+    },
+    isPublic: stable.isPublic as boolean | undefined,
+    acceptsNewHorses: stable.acceptsNewHorses as boolean | undefined,
+  };
+}
+
+/**
+ * Unified role-aware stable view — single endpoint for all stable tabs.
+ * Returns the role-scoped stable, the viewer's role, and accessible tabs.
+ */
+export async function getStableView(
+  stableId: string,
+  userId?: string | null,
+): Promise<StableViewResponse> {
+  ensureObjectId(stableId, "stable id");
+
+  const stable = await Stable.findById(stableId).lean();
+  if (!stable) {
+    throw new ApiError(404, "Stable not found", "NOT_FOUND");
+  }
+
+  await assertPublicReadAllowed(stable as Record<string, unknown>, "Stable");
+
+  const stableDoc = stable as Record<string, unknown>;
+  const requesterUserId = userId ?? undefined;
+  const isOwner =
+    typeof requesterUserId === "string" &&
+    requesterUserId.length > 0 &&
+    userOwnsEntity(requesterUserId, stableDoc);
+
+  if (!isOwner && stableDoc.isPublic === false) {
+    const hasRelationship = requesterUserId
+      ? await hasAcceptedHorseStableRelationship(requesterUserId, stableId)
+      : false;
+    const hasCollaboration = requesterUserId
+      ? await hasActiveStableCollaboration(requesterUserId, stableId)
+      : false;
+    if (!hasRelationship && !hasCollaboration) {
+      throw new ApiError(404, "Stable not found", "NOT_FOUND");
+    }
+  }
+
+  const viewerRole = deriveStableViewerRole(stableDoc, userId);
+  const allowedTabs = deriveStableAllowedTabs(viewerRole);
+
+  const view = toStableView(stableDoc);
+  if (isOwner && requesterUserId) {
+    const isMainOwner = String(stableDoc.mainOwnerUserId) === requesterUserId;
+    const isCoOwner = (Array.isArray(stableDoc.coOwners) ? stableDoc.coOwners : []).some(
+      (c: { userId?: unknown }) => c.userId != null && String(c.userId) === requesterUserId,
+    );
+    view.isMainOwner = isMainOwner;
+    view.isCoOwner = isCoOwner;
+    view.isAdmin = isMainOwner || isCoOwner;
+  }
+
+  return { viewerRole, allowedTabs, stable: view };
 }

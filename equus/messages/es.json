@@ -151,7 +151,8 @@
         "profilesDescription": "Acceda directamente a las áreas que ya gestiona en Equus.",
         "subsectionsLabel": "Sus perfiles",
         "getStartedTitle": "Comenzar",
-        "getStartedDescription": "Inicie sesión o cree una cuenta gratuita para añadir caballos y construir su presencia en Equus."
+        "getStartedDescription": "Inicie sesión o cree una cuenta gratuita para añadir caballos y construir su presencia en Equus.",
+        "loadFailed": "No se pudo cargar la página de inicio."
     },
     "auth": {
         "signIn": {
@@ -239,7 +240,8 @@
             "accept": "Aceptar",
             "decline": "Rechazar",
             "accepted": "Invitación aceptada.",
-            "declined": "Invitación rechazada."
+            "declined": "Invitación rechazada.",
+            "loadFailed": "No se pudieron cargar sus lugares de trabajo."
         },
         "relationships": {
             "title": "Invitaciones de relación",
@@ -248,7 +250,8 @@
             "accept": "Aceptar",
             "decline": "Rechazar",
             "accepted": "Relación aceptada.",
-            "declined": "Relación rechazada."
+            "declined": "Relación rechazada.",
+            "loadFailed": "No se pudieron cargar las solicitudes de relación."
         },
         "ownershipTransfers": {
             "title": "Solicitudes de transferencia de propiedad",
@@ -271,7 +274,8 @@
                 "promote_co_owner": "Promover copropietario",
                 "add_responsible": "Añadir responsable",
                 "remove_responsible": "Eliminar responsable"
-            }
+            },
+            "loadFailed": "No se pudieron cargar las solicitudes de transferencia de propiedad."
         },
         "pedigreeConnections": {
             "title": "Solicitudes de conexión genealógica",
@@ -288,7 +292,8 @@
             "childLine": "Solicitado para la cría: {childName}",
             "unknownParent": "Caballo padre/madre",
             "unknownChild": "Caballo desconocido",
-            "ackHint": "Aceptar solo confirma el vínculo genealógico en el perfil de su caballo. Conservas la propiedad completa del tuyo."
+            "ackHint": "Aceptar solo confirma el vínculo genealógico en el perfil de su caballo. Conservas la propiedad completa del tuyo.",
+            "loadFailed": "No se pudieron cargar las solicitudes de conexión genealógica."
         },
         "signup": {
             "staffBanner": "Fue invitado a un lugar de trabajo en Equus. Regístrese con el email invitado.",
@@ -1001,7 +1006,6 @@
         "invalidDate": "Introduce una fecha válida",
         "invalidEnum": "Selecciona una opción válida",
         "invalidNumber": "Introduce un número válido",
-        "identityRequired": "Se requiere al menos uno de: ID de registro, microchip o pasaporte",
         "contactNameRequired": "El nombre de contacto es obligatorio cuando no se usa el del propietario",
         "contactPhoneRequired": "El teléfono de contacto es obligatorio cuando no se usa el del propietario",
         "contactEmailRequired": "El email de contacto es obligatorio cuando no se usa el del propietario",
@@ -1105,7 +1109,681 @@
         "subscribe": "Suscribirse",
         "change": "Cambiar plan",
         "updatePayment": "Actualizar método de pago",
-        "billingHistory": "Historial de facturación"
+        "billingHistory": "Historial de facturación",
+        "plans": "Planes",
+        "unlimitedHorses": "Caballos ilimitados",
+        "upToHorses": "Hasta {count} caballos",
+        "signInToSubscribe": "Inicie sesión para gestionar su suscripción.",
+        "loadFailed": "No se pudo cargar la información de la suscripción."
+    },
+    "notifications": {
+        "title": "Notificaciones",
+        "empty": "No tiene notificaciones.",
+        "markRead": "Marcar como leída",
+        "loadFailed": "No se pudieron cargar las notificaciones.",
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "pageOf": "Página {page} de {total}"
+    },
+    "stable": {
+        "hub": {
+            "title": "Establo",
+            "about": "Acerca de",
+            "contact": "Contacto",
+            "disciplines": "Disciplinas",
+            "services": "Servicios",
+            "acceptsNewHorses": "Acepta nuevos caballos",
+            "email": "Email",
+            "phone": "Teléfono",
+            "website": "Sitio web",
+            "loadFailed": "No se pudo cargar este establo.",
+            "backToStables": "Volver a establos"
+        },
+        "profile": {
+            "title": "Perfil del establo",
+            "description": "Descripción",
+            "identitySection": "Identidad",
+            "contactSection": "Contacto",
+            "addressSection": "Dirección",
+            "tradeName": "Nombre comercial",
+            "disciplines": "Disciplinas",
+            "services": "Servicios",
+            "email": "Email",
+            "phone": "Teléfono",
+            "website": "Sitio web",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "save": "Guardar",
+            "saving": "Guardando...",
+            "saved": "Establo actualizado.",
+            "saveFailed": "No se pudo guardar el establo.",
+            "loadFailed": "No se pudo cargar el establo."
+        },
+        "admin": {
+            "title": "Administración",
+            "description": "Gestione visibilidad, descubrimiento y propiedad.",
+            "visibilitySection": "Visibilidad",
+            "visibilityDescription": "Controle quién puede descubrir este establo.",
+            "isPublic": "Público",
+            "isPublicDescription": "Permitir que cualquiera encuentre este establo.",
+            "acceptsNewHorses": "Acepta nuevos caballos",
+            "acceptsNewHorsesDescription": "Indicar que el establo acepta nuevos caballos.",
+            "ownershipSection": "Propiedad",
+            "ownershipDescription": "Gestione quién posee y opera este establo.",
+            "manageOwnership": "Gestionar propiedad",
+            "visibilityLabel": "Visibilidad de la sección",
+            "saved": "Guardado.",
+            "saveFailed": "No se pudo guardar.",
+            "loadFailed": "No se pudo cargar el establo."
+        },
+        "create": {
+            "title": "Añadir un establo",
+            "description": "Descripción",
+            "tradeName": "Nombre comercial",
+            "email": "Email",
+            "phone": "Teléfono",
+            "website": "Sitio web",
+            "address": "Dirección",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "submit": "Crear establo",
+            "submitting": "Creando establo..."
+        },
+        "list": {
+            "title": "Mis establos",
+            "description": "Establos que posee o gestiona.",
+            "empty": "Aún no ha añadido establos.",
+            "addStable": "Añadir un establo",
+            "acceptsNewHorses": "Acepta nuevos caballos",
+            "loadFailed": "No se pudieron cargar sus establos."
+        }
+    },
+    "breeder": {
+        "hub": {
+            "title": "Criador",
+            "about": "Acerca de",
+            "contact": "Contacto",
+            "disciplines": "Disciplinas",
+            "bloodlines": "Líneas de sangre",
+            "email": "Email",
+            "phone": "Teléfono",
+            "loadFailed": "No se pudo cargar este criador.",
+            "backToBreeders": "Volver a criadores"
+        },
+        "profile": {
+            "title": "Perfil del criador",
+            "description": "Descripción",
+            "identitySection": "Identidad",
+            "contactSection": "Contacto",
+            "addressSection": "Dirección",
+            "operationName": "Nombre de la operación",
+            "disciplines": "Disciplinas",
+            "bloodlines": "Líneas de sangre",
+            "email": "Email",
+            "phone": "Teléfono",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "save": "Guardar",
+            "saving": "Guardando...",
+            "saved": "Criador actualizado.",
+            "saveFailed": "No se pudo guardar el criador.",
+            "loadFailed": "No se pudo cargar el criador."
+        },
+        "admin": {
+            "title": "Administración",
+            "description": "Gestione visibilidad, descubrimiento y propiedad.",
+            "visibilitySection": "Visibilidad",
+            "visibilityDescription": "Controle quién puede descubrir este criador.",
+            "isPublic": "Público",
+            "isPublicDescription": "Permitir que cualquiera encuentre este criador.",
+            "ownershipSection": "Propiedad",
+            "ownershipDescription": "Gestione quién posee y opera esta operación de cría.",
+            "manageOwnership": "Gestionar propiedad",
+            "saved": "Guardado.",
+            "saveFailed": "No se pudo guardar.",
+            "loadFailed": "No se pudo cargar el criador."
+        },
+        "create": {
+            "title": "Añadir un criador",
+            "description": "Descripción",
+            "operationName": "Nombre de la operación",
+            "email": "Email",
+            "phone": "Teléfono",
+            "address": "Dirección",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "submit": "Crear criador",
+            "submitting": "Creando criador..."
+        },
+        "list": {
+            "title": "Mis criadores",
+            "description": "Operaciones de cría que posee o gestiona.",
+            "empty": "Aún no ha añadido criadores.",
+            "addBreeder": "Añadir un criador",
+            "loadFailed": "No se pudieron cargar sus criadores."
+        }
+    },
+    "transport": {
+        "hub": {
+            "title": "Transporte",
+            "about": "Acerca de",
+            "contact": "Contacto",
+            "specialties": "Especialidades",
+            "serviceAreas": "Áreas de servicio",
+            "acceptsNewBookings": "Acepta nuevas reservas",
+            "email": "Email",
+            "phone": "Teléfono",
+            "emergencyPhone": "Teléfono de emergencia",
+            "loadFailed": "No se pudo cargar esta empresa de transporte.",
+            "backToTransport": "Volver a transporte"
+        },
+        "profile": {
+            "title": "Perfil de transporte",
+            "description": "Descripción",
+            "identitySection": "Identidad",
+            "contactSection": "Contacto",
+            "addressSection": "Dirección",
+            "companyName": "Nombre de la empresa",
+            "specialties": "Especialidades",
+            "serviceAreas": "Áreas de servicio",
+            "email": "Email",
+            "phone": "Teléfono",
+            "emergencyPhone": "Teléfono de emergencia",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "save": "Guardar",
+            "saving": "Guardando...",
+            "saved": "Empresa de transporte actualizada.",
+            "saveFailed": "No se pudo guardar la empresa de transporte.",
+            "loadFailed": "No se pudo cargar la empresa de transporte."
+        },
+        "admin": {
+            "title": "Administración",
+            "description": "Gestione visibilidad, descubrimiento y propiedad.",
+            "visibilitySection": "Visibilidad",
+            "visibilityDescription": "Controle quién puede descubrir esta empresa.",
+            "isPublic": "Público",
+            "isPublicDescription": "Permitir que cualquiera encuentre esta empresa.",
+            "acceptsNewBookings": "Acepta nuevas reservas",
+            "acceptsNewBookingsDescription": "Indicar que la empresa acepta nuevas reservas.",
+            "ownershipSection": "Propiedad",
+            "ownershipDescription": "Gestione quién posee y opera esta empresa.",
+            "manageOwnership": "Gestionar propiedad",
+            "saved": "Guardado.",
+            "saveFailed": "No se pudo guardar.",
+            "loadFailed": "No se pudo cargar la empresa de transporte."
+        },
+        "create": {
+            "title": "Añadir una empresa de transporte",
+            "description": "Descripción",
+            "companyName": "Nombre de la empresa",
+            "email": "Email",
+            "phone": "Teléfono",
+            "emergencyPhone": "Teléfono de emergencia",
+            "address": "Dirección",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "submit": "Crear empresa",
+            "submitting": "Creando empresa..."
+        },
+        "list": {
+            "title": "Mi transporte",
+            "description": "Empresas de transporte que posee o gestiona.",
+            "empty": "Aún no ha añadido empresas de transporte.",
+            "addTransport": "Añadir una empresa de transporte",
+            "acceptsNewBookings": "Acepta nuevas reservas",
+            "loadFailed": "No se pudieron cargar sus empresas de transporte."
+        }
+    },
+    "ridingClub": {
+        "hub": {
+            "title": "Club hípico",
+            "about": "Acerca de",
+            "contact": "Contacto",
+            "disciplines": "Disciplinas",
+            "facilities": "Instalaciones",
+            "email": "Email",
+            "phone": "Teléfono",
+            "loadFailed": "No se pudo cargar este club hípico.",
+            "backToClubs": "Volver a clubes hípicos"
+        },
+        "profile": {
+            "title": "Perfil del club hípico",
+            "description": "Descripción",
+            "identitySection": "Identidad",
+            "contactSection": "Contacto",
+            "addressSection": "Dirección",
+            "clubName": "Nombre del club",
+            "disciplines": "Disciplinas",
+            "facilities": "Instalaciones",
+            "membershipInfo": "Información de membresía",
+            "membershipFee": "Cuota de membresía",
+            "email": "Email",
+            "phone": "Teléfono",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "save": "Guardar",
+            "saving": "Guardando...",
+            "saved": "Club hípico actualizado.",
+            "saveFailed": "No se pudo guardar el club hípico.",
+            "loadFailed": "No se pudo cargar el club hípico."
+        },
+        "admin": {
+            "title": "Administración",
+            "description": "Gestione visibilidad, descubrimiento y propiedad.",
+            "visibilitySection": "Visibilidad",
+            "visibilityDescription": "Controle quién puede descubrir este club.",
+            "isPublic": "Público",
+            "isPublicDescription": "Permitir que cualquiera encuentre este club.",
+            "acceptsNewMembers": "Acepta nuevos miembros",
+            "acceptsNewMembersDescription": "Indicar que el club acepta nuevos miembros.",
+            "ownershipSection": "Propiedad",
+            "ownershipDescription": "Gestione quién posee y opera este club.",
+            "manageOwnership": "Gestionar propiedad",
+            "saved": "Guardado.",
+            "saveFailed": "No se pudo guardar.",
+            "loadFailed": "No se pudo cargar el club hípico."
+        },
+        "create": {
+            "title": "Añadir un club hípico",
+            "description": "Descripción",
+            "clubName": "Nombre del club",
+            "email": "Email",
+            "phone": "Teléfono",
+            "address": "Dirección",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "submit": "Crear club",
+            "submitting": "Creando club..."
+        },
+        "list": {
+            "title": "Mis clubes hípicos",
+            "description": "Clubes hípicos que posee o gestiona.",
+            "empty": "Aún no ha añadido clubes hípicos.",
+            "addClub": "Añadir un club hípico",
+            "loadFailed": "No se pudieron cargar sus clubes hípicos."
+        }
+    },
+    "trainer": {
+        "hub": {
+            "title": "Entrenador",
+            "about": "Acerca de",
+            "contact": "Contacto",
+            "specialties": "Especialidades",
+            "email": "Email",
+            "phone": "Teléfono",
+            "loadFailed": "No se pudo cargar este entrenador.",
+            "backToTrainers": "Volver a entrenadores"
+        },
+        "profile": {
+            "title": "Perfil del entrenador",
+            "description": "Actualice su identidad, contacto y visibilidad.",
+            "identitySection": "Identidad",
+            "contactSection": "Contacto",
+            "visibilitySection": "Visibilidad",
+            "displayName": "Nombre visible",
+            "bio": "Biografía",
+            "specialties": "Especialidades",
+            "experienceYears": "Años de experiencia",
+            "email": "Email",
+            "phone": "Teléfono",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "isPublic": "Público",
+            "acceptsNewClients": "Acepta nuevos clientes",
+            "save": "Guardar",
+            "saving": "Guardando...",
+            "saved": "Entrenador actualizado.",
+            "saveFailed": "No se pudo guardar el entrenador.",
+            "loadFailed": "No se pudo cargar el entrenador."
+        },
+        "create": {
+            "title": "Añadir un perfil de entrenador",
+            "description": "Registre su perfil de entrenador.",
+            "displayName": "Nombre visible",
+            "bio": "Biografía",
+            "email": "Email",
+            "phone": "Teléfono",
+            "address": "Dirección",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "submit": "Crear perfil de entrenador",
+            "submitting": "Creando perfil de entrenador..."
+        },
+        "list": {
+            "title": "Mi perfil de entrenador",
+            "description": "Su perfil de entrenador.",
+            "empty": "Aún no ha creado un perfil de entrenador.",
+            "addTrainer": "Añadir un perfil de entrenador",
+            "acceptsNewClients": "Acepta nuevos clientes",
+            "loadFailed": "No se pudo cargar su perfil de entrenador."
+        }
+    },
+    "veterinary": {
+        "hub": {
+            "title": "Veterinario",
+            "about": "Acerca de",
+            "contact": "Contacto",
+            "email": "Email",
+            "phone": "Teléfono",
+            "emergencyPhone": "Teléfono de emergencia",
+            "emergencyAvailability": "Disponibilidad de emergencia",
+            "loadFailed": "No se pudo cargar esta práctica veterinaria.",
+            "backToVets": "Volver a veterinarios"
+        },
+        "profile": {
+            "title": "Perfil veterinario",
+            "description": "Descripción",
+            "identitySection": "Identidad",
+            "contactSection": "Contacto",
+            "visibilitySection": "Visibilidad",
+            "practiceName": "Nombre de la práctica",
+            "email": "Email",
+            "phone": "Teléfono",
+            "emergencyPhone": "Teléfono de emergencia",
+            "serviceAreaKm": "Zona de servicio (km)",
+            "emergencyAvailability": "Disponibilidad de emergencia",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "isPublic": "Público",
+            "acceptsNewPatients": "Acepta nuevos pacientes",
+            "save": "Guardar",
+            "saving": "Guardando...",
+            "saved": "Veterinario actualizado.",
+            "saveFailed": "No se pudo guardar el veterinario.",
+            "loadFailed": "No se pudo cargar el veterinario."
+        },
+        "create": {
+            "title": "Añadir una práctica veterinaria",
+            "description": "Descripción",
+            "practiceName": "Nombre de la práctica",
+            "email": "Email",
+            "phone": "Teléfono",
+            "emergencyPhone": "Teléfono de emergencia",
+            "address": "Dirección",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "submit": "Crear práctica veterinaria",
+            "submitting": "Creando práctica veterinaria..."
+        },
+        "list": {
+            "title": "Mi práctica veterinaria",
+            "description": "Su práctica veterinaria.",
+            "empty": "Aún no ha creado una práctica veterinaria.",
+            "addVet": "Añadir una práctica veterinaria",
+            "acceptsNewPatients": "Acepta nuevos pacientes",
+            "loadFailed": "No se pudo cargar su práctica veterinaria."
+        }
+    },
+    "groom": {
+        "hub": {
+            "title": "Cuidador",
+            "about": "Acerca de",
+            "contact": "Contacto",
+            "specialties": "Especialidades",
+            "email": "Email",
+            "phone": "Teléfono",
+            "loadFailed": "No se pudo cargar este cuidador.",
+            "backToGrooms": "Volver a cuidadores"
+        },
+        "profile": {
+            "title": "Perfil del cuidador",
+            "description": "Actualice su identidad, contacto y visibilidad.",
+            "identitySection": "Identidad",
+            "contactSection": "Contacto",
+            "visibilitySection": "Visibilidad",
+            "displayName": "Nombre visible",
+            "bio": "Biografía",
+            "specialties": "Especialidades",
+            "experienceYears": "Años de experiencia",
+            "email": "Email",
+            "phone": "Teléfono",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "isPublic": "Público",
+            "acceptsNewClients": "Acepta nuevos clientes",
+            "save": "Guardar",
+            "saving": "Guardando...",
+            "saved": "Cuidador actualizado.",
+            "saveFailed": "No se pudo guardar el cuidador.",
+            "loadFailed": "No se pudo cargar el cuidador."
+        },
+        "create": {
+            "title": "Añadir un perfil de cuidador",
+            "description": "Registre su perfil de cuidador.",
+            "displayName": "Nombre visible",
+            "bio": "Biografía",
+            "email": "Email",
+            "phone": "Teléfono",
+            "submit": "Crear perfil de cuidador",
+            "submitting": "Creando perfil de cuidador..."
+        },
+        "list": {
+            "title": "Mi perfil de cuidador",
+            "description": "Su perfil de cuidador.",
+            "empty": "Aún no ha creado un perfil de cuidador.",
+            "addGroom": "Añadir un perfil de cuidador",
+            "loadFailed": "No se pudo cargar su perfil de cuidador."
+        }
+    },
+    "farrier": {
+        "hub": {
+            "title": "Herrador",
+            "about": "Acerca de",
+            "contact": "Contacto",
+            "email": "Email",
+            "phone": "Teléfono",
+            "loadFailed": "No se pudo cargar este herrador.",
+            "backToFarriers": "Volver a herradores"
+        },
+        "profile": {
+            "title": "Perfil del herrador",
+            "description": "Actualice su identidad, contacto y visibilidad.",
+            "identitySection": "Identidad",
+            "contactSection": "Contacto",
+            "visibilitySection": "Visibilidad",
+            "displayName": "Nombre visible",
+            "bio": "Biografía",
+            "experienceYears": "Años de experiencia",
+            "serviceAreaKm": "Área de servicio (km)",
+            "email": "Email",
+            "phone": "Teléfono",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "isPublic": "Público",
+            "acceptsNewClients": "Acepta nuevos clientes",
+            "save": "Guardar",
+            "saving": "Guardando...",
+            "saved": "Herrador actualizado.",
+            "saveFailed": "No se pudo guardar el herrador.",
+            "loadFailed": "No se pudo cargar el herrador."
+        },
+        "create": {
+            "title": "Añadir un perfil de herrador",
+            "description": "Registre su perfil de herrador.",
+            "displayName": "Nombre visible",
+            "bio": "Biografía",
+            "email": "Email",
+            "phone": "Teléfono",
+            "submit": "Crear perfil de herrador",
+            "submitting": "Creando perfil de herrador..."
+        },
+        "list": {
+            "title": "Mi perfil de herrador",
+            "description": "Su perfil de herrador.",
+            "empty": "Aún no ha creado un perfil de herrador.",
+            "addFarrier": "Añadir un perfil de herrador",
+            "loadFailed": "No se pudo cargar su perfil de herrador."
+        }
+    },
+    "coach": {
+        "hub": {
+            "title": "Entrenador deportivo",
+            "about": "Acerca de",
+            "contact": "Contacto",
+            "disciplines": "Disciplinas",
+            "email": "Email",
+            "phone": "Teléfono",
+            "loadFailed": "No se pudo cargar este entrenador.",
+            "backToCoaches": "Volver a entrenadores"
+        },
+        "profile": {
+            "title": "Perfil del entrenador deportivo",
+            "description": "Actualice su identidad, contacto y visibilidad.",
+            "identitySection": "Identidad",
+            "contactSection": "Contacto",
+            "visibilitySection": "Visibilidad",
+            "displayName": "Nombre visible",
+            "bio": "Biografía",
+            "disciplines": "Disciplinas",
+            "competitionLevels": "Niveles de competición",
+            "preparationServices": "Servicios de preparación",
+            "experienceYears": "Años de experiencia",
+            "email": "Email",
+            "phone": "Teléfono",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "isPublic": "Público",
+            "acceptsNewClients": "Acepta nuevos clientes",
+            "save": "Guardar",
+            "saving": "Guardando...",
+            "saved": "Entrenador actualizado.",
+            "saveFailed": "No se pudo guardar el entrenador.",
+            "loadFailed": "No se pudo cargar el entrenador."
+        },
+        "create": {
+            "title": "Añadir un perfil de entrenador deportivo",
+            "description": "Registre su perfil de entrenador.",
+            "displayName": "Nombre visible",
+            "bio": "Biografía",
+            "email": "Email",
+            "phone": "Teléfono",
+            "submit": "Crear perfil de entrenador",
+            "submitting": "Creando perfil de entrenador..."
+        },
+        "list": {
+            "title": "Mi perfil de entrenador deportivo",
+            "description": "Su perfil de entrenador.",
+            "empty": "Aún no ha creado un perfil de entrenador.",
+            "addCoach": "Añadir un perfil de entrenador",
+            "loadFailed": "No se pudo cargar su perfil de entrenador."
+        }
+    },
+    "rider": {
+        "hub": {
+            "title": "Jinete",
+            "about": "Acerca de",
+            "contact": "Contacto",
+            "disciplines": "Disciplinas",
+            "email": "Email",
+            "phone": "Teléfono",
+            "loadFailed": "No se pudo cargar este jinete.",
+            "backToRiders": "Volver a jinetes"
+        },
+        "profile": {
+            "title": "Perfil del jinete",
+            "description": "Actualice su identidad, contacto y visibilidad.",
+            "identitySection": "Identidad",
+            "contactSection": "Contacto",
+            "visibilitySection": "Visibilidad",
+            "displayName": "Nombre visible",
+            "bio": "Biografía",
+            "disciplines": "Disciplinas",
+            "experienceYears": "Años de experiencia",
+            "competitionHighlights": "Aspectos destacados",
+            "email": "Email",
+            "phone": "Teléfono",
+            "country": "País",
+            "city": "Ciudad",
+            "state": "Provincia",
+            "street": "Calle",
+            "buildingNumber": "Número",
+            "postCode": "Código postal",
+            "isPublic": "Público",
+            "acceptsNewClients": "Acepta nuevos clientes",
+            "save": "Guardar",
+            "saving": "Guardando...",
+            "saved": "Jinete actualizado.",
+            "saveFailed": "No se pudo guardar el jinete.",
+            "loadFailed": "No se pudo cargar el jinete."
+        },
+        "create": {
+            "title": "Añadir un perfil de jinete",
+            "description": "Registre su perfil de jinete.",
+            "displayName": "Nombre visible",
+            "bio": "Biografía",
+            "email": "Email",
+            "phone": "Teléfono",
+            "submit": "Crear perfil de jinete",
+            "submitting": "Creando perfil de jinete..."
+        },
+        "list": {
+            "title": "Mi perfil de jinete",
+            "description": "Su perfil de jinete.",
+            "empty": "Aún no ha creado un perfil de jinete.",
+            "addRider": "Añadir un perfil de jinete",
+            "loadFailed": "No se pudo cargar su perfil de jinete."
+        }
     },
     "horsePlanning": {
         "title": "Planificación",
@@ -1234,6 +1912,26 @@
             "title": "Establos | Equus",
             "description": "Encuentra establos e instalaciones de hospedaje en la red Equus.",
             "keywords": "establos para caballos, hospedaje, instalaciones ecuestres"
+        },
+        "stableHub": {
+            "title": "Establo | Equus",
+            "description": "Ver un perfil de establo en la red Equus.",
+            "keywords": ""
+        },
+        "stableProfile": {
+            "title": "Perfil de Establo | Equus",
+            "description": "Gestione su perfil de establo.",
+            "keywords": ""
+        },
+        "stableAdmin": {
+            "title": "Administración de Establo | Equus",
+            "description": "Gestione la visibilidad y propiedad del establo.",
+            "keywords": ""
+        },
+        "stableCreate": {
+            "title": "Añadir un Establo | Equus",
+            "description": "Registre su establo en Equus.",
+            "keywords": ""
         },
         "breeders": {
             "title": "Criadores | Equus",
@@ -1414,6 +2112,156 @@
             "title": "Lugar de trabajo | Equus",
             "description": "Gestiona tus membresías en lugares de trabajo.",
             "keywords": ""
+        },
+        "breederHub": {
+            "title": "Criador | Equus",
+            "description": "Ver un perfil de criador en la red Equus.",
+            "keywords": ""
+        },
+        "breederProfile": {
+            "title": "Perfil de Criador | Equus",
+            "description": "Gestione su perfil de criador.",
+            "keywords": ""
+        },
+        "breederAdmin": {
+            "title": "Administración de Criador | Equus",
+            "description": "Gestione la visibilidad y propiedad del criador.",
+            "keywords": ""
+        },
+        "breederCreate": {
+            "title": "Añadir un Criador | Equus",
+            "description": "Registre su operación de cría en Equus.",
+            "keywords": ""
+        },
+        "transportHub": {
+            "title": "Transporte | Equus",
+            "description": "Ver un perfil de empresa de transporte en la red Equus.",
+            "keywords": ""
+        },
+        "transportProfile": {
+            "title": "Perfil de Transporte | Equus",
+            "description": "Gestione su perfil de empresa de transporte.",
+            "keywords": ""
+        },
+        "transportAdmin": {
+            "title": "Administración de Transporte | Equus",
+            "description": "Gestione la visibilidad y propiedad del transporte.",
+            "keywords": ""
+        },
+        "transportCreate": {
+            "title": "Añadir una Empresa de Transporte | Equus",
+            "description": "Registre su empresa de transporte en Equus.",
+            "keywords": ""
+        },
+        "ridingClubHub": {
+            "title": "Club Hípico | Equus",
+            "description": "Ver un perfil de club hípico en la red Equus.",
+            "keywords": ""
+        },
+        "ridingClubProfile": {
+            "title": "Perfil de Club Hípico | Equus",
+            "description": "Gestione su perfil de club hípico.",
+            "keywords": ""
+        },
+        "ridingClubAdmin": {
+            "title": "Administración de Club Hípico | Equus",
+            "description": "Gestione la visibilidad y propiedad del club.",
+            "keywords": ""
+        },
+        "ridingClubCreate": {
+            "title": "Añadir un Club Hípico | Equus",
+            "description": "Registre su club hípico en Equus.",
+            "keywords": ""
+        },
+        "trainerHub": {
+            "title": "Entrenador | Equus",
+            "description": "Ver un perfil de entrenador en la red Equus.",
+            "keywords": ""
+        },
+        "trainerProfile": {
+            "title": "Perfil de Entrenador | Equus",
+            "description": "Gestione su perfil de entrenador.",
+            "keywords": ""
+        },
+        "trainerCreate": {
+            "title": "Añadir un Perfil de Entrenador | Equus",
+            "description": "Registre su perfil de entrenador en Equus.",
+            "keywords": ""
+        },
+        "veterinaryHub": {
+            "title": "Veterinario | Equus",
+            "description": "Ver un perfil de práctica veterinaria en la red Equus.",
+            "keywords": ""
+        },
+        "veterinaryProfile": {
+            "title": "Perfil Veterinario | Equus",
+            "description": "Gestione su perfil de práctica veterinaria.",
+            "keywords": ""
+        },
+        "veterinaryCreate": {
+            "title": "Añadir una Práctica Veterinaria | Equus",
+            "description": "Registre su práctica veterinaria en Equus.",
+            "keywords": ""
+        },
+        "groomHub": {
+            "title": "Cuidador | Equus",
+            "description": "Ver un perfil de cuidador en la red Equus.",
+            "keywords": ""
+        },
+        "groomProfile": {
+            "title": "Perfil de Cuidador | Equus",
+            "description": "Gestione su perfil de cuidador.",
+            "keywords": ""
+        },
+        "groomCreate": {
+            "title": "Añadir un Perfil de Cuidador | Equus",
+            "description": "Registre su perfil de cuidador en Equus.",
+            "keywords": ""
+        },
+        "farrierHub": {
+            "title": "Herrador | Equus",
+            "description": "Ver un perfil de herrador en la red Equus.",
+            "keywords": ""
+        },
+        "farrierProfile": {
+            "title": "Perfil de Herrador | Equus",
+            "description": "Gestione su perfil de herrador.",
+            "keywords": ""
+        },
+        "farrierCreate": {
+            "title": "Añadir un Perfil de Herrador | Equus",
+            "description": "Registre su perfil de herrador en Equus.",
+            "keywords": ""
+        },
+        "coachHub": {
+            "title": "Entrenador Deportivo | Equus",
+            "description": "Ver un perfil de entrenador en la red Equus.",
+            "keywords": ""
+        },
+        "coachProfile": {
+            "title": "Perfil de Entrenador Deportivo | Equus",
+            "description": "Gestione su perfil de entrenador.",
+            "keywords": ""
+        },
+        "coachCreate": {
+            "title": "Añadir un Perfil de Entrenador | Equus",
+            "description": "Registre su perfil de entrenador en Equus.",
+            "keywords": ""
+        },
+        "riderHub": {
+            "title": "Jinete | Equus",
+            "description": "Ver un perfil de jinete en la red Equus.",
+            "keywords": ""
+        },
+        "riderProfile": {
+            "title": "Perfil de Jinete | Equus",
+            "description": "Gestione su perfil de jinete.",
+            "keywords": ""
+        },
+        "riderCreate": {
+            "title": "Añadir un Perfil de Jinete | Equus",
+            "description": "Registre su perfil de jinete en Equus.",
+            "keywords": ""
         }
     },
     "horseSale": {
@@ -1479,7 +2327,8 @@
             "empty": "No se compartieron datos de contacto."
         },
         "loadFailed": "No se pudo cargar tu perfil."
-    },    "userNotifications": {
+    },
+    "userNotifications": {
         "title": "Notificaciones",
         "description": "Gestiona tus preferencias de notificaciones por correo.",
         "saveFailed": "Error al guardar la configuración de notificaciones.",

@@ -1,6 +1,6 @@
-import { Suspense } from "react";
-import { PedigreeConnectionsContent } from "@/components/invites/pedigree-connections-content.tsx";
 import type { Metadata } from "next";
+
+import { PedigreeConnectionsClient } from "./client";
 import { generatePublicMetadata } from "@/lib/seo/metadata-factory.ts";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -11,9 +11,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default function PedigreeConnectionsPage() {
-  return (
-    <Suspense fallback={null}>
-      <PedigreeConnectionsContent />
-    </Suspense>
-  );
+  return <PedigreeConnectionsClient />;
 }
