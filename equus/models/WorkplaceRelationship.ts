@@ -5,7 +5,7 @@
  * of active collaboration ids. Called by workplaceRelationshipService and REST routes.
  *
  * Lifecycle: use `status` + `endedAt` — never hard-delete except invite-email rollback.
- * See `documentation/dataLifecycle.md`.
+ * See `equus/docs/features/dataLifecycle.md`.
  */
 
 import mongoose, { Schema, model } from "mongoose";

@@ -103,8 +103,8 @@
 }
 
 /* Theme tokens (color only):
- * :root        — default (theme.md forest / warm accent)
- * .theme-onyx  — onyx (theme2.md) when set on <html>
+ * :root        — default (docs/engineering/theme-default-palette.md)
+ * .theme-onyx  — onyx when set on <html>
  */
 
 :root {

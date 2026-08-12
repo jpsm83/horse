@@ -7,7 +7,7 @@
  * Nested embeds (pricing tiers, fleet vehicles) may use their own `isActive`
  * for catalog enable/disable — do not spread this object into those embeds.
  *
- * See `documentation/dataLifecycle.md` and `equus/documentation/dataLifecycle.md`.
+ * See `equus/docs/features/dataLifecycle.md` and `equus/docs/engineering/dataLifecycle.md`.
  */
 
 import { Schema } from "mongoose";

@@ -4,7 +4,7 @@
  * Pending state lives here (not on the entity). Applies on accept via ownershipTransferService.
  * Eligible entities: Horse, Stable, Breeder, Transport, RidingClub only.
  *
- * Lifecycle: status-driven — never hard-delete. See `documentation/ownershipTransfer.md`.
+ * Lifecycle: status-driven — never hard-delete. See `equus/docs/features/ownershipTransfer.md`.
  */
 
 import mongoose, { Schema, model } from "mongoose";

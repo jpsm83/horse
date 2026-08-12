@@ -232,7 +232,7 @@ export async function getPublicBreederCard(
 /**
  * Owner profile update — dirty-field PATCH via `$set` / `$unset`.
  * Only fields present in the parsed input are touched; empty strings unset the
- * field (see documentation/profile.md). Nested `address.*` fields are flattened.
+ * field (see equus/docs/engineering/profile.md). Nested `address.*` fields are flattened.
  */
 export async function updateBreederProfile(
   actorUserId: string,

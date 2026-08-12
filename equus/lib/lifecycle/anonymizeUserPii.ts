@@ -5,7 +5,7 @@
  * Horse-attached records retain provider attribution via snapshots on those documents.
  *
  * Called by `userService.anonymizeUserPii`. Not exposed as a public self-service API yet.
- * See `equus/documentation/piiAnonymization.md`.
+ * See `equus/docs/engineering/piiAnonymization.md`.
  */
 
 import mongoose from "mongoose";

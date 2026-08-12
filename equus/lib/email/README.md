@@ -68,4 +68,4 @@ Domain code builds template content, then calls `sendTemplateEmail({ to, content
 
 ## i18n
 
-Templates support **en** and **es** only. Pass `locale` from `normalizeLocale` / `resolveEmailLocale` when sending. See [`documentation/i18n.md`](../../documentation/i18n.md) for web routing and preference priority.
+Templates support **en** and **es** only. Pass `locale` from `normalizeLocale` / `resolveEmailLocale` when sending. See [`equus/docs/engineering/i18n.md`](../../docs/engineering/i18n.md) for web routing and preference priority.
