@@ -1,14 +1,14 @@
 /**
  * Owner-facing user view route.
  *
- * `GET` `/api/v1/users/[id]/view` — role-aware user view (auth optional; only
- * the owner receives `sections` and other owner-only fields).
+ * `GET` `/api/v1/users/[id]/view` — owner hub view for `/user/:id` (auth required;
+ * only the account owner may access this route).
  */
 
 import connectDb from "@/lib/db.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { withRoute, ok } from "@/lib/api/response.ts";
-import { readOptionalAuthFromRequest } from "@/lib/auth/requireAuth.ts";
+import { requireAuthFromRequest } from "@/lib/auth/requireAuth.ts";
 import * as userService from "@/lib/services/userService.ts";
 import { userIdParamSchema } from "@/lib/validations/user.ts";
 
@@ -24,8 +24,12 @@ export async function GET(request: Request, context: RouteContext) {
       throw new ApiError(400, "Invalid user id", "VALIDATION_ERROR");
     }
 
-    const requester = await readOptionalAuthFromRequest(request);
-    const view = await userService.getUserView(parsedId.data, requester.id ?? null);
+    const session = await requireAuthFromRequest(request);
+    if (session.id !== parsedId.data) {
+      throw new ApiError(403, "You can only view your own account hub", "FORBIDDEN");
+    }
+
+    const view = await userService.getUserView(parsedId.data, session.id);
     return ok(view);
   });
 }

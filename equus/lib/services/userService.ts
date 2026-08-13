@@ -250,7 +250,7 @@ export async function getUserView(
     .lean();
 
   if (!user) {
-    throw new Error("User not found");
+    throw new ApiError(404, "User not found", "NOT_FOUND");
   }
 
   const isOwner = viewerUserId !== null && viewerUserId === String((user as Record<string, unknown>)._id);
