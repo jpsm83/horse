@@ -1,0 +1,91 @@
+/**
+ * UI REST boundary — pages/layouts/components/hooks must not runtime-import
+ * services or models. Only app/api route handlers may.
+ */
+import fs from "node:fs";
+import path from "node:path";
+import { describe, expect, it } from "vitest";
+
+const ROOT = path.resolve(__dirname, "../..");
+
+const SCAN_DIRS = ["app", "components", "hooks"];
+
+/** Shrink this list to [] as layouts and metadata pages are converted. */
+export const FORBIDDEN_UI_RUNTIME_IMPORT_ALLOWLIST = [
+  "app/[locale]/horses/[horseId]/layout.tsx",
+  "app/[locale]/user/[userId]/layout.tsx",
+  "app/[locale]/stables/[stableId]/layout.tsx",
+  "app/[locale]/breeders/[breederId]/layout.tsx",
+  "app/[locale]/transport/[transportId]/layout.tsx",
+  "app/[locale]/riding-clubs/[clubId]/layout.tsx",
+  "app/[locale]/trainers/[trainerId]/layout.tsx",
+  "app/[locale]/groomers/[groomId]/layout.tsx",
+  "app/[locale]/veterinaries/[veterinaryId]/layout.tsx",
+  "app/[locale]/farriers/[farrierId]/layout.tsx",
+  "app/[locale]/coaches/[coachId]/layout.tsx",
+  "app/[locale]/riders/[riderId]/layout.tsx",
+  "app/[locale]/horses/[horseId]/page.tsx",
+  "app/[locale]/users/[userId]/page.tsx",
+] as const;
+
+function walk(dir: string, acc: string[] = []): string[] {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name === "api" && path.relative(ROOT, dir).replaceAll("\\", "/") === "app") {
+        continue;
+      }
+      walk(full, acc);
+    } else if (/\.(ts|tsx)$/.test(entry.name)) {
+      acc.push(full);
+    }
+  }
+  return acc;
+}
+
+function toPosix(file: string): string {
+  return path.relative(ROOT, file).replaceAll("\\", "/");
+}
+
+function runtimeImportTargets(source: string): string[] {
+  const importRe =
+    /(?:^|\n)import\s+(type\s+)?([\s\S]*?)\s+from\s+["']([^"']+)["']/g;
+  const hits: string[] = [];
+  let match: RegExpExecArray | null;
+  while ((match = importRe.exec(source))) {
+    const isTypeOnly = Boolean(match[1]) || /^type\s/.test(match[2].trim());
+    if (isTypeOnly) continue;
+    const spec = match[3];
+    if (spec.startsWith("@/lib/services/") || spec.startsWith("@/models/")) {
+      hits.push(spec);
+    }
+  }
+  return hits;
+}
+
+describe("UI REST boundary", () => {
+  it("forbids runtime service/model imports outside app/api, except the shrinking allowlist", () => {
+    const files = SCAN_DIRS.flatMap((d) => walk(path.join(ROOT, d)));
+    const violations: string[] = [];
+    const allow = new Set<string>(FORBIDDEN_UI_RUNTIME_IMPORT_ALLOWLIST);
+
+    for (const file of files) {
+      const rel = toPosix(file);
+      const hits = runtimeImportTargets(fs.readFileSync(file, "utf8"));
+      if (hits.length === 0) continue;
+      if (allow.has(rel)) continue;
+      violations.push(`${rel} → ${hits.join(", ")}`);
+    }
+
+    expect(violations, violations.join("\n")).toEqual([]);
+  });
+
+  it("allowlist entries still exist and still violate (remove when fixed)", () => {
+    for (const rel of FORBIDDEN_UI_RUNTIME_IMPORT_ALLOWLIST) {
+      const full = path.join(ROOT, rel);
+      expect(fs.existsSync(full), rel).toBe(true);
+      const hits = runtimeImportTargets(fs.readFileSync(full, "utf8"));
+      expect(hits, `${rel} is on the allowlist but is already clean — remove it`).not.toEqual([]);
+    }
+  });
+});
