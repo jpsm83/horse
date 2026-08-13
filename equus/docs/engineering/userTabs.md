@@ -32,7 +32,7 @@ app/[locale]/user/[userId]/
 
 The owner hub tab and `/users/[userId]` render the **same** `UserHubContent`:
 
-- **Owner** — reads `useUserView` → `GET /api/v1/users/me`.
+- **Owner** — reads `useUserView` → `GET /api/v1/users/:id/view`.
 - **Public** — `useUserHub` → `GET /api/v1/users/:id/hub` (audience-filtered by L1 + L2).
 - Sections are server-filtered (`buildUserHubSections`); no visibility popovers on the hub.
 

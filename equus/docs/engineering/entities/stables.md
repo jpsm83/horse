@@ -18,7 +18,7 @@ Related:
 |--------|------|---------|
 | `POST` | `/api/v1/stables` | Create a stable owned by the authenticated user (`mainOwnerUserId`) |
 | `PATCH` | `/api/v1/stables/:id/discovery` | Update discovery settings (`isPublic`, `acceptsNewHorses`) for owner/co-owner |
-| `GET` | `/api/v1/stables/:id` | Return public stable card filtered by `isPublic` and requester context |
+| `GET` | `/api/v1/stables/:id` | **Unified role-aware stable view** — returns `{ viewerRole, allowedTabs, stable }`. Auth optional; visibility still returns 404 when discovery denies access. |
 
 ---
 
@@ -42,9 +42,9 @@ flowchart TB
 
 ---
 
-## Public card fields
+## Nested entity payload fields
 
-`GET /api/v1/stables/:id` returns a `PublicStableCard`:
+`GET /api/v1/stables/:id` returns the view envelope `{ viewerRole, allowedTabs, stable }`; clients use `getStableView` / `useStableView`. The nested `stable` payload contains the `PublicStableCard` fields:
 
 - `id`, `tradeName`, `description`, `city`, `country` (from address)
 - `disciplines`, `services`, `acceptsNewHorses`, `isPublic`

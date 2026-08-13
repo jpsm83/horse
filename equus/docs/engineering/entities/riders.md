@@ -16,7 +16,7 @@ Related:
 |--------|------|---------|
 | `POST` | `/api/v1/riders` | Create a rider profile linked to the authenticated user (`userId` + `User.riderProfileId`) |
 | `PATCH` | `/api/v1/riders/:id/discovery` | Update discovery settings (`isPublic`, `acceptsNewClients`) for profile owner |
-| `GET` | `/api/v1/riders/:id` | Return public rider card filtered by `isPublic` and requester context |
+| `GET` | `/api/v1/riders/:id` | **Unified role-aware rider view** — returns `{ viewerRole, allowedTabs, rider }`. Auth optional; visibility still returns 404 when discovery denies access. |
 
 Riders are **user-linked**: one profile per User. A second `POST` returns **409** when `riderProfileId` is already set.
 
@@ -34,9 +34,9 @@ Riders are **user-linked**: one profile per User. A second `POST` returns **409*
 
 ---
 
-## Public card fields
+## Nested entity payload fields
 
-`GET /api/v1/riders/:id` returns a `PublicRiderCard`:
+`GET /api/v1/riders/:id` returns the view envelope `{ viewerRole, allowedTabs, rider }`; clients use `getRiderView` / `useRiderView`. The nested `rider` payload contains the `PublicRiderCard` fields:
 
 - `id`, `displayName`, `bio`, `city`, `country` (from address when set)
 - `disciplines`, `experienceYears`, `competitionHighlights`, `acceptsNewClients`, `isPublic`

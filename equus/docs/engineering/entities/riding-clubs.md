@@ -16,7 +16,7 @@ Related:
 |--------|------|---------|
 | `POST` | `/api/v1/riding-clubs` | Create a riding club owned by the authenticated user (`mainOwnerUserId`) |
 | `PATCH` | `/api/v1/riding-clubs/:id/discovery` | Update discovery settings (`isPublic`, `acceptsNewMembers`) for owner/co-owner |
-| `GET` | `/api/v1/riding-clubs/:id` | Return public riding club card filtered by `isPublic` and requester context |
+| `GET` | `/api/v1/riding-clubs/:id` | **Unified role-aware riding-club view** — returns `{ viewerRole, allowedTabs, ridingClub }`. Auth optional; visibility still returns 404 when discovery denies access. |
 
 A single User may create **multiple** riding clubs (unlike user-linked roles). Partnership uses the same `mainOwnerUserId` + `coOwners[]` embed as stables and transport companies.
 
@@ -42,9 +42,9 @@ flowchart TB
 
 ---
 
-## Public card fields
+## Nested entity payload fields
 
-`GET /api/v1/riding-clubs/:id` returns a `PublicRidingClubCard`:
+`GET /api/v1/riding-clubs/:id` returns the view envelope `{ viewerRole, allowedTabs, ridingClub }`; clients use `getRidingClubView` / `useRidingClubView`. The nested `ridingClub` payload contains the `PublicRidingClubCard` fields:
 
 - `id`, `clubName`, `description`, `city`, `country` (from address)
 - `disciplines`, `facilities`, `membershipInfo`, `membershipFee`, `acceptsNewMembers`, `isPublic`

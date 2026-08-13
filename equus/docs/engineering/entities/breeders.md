@@ -16,7 +16,7 @@ Related:
 |--------|------|---------|
 | `POST` | `/api/v1/breeders` | Create a breeding operation owned by the authenticated user (`mainOwnerUserId`) |
 | `PATCH` | `/api/v1/breeders/:id/discovery` | Update discovery settings (`isPublic`) for owner/co-owner |
-| `GET` | `/api/v1/breeders/:id` | Return public breeder card filtered by `isPublic` and requester context |
+| `GET` | `/api/v1/breeders/:id` | **Unified role-aware breeder view** — returns `{ viewerRole, allowedTabs, breeder }`. Auth optional; visibility still returns 404 when discovery denies access. |
 
 A single User may create **multiple** breeder entities (unlike user-linked roles).
 
@@ -27,6 +27,10 @@ A single User may create **multiple** breeder entities (unlike user-linked roles
 - `Breeder.isPublic` (default `true`) controls anonymous discovery.
 - When `isPublic: false`, visible only to owner/co-owner, active collaborators at the breeder, or users with an accepted horse ↔ breeder `Relationship`.
 - Business contact (`operationName`, `email`, `phoneNumber`) lives on the **entity** — not filtered through `User.preferences`.
+
+---
+
+`GET /api/v1/breeders/:id` returns the view envelope `{ viewerRole, allowedTabs, breeder }`; clients use `getBreederView` / `useBreederView`. The nested `breeder` payload contains the public-card fields.
 
 ---
 

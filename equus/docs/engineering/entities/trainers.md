@@ -15,7 +15,7 @@ Related:
 |--------|------|---------|
 | `POST` | `/api/v1/trainers` | Create a trainer profile linked to the authenticated user (`userId` + `User.trainerProfileId`) |
 | `PATCH` | `/api/v1/trainers/:id/discovery` | Update discovery settings (`isPublic`, `acceptsNewClients`) for profile owner |
-| `GET` | `/api/v1/trainers/:id` | Return public trainer card filtered by `isPublic` and requester context |
+| `GET` | `/api/v1/trainers/:id` | **Unified role-aware trainer view** — returns `{ viewerRole, allowedTabs, trainer }`. Auth optional; visibility still returns 404 when discovery denies access. |
 
 Trainers are **user-linked**: one profile per User. A second `POST` returns **409** when `trainerProfileId` is already set.
 
@@ -31,9 +31,9 @@ Unlike entity-owned host profiles (stable, breeder), trainers do **not** use `Wo
 
 ---
 
-## Public card fields
+## Nested entity payload fields
 
-`GET /api/v1/trainers/:id` returns a `PublicTrainerCard`:
+`GET /api/v1/trainers/:id` returns the view envelope `{ viewerRole, allowedTabs, trainer }`; clients use `getTrainerView` / `useTrainerView`. The nested `trainer` payload contains the `PublicTrainerCard` fields:
 
 - `id`, `displayName`, `bio`, `city`, `country` (from address)
 - `specialties`, `acceptsNewClients`, `isPublic`

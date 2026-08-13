@@ -16,7 +16,7 @@ Related:
 |--------|------|---------|
 | `POST` | `/api/v1/veterinaries` | Create a veterinary profile linked to the authenticated user (`userId` + `User.veterinaryProfileId`) |
 | `PATCH` | `/api/v1/veterinaries/:id/discovery` | Update discovery settings (`isPublic`, `acceptsNewPatients`) for profile owner |
-| `GET` | `/api/v1/veterinaries/:id` | Return public veterinary card filtered by `isPublic` and requester context |
+| `GET` | `/api/v1/veterinaries/:id` | **Unified role-aware veterinary view** — returns `{ viewerRole, allowedTabs, veterinary }`. Auth optional; visibility still returns 404 when discovery denies access. |
 
 Veterinaries are **user-linked**: one profile per User. A second `POST` returns **409** when `veterinaryProfileId` is already set.
 
@@ -34,9 +34,9 @@ Veterinaries are **user-linked**: one profile per User. A second `POST` returns 
 
 ---
 
-## Public card fields
+## Nested entity payload fields
 
-`GET /api/v1/veterinaries/:id` returns a `PublicVeterinaryCard`:
+`GET /api/v1/veterinaries/:id` returns the view envelope `{ viewerRole, allowedTabs, veterinary }`; clients use `getVeterinaryView` / `useVeterinaryView`. The nested `veterinary` payload contains the `PublicVeterinaryCard` fields:
 
 - `id`, `practiceName`, `description`, `city`, `country` (from address)
 - `equineSpecializations`, `emergencyAvailability`, `serviceAreaKm`, `acceptsNewPatients`, `isPublic`

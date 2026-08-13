@@ -1,5 +1,5 @@
 /**
- * User layout — entity chrome only. View loads via useUserView → GET /api/v1/users/me.
+ * User layout — entity chrome only. View loads via useUserView → GET /api/v1/users/:id/view.
  */
 import type { ReactNode } from "react";
 

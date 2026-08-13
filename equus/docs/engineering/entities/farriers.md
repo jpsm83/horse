@@ -17,7 +17,7 @@ Related:
 | `POST` | `/api/v1/farriers` | Create a farrier profile linked to the authenticated user (`userId` + `User.farrierProfileId`) |
 | `GET` | `/api/v1/farriers?mine=true` | List farrier profiles owned by the authenticated user (one profile per user) |
 | `PATCH` | `/api/v1/farriers/:id/discovery` | Update discovery settings (`isPublic`, `acceptsNewClients`) for profile owner |
-| `GET` | `/api/v1/farriers/:id` | Return public farrier card filtered by `isPublic` and requester context |
+| `GET` | `/api/v1/farriers/:id` | **Unified role-aware farrier view** — returns `{ viewerRole, allowedTabs, farrier }`. Auth optional; visibility still returns 404 when discovery denies access. |
 | `PATCH` | `/api/v1/farriers/:id` | Update the farrier profile for the owner (dirty-field `$set`/`$unset`; empty strings clear optional fields) |
 
 Farriers are **user-linked**: one profile per User. A second `POST` returns **409** when `farrierProfileId` is already set.
@@ -36,9 +36,9 @@ Farriers are **user-linked**: one profile per User. A second `POST` returns **40
 
 ---
 
-## Public card fields
+## Nested entity payload fields
 
-`GET /api/v1/farriers/:id` returns a `PublicFarrierCard`:
+`GET /api/v1/farriers/:id` returns the view envelope `{ viewerRole, allowedTabs, farrier }`; clients use `getFarrierView` / `useFarrierView`. The nested `farrier` payload contains the `PublicFarrierCard` fields:
 
 - `id`, `displayName`, `bio`, `city`, `country` (from address when set)
 - `experienceYears`, `serviceAreaKm`, `acceptsNewClients`, `isPublic`

@@ -16,7 +16,7 @@ Related:
 |--------|------|---------|
 | `POST` | `/api/v1/coaches` | Create a coach profile linked to the authenticated user (`userId` + `User.coachProfileId`) |
 | `PATCH` | `/api/v1/coaches/:id/discovery` | Update discovery settings (`isPublic`, `acceptsNewClients`) for profile owner |
-| `GET` | `/api/v1/coaches/:id` | Return public coach card filtered by `isPublic` and requester context |
+| `GET` | `/api/v1/coaches/:id` | **Unified role-aware coach view** — returns `{ viewerRole, allowedTabs, coach }`. Auth optional; visibility still returns 404 when discovery denies access. |
 
 Coaches are **user-linked**: one profile per User. A second `POST` returns **409** when `coachProfileId` is already set.
 
@@ -34,9 +34,9 @@ Unlike entity-owned host profiles (stable, breeder), coaches do **not** use `Wor
 
 ---
 
-## Public card fields
+## Nested entity payload fields
 
-`GET /api/v1/coaches/:id` returns a `PublicCoachCard`:
+`GET /api/v1/coaches/:id` returns the view envelope `{ viewerRole, allowedTabs, coach }`; clients use `getCoachView` / `useCoachView`. The nested `coach` payload contains the `PublicCoachCard` fields:
 
 - `id`, `displayName`, `bio`, `city`, `country` (from address)
 - `disciplines`, `competitionLevels`, `preparationServices`, `experienceYears`, `acceptsNewClients`, `isPublic`

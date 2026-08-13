@@ -16,7 +16,7 @@ Related:
 |--------|------|---------|
 | `POST` | `/api/v1/transports` | Create a transport company owned by the authenticated user (`mainOwnerUserId`) |
 | `PATCH` | `/api/v1/transports/:id/discovery` | Update discovery settings (`isPublic`, `acceptsNewBookings`) for owner/co-owner |
-| `GET` | `/api/v1/transports/:id` | Return public transport card filtered by `isPublic` and requester context |
+| `GET` | `/api/v1/transports/:id` | **Unified role-aware transport view** — returns `{ viewerRole, allowedTabs, transport }`. Auth optional; visibility still returns 404 when discovery denies access. |
 
 A single User may create **multiple** transport companies (unlike user-linked roles). Partnership uses the same `mainOwnerUserId` + `coOwners[]` embed as stables and riding clubs.
 
@@ -42,9 +42,9 @@ flowchart TB
 
 ---
 
-## Public card fields
+## Nested entity payload fields
 
-`GET /api/v1/transports/:id` returns a `PublicTransportCard`:
+`GET /api/v1/transports/:id` returns the view envelope `{ viewerRole, allowedTabs, transport }`; clients use `getTransportView` / `useTransportView`. The nested `transport` payload contains the `PublicTransportCard` fields:
 
 - `id`, `companyName`, `description`, `city`, `country` (from address)
 - `specialties`, `serviceAreas`, `acceptsNewBookings`, `isPublic`
