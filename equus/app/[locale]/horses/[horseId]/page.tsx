@@ -22,10 +22,12 @@ export async function generateMetadata({ params }: HorseHubPageProps): Promise<M
     {
       name: horse.name,
       breed: horse.breed,
-      age: horse.dateOfBirth
-        ? new Date().getFullYear() - new Date(horse.dateOfBirth).getFullYear()
-        : undefined,
-      description: horse.description,
+      age:
+        horse.sections?.identity?.age ??
+        (horse.dateOfBirth
+          ? new Date().getFullYear() - new Date(horse.dateOfBirth).getFullYear()
+          : undefined),
+      description: horse.sections?.about?.description ?? horse.description,
       image: horse.profileImageUrl,
     },
     locale,

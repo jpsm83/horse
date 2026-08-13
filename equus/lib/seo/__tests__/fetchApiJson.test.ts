@@ -42,4 +42,15 @@ describe("fetchApiJson", () => {
     const { fetchApiJson } = await import("@/lib/seo/fetchApiJson.ts");
     await expect(fetchApiJson("/api/v1/horses/missing")).resolves.toBeNull();
   });
+
+  it("returns null when fetch rejects", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new Error("network error");
+      }),
+    );
+    const { fetchApiJson } = await import("@/lib/seo/fetchApiJson.ts");
+    await expect(fetchApiJson("/api/v1/horses/abc")).resolves.toBeNull();
+  });
 });
