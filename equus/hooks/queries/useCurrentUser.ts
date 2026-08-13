@@ -21,7 +21,7 @@ async function fetchUserView(userId: string): Promise<UserViewDto> {
   return { user: data.user, isOwner: true };
 }
 
-/** Reads from HydrationBoundary cache pre-seeded by layout.tsx RSC. Falls back to REST on miss. */
+/** Owner user view — GET /api/v1/users/me. */
 export function useUserView(userId: string) {
   return useQuery({
     queryKey: queryKeys.users.view(userId),

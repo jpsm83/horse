@@ -1,8 +1,7 @@
 /**
  * TanStack Query hooks for farriers.
  *
- * `useFarrierView(farrierId)` reads the role-aware farrier view seeded by the
- * detail `layout.tsx` RSC (falls back to REST on miss). `useFarrierList` reads
+ * `useFarrierView(farrierId)` calls `GET /api/v1/farriers/:id`. `useFarrierList` reads
  * the authenticated user's farrier profile. `useCreateFarrier` creates a farrier
  * and invalidates the list cache.
  */

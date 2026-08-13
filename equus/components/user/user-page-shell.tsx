@@ -1,8 +1,7 @@
 /**
  * UserPageShell — auth and self-ownership gate for /user/[userId] sub-page content.
  *
- * Tab chrome and content padding live in UserLayoutChrome (layout.tsx). Reads
- * the pre-seeded user view from the TanStack cache populated by layout RSC.
+ * Tab chrome and content padding live in UserLayoutChrome (layout.tsx).
  */
 
 "use client";
@@ -25,7 +24,7 @@ export function UserPageShell({ userId, children }: UserPageShellProps) {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAppAuth();
 
-  // Reads from PreferHydrationBoundary cache — no extra fetch when layout.tsx RSC succeeded.
+  // useUserView → REST; loading.tsx / shell skeleton cover first paint.
   const { isLoading: isViewLoading } = useUserView(userId);
 
   useEffect(() => {

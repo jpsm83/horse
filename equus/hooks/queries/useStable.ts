@@ -1,8 +1,7 @@
 /**
  * TanStack Query hooks for stables.
  *
- * `useStableView(stableId)` reads the role-scoped stable view seeded by the
- * detail `layout.tsx` RSC (falls back to REST on miss). `useStableList` reads
+ * `useStableView(stableId)` calls `GET /api/v1/stables/:id`. `useStableList` reads
  * the authenticated user's owned stables. `useCreateStable` creates a stable and
  * invalidates the list cache.
  */

@@ -1,8 +1,7 @@
 /**
  * TanStack Query hooks for transport companies.
  *
- * `useTransportView(transportId)` reads the role-scoped transport view seeded by
- * the detail `layout.tsx` RSC (falls back to REST on miss). `useTransportList`
+ * `useTransportView(transportId)` calls `GET /api/v1/transports/:id`. `useTransportList`
  * reads the authenticated user's owned transport companies. `useCreateTransport`
  * creates a transport company and invalidates the list cache.
  */

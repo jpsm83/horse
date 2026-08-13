@@ -1,8 +1,7 @@
 /**
  * TanStack Query hooks for breeders.
  *
- * `useBreederView(breederId)` reads the role-scoped breeder view seeded by the
- * detail `layout.tsx` RSC (falls back to REST on miss). `useBreederList` reads
+ * `useBreederView(breederId)` calls `GET /api/v1/breeders/:id`. `useBreederList` reads
  * the authenticated user's owned breeders. `useCreateBreeder` creates a breeder
  * and invalidates the list cache.
  */

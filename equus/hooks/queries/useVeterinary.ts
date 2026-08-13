@@ -1,8 +1,7 @@
 /**
  * TanStack Query hooks for veterinary profiles.
  *
- * `useVeterinaryView(veterinaryId)` reads the role-scoped veterinary view seeded
- * by the detail `layout.tsx` RSC (falls back to REST on miss).
+ * `useVeterinaryView(veterinaryId)` calls `GET /api/v1/veterinaries/:id`.
  * `useVeterinaryList` reads the authenticated user's veterinary practice ("my
  * veterinary practice"). `useCreateVeterinary` creates a veterinary profile and
  * invalidates the list cache.

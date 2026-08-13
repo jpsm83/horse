@@ -1,8 +1,7 @@
 /**
  * TanStack Query hooks for riding clubs.
  *
- * `useRidingClubView(clubId)` reads the role-scoped riding club view seeded by
- * the detail `layout.tsx` RSC (falls back to REST on miss). `useRidingClubList`
+ * `useRidingClubView(clubId)` calls `GET /api/v1/riding-clubs/:id`. `useRidingClubList`
  * reads the authenticated user's owned clubs. `useCreateRidingClub` creates a
  * club and invalidates the list cache.
  */

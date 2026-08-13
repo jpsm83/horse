@@ -1,8 +1,7 @@
 /**
  * TanStack Query hooks for grooms.
  *
- * `useGroomView(groomId)` reads the role-aware groom view seeded by the detail
- * `layout.tsx` RSC (falls back to REST on miss). `useGroomList` reads the
+ * `useGroomView(groomId)` calls `GET /api/v1/grooms/:id`. `useGroomList` reads the
  * authenticated user's groom profile. `useCreateGroom` creates a groom and
  * invalidates the list cache.
  */

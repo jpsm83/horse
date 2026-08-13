@@ -1,8 +1,7 @@
 /**
  * TanStack Query hooks for coaches.
  *
- * `useCoachView(coachId)` reads the role-scoped coach view seeded by the
- * detail `layout.tsx` RSC (falls back to REST on miss). `useCoachList` reads
+ * `useCoachView(coachId)` calls `GET /api/v1/coaches/:id`. `useCoachList` reads
  * the authenticated user's owned coach profile. `useCreateCoach` creates a coach
  * and invalidates the list cache.
  */

@@ -1,8 +1,7 @@
 /**
  * TanStack Query hooks for riders.
  *
- * `useRiderView(riderId)` reads the role-scoped rider view seeded by the
- * detail `layout.tsx` RSC (falls back to REST on miss). `useRiderList` reads
+ * `useRiderView(riderId)` calls `GET /api/v1/riders/:id`. `useRiderList` reads
  * the authenticated user's owned rider profile. `useCreateRider` creates a rider
  * and invalidates the list cache.
  */

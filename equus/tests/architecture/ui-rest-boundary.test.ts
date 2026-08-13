@@ -12,17 +12,6 @@ const SCAN_DIRS = ["app", "components", "hooks"];
 
 /** Shrink this list to [] as layouts and metadata pages are converted. */
 export const FORBIDDEN_UI_RUNTIME_IMPORT_ALLOWLIST = [
-  "app/[locale]/user/[userId]/layout.tsx",
-  "app/[locale]/stables/[stableId]/layout.tsx",
-  "app/[locale]/breeders/[breederId]/layout.tsx",
-  "app/[locale]/transport/[transportId]/layout.tsx",
-  "app/[locale]/riding-clubs/[clubId]/layout.tsx",
-  "app/[locale]/trainers/[trainerId]/layout.tsx",
-  "app/[locale]/groomers/[groomId]/layout.tsx",
-  "app/[locale]/veterinaries/[veterinaryId]/layout.tsx",
-  "app/[locale]/farriers/[farrierId]/layout.tsx",
-  "app/[locale]/coaches/[coachId]/layout.tsx",
-  "app/[locale]/riders/[riderId]/layout.tsx",
   "app/[locale]/horses/[horseId]/page.tsx",
   "app/[locale]/users/[userId]/page.tsx",
 ] as const;

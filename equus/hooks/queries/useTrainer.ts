@@ -1,8 +1,7 @@
 /**
  * TanStack Query hooks for trainer profiles.
  *
- * `useTrainerView(trainerId)` reads the role-scoped trainer view seeded by the
- * detail `layout.tsx` RSC (falls back to REST on miss). `useTrainerList` reads
+ * `useTrainerView(trainerId)` calls `GET /api/v1/trainers/:id`. `useTrainerList` reads
  * the authenticated user's trainer profile ("my trainer profile").
  * `useCreateTrainer` creates a trainer profile and invalidates the list cache.
  */
