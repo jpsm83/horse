@@ -8,6 +8,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 **Equus** is a **Next.js 16** (App Router) app whose primary deliverable is a **backend REST API** shared by clients: React 19 web UI today and a planned **React Native** app on the **same REST API**. Business logic lives in `lib/`; route handlers and web screens are thin API consumers.
 
+The web UI is an API consumer of `/api/v1`, the same contract a React Native app will use. Do not call `lib/services` or `models` from pages, layouts, or components (type-only imports are fine). Only route handlers talk to services.
+
 ## Essential commands
 
 Run from `equus/`:

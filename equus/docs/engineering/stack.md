@@ -66,10 +66,12 @@ Web and mobile share the same domain API and business logic. There is no separat
            └──────────────────────────────┘
 ```
 
+The Next.js web UI is a client of `app/api/v1/*`, same as React Native. Pages and layouts must not call `lib/services` or `models` at runtime.
+
 ### 2.2 Core rules
 
 1. **REST API is the contract.** Anything mobile needs must exist as a versioned HTTP endpoint under `/api/v1/`.
-2. **Server Actions are optional and web-only.** Use them for small web UX helpers if useful; they must call `lib/services`, not replace the API.
+2. **No Server Actions as the product API.** They are not accessible from React Native. Web writes go through `/api/v1` like mobile will.
 3. **Business logic lives in services.** Route Handlers stay thin: auth → validate → service → response.
 4. **No NestJS.** Backend logic stays inside the `equus` Next.js app unless a future scale milestone forces extraction (not planned for MVP).
 

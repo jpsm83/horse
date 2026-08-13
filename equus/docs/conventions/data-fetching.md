@@ -2,6 +2,7 @@
 
 All client-side data fetching uses **TanStack Query** (React Query v5). Domain hooks live in `hooks/queries/`.
 
+* **REST only from the UI** — layouts and pages do not prefetch via `lib/services` or `connectDb()`. Client sections use TanStack hooks that call `/api/v1`. `loading.tsx` covers first paint.
 * **`useQuery` for reads** — every page/component that calls a REST endpoint uses a dedicated query hook (e.g. `useHorse(id)` → `GET /api/v1/horses/:id`). No bare `fetch()` or `useEffect` + `useState` for async data.
 * **`useMutation` for writes** — create, update, delete. Always invalidate related queries on success (e.g. `queryClient.invalidateQueries({ queryKey: ["horses"] })`).
 * **Query keys** — use the factory in `lib/api/queryKeys.ts` for consistency and targeted invalidation.
