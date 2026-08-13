@@ -49,7 +49,7 @@ components/shared/        ← ONLY multi-module primitives (Section, FileUpload,
 
 ## 2. Layout RSC (`layout.tsx`) — Chrome Only
 
-Sits at `app/[locale]/horses/[horseId]/layout.tsx`. As a Next.js layout, it re-runs on the server for every navigation to any horse sub-page. It renders entity chrome only — no `connectDb`, no `lib/services`, no TanStack cache seeding.
+Sits at `app/[locale]/horses/[horseId]/layout.tsx`. The layout provides entity chrome (`HorseLayoutChrome`) for all horse sub-pages; it does not fetch data. Child routes load data via TanStack Query. No `connectDb`, no `lib/services`, no TanStack cache seeding.
 
 ```tsx
 // No "use client"
