@@ -11,14 +11,6 @@ import User from "@/models/User.ts";
 import Relationship from "@/models/Relationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { userOwnsVeterinaryProfile } from "@/lib/veterinaries/userLinkedProfileAccess.ts";
-import {
-  canViewVeterinaryDiscovery,
-  type VeterinaryDiscoveryRequesterContext,
-} from "@/lib/veterinaries/veterinaryDiscoveryAccess.ts";
-import {
-  buildPublicVeterinaryCard,
-  type PublicVeterinaryCard,
-} from "@/lib/veterinaries/buildPublicVeterinaryCard.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
@@ -30,8 +22,6 @@ import type {
 export type CreateVeterinaryInput = z.infer<typeof createVeterinarySchema>;
 export type UpdateVeterinaryDiscoveryInput = z.infer<typeof updateVeterinaryDiscoverySchema>;
 export type UpdateVeterinaryProfileInput = z.infer<typeof updateVeterinaryProfileSchema>;
-
-export type { PublicVeterinaryCard };
 
 // --- Role-aware view types ---
 
@@ -199,37 +189,6 @@ export async function getVeterinaryForOwner(actorUserId: string, veterinaryId: s
     throw new ApiError(404, "Veterinary profile not found", "NOT_FOUND");
   }
   return veterinary as Record<string, unknown>;
-}
-
-export async function getPublicVeterinaryCard(
-  veterinaryId: string,
-  requester?: { id?: string; isAuthenticated: boolean },
-): Promise<PublicVeterinaryCard> {
-  ensureObjectId(veterinaryId, "veterinary id");
-
-  const veterinary = await Veterinary.findById(veterinaryId).lean();
-  if (!veterinary) {
-    throw new ApiError(404, "Veterinary profile not found", "NOT_FOUND");
-  }
-
-  await assertPublicReadAllowed(veterinary as Record<string, unknown>, "Veterinary");
-
-  const requesterUserId = requester?.id;
-  const hasRelationship =
-    requesterUserId
-      ? await hasAcceptedHorseVeterinaryRelationship(requesterUserId, veterinaryId)
-      : false;
-
-  const visibilityContext: VeterinaryDiscoveryRequesterContext = {
-    requesterUserId,
-    hasAcceptedHorseVeterinaryRelationship: hasRelationship,
-  };
-
-  if (!canViewVeterinaryDiscovery(veterinary as Record<string, unknown>, visibilityContext)) {
-    throw new ApiError(404, "Veterinary profile not found", "NOT_FOUND");
-  }
-
-  return buildPublicVeterinaryCard(veterinary as Record<string, unknown>);
 }
 
 // --- Role derivation ---

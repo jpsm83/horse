@@ -98,7 +98,7 @@ describe("groomService", () => {
     expect(updated.acceptsNewClients).toBe(false);
   });
 
-  it("returns public groom card with business contact", async () => {
+  it("returns a guest view with business contact for a public groom", async () => {
     const owner = await createUser("groom-public@example.com");
     const created = await groomService.createGroom(String(owner._id), {
       displayName: "Public Groom",
@@ -106,13 +106,12 @@ describe("groomService", () => {
       phoneNumber: "+351944444444",
     });
 
-    const card = await groomService.getPublicGroomCard(String(created._id), {
-      isAuthenticated: false,
-    });
+    const view = await groomService.getGroomView(String(created._id), null);
 
-    expect(card.displayName).toBe("Public Groom");
-    expect(card.contact.email).toBe("public@example.com");
-    expect(card.contact.phone).toBe("+351944444444");
+    expect(view.viewerRole).toBe("guest");
+    expect(view.groom.displayName).toBe("Public Groom");
+    expect(view.groom.email).toBe("public@example.com");
+    expect(view.groom.phoneNumber).toBe("+351944444444");
   });
 
   it("allows horse owner with accepted groom relationship to view non-public groom", async () => {
@@ -141,11 +140,12 @@ describe("groomService", () => {
       receiverAccountId: groom._id,
     });
 
-    const card = await groomService.getPublicGroomCard(String(groom._id), {
-      isAuthenticated: true,
-      id: String(horseOwner._id),
-    });
+    const view = await groomService.getGroomView(
+      String(groom._id),
+      String(horseOwner._id),
+    );
 
-    expect(card.id).toBe(String(groom._id));
+    expect(view.groom.id).toBe(String(groom._id));
+    expect(view.groom.isOwner).toBeFalsy();
   });
 });

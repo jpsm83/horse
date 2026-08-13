@@ -88,7 +88,7 @@ describe("horseService", () => {
     );
   });
 
-  it("hides private owner contact on public horse card", async () => {
+  it("returns a guest view without private owner contact", async () => {
     const owner = await createUser("horse-private-owner@example.com");
     await User.updateOne(
       { _id: owner._id },
@@ -103,15 +103,11 @@ describe("horseService", () => {
       profileVisibility: "public",
     });
 
-    const card = await horseService.getPublicHorseCard(String(created._id), {
-      isAuthenticated: true,
-      id: undefined,
-    });
+    const view = await horseService.getHorseView(String(created._id), null);
 
-    expect(card.contactDisplay.useOwnerContact).toBe(true);
-    expect(card.contactDisplay.name).toBeUndefined();
-    expect(card.contactDisplay.phone).toBeUndefined();
-    expect(card.contactDisplay.email).toBeUndefined();
+    expect(view.viewerRole).toBe("guest");
+    expect(view.horse.id).toBe(String(created._id));
+    expect(view.horse).not.toHaveProperty("contactDisplay");
   });
 
   it("allows relationship visibility only for related users", async () => {
@@ -126,7 +122,7 @@ describe("horseService", () => {
     });
 
     await expect(
-      horseService.getPublicHorseCard(String(created._id), { isAuthenticated: true }),
+      horseService.getHorseView(String(created._id), null),
     ).rejects.toMatchObject({ statusCode: 404 });
 
     await Relationship.create({
@@ -138,12 +134,10 @@ describe("horseService", () => {
       receiverAccountType: "veterinary",
     });
 
-    const relatedCard = await horseService.getPublicHorseCard(String(created._id), {
-      isAuthenticated: true,
-      id: String(vetUser._id),
-    });
+    const view = await horseService.getHorseView(String(created._id), String(vetUser._id));
 
-    expect(relatedCard.id).toBe(String(created._id));
+    expect(view.viewerRole).toBe("related");
+    expect(view.horse.id).toBe(String(created._id));
   });
 
   it("treats stable collaborators as related for relationship visibility", async () => {
@@ -182,14 +176,12 @@ describe("horseService", () => {
       acceptedAt: new Date(),
     });
 
-    const card = await horseService.getPublicHorseCard(String(horse._id), {
-      isAuthenticated: true,
-      id: String(collaborator._id),
-    });
-    expect(card.id).toBe(String(horse._id));
+    const view = await horseService.getHorseView(String(horse._id), String(collaborator._id));
+    expect(view.viewerRole).toBe("related");
+    expect(view.horse.id).toBe(String(horse._id));
   });
 
-  it("returns 404 for public card when horse is inactive", async () => {
+  it("returns 404 for horse view when horse is inactive", async () => {
     const owner = await createUser("horse-inactive@example.com");
     const created = await horseService.createHorse(String(owner._id), {
       name: "Retired",
@@ -202,11 +194,11 @@ describe("horseService", () => {
     await Horse.updateOne({ _id: created._id }, { $set: { isActive: false } });
 
     await expect(
-      horseService.getPublicHorseCard(String(created._id), { isAuthenticated: false }),
+      horseService.getHorseView(String(created._id), null),
     ).rejects.toMatchObject({ statusCode: 404 });
   });
 
-  it("returns 404 for public card when owner account is deactivated", async () => {
+  it("returns 404 for horse view when owner account is deactivated", async () => {
     const owner = await createUser("horse-deactivated-owner@example.com");
     const created = await horseService.createHorse(String(owner._id), {
       name: "Orphan Card",
@@ -219,7 +211,7 @@ describe("horseService", () => {
     await userService.softDelete(String(owner._id));
 
     await expect(
-      horseService.getPublicHorseCard(String(created._id), { isAuthenticated: false }),
+      horseService.getHorseView(String(created._id), null),
     ).rejects.toMatchObject({ statusCode: 404 });
   });
 

@@ -69,7 +69,7 @@ describe("stableService", () => {
     expect(updated.acceptsNewHorses).toBe(false);
   });
 
-  it("returns public stable card with business contact for public stables", async () => {
+  it("returns a guest view with business contact for a public stable", async () => {
     const owner = await createUser("stable-public-owner@example.com");
     const created = await stableService.createStable(String(owner._id), {
       tradeName: "Public Barn",
@@ -80,15 +80,14 @@ describe("stableService", () => {
       isPublic: true,
     });
 
-    const card = await stableService.getPublicStableCard(String(created._id), {
-      isAuthenticated: false,
-    });
+    const view = await stableService.getStableView(String(created._id), null);
 
-    expect(card.tradeName).toBe("Public Barn");
-    expect(card.contact.email).toBe("public@example.com");
-    expect(card.contact.phone).toBe("+351922222222");
-    expect(card.city).toBe("Lisbon");
-    expect(card.country).toBe("Portugal");
+    expect(view.viewerRole).toBe("guest");
+    expect(view.stable.tradeName).toBe("Public Barn");
+    expect(view.stable.email).toBe("public@example.com");
+    expect(view.stable.phoneNumber).toBe("+351922222222");
+    expect(view.stable.address.city).toBe("Lisbon");
+    expect(view.stable.address.country).toBe("Portugal");
   });
 
   it("hides non-public stable from anonymous users", async () => {
@@ -103,7 +102,7 @@ describe("stableService", () => {
     });
 
     await expect(
-      stableService.getPublicStableCard(String(created._id), { isAuthenticated: false }),
+      stableService.getStableView(String(created._id), null),
     ).rejects.toMatchObject({ statusCode: 404 });
   });
 
@@ -136,13 +135,14 @@ describe("stableService", () => {
       receiverAccountId: stable._id,
     });
 
-    const card = await stableService.getPublicStableCard(String(stable._id), {
-      isAuthenticated: true,
-      id: String(horseOwner._id),
-    });
+    const view = await stableService.getStableView(
+      String(stable._id),
+      String(horseOwner._id),
+    );
 
-    expect(card.id).toBe(String(stable._id));
-    expect(card.contact.email).toBe("rel@example.com");
+    expect(view.viewerRole).toBe("related");
+    expect(view.stable.id).toBe(String(stable._id));
+    expect(view.stable.email).toBe("rel@example.com");
   });
 
   it("allows active collaborator to view non-public stable", async () => {
@@ -169,12 +169,13 @@ describe("stableService", () => {
       acceptedAt: new Date(),
     });
 
-    const card = await stableService.getPublicStableCard(String(stable._id), {
-      isAuthenticated: true,
-      id: String(collaborator._id),
-    });
+    const view = await stableService.getStableView(
+      String(stable._id),
+      String(collaborator._id),
+    );
 
-    expect(card.id).toBe(String(stable._id));
+    expect(view.viewerRole).toBe("related");
+    expect(view.stable.id).toBe(String(stable._id));
   });
 
   it("denies unrelated signed-in user for non-public stable", async () => {
@@ -190,10 +191,7 @@ describe("stableService", () => {
     });
 
     await expect(
-      stableService.getPublicStableCard(String(stable._id), {
-        isAuthenticated: true,
-        id: String(outsider._id),
-      }),
+      stableService.getStableView(String(stable._id), String(outsider._id)),
     ).rejects.toMatchObject({ statusCode: 404 });
   });
 });

@@ -12,14 +12,6 @@ import Relationship from "@/models/Relationship.ts";
 import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { ownedByUserQuery, userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
-import {
-  canViewRidingClubDiscovery,
-  type RidingClubDiscoveryRequesterContext,
-} from "@/lib/ridingClubs/ridingClubDiscoveryAccess.ts";
-import {
-  buildPublicRidingClubCard,
-  type PublicRidingClubCard,
-} from "@/lib/ridingClubs/buildPublicRidingClubCard.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
@@ -31,8 +23,6 @@ import type {
 export type CreateRidingClubInput = z.infer<typeof createRidingClubSchema>;
 export type UpdateRidingClubDiscoveryInput = z.infer<typeof updateRidingClubDiscoverySchema>;
 export type UpdateRidingClubProfileInput = z.infer<typeof updateRidingClubProfileSchema>;
-
-export type { PublicRidingClubCard };
 
 // --- Role-aware view types ---
 
@@ -118,6 +108,7 @@ export const RIDING_CLUB_TAB_MIN_ROLE: Record<RidingClubTab, RidingClubViewerRol
 function deriveRidingClubViewerRole(
   ridingClub: Record<string, unknown>,
   userId?: string | null,
+  hasRelatedAccess = false,
 ): RidingClubViewerRole {
   if (!userId) return "guest";
   if (String(ridingClub.mainOwnerUserId) === userId) return "main_owner";
@@ -125,6 +116,7 @@ function deriveRidingClubViewerRole(
     (c: { userId?: unknown }) => c.userId != null && String(c.userId) === userId,
   );
   if (isCoOwner) return "co_owner";
+  if (hasRelatedAccess) return "related";
   return "public";
 }
 
@@ -240,42 +232,6 @@ export async function getRidingClubForOwner(actorUserId: string, ridingClubId: s
     throw new ApiError(404, "Riding club not found", "NOT_FOUND");
   }
   return ridingClub as Record<string, unknown>;
-}
-
-export async function getPublicRidingClubCard(
-  ridingClubId: string,
-  requester?: { id?: string; isAuthenticated: boolean },
-): Promise<PublicRidingClubCard> {
-  ensureObjectId(ridingClubId, "riding club id");
-
-  const ridingClub = await RidingClub.findById(ridingClubId).lean();
-  if (!ridingClub) {
-    throw new ApiError(404, "Riding club not found", "NOT_FOUND");
-  }
-
-  await assertPublicReadAllowed(ridingClub as Record<string, unknown>, "Riding club");
-
-  const requesterUserId = requester?.id;
-  const hasRelationship =
-    requesterUserId
-      ? await hasAcceptedHorseRidingClubRelationship(requesterUserId, ridingClubId)
-      : false;
-  const hasCollaboration =
-    requesterUserId
-      ? await hasActiveRidingClubCollaboration(requesterUserId, ridingClubId)
-      : false;
-
-  const visibilityContext: RidingClubDiscoveryRequesterContext = {
-    requesterUserId,
-    hasAcceptedHorseRidingClubRelationship: hasRelationship,
-    hasActiveCollaboration: hasCollaboration,
-  };
-
-  if (!canViewRidingClubDiscovery(ridingClub as Record<string, unknown>, visibilityContext)) {
-    throw new ApiError(404, "Riding club not found", "NOT_FOUND");
-  }
-
-  return buildPublicRidingClubCard(ridingClub as Record<string, unknown>);
 }
 
 /**
@@ -429,19 +385,22 @@ export async function getRidingClubView(
     requesterUserId.length > 0 &&
     userOwnsEntity(requesterUserId, clubDoc);
 
-  if (!isOwner && clubDoc.isPublic === false) {
-    const hasRelationship = requesterUserId
-      ? await hasAcceptedHorseRidingClubRelationship(requesterUserId, clubId)
-      : false;
-    const hasCollaboration = requesterUserId
-      ? await hasActiveRidingClubCollaboration(requesterUserId, clubId)
-      : false;
-    if (!hasRelationship && !hasCollaboration) {
-      throw new ApiError(404, "Riding club not found", "NOT_FOUND");
-    }
+  const hasRelationship = requesterUserId
+    ? await hasAcceptedHorseRidingClubRelationship(requesterUserId, clubId)
+    : false;
+  const hasCollaboration = requesterUserId
+    ? await hasActiveRidingClubCollaboration(requesterUserId, clubId)
+    : false;
+
+  if (!isOwner && clubDoc.isPublic === false && !hasRelationship && !hasCollaboration) {
+    throw new ApiError(404, "Riding club not found", "NOT_FOUND");
   }
 
-  const viewerRole = deriveRidingClubViewerRole(clubDoc, userId);
+  const viewerRole = deriveRidingClubViewerRole(
+    clubDoc,
+    userId,
+    hasRelationship || hasCollaboration,
+  );
   const allowedTabs = deriveRidingClubAllowedTabs(viewerRole);
 
   const view = toRidingClubView(clubDoc);

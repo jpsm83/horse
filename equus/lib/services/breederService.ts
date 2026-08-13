@@ -12,14 +12,6 @@ import Relationship from "@/models/Relationship.ts";
 import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { ownedByUserQuery, userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
-import {
-  canViewBreederDiscovery,
-  type BreederDiscoveryRequesterContext,
-} from "@/lib/breeders/breederDiscoveryAccess.ts";
-import {
-  buildPublicBreederCard,
-  type PublicBreederCard,
-} from "@/lib/breeders/buildPublicBreederCard.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
@@ -31,8 +23,6 @@ import type {
 export type CreateBreederInput = z.infer<typeof createBreederSchema>;
 export type UpdateBreederDiscoveryInput = z.infer<typeof updateBreederDiscoverySchema>;
 export type UpdateBreederProfileInput = z.infer<typeof updateBreederProfileSchema>;
-
-export type { PublicBreederCard };
 
 // --- Role-aware view types ---
 
@@ -195,40 +185,6 @@ export async function getBreederForOwner(actorUserId: string, breederId: string)
   return breeder as Record<string, unknown>;
 }
 
-export async function getPublicBreederCard(
-  breederId: string,
-  requester?: { id?: string; isAuthenticated: boolean },
-): Promise<PublicBreederCard> {
-  ensureObjectId(breederId, "breeder id");
-
-  const breeder = await Breeder.findById(breederId).lean();
-  if (!breeder) {
-    throw new ApiError(404, "Breeder not found", "NOT_FOUND");
-  }
-
-  await assertPublicReadAllowed(breeder as Record<string, unknown>, "Breeder");
-
-  const requesterUserId = requester?.id;
-  const hasRelationship =
-    requesterUserId
-      ? await hasAcceptedHorseBreederRelationship(requesterUserId, breederId)
-      : false;
-  const hasCollaboration =
-    requesterUserId ? await hasActiveBreederCollaboration(requesterUserId, breederId) : false;
-
-  const visibilityContext: BreederDiscoveryRequesterContext = {
-    requesterUserId,
-    hasAcceptedHorseBreederRelationship: hasRelationship,
-    hasActiveCollaboration: hasCollaboration,
-  };
-
-  if (!canViewBreederDiscovery(breeder as Record<string, unknown>, visibilityContext)) {
-    throw new ApiError(404, "Breeder not found", "NOT_FOUND");
-  }
-
-  return buildPublicBreederCard(breeder as Record<string, unknown>);
-}
-
 /**
  * Owner profile update — dirty-field PATCH via `$set` / `$unset`.
  * Only fields present in the parsed input are touched; empty strings unset the
@@ -305,6 +261,7 @@ export const BREEDER_TAB_MIN_ROLE: Record<BreederTab, BreederViewerRole> = {
 function deriveBreederViewerRole(
   breeder: Record<string, unknown>,
   userId?: string | null,
+  hasRelatedAccess = false,
 ): BreederViewerRole {
   if (!userId) return "guest";
   if (String(breeder.mainOwnerUserId) === userId) return "main_owner";
@@ -312,6 +269,7 @@ function deriveBreederViewerRole(
     (c: { userId?: unknown }) => c.userId != null && String(c.userId) === userId,
   );
   if (isCoOwner) return "co_owner";
+  if (hasRelatedAccess) return "related";
   return "public";
 }
 
@@ -414,19 +372,22 @@ export async function getBreederView(
     requesterUserId.length > 0 &&
     userOwnsEntity(requesterUserId, breederDoc);
 
-  if (!isOwner && breederDoc.isPublic === false) {
-    const hasRelationship = requesterUserId
-      ? await hasAcceptedHorseBreederRelationship(requesterUserId, breederId)
-      : false;
-    const hasCollaboration = requesterUserId
-      ? await hasActiveBreederCollaboration(requesterUserId, breederId)
-      : false;
-    if (!hasRelationship && !hasCollaboration) {
-      throw new ApiError(404, "Breeder not found", "NOT_FOUND");
-    }
+  const hasRelationship = requesterUserId
+    ? await hasAcceptedHorseBreederRelationship(requesterUserId, breederId)
+    : false;
+  const hasCollaboration = requesterUserId
+    ? await hasActiveBreederCollaboration(requesterUserId, breederId)
+    : false;
+
+  if (!isOwner && breederDoc.isPublic === false && !hasRelationship && !hasCollaboration) {
+    throw new ApiError(404, "Breeder not found", "NOT_FOUND");
   }
 
-  const viewerRole = deriveBreederViewerRole(breederDoc, userId);
+  const viewerRole = deriveBreederViewerRole(
+    breederDoc,
+    userId,
+    hasRelationship || hasCollaboration,
+  );
   const allowedTabs = deriveBreederAllowedTabs(viewerRole);
 
   const view = toBreederView(breederDoc);

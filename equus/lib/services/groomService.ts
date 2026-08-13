@@ -11,14 +11,6 @@ import User from "@/models/User.ts";
 import Relationship from "@/models/Relationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { userOwnsGroomProfile } from "@/lib/grooms/userLinkedProfileAccess.ts";
-import {
-  canViewGroomDiscovery,
-  type GroomDiscoveryRequesterContext,
-} from "@/lib/grooms/groomDiscoveryAccess.ts";
-import {
-  buildPublicGroomCard,
-  type PublicGroomCard,
-} from "@/lib/grooms/buildPublicGroomCard.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
@@ -30,8 +22,6 @@ import type {
 export type CreateGroomInput = z.infer<typeof createGroomSchema>;
 export type UpdateGroomDiscoveryInput = z.infer<typeof updateGroomDiscoverySchema>;
 export type UpdateGroomProfileInput = z.infer<typeof updateGroomProfileSchema>;
-
-export type { PublicGroomCard };
 
 // --- Role-aware view types ---
 
@@ -182,35 +172,6 @@ export async function getGroomForOwner(actorUserId: string, groomId: string) {
     throw new ApiError(404, "Groom not found", "NOT_FOUND");
   }
   return groom as Record<string, unknown>;
-}
-
-export async function getPublicGroomCard(
-  groomId: string,
-  requester?: { id?: string; isAuthenticated: boolean },
-): Promise<PublicGroomCard> {
-  ensureObjectId(groomId, "groom id");
-
-  const groom = await Groom.findById(groomId).lean();
-  if (!groom) {
-    throw new ApiError(404, "Groom not found", "NOT_FOUND");
-  }
-
-  await assertPublicReadAllowed(groom as Record<string, unknown>, "Groom");
-
-  const requesterUserId = requester?.id;
-  const hasRelationship =
-    requesterUserId ? await hasAcceptedHorseGroomRelationship(requesterUserId, groomId) : false;
-
-  const visibilityContext: GroomDiscoveryRequesterContext = {
-    requesterUserId,
-    hasAcceptedHorseGroomRelationship: hasRelationship,
-  };
-
-  if (!canViewGroomDiscovery(groom as Record<string, unknown>, visibilityContext)) {
-    throw new ApiError(404, "Groom not found", "NOT_FOUND");
-  }
-
-  return buildPublicGroomCard(groom as Record<string, unknown>);
 }
 
 // --- Role derivation ---

@@ -11,14 +11,6 @@ import User from "@/models/User.ts";
 import Relationship from "@/models/Relationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { userOwnsFarrierProfile } from "@/lib/farriers/userLinkedProfileAccess.ts";
-import {
-  canViewFarrierDiscovery,
-  type FarrierDiscoveryRequesterContext,
-} from "@/lib/farriers/farrierDiscoveryAccess.ts";
-import {
-  buildPublicFarrierCard,
-  type PublicFarrierCard,
-} from "@/lib/farriers/buildPublicFarrierCard.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
@@ -30,8 +22,6 @@ import type {
 export type CreateFarrierInput = z.infer<typeof createFarrierSchema>;
 export type UpdateFarrierDiscoveryInput = z.infer<typeof updateFarrierDiscoverySchema>;
 export type UpdateFarrierProfileInput = z.infer<typeof updateFarrierProfileSchema>;
-
-export type { PublicFarrierCard };
 
 // --- Role-aware view types ---
 
@@ -182,37 +172,6 @@ export async function getFarrierForOwner(actorUserId: string, farrierId: string)
     throw new ApiError(404, "Farrier not found", "NOT_FOUND");
   }
   return farrier as Record<string, unknown>;
-}
-
-export async function getPublicFarrierCard(
-  farrierId: string,
-  requester?: { id?: string; isAuthenticated: boolean },
-): Promise<PublicFarrierCard> {
-  ensureObjectId(farrierId, "farrier id");
-
-  const farrier = await Farrier.findById(farrierId).lean();
-  if (!farrier) {
-    throw new ApiError(404, "Farrier not found", "NOT_FOUND");
-  }
-
-  await assertPublicReadAllowed(farrier as Record<string, unknown>, "Farrier");
-
-  const requesterUserId = requester?.id;
-  const hasRelationship =
-    requesterUserId
-      ? await hasAcceptedHorseFarrierRelationship(requesterUserId, farrierId)
-      : false;
-
-  const visibilityContext: FarrierDiscoveryRequesterContext = {
-    requesterUserId,
-    hasAcceptedHorseFarrierRelationship: hasRelationship,
-  };
-
-  if (!canViewFarrierDiscovery(farrier as Record<string, unknown>, visibilityContext)) {
-    throw new ApiError(404, "Farrier not found", "NOT_FOUND");
-  }
-
-  return buildPublicFarrierCard(farrier as Record<string, unknown>);
 }
 
 // --- Role derivation ---

@@ -11,14 +11,6 @@ import User from "@/models/User.ts";
 import Relationship from "@/models/Relationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { userOwnsTrainerProfile } from "@/lib/trainers/userLinkedProfileAccess.ts";
-import {
-  canViewTrainerDiscovery,
-  type TrainerDiscoveryRequesterContext,
-} from "@/lib/trainers/trainerDiscoveryAccess.ts";
-import {
-  buildPublicTrainerCard,
-  type PublicTrainerCard,
-} from "@/lib/trainers/buildPublicTrainerCard.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
@@ -30,8 +22,6 @@ import type {
 export type CreateTrainerInput = z.infer<typeof createTrainerSchema>;
 export type UpdateTrainerDiscoveryInput = z.infer<typeof updateTrainerDiscoverySchema>;
 export type UpdateTrainerProfileInput = z.infer<typeof updateTrainerProfileSchema>;
-
-export type { PublicTrainerCard };
 
 // --- Role-aware view types ---
 
@@ -185,37 +175,6 @@ export async function getTrainerForOwner(actorUserId: string, trainerId: string)
     throw new ApiError(404, "Trainer not found", "NOT_FOUND");
   }
   return trainer as Record<string, unknown>;
-}
-
-export async function getPublicTrainerCard(
-  trainerId: string,
-  requester?: { id?: string; isAuthenticated: boolean },
-): Promise<PublicTrainerCard> {
-  ensureObjectId(trainerId, "trainer id");
-
-  const trainer = await Trainer.findById(trainerId).lean();
-  if (!trainer) {
-    throw new ApiError(404, "Trainer not found", "NOT_FOUND");
-  }
-
-  await assertPublicReadAllowed(trainer as Record<string, unknown>, "Trainer");
-
-  const requesterUserId = requester?.id;
-  const hasRelationship =
-    requesterUserId
-      ? await hasAcceptedHorseTrainerRelationship(requesterUserId, trainerId)
-      : false;
-
-  const visibilityContext: TrainerDiscoveryRequesterContext = {
-    requesterUserId,
-    hasAcceptedHorseTrainerRelationship: hasRelationship,
-  };
-
-  if (!canViewTrainerDiscovery(trainer as Record<string, unknown>, visibilityContext)) {
-    throw new ApiError(404, "Trainer not found", "NOT_FOUND");
-  }
-
-  return buildPublicTrainerCard(trainer as Record<string, unknown>);
 }
 
 // --- Role derivation ---

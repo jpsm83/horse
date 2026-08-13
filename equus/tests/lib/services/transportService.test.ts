@@ -98,7 +98,7 @@ describe("transportService", () => {
     expect(updatedByCoOwner.acceptsNewBookings).toBe(false);
   });
 
-  it("returns public transport card with business contact", async () => {
+  it("returns a guest view with business contact for a public transport company", async () => {
     const owner = await createUser("transport-public@example.com");
     const created = await transportService.createTransport(String(owner._id), {
       companyName: "Public Haulers",
@@ -109,13 +109,12 @@ describe("transportService", () => {
       address: minimalAddress,
     });
 
-    const card = await transportService.getPublicTransportCard(String(created._id), {
-      isAuthenticated: false,
-    });
+    const view = await transportService.getTransportView(String(created._id), null);
 
-    expect(card.companyName).toBe("Public Haulers");
-    expect(card.contact.email).toBe("public@example.com");
-    expect(card.contact.emergencyPhone).toBe("+351955555555");
+    expect(view.viewerRole).toBe("guest");
+    expect(view.transport.companyName).toBe("Public Haulers");
+    expect(view.transport.email).toBe("public@example.com");
+    expect(view.transport.emergencyPhoneNumber).toBe("+351955555555");
   });
 
   it("allows horse owner with accepted transport relationship to view non-public company", async () => {
@@ -147,12 +146,13 @@ describe("transportService", () => {
       receiverAccountId: transport._id,
     });
 
-    const card = await transportService.getPublicTransportCard(String(transport._id), {
-      isAuthenticated: true,
-      id: String(horseOwner._id),
-    });
+    const view = await transportService.getTransportView(
+      String(transport._id),
+      String(horseOwner._id),
+    );
 
-    expect(card.id).toBe(String(transport._id));
+    expect(view.viewerRole).toBe("related");
+    expect(view.transport.id).toBe(String(transport._id));
   });
 
   it("allows active collaborator to view non-public transport company", async () => {
@@ -179,11 +179,12 @@ describe("transportService", () => {
       acceptedAt: new Date(),
     });
 
-    const card = await transportService.getPublicTransportCard(String(transport._id), {
-      isAuthenticated: true,
-      id: String(collaborator._id),
-    });
+    const view = await transportService.getTransportView(
+      String(transport._id),
+      String(collaborator._id),
+    );
 
-    expect(card.id).toBe(String(transport._id));
+    expect(view.viewerRole).toBe("related");
+    expect(view.transport.id).toBe(String(transport._id));
   });
 });

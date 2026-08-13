@@ -94,7 +94,7 @@ describe("trainerService", () => {
     expect(updated.acceptsNewClients).toBe(false);
   });
 
-  it("returns public trainer card with business contact", async () => {
+  it("returns a guest view with business contact for a public trainer", async () => {
     const owner = await createUser("trainer-public@example.com");
     const created = await trainerService.createTrainer(String(owner._id), {
       displayName: "Public Trainer",
@@ -104,13 +104,12 @@ describe("trainerService", () => {
       address: minimalAddress,
     });
 
-    const card = await trainerService.getPublicTrainerCard(String(created._id), {
-      isAuthenticated: false,
-    });
+    const view = await trainerService.getTrainerView(String(created._id), null);
 
-    expect(card.displayName).toBe("Public Trainer");
-    expect(card.contact.email).toBe("public@example.com");
-    expect(card.contact.phone).toBe("+351944444444");
+    expect(view.viewerRole).toBe("guest");
+    expect(view.trainer.displayName).toBe("Public Trainer");
+    expect(view.trainer.email).toBe("public@example.com");
+    expect(view.trainer.phoneNumber).toBe("+351944444444");
   });
 
   it("allows horse owner with accepted trainer relationship to view non-public trainer", async () => {
@@ -142,11 +141,13 @@ describe("trainerService", () => {
       receiverAccountId: trainer._id,
     });
 
-    const card = await trainerService.getPublicTrainerCard(String(trainer._id), {
-      isAuthenticated: true,
-      id: String(horseOwner._id),
-    });
+    const view = await trainerService.getTrainerView(
+      String(trainer._id),
+      String(horseOwner._id),
+    );
 
-    expect(card.id).toBe(String(trainer._id));
+    expect(view.viewerRole).toBe("related");
+    expect(view.trainer.id).toBe(String(trainer._id));
+    expect(view.trainer.isOwner).toBeFalsy();
   });
 });

@@ -15,8 +15,6 @@ import {
   assertCanViewHorseGlobal,
   canAccessByItemVisibilityMode,
   canViewHorseHubSection,
-  hasAcceptedHorseRelationship,
-  hasActiveHorseHostCollaboration,
   resolveHorseViewerAudience,
   type HorseViewerAudience,
 } from "@/lib/horses/horseVisibilityAccess.ts";
@@ -24,12 +22,7 @@ import {
   normalizeHubSections,
   type HubSections,
 } from "@/lib/horses/hubSections.ts";
-import { resolveHorsePublicContact } from "@/lib/horses/resolveHorsePublicContact.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
-import {
-  resolveAudienceForRequester,
-  type RequesterVisibilityContext,
-} from "@/lib/privacy/userVisibility.ts";
 import type { z } from "zod";
 import type {
   createHorseSchema,
@@ -104,22 +97,6 @@ export type HorseListFilters = {
   valueMax?: number;
   page?: number;
   limit?: number;
-};
-
-// --- Public card type ---
-
-export type PublicHorseCard = {
-  id: string;
-  name?: string;
-  breed?: string;
-  sex?: string;
-  profileVisibility?: string;
-  contactDisplay: {
-    useOwnerContact: true;
-    name?: string;
-    phone?: string;
-    email?: string;
-  };
 };
 
 export type OwnerHorseCoOwner = {
@@ -942,60 +919,6 @@ export async function getOwnerHorseHubSummary(
     coOwners,
     responsibles,
     adminTeam,
-  };
-}
-
-export async function getPublicHorseCard(
-  horseId: string,
-  requester?: { id?: string; isAuthenticated: boolean },
-): Promise<PublicHorseCard> {
-  ensureObjectId(horseId, "horse id");
-
-  const horse = await Horse.findById(horseId).lean();
-  if (!horse) {
-    throw new ApiError(404, "Horse not found", "NOT_FOUND");
-  }
-
-  await assertPublicReadAllowed(horse as Record<string, unknown>, "Horse");
-
-  const requesterUserId = requester?.id;
-  const horseDoc = horse as Record<string, unknown>;
-  const visibilityAudience = await resolveHorseViewerAudience(horseDoc, requesterUserId);
-  assertCanViewHorseGlobal(horseDoc, visibilityAudience);
-
-  const hasRelationship =
-    requesterUserId ? await hasAcceptedHorseRelationship(requesterUserId, horseId) : false;
-  const hasCollaboration =
-    requesterUserId ? await hasActiveHorseHostCollaboration(requesterUserId, horseId) : false;
-
-  const requesterContext: RequesterVisibilityContext = {
-    isAuthenticated: requester?.isAuthenticated === true,
-    hasRelationship,
-    hasCollaboration,
-    isSelf:
-      typeof requesterUserId === "string" &&
-      requesterUserId.length > 0 &&
-      requesterUserId === String(horseDoc.mainOwnerUserId),
-  };
-  const privacyAudience = resolveAudienceForRequester(requesterContext);
-
-  const owner = await User.findById(horseDoc.mainOwnerUserId)
-    .select(
-      "personalDetails.firstName personalDetails.lastName personalDetails.email personalDetails.phoneNumber preferences",
-    )
-    .lean();
-
-  return {
-    id: String(horseDoc._id),
-    name: horseDoc.name as string | undefined,
-    breed: horseDoc.breed as string | undefined,
-    sex: horseDoc.sex as string | undefined,
-    profileVisibility: horseDoc.profileVisibility as string | undefined,
-    contactDisplay: resolveHorsePublicContact(
-      horseDoc,
-      owner as Record<string, unknown> | null | undefined,
-      privacyAudience,
-    ),
   };
 }
 

@@ -12,14 +12,6 @@ import User from "@/models/User.ts";
 import Relationship from "@/models/Relationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { userOwnsCoachProfile } from "@/lib/coaches/userLinkedProfileAccess.ts";
-import {
-  canViewCoachDiscovery,
-  type CoachDiscoveryRequesterContext,
-} from "@/lib/coaches/coachDiscoveryAccess.ts";
-import {
-  buildPublicCoachCard,
-  type PublicCoachCard,
-} from "@/lib/coaches/buildPublicCoachCard.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
@@ -31,8 +23,6 @@ import type {
 export type CreateCoachInput = z.infer<typeof createCoachSchema>;
 export type UpdateCoachDiscoveryInput = z.infer<typeof updateCoachDiscoverySchema>;
 export type UpdateCoachProfileInput = z.infer<typeof updateCoachProfileSchema>;
-
-export type { PublicCoachCard };
 
 // --- Role-aware view types ---
 
@@ -188,35 +178,6 @@ export async function getCoachForOwner(actorUserId: string, coachId: string) {
     throw new ApiError(404, "Coach not found", "NOT_FOUND");
   }
   return coach as Record<string, unknown>;
-}
-
-export async function getPublicCoachCard(
-  coachId: string,
-  requester?: { id?: string; isAuthenticated: boolean },
-): Promise<PublicCoachCard> {
-  ensureObjectId(coachId, "coach id");
-
-  const coach = await Coach.findById(coachId).lean();
-  if (!coach) {
-    throw new ApiError(404, "Coach not found", "NOT_FOUND");
-  }
-
-  await assertPublicReadAllowed(coach as Record<string, unknown>, "Coach");
-
-  const requesterUserId = requester?.id;
-  const hasRelationship =
-    requesterUserId ? await hasAcceptedHorseCoachRelationship(requesterUserId, coachId) : false;
-
-  const visibilityContext: CoachDiscoveryRequesterContext = {
-    requesterUserId,
-    hasAcceptedHorseCoachRelationship: hasRelationship,
-  };
-
-  if (!canViewCoachDiscovery(coach as Record<string, unknown>, visibilityContext)) {
-    throw new ApiError(404, "Coach not found", "NOT_FOUND");
-  }
-
-  return buildPublicCoachCard(coach as Record<string, unknown>);
 }
 
 // --- Role derivation ---

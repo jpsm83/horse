@@ -98,7 +98,7 @@ describe("ridingClubService", () => {
     expect(updatedByCoOwner.acceptsNewMembers).toBe(false);
   });
 
-  it("returns public riding club card with business contact", async () => {
+  it("returns a guest view with business contact for a public riding club", async () => {
     const owner = await createUser("riding-club-public@example.com");
     const created = await ridingClubService.createRidingClub(String(owner._id), {
       clubName: "Public Club",
@@ -111,14 +111,13 @@ describe("ridingClubService", () => {
       membershipFee: 120,
     });
 
-    const card = await ridingClubService.getPublicRidingClubCard(String(created._id), {
-      isAuthenticated: false,
-    });
+    const view = await ridingClubService.getRidingClubView(String(created._id), null);
 
-    expect(card.clubName).toBe("Public Club");
-    expect(card.contact.email).toBe("public@example.com");
-    expect(card.disciplines).toEqual(["Dressage"]);
-    expect(card.membershipFee).toBe(120);
+    expect(view.viewerRole).toBe("guest");
+    expect(view.ridingClub.clubName).toBe("Public Club");
+    expect(view.ridingClub.email).toBe("public@example.com");
+    expect(view.ridingClub.disciplines).toEqual(["Dressage"]);
+    expect(view.ridingClub.membershipFee).toBe(120);
   });
 
   it("allows horse owner with accepted riding club relationship to view non-public club", async () => {
@@ -150,12 +149,13 @@ describe("ridingClubService", () => {
       receiverAccountId: ridingClub._id,
     });
 
-    const card = await ridingClubService.getPublicRidingClubCard(String(ridingClub._id), {
-      isAuthenticated: true,
-      id: String(horseOwner._id),
-    });
+    const view = await ridingClubService.getRidingClubView(
+      String(ridingClub._id),
+      String(horseOwner._id),
+    );
 
-    expect(card.id).toBe(String(ridingClub._id));
+    expect(view.viewerRole).toBe("related");
+    expect(view.ridingClub.id).toBe(String(ridingClub._id));
   });
 
   it("allows active collaborator to view non-public riding club", async () => {
@@ -182,11 +182,12 @@ describe("ridingClubService", () => {
       acceptedAt: new Date(),
     });
 
-    const card = await ridingClubService.getPublicRidingClubCard(String(ridingClub._id), {
-      isAuthenticated: true,
-      id: String(collaborator._id),
-    });
+    const view = await ridingClubService.getRidingClubView(
+      String(ridingClub._id),
+      String(collaborator._id),
+    );
 
-    expect(card.clubName).toBe("Staff Club");
+    expect(view.viewerRole).toBe("related");
+    expect(view.ridingClub.clubName).toBe("Staff Club");
   });
 });

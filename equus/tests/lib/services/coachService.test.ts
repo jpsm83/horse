@@ -94,7 +94,7 @@ describe("coachService", () => {
     expect(updated.acceptsNewClients).toBe(false);
   });
 
-  it("returns public coach card with business contact", async () => {
+  it("returns a guest view with business contact for a public coach", async () => {
     const owner = await createUser("coach-public@example.com");
     const created = await coachService.createCoach(String(owner._id), {
       displayName: "Public Coach",
@@ -106,15 +106,14 @@ describe("coachService", () => {
       competitionLevels: ["national"],
     });
 
-    const card = await coachService.getPublicCoachCard(String(created._id), {
-      isAuthenticated: false,
-    });
+    const view = await coachService.getCoachView(String(created._id), null);
 
-    expect(card.displayName).toBe("Public Coach");
-    expect(card.contact.email).toBe("public@example.com");
-    expect(card.contact.phone).toBe("+351944444444");
-    expect(card.disciplines).toEqual(["Dressage"]);
-    expect(card.competitionLevels).toEqual(["national"]);
+    expect(view.viewerRole).toBe("guest");
+    expect(view.coach.displayName).toBe("Public Coach");
+    expect(view.coach.email).toBe("public@example.com");
+    expect(view.coach.phoneNumber).toBe("+351944444444");
+    expect(view.coach.disciplines).toEqual(["Dressage"]);
+    expect(view.coach.competitionLevels).toEqual(["national"]);
   });
 
   it("allows horse owner with accepted coach relationship to view non-public coach", async () => {
@@ -146,12 +145,14 @@ describe("coachService", () => {
       receiverAccountId: coach._id,
     });
 
-    const card = await coachService.getPublicCoachCard(String(coach._id), {
-      isAuthenticated: true,
-      id: String(horseOwner._id),
-    });
+    const view = await coachService.getCoachView(
+      String(coach._id),
+      String(horseOwner._id),
+    );
 
-    expect(card.id).toBe(String(coach._id));
+    expect(view.viewerRole).toBe("related");
+    expect(view.coach.id).toBe(String(coach._id));
+    expect(view.coach.isOwner).toBeFalsy();
   });
 
   it("omits optional fields when not provided on create", async () => {

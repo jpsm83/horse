@@ -11,14 +11,6 @@ import Relationship from "@/models/Relationship.ts";
 import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { ownedByUserQuery, userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
-import {
-  canViewStableDiscovery,
-  type StableDiscoveryRequesterContext,
-} from "@/lib/stables/stableDiscoveryAccess.ts";
-import {
-  buildPublicStableCard,
-  type PublicStableCard,
-} from "@/lib/stables/buildPublicStableCard.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
@@ -30,8 +22,6 @@ import type {
 export type CreateStableInput = z.infer<typeof createStableSchema>;
 export type UpdateStableDiscoveryInput = z.infer<typeof updateStableDiscoverySchema>;
 export type UpdateStableProfileInput = z.infer<typeof updateStableProfileSchema>;
-
-export type { PublicStableCard };
 
 // --- Role-aware view types ---
 
@@ -256,40 +246,6 @@ export async function getStableForOwner(actorUserId: string, stableId: string) {
   return stable as Record<string, unknown>;
 }
 
-export async function getPublicStableCard(
-  stableId: string,
-  requester?: { id?: string; isAuthenticated: boolean },
-): Promise<PublicStableCard> {
-  ensureObjectId(stableId, "stable id");
-
-  const stable = await Stable.findById(stableId).lean();
-  if (!stable) {
-    throw new ApiError(404, "Stable not found", "NOT_FOUND");
-  }
-
-  await assertPublicReadAllowed(stable as Record<string, unknown>, "Stable");
-
-  const requesterUserId = requester?.id;
-  const hasRelationship =
-    requesterUserId
-      ? await hasAcceptedHorseStableRelationship(requesterUserId, stableId)
-      : false;
-  const hasCollaboration =
-    requesterUserId ? await hasActiveStableCollaboration(requesterUserId, stableId) : false;
-
-  const visibilityContext: StableDiscoveryRequesterContext = {
-    requesterUserId,
-    hasAcceptedHorseStableRelationship: hasRelationship,
-    hasActiveCollaboration: hasCollaboration,
-  };
-
-  if (!canViewStableDiscovery(stable as Record<string, unknown>, visibilityContext)) {
-    throw new ApiError(404, "Stable not found", "NOT_FOUND");
-  }
-
-  return buildPublicStableCard(stable as Record<string, unknown>);
-}
-
 // --- Role derivation ---
 
 export const STABLE_ROLE_ORDER: StableViewerRole[] = [
@@ -309,6 +265,7 @@ export const STABLE_TAB_MIN_ROLE: Record<StableTab, StableViewerRole> = {
 function deriveStableViewerRole(
   stable: Record<string, unknown>,
   userId?: string | null,
+  hasRelatedAccess = false,
 ): StableViewerRole {
   if (!userId) return "guest";
   if (String(stable.mainOwnerUserId) === userId) return "main_owner";
@@ -316,6 +273,7 @@ function deriveStableViewerRole(
     (c: { userId?: unknown }) => c.userId != null && String(c.userId) === userId,
   );
   if (isCoOwner) return "co_owner";
+  if (hasRelatedAccess) return "related";
   return "public";
 }
 
@@ -420,19 +378,22 @@ export async function getStableView(
     requesterUserId.length > 0 &&
     userOwnsEntity(requesterUserId, stableDoc);
 
-  if (!isOwner && stableDoc.isPublic === false) {
-    const hasRelationship = requesterUserId
-      ? await hasAcceptedHorseStableRelationship(requesterUserId, stableId)
-      : false;
-    const hasCollaboration = requesterUserId
-      ? await hasActiveStableCollaboration(requesterUserId, stableId)
-      : false;
-    if (!hasRelationship && !hasCollaboration) {
-      throw new ApiError(404, "Stable not found", "NOT_FOUND");
-    }
+  const hasRelationship = requesterUserId
+    ? await hasAcceptedHorseStableRelationship(requesterUserId, stableId)
+    : false;
+  const hasCollaboration = requesterUserId
+    ? await hasActiveStableCollaboration(requesterUserId, stableId)
+    : false;
+
+  if (!isOwner && stableDoc.isPublic === false && !hasRelationship && !hasCollaboration) {
+    throw new ApiError(404, "Stable not found", "NOT_FOUND");
   }
 
-  const viewerRole = deriveStableViewerRole(stableDoc, userId);
+  const viewerRole = deriveStableViewerRole(
+    stableDoc,
+    userId,
+    hasRelationship || hasCollaboration,
+  );
   const allowedTabs = deriveStableAllowedTabs(viewerRole);
 
   const view = toStableView(stableDoc);

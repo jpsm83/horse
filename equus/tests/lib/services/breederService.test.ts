@@ -88,7 +88,7 @@ describe("breederService", () => {
     expect(updated.isPublic).toBe(false);
   });
 
-  it("returns public breeder card with business contact", async () => {
+  it("returns a guest view with business contact for a public breeder", async () => {
     const owner = await createUser("breeder-public@example.com");
     const created = await breederService.createBreeder(String(owner._id), {
       operationName: "Public Stud",
@@ -98,12 +98,11 @@ describe("breederService", () => {
       address: minimalAddress,
     });
 
-    const card = await breederService.getPublicBreederCard(String(created._id), {
-      isAuthenticated: false,
-    });
+    const view = await breederService.getBreederView(String(created._id), null);
 
-    expect(card.operationName).toBe("Public Stud");
-    expect(card.contact.email).toBe("public@example.com");
+    expect(view.viewerRole).toBe("guest");
+    expect(view.breeder.operationName).toBe("Public Stud");
+    expect(view.breeder.email).toBe("public@example.com");
   });
 
   it("allows horse owner with accepted breeder relationship to view non-public breeder", async () => {
@@ -135,12 +134,13 @@ describe("breederService", () => {
       receiverAccountId: breeder._id,
     });
 
-    const card = await breederService.getPublicBreederCard(String(breeder._id), {
-      isAuthenticated: true,
-      id: String(horseOwner._id),
-    });
+    const view = await breederService.getBreederView(
+      String(breeder._id),
+      String(horseOwner._id),
+    );
 
-    expect(card.id).toBe(String(breeder._id));
+    expect(view.viewerRole).toBe("related");
+    expect(view.breeder.id).toBe(String(breeder._id));
   });
 
   it("allows active collaborator to view non-public breeder", async () => {
@@ -167,12 +167,13 @@ describe("breederService", () => {
       acceptedAt: new Date(),
     });
 
-    const card = await breederService.getPublicBreederCard(String(breeder._id), {
-      isAuthenticated: true,
-      id: String(collaborator._id),
-    });
+    const view = await breederService.getBreederView(
+      String(breeder._id),
+      String(collaborator._id),
+    );
 
-    expect(card.id).toBe(String(breeder._id));
+    expect(view.viewerRole).toBe("related");
+    expect(view.breeder.id).toBe(String(breeder._id));
   });
 
   it("adds collaborator id to Breeder.collaborators on workplace accept", async () => {

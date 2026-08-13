@@ -13,14 +13,6 @@ import Relationship from "@/models/Relationship.ts";
 import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { ownedByUserQuery, userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
-import {
-  canViewTransportDiscovery,
-  type TransportDiscoveryRequesterContext,
-} from "@/lib/transports/transportDiscoveryAccess.ts";
-import {
-  buildPublicTransportCard,
-  type PublicTransportCard,
-} from "@/lib/transports/buildPublicTransportCard.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
@@ -32,8 +24,6 @@ import type {
 export type CreateTransportInput = z.infer<typeof createTransportSchema>;
 export type UpdateTransportDiscoveryInput = z.infer<typeof updateTransportDiscoverySchema>;
 export type UpdateTransportProfileInput = z.infer<typeof updateTransportProfileSchema>;
-
-export type { PublicTransportCard };
 
 // --- Role-aware view types ---
 
@@ -261,42 +251,6 @@ export async function getTransportForOwner(actorUserId: string, transportId: str
   return transport as Record<string, unknown>;
 }
 
-export async function getPublicTransportCard(
-  transportId: string,
-  requester?: { id?: string; isAuthenticated: boolean },
-): Promise<PublicTransportCard> {
-  ensureObjectId(transportId, "transport id");
-
-  const transport = await Transport.findById(transportId).lean();
-  if (!transport) {
-    throw new ApiError(404, "Transport not found", "NOT_FOUND");
-  }
-
-  await assertPublicReadAllowed(transport as Record<string, unknown>, "Transport");
-
-  const requesterUserId = requester?.id;
-  const hasRelationship =
-    requesterUserId
-      ? await hasAcceptedHorseTransportRelationship(requesterUserId, transportId)
-      : false;
-  const hasCollaboration =
-    requesterUserId
-      ? await hasActiveTransportCollaboration(requesterUserId, transportId)
-      : false;
-
-  const visibilityContext: TransportDiscoveryRequesterContext = {
-    requesterUserId,
-    hasAcceptedHorseTransportRelationship: hasRelationship,
-    hasActiveCollaboration: hasCollaboration,
-  };
-
-  if (!canViewTransportDiscovery(transport as Record<string, unknown>, visibilityContext)) {
-    throw new ApiError(404, "Transport not found", "NOT_FOUND");
-  }
-
-  return buildPublicTransportCard(transport as Record<string, unknown>);
-}
-
 // --- Role derivation ---
 
 export const TRANSPORT_ROLE_ORDER: TransportViewerRole[] = [
@@ -316,6 +270,7 @@ export const TRANSPORT_TAB_MIN_ROLE: Record<TransportTab, TransportViewerRole> =
 function deriveTransportViewerRole(
   transport: Record<string, unknown>,
   userId?: string | null,
+  hasRelatedAccess = false,
 ): TransportViewerRole {
   if (!userId) return "guest";
   if (String(transport.mainOwnerUserId) === userId) return "main_owner";
@@ -323,6 +278,7 @@ function deriveTransportViewerRole(
     (c: { userId?: unknown }) => c.userId != null && String(c.userId) === userId,
   );
   if (isCoOwner) return "co_owner";
+  if (hasRelatedAccess) return "related";
   return "public";
 }
 
@@ -427,19 +383,22 @@ export async function getTransportView(
     requesterUserId.length > 0 &&
     userOwnsEntity(requesterUserId, transportDoc);
 
-  if (!isOwner && transportDoc.isPublic === false) {
-    const hasRelationship = requesterUserId
-      ? await hasAcceptedHorseTransportRelationship(requesterUserId, transportId)
-      : false;
-    const hasCollaboration = requesterUserId
-      ? await hasActiveTransportCollaboration(requesterUserId, transportId)
-      : false;
-    if (!hasRelationship && !hasCollaboration) {
-      throw new ApiError(404, "Transport not found", "NOT_FOUND");
-    }
+  const hasRelationship = requesterUserId
+    ? await hasAcceptedHorseTransportRelationship(requesterUserId, transportId)
+    : false;
+  const hasCollaboration = requesterUserId
+    ? await hasActiveTransportCollaboration(requesterUserId, transportId)
+    : false;
+
+  if (!isOwner && transportDoc.isPublic === false && !hasRelationship && !hasCollaboration) {
+    throw new ApiError(404, "Transport not found", "NOT_FOUND");
   }
 
-  const viewerRole = deriveTransportViewerRole(transportDoc, userId);
+  const viewerRole = deriveTransportViewerRole(
+    transportDoc,
+    userId,
+    hasRelationship || hasCollaboration,
+  );
   const allowedTabs = deriveTransportAllowedTabs(viewerRole);
 
   const view = toTransportView(transportDoc);

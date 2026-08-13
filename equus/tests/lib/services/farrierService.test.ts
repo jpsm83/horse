@@ -101,7 +101,7 @@ describe("farrierService", () => {
     expect(updated.acceptsNewClients).toBe(false);
   });
 
-  it("returns public farrier card with business contact", async () => {
+  it("returns a guest view with business contact for a public farrier", async () => {
     const owner = await createUser("farrier-public@example.com");
     const created = await farrierService.createFarrier(String(owner._id), {
       displayName: "Public Farrier",
@@ -110,14 +110,13 @@ describe("farrierService", () => {
       serviceAreaKm: 30,
     });
 
-    const card = await farrierService.getPublicFarrierCard(String(created._id), {
-      isAuthenticated: false,
-    });
+    const view = await farrierService.getFarrierView(String(created._id), null);
 
-    expect(card.displayName).toBe("Public Farrier");
-    expect(card.contact.email).toBe("public@example.com");
-    expect(card.contact.phone).toBe("+351944444444");
-    expect(card.serviceAreaKm).toBe(30);
+    expect(view.viewerRole).toBe("guest");
+    expect(view.farrier.displayName).toBe("Public Farrier");
+    expect(view.farrier.email).toBe("public@example.com");
+    expect(view.farrier.phoneNumber).toBe("+351944444444");
+    expect(view.farrier.serviceAreaKm).toBe(30);
   });
 
   it("allows horse owner with accepted farrier relationship to view non-public farrier", async () => {
@@ -146,11 +145,12 @@ describe("farrierService", () => {
       receiverAccountId: farrier._id,
     });
 
-    const card = await farrierService.getPublicFarrierCard(String(farrier._id), {
-      isAuthenticated: true,
-      id: String(horseOwner._id),
-    });
+    const view = await farrierService.getFarrierView(
+      String(farrier._id),
+      String(horseOwner._id),
+    );
 
-    expect(card.id).toBe(String(farrier._id));
+    expect(view.farrier.id).toBe(String(farrier._id));
+    expect(view.farrier.isOwner).toBeFalsy();
   });
 });

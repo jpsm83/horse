@@ -103,7 +103,7 @@ describe("riderService", () => {
     expect(updated.acceptsNewClients).toBe(false);
   });
 
-  it("returns public rider card with business contact", async () => {
+  it("returns a guest view with business contact for a public rider", async () => {
     const owner = await createUser("rider-public@example.com");
     const created = await riderService.createRider(String(owner._id), {
       displayName: "Public Rider",
@@ -112,14 +112,13 @@ describe("riderService", () => {
       disciplines: ["Jumping"],
     });
 
-    const card = await riderService.getPublicRiderCard(String(created._id), {
-      isAuthenticated: false,
-    });
+    const view = await riderService.getRiderView(String(created._id), null);
 
-    expect(card.displayName).toBe("Public Rider");
-    expect(card.contact.email).toBe("public@example.com");
-    expect(card.contact.phone).toBe("+351944444444");
-    expect(card.disciplines).toEqual(["Jumping"]);
+    expect(view.viewerRole).toBe("guest");
+    expect(view.rider.displayName).toBe("Public Rider");
+    expect(view.rider.email).toBe("public@example.com");
+    expect(view.rider.phoneNumber).toBe("+351944444444");
+    expect(view.rider.disciplines).toEqual(["Jumping"]);
   });
 
   it("allows horse owner with accepted rider relationship to view non-public rider", async () => {
@@ -148,11 +147,13 @@ describe("riderService", () => {
       receiverAccountId: rider._id,
     });
 
-    const card = await riderService.getPublicRiderCard(String(rider._id), {
-      isAuthenticated: true,
-      id: String(horseOwner._id),
-    });
+    const view = await riderService.getRiderView(
+      String(rider._id),
+      String(horseOwner._id),
+    );
 
-    expect(card.id).toBe(String(rider._id));
+    expect(view.viewerRole).toBe("related");
+    expect(view.rider.id).toBe(String(rider._id));
+    expect(view.rider.isOwner).toBeFalsy();
   });
 });

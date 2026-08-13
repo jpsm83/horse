@@ -94,7 +94,7 @@ describe("veterinaryService", () => {
     expect(updated.acceptsNewPatients).toBe(false);
   });
 
-  it("returns public veterinary card with business contact", async () => {
+  it("returns a guest view with business contact for a public veterinary", async () => {
     const owner = await createUser("vet-public@example.com");
     const created = await veterinaryService.createVeterinary(String(owner._id), {
       practiceName: "Public Vet Clinic",
@@ -108,17 +108,16 @@ describe("veterinaryService", () => {
       serviceAreaKm: 50,
     });
 
-    const card = await veterinaryService.getPublicVeterinaryCard(String(created._id), {
-      isAuthenticated: false,
-    });
+    const view = await veterinaryService.getVeterinaryView(String(created._id), null);
 
-    expect(card.practiceName).toBe("Public Vet Clinic");
-    expect(card.contact.email).toBe("public@example.com");
-    expect(card.contact.phone).toBe("+351944444444");
-    expect(card.contact.emergencyPhone).toBe("+351955555555");
-    expect(card.equineSpecializations).toEqual([{ name: "Lameness" }]);
-    expect(card.emergencyAvailability).toBe(true);
-    expect(card.serviceAreaKm).toBe(50);
+    expect(view.viewerRole).toBe("guest");
+    expect(view.veterinary.practiceName).toBe("Public Vet Clinic");
+    expect(view.veterinary.email).toBe("public@example.com");
+    expect(view.veterinary.phoneNumber).toBe("+351944444444");
+    expect(view.veterinary.emergencyPhoneNumber).toBe("+351955555555");
+    expect(view.veterinary.equineSpecializations).toEqual([{ name: "Lameness" }]);
+    expect(view.veterinary.emergencyAvailability).toBe(true);
+    expect(view.veterinary.serviceAreaKm).toBe(50);
   });
 
   it("allows horse owner with accepted veterinary relationship to view non-public veterinary", async () => {
@@ -150,12 +149,14 @@ describe("veterinaryService", () => {
       receiverAccountId: veterinary._id,
     });
 
-    const card = await veterinaryService.getPublicVeterinaryCard(String(veterinary._id), {
-      isAuthenticated: true,
-      id: String(horseOwner._id),
-    });
+    const view = await veterinaryService.getVeterinaryView(
+      String(veterinary._id),
+      String(horseOwner._id),
+    );
 
-    expect(card.id).toBe(String(veterinary._id));
+    expect(view.viewerRole).toBe("related");
+    expect(view.veterinary.id).toBe(String(veterinary._id));
+    expect(view.veterinary.isOwner).toBeFalsy();
   });
 
   it("omits optional fields when not provided on create", async () => {

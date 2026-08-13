@@ -12,14 +12,6 @@ import User from "@/models/User.ts";
 import Relationship from "@/models/Relationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { userOwnsRiderProfile } from "@/lib/riders/userLinkedProfileAccess.ts";
-import {
-  canViewRiderDiscovery,
-  type RiderDiscoveryRequesterContext,
-} from "@/lib/riders/riderDiscoveryAccess.ts";
-import {
-  buildPublicRiderCard,
-  type PublicRiderCard,
-} from "@/lib/riders/buildPublicRiderCard.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import type { z } from "zod";
 import type {
@@ -31,8 +23,6 @@ import type {
 export type CreateRiderInput = z.infer<typeof createRiderSchema>;
 export type UpdateRiderDiscoveryInput = z.infer<typeof updateRiderDiscoverySchema>;
 export type UpdateRiderProfileInput = z.infer<typeof updateRiderProfileSchema>;
-
-export type { PublicRiderCard };
 
 // --- Role-aware view types ---
 
@@ -185,35 +175,6 @@ export async function getRiderForOwner(actorUserId: string, riderId: string) {
     throw new ApiError(404, "Rider not found", "NOT_FOUND");
   }
   return rider as Record<string, unknown>;
-}
-
-export async function getPublicRiderCard(
-  riderId: string,
-  requester?: { id?: string; isAuthenticated: boolean },
-): Promise<PublicRiderCard> {
-  ensureObjectId(riderId, "rider id");
-
-  const rider = await Rider.findById(riderId).lean();
-  if (!rider) {
-    throw new ApiError(404, "Rider not found", "NOT_FOUND");
-  }
-
-  await assertPublicReadAllowed(rider as Record<string, unknown>, "Rider");
-
-  const requesterUserId = requester?.id;
-  const hasRelationship =
-    requesterUserId ? await hasAcceptedHorseRiderRelationship(requesterUserId, riderId) : false;
-
-  const visibilityContext: RiderDiscoveryRequesterContext = {
-    requesterUserId,
-    hasAcceptedHorseRiderRelationship: hasRelationship,
-  };
-
-  if (!canViewRiderDiscovery(rider as Record<string, unknown>, visibilityContext)) {
-    throw new ApiError(404, "Rider not found", "NOT_FOUND");
-  }
-
-  return buildPublicRiderCard(rider as Record<string, unknown>);
 }
 
 // --- Role derivation ---
