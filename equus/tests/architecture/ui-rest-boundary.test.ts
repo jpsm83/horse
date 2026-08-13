@@ -47,19 +47,55 @@ function toPosix(file: string): string {
   return path.relative(ROOT, file).replaceAll("\\", "/");
 }
 
+function isForbiddenTarget(spec: string): boolean {
+  return spec.startsWith("@/lib/services/") || spec.startsWith("@/models/");
+}
+
+function isTypeOnlyImportClause(clause: string): boolean {
+  const trimmed = clause.trim();
+  if (/^type\s/.test(trimmed)) return true;
+
+  const namedMatch = trimmed.match(/^\{([\s\S]*)\}$/);
+  if (!namedMatch) return false;
+
+  const specifiers = namedMatch[1]
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return (
+    specifiers.length > 0 &&
+    specifiers.every((specifier) => /^type\s+/.test(specifier))
+  );
+}
+
 function runtimeImportTargets(source: string): string[] {
+  const hits: string[] = [];
+
   const importRe =
     /(?:^|\n)import\s+(type\s+)?([\s\S]*?)\s+from\s+["']([^"']+)["']/g;
-  const hits: string[] = [];
   let match: RegExpExecArray | null;
   while ((match = importRe.exec(source))) {
-    const isTypeOnly = Boolean(match[1]) || /^type\s/.test(match[2].trim());
+    const isTypeOnly =
+      Boolean(match[1]) || isTypeOnlyImportClause(match[2]);
     if (isTypeOnly) continue;
     const spec = match[3];
-    if (spec.startsWith("@/lib/services/") || spec.startsWith("@/models/")) {
-      hits.push(spec);
-    }
+    if (isForbiddenTarget(spec)) hits.push(spec);
   }
+
+  const dynamicRe = /(?:await\s+)?import\s*\(\s*["']([^"']+)["']\s*\)/g;
+  while ((match = dynamicRe.exec(source))) {
+    const spec = match[1];
+    if (!isForbiddenTarget(spec)) continue;
+
+    const before = source.slice(0, match.index);
+    if (/:\s*$/.test(before) || /typeof\s+$/.test(before)) continue;
+
+    const after = source.slice(match.index + match[0].length);
+    if (!match[0].includes("await") && /^\.\s*[A-Z]/.test(after)) continue;
+
+    hits.push(spec);
+  }
+
   return hits;
 }
 
