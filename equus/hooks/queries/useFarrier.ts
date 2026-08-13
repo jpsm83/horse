@@ -20,8 +20,7 @@ import type {
 
 async function fetchFarrierView(farrierId: string): Promise<FarrierViewResponse> {
   const response = await fetchWithAuth(`/api/v1/farriers/${encodeURIComponent(farrierId)}`);
-  const data = await parseApiResponse<{ farrier: FarrierViewResponse }>(response);
-  return data.farrier;
+  return parseApiResponse<FarrierViewResponse>(response);
 }
 
 export function useFarrierView(farrierId: string | undefined) {

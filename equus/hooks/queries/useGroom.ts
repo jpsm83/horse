@@ -20,8 +20,7 @@ import type {
 
 async function fetchGroomView(groomId: string): Promise<GroomViewResponse> {
   const response = await fetchWithAuth(`/api/v1/grooms/${encodeURIComponent(groomId)}`);
-  const data = await parseApiResponse<{ groom: GroomViewResponse }>(response);
-  return data.groom;
+  return parseApiResponse<GroomViewResponse>(response);
 }
 
 export function useGroomView(groomId: string | undefined) {

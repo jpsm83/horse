@@ -20,8 +20,7 @@ import type {
 
 async function fetchRiderView(riderId: string): Promise<RiderViewResponse> {
   const response = await fetchWithAuth(`/api/v1/riders/${encodeURIComponent(riderId)}`);
-  const data = await parseApiResponse<{ rider: RiderViewResponse }>(response);
-  return data.rider;
+  return parseApiResponse<RiderViewResponse>(response);
 }
 
 export function useRiderView(riderId: string | undefined) {

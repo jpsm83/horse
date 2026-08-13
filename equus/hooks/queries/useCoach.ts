@@ -20,8 +20,7 @@ import type {
 
 async function fetchCoachView(coachId: string): Promise<CoachViewResponse> {
   const response = await fetchWithAuth(`/api/v1/coaches/${encodeURIComponent(coachId)}`);
-  const data = await parseApiResponse<{ coach: CoachViewResponse }>(response);
-  return data.coach;
+  return parseApiResponse<CoachViewResponse>(response);
 }
 
 export function useCoachView(coachId: string | undefined) {

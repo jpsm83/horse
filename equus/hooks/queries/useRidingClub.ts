@@ -20,8 +20,7 @@ import type {
 
 async function fetchRidingClubView(clubId: string): Promise<RidingClubViewResponse> {
   const response = await fetchWithAuth(`/api/v1/riding-clubs/${encodeURIComponent(clubId)}`);
-  const data = await parseApiResponse<{ ridingClub: RidingClubViewResponse }>(response);
-  return data.ridingClub;
+  return parseApiResponse<RidingClubViewResponse>(response);
 }
 
 export function useRidingClubView(clubId: string | undefined) {

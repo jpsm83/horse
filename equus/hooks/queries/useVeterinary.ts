@@ -23,8 +23,7 @@ async function fetchVeterinaryView(veterinaryId: string): Promise<VeterinaryView
   const response = await fetchWithAuth(
     `/api/v1/veterinaries/${encodeURIComponent(veterinaryId)}`,
   );
-  const data = await parseApiResponse<{ veterinary: VeterinaryViewResponse }>(response);
-  return data.veterinary;
+  return parseApiResponse<VeterinaryViewResponse>(response);
 }
 
 export function useVeterinaryView(veterinaryId: string | undefined) {

@@ -20,8 +20,7 @@ import type {
 
 async function fetchBreederView(breederId: string): Promise<BreederViewResponse> {
   const response = await fetchWithAuth(`/api/v1/breeders/${encodeURIComponent(breederId)}`);
-  const data = await parseApiResponse<{ breeder: BreederViewResponse }>(response);
-  return data.breeder;
+  return parseApiResponse<BreederViewResponse>(response);
 }
 
 export function useBreederView(breederId: string | undefined) {

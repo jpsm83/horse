@@ -20,8 +20,7 @@ import type {
 
 async function fetchTrainerView(trainerId: string): Promise<TrainerViewResponse> {
   const response = await fetchWithAuth(`/api/v1/trainers/${encodeURIComponent(trainerId)}`);
-  const data = await parseApiResponse<{ trainer: TrainerViewResponse }>(response);
-  return data.trainer;
+  return parseApiResponse<TrainerViewResponse>(response);
 }
 
 export function useTrainerView(trainerId: string | undefined) {

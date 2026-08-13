@@ -20,8 +20,7 @@ import type {
 
 async function fetchStableView(stableId: string): Promise<StableViewResponse> {
   const response = await fetchWithAuth(`/api/v1/stables/${encodeURIComponent(stableId)}`);
-  const data = await parseApiResponse<{ stable: StableViewResponse }>(response);
-  return data.stable;
+  return parseApiResponse<StableViewResponse>(response);
 }
 
 export function useStableView(stableId: string | undefined) {

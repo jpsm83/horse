@@ -20,8 +20,7 @@ import type {
 
 async function fetchTransportView(transportId: string): Promise<TransportViewResponse> {
   const response = await fetchWithAuth(`/api/v1/transports/${encodeURIComponent(transportId)}`);
-  const data = await parseApiResponse<{ transport: TransportViewResponse }>(response);
-  return data.transport;
+  return parseApiResponse<TransportViewResponse>(response);
 }
 
 export function useTransportView(transportId: string | undefined) {
