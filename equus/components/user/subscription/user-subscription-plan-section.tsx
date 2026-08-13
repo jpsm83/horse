@@ -1,7 +1,7 @@
 /**
  * UserSubscriptionPlanSection — current plan info and upgrade CTA.
  *
- * Reads subscription data from the pre-seeded user view.
+ * Reads subscription data from `useUserView` (`GET /api/v1/users/:id/view`).
  * Hardcoded plan details from SUBSCRIPTION_PLANS; structured for future live data.
  */
 

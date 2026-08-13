@@ -16,12 +16,11 @@ async function fetchUserProfile(): Promise<PublicUser> {
 }
 
 async function fetchUserView(userId: string): Promise<UserViewDto> {
-  const response = await fetchWithAuth("/api/v1/users/me");
-  const data = await parseApiResponse<{ user: PublicUser }>(response);
-  return { user: data.user, isOwner: true };
+  const response = await fetchWithAuth(`/api/v1/users/${encodeURIComponent(userId)}/view`);
+  return parseApiResponse<UserViewDto>(response);
 }
 
-/** Owner user view — GET /api/v1/users/me. */
+/** Role-aware user view — GET /api/v1/users/:id/view. */
 export function useUserView(userId: string) {
   return useQuery({
     queryKey: queryKeys.users.view(userId),

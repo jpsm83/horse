@@ -105,7 +105,7 @@ export type PublicUser = {
 
 /**
  * Role-aware view DTO for the user's own account pages.
- * Pre-seeded into TanStack cache by layout.tsx RSC via getUserView.
+ * Loaded client-side via `useUserView` → `GET /api/v1/users/:id/view`.
  */
 export type UserViewDto = {
   user: PublicUser;
@@ -235,9 +235,9 @@ export function toPublicUser(
 }
 
 /**
- * Load the full owner-facing user view for layout.tsx RSC prefetch.
- * Returns the user with hub sections and notification preferences included.
- * Non-fatal: layout.tsx wraps in try/catch.
+ * Load the role-aware user view — GET /api/v1/users/:id/view.
+ * Returns the user with hub sections and notification preferences included
+ * when the requester is the account owner.
  */
 export async function getUserView(
   userId: string,
@@ -259,8 +259,8 @@ export async function getUserView(
     includeOwnerFields: isOwner,
   });
 
-  // Owner hub view — seed `sections` so the /user/[userId] hub tab renders from
-  // the cached view with no extra request (mirrors horse.sections).
+  // Owner hub view — populate `sections` so the /user/[userId] hub tab renders
+  // from a single REST call (mirrors horse.sections).
   if (isOwner) {
     const doc = user as Record<string, unknown>;
     const sections: UserHubSectionsProjection = buildUserHubSections(doc, "self");
