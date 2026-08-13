@@ -42,6 +42,33 @@ describe("GET /api/v1/users/:id/view", () => {
     expect(body.data.user.sections).toBeDefined();
   });
 
+  it("returns 200 when the owner uses a different hex case in the url id", async () => {
+    const owner = await authService.register({
+      email: "user-view-owner-uppercase@example.com",
+      password: "TestPass1!",
+      firstName: "Casey",
+    });
+    const upperId = owner.user.id.toUpperCase();
+
+    const request = new Request(
+      `http://localhost:3000/api/v1/users/${upperId}/view`,
+      {
+        headers: {
+          Cookie: `${AUTH_CONFIG.ACCESS_COOKIE_NAME}=${owner.accessToken}`,
+        },
+      },
+    );
+
+    const response = await GET(request, {
+      params: Promise.resolve({ id: upperId }),
+    });
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.data.isOwner).toBe(true);
+    expect(body.data.user.id).toBe(owner.user.id);
+  });
+
   it("returns 401 for unauthenticated requests", async () => {
     const owner = await authService.register({
       email: "user-view-unauth-target@example.com",

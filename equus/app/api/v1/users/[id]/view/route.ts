@@ -5,6 +5,7 @@
  * only the account owner may access this route).
  */
 
+import mongoose from "mongoose";
 import connectDb from "@/lib/db.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { withRoute, ok } from "@/lib/api/response.ts";
@@ -25,7 +26,7 @@ export async function GET(request: Request, context: RouteContext) {
     }
 
     const session = await requireAuthFromRequest(request);
-    if (session.id !== parsedId.data) {
+    if (!new mongoose.Types.ObjectId(session.id).equals(parsedId.data)) {
       throw new ApiError(403, "You can only view your own account hub", "FORBIDDEN");
     }
 
