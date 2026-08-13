@@ -10,11 +10,7 @@ const ROOT = path.resolve(__dirname, "../..");
 
 const SCAN_DIRS = ["app", "components", "hooks"];
 
-/** Shrink this list to [] as layouts and metadata pages are converted. */
-export const FORBIDDEN_UI_RUNTIME_IMPORT_ALLOWLIST = [
-  "app/[locale]/horses/[horseId]/page.tsx",
-  "app/[locale]/users/[userId]/page.tsx",
-] as const;
+export const FORBIDDEN_UI_RUNTIME_IMPORT_ALLOWLIST = [] as const;
 
 function walk(dir: string, acc: string[] = []): string[] {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -104,12 +100,7 @@ describe("UI REST boundary", () => {
     expect(violations, violations.join("\n")).toEqual([]);
   });
 
-  it("allowlist entries still exist and still violate (remove when fixed)", () => {
-    for (const rel of FORBIDDEN_UI_RUNTIME_IMPORT_ALLOWLIST) {
-      const full = path.join(ROOT, rel);
-      expect(fs.existsSync(full), rel).toBe(true);
-      const hits = runtimeImportTargets(fs.readFileSync(full, "utf8"));
-      expect(hits, `${rel} is on the allowlist but is already clean — remove it`).not.toEqual([]);
-    }
+  it("allowlist is empty when all UI bypasses are gone", () => {
+    expect(FORBIDDEN_UI_RUNTIME_IMPORT_ALLOWLIST).toEqual([]);
   });
 });

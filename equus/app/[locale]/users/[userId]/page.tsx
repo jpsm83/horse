@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { UserHubPublicPage } from "./client";
 import { userIdParamSchema } from "@/lib/validations/user.ts";
 import { generateUserMetadata } from "@/lib/seo/entity-metadata.ts";
-import User from "@/models/User.ts";
+import { fetchApiJson } from "@/lib/seo/fetchApiJson.ts";
+import type { PublicUserProfileCard } from "@/lib/privacy/userPublicProfile.ts";
 
 type UserProfilePageProps = {
   params: Promise<{ userId: string; locale: string }>;
@@ -12,19 +13,20 @@ type UserProfilePageProps = {
 
 export async function generateMetadata({ params }: UserProfilePageProps): Promise<Metadata> {
   const { userId, locale } = await params;
-  try {
-    const user = await User.findById(userId).select("personalDetails").lean();
-    if (!user) return { title: "User Not Found | Equus", robots: "noindex, nofollow" };
-    const pd = user.personalDetails;
-    const displayName = [pd?.firstName, pd?.lastName].filter(Boolean).join(" ") || "User";
-    return generateUserMetadata({
-      displayName,
-      bio: pd?.bio,
-      image: pd?.imageUrl,
-    }, locale, userId);
-  } catch {
+  const payload = await fetchApiJson<{ user: PublicUserProfileCard }>(
+    `/api/v1/users/${encodeURIComponent(userId)}`,
+  );
+  const user = payload?.user;
+  if (!user) {
     return { title: "User Not Found | Equus", robots: "noindex, nofollow" };
   }
+  const displayName =
+    [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || "User";
+  return generateUserMetadata(
+    { displayName, bio: user.bio, image: user.imageUrl },
+    locale,
+    userId,
+  );
 }
 
 export default async function Page({ params }: UserProfilePageProps) {
