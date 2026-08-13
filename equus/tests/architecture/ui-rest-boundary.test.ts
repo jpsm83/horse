@@ -12,7 +12,6 @@ const SCAN_DIRS = ["app", "components", "hooks"];
 
 /** Shrink this list to [] as layouts and metadata pages are converted. */
 export const FORBIDDEN_UI_RUNTIME_IMPORT_ALLOWLIST = [
-  "app/[locale]/horses/[horseId]/layout.tsx",
   "app/[locale]/user/[userId]/layout.tsx",
   "app/[locale]/stables/[stableId]/layout.tsx",
   "app/[locale]/breeders/[breederId]/layout.tsx",
