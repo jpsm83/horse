@@ -36,7 +36,7 @@ Unlike entity-owned host profiles (stable, breeder), coaches do **not** use `Wor
 
 ## Nested entity payload fields
 
-`GET /api/v1/coaches/:id` returns the view envelope `{ viewerRole, allowedTabs, coach }`; clients use `getCoachView` / `useCoachView`. The nested `coach` payload contains the `PublicCoachCard` fields:
+`GET /api/v1/coaches/:id` returns the view envelope `{ viewerRole, allowedTabs, coach }`; clients use `getCoachView` / `useCoachView`. The nested `coach` payload contains the following fields:
 
 - `id`, `displayName`, `bio`, `city`, `country` (from address)
 - `disciplines`, `competitionLevels`, `preparationServices`, `experienceYears`, `acceptsNewClients`, `isPublic`
@@ -50,6 +50,6 @@ Returns **404** when discovery rules deny access (same pattern as trainers and g
 
 - Ownership helper: `lib/coaches/userLinkedProfileAccess.ts`
 - Discovery rules: `lib/coaches/coachDiscoveryAccess.ts`
-- Public card mapper: `lib/coaches/buildPublicCoachCard.ts`
+- View DTO: `toCoachView` / `getCoachView` in `lib/services/coachService.ts`
 - Service: `lib/services/coachService.ts`
 - Validation: `lib/validations/coach.ts`

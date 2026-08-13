@@ -38,7 +38,7 @@ Farriers are **user-linked**: one profile per User. A second `POST` returns **40
 
 ## Nested entity payload fields
 
-`GET /api/v1/farriers/:id` returns the view envelope `{ viewerRole, allowedTabs, farrier }`; clients use `getFarrierView` / `useFarrierView`. The nested `farrier` payload contains the `PublicFarrierCard` fields:
+`GET /api/v1/farriers/:id` returns the view envelope `{ viewerRole, allowedTabs, farrier }`; clients use `getFarrierView` / `useFarrierView`. The nested `farrier` payload contains the following fields:
 
 - `id`, `displayName`, `bio`, `city`, `country` (from address when set)
 - `experienceYears`, `serviceAreaKm`, `acceptsNewClients`, `isPublic`
@@ -52,6 +52,6 @@ Returns **404** when discovery rules deny access (same pattern as grooms and tra
 
 - Ownership helper: `lib/farriers/userLinkedProfileAccess.ts`
 - Discovery rules: `lib/farriers/farrierDiscoveryAccess.ts`
-- Public card mapper: `lib/farriers/buildPublicFarrierCard.ts`
+- View DTO: `toFarrierView` / `getFarrierView` in `lib/services/farrierService.ts`
 - Service: `lib/services/farrierService.ts`
 - Validation: `lib/validations/farrier.ts`

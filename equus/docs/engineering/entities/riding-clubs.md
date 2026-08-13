@@ -29,11 +29,11 @@ flowchart TB
   requester[RequesterContext]
   clubRules[RidingClub.isPublic]
   entityContact[RidingClub business fields]
-  publicCard[PublicRidingClubCard]
+  viewEnvelope[Riding club view envelope]
 
   requester --> clubRules
   clubRules -->|"visible"| entityContact
-  entityContact --> publicCard
+  entityContact --> viewEnvelope
 ```
 
 - `RidingClub.isPublic` (default `true`) controls anonymous discovery.
@@ -44,7 +44,7 @@ flowchart TB
 
 ## Nested entity payload fields
 
-`GET /api/v1/riding-clubs/:id` returns the view envelope `{ viewerRole, allowedTabs, ridingClub }`; clients use `getRidingClubView` / `useRidingClubView`. The nested `ridingClub` payload contains the `PublicRidingClubCard` fields:
+`GET /api/v1/riding-clubs/:id` returns the view envelope `{ viewerRole, allowedTabs, ridingClub }`; clients use `getRidingClubView` / `useRidingClubView`. The nested `ridingClub` payload contains the following fields:
 
 - `id`, `clubName`, `description`, `city`, `country` (from address)
 - `disciplines`, `facilities`, `membershipInfo`, `membershipFee`, `acceptsNewMembers`, `isPublic`
@@ -57,7 +57,7 @@ Returns **404** when discovery rules deny access (same pattern as horses and sta
 ## Implementation
 
 - Discovery rules: `lib/ridingClubs/ridingClubDiscoveryAccess.ts`
-- Public card mapper: `lib/ridingClubs/buildPublicRidingClubCard.ts`
+- View DTO: `toRidingClubView` / `getRidingClubView` in `lib/services/ridingClubService.ts`
 - Service: `lib/services/ridingClubService.ts`
 - Validation: `lib/validations/ridingClub.ts`
 

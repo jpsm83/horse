@@ -33,7 +33,7 @@ Unlike entity-owned host profiles (stable, breeder), trainers do **not** use `Wo
 
 ## Nested entity payload fields
 
-`GET /api/v1/trainers/:id` returns the view envelope `{ viewerRole, allowedTabs, trainer }`; clients use `getTrainerView` / `useTrainerView`. The nested `trainer` payload contains the `PublicTrainerCard` fields:
+`GET /api/v1/trainers/:id` returns the view envelope `{ viewerRole, allowedTabs, trainer }`; clients use `getTrainerView` / `useTrainerView`. The nested `trainer` payload contains the following fields:
 
 - `id`, `displayName`, `bio`, `city`, `country` (from address)
 - `specialties`, `acceptsNewClients`, `isPublic`
@@ -47,6 +47,6 @@ Returns **404** when discovery rules deny access (same pattern as horses and bre
 
 - Ownership helper: `lib/trainers/userLinkedProfileAccess.ts`
 - Discovery rules: `lib/trainers/trainerDiscoveryAccess.ts`
-- Public card mapper: `lib/trainers/buildPublicTrainerCard.ts`
+- View DTO: `toTrainerView` / `getTrainerView` in `lib/services/trainerService.ts`
 - Service: `lib/services/trainerService.ts`
 - Validation: `lib/validations/trainer.ts`

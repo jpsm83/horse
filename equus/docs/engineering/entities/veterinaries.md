@@ -36,7 +36,7 @@ Veterinaries are **user-linked**: one profile per User. A second `POST` returns 
 
 ## Nested entity payload fields
 
-`GET /api/v1/veterinaries/:id` returns the view envelope `{ viewerRole, allowedTabs, veterinary }`; clients use `getVeterinaryView` / `useVeterinaryView`. The nested `veterinary` payload contains the `PublicVeterinaryCard` fields:
+`GET /api/v1/veterinaries/:id` returns the view envelope `{ viewerRole, allowedTabs, veterinary }`; clients use `getVeterinaryView` / `useVeterinaryView`. The nested `veterinary` payload contains the following fields:
 
 - `id`, `practiceName`, `description`, `city`, `country` (from address)
 - `equineSpecializations`, `emergencyAvailability`, `serviceAreaKm`, `acceptsNewPatients`, `isPublic`
@@ -50,6 +50,6 @@ Returns **404** when discovery rules deny access (same pattern as coaches and tr
 
 - Ownership helper: `lib/veterinaries/userLinkedProfileAccess.ts`
 - Discovery rules: `lib/veterinaries/veterinaryDiscoveryAccess.ts`
-- Public card mapper: `lib/veterinaries/buildPublicVeterinaryCard.ts`
+- View DTO: `toVeterinaryView` / `getVeterinaryView` in `lib/services/veterinaryService.ts`
 - Service: `lib/services/veterinaryService.ts`
 - Validation: `lib/validations/veterinary.ts`

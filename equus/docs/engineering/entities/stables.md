@@ -29,11 +29,11 @@ flowchart TB
   requester[RequesterContext]
   stableRules[Stable.isPublic]
   entityContact[Stable business fields]
-  publicCard[PublicStableCard]
+  viewEnvelope[Stable view envelope]
 
   requester --> stableRules
   stableRules -->|"visible"| entityContact
-  entityContact --> publicCard
+  entityContact --> viewEnvelope
 ```
 
 - `Stable.isPublic` (default `true`) controls whether the stable appears in anonymous discovery.
@@ -44,7 +44,7 @@ flowchart TB
 
 ## Nested entity payload fields
 
-`GET /api/v1/stables/:id` returns the view envelope `{ viewerRole, allowedTabs, stable }`; clients use `getStableView` / `useStableView`. The nested `stable` payload contains the `PublicStableCard` fields:
+`GET /api/v1/stables/:id` returns the view envelope `{ viewerRole, allowedTabs, stable }`; clients use `getStableView` / `useStableView`. The nested `stable` payload contains the following fields:
 
 - `id`, `tradeName`, `description`, `city`, `country` (from address)
 - `disciplines`, `services`, `acceptsNewHorses`, `isPublic`
@@ -57,7 +57,7 @@ Returns **404** when discovery rules deny access (same pattern as horses).
 ## Implementation
 
 - Discovery rules: `lib/stables/stableDiscoveryAccess.ts`
-- Public card mapper: `lib/stables/buildPublicStableCard.ts`
+- View DTO: `toStableView` / `getStableView` in `lib/services/stableService.ts`
 - Service: `lib/services/stableService.ts`
 - Validation: `lib/validations/stable.ts`
 

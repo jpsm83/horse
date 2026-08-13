@@ -36,7 +36,7 @@ Grooms are **user-linked**: one profile per User. A second `POST` returns **409*
 
 ## Nested entity payload fields
 
-`GET /api/v1/grooms/:id` returns the view envelope `{ viewerRole, allowedTabs, groom }`; clients use `getGroomView` / `useGroomView`. The nested `groom` payload contains the `PublicGroomCard` fields:
+`GET /api/v1/grooms/:id` returns the view envelope `{ viewerRole, allowedTabs, groom }`; clients use `getGroomView` / `useGroomView`. The nested `groom` payload contains the following fields:
 
 - `id`, `displayName`, `bio`, `city`, `country` (from address when set)
 - `specialties`, `experienceYears`, `acceptsNewClients`, `isPublic`
@@ -50,6 +50,6 @@ Returns **404** when discovery rules deny access (same pattern as trainers).
 
 - Ownership helper: `lib/grooms/userLinkedProfileAccess.ts`
 - Discovery rules: `lib/grooms/groomDiscoveryAccess.ts`
-- Public card mapper: `lib/grooms/buildPublicGroomCard.ts`
+- View DTO: `toGroomView` / `getGroomView` in `lib/services/groomService.ts`
 - Service: `lib/services/groomService.ts`
 - Validation: `lib/validations/groom.ts`

@@ -36,7 +36,7 @@ Riders are **user-linked**: one profile per User. A second `POST` returns **409*
 
 ## Nested entity payload fields
 
-`GET /api/v1/riders/:id` returns the view envelope `{ viewerRole, allowedTabs, rider }`; clients use `getRiderView` / `useRiderView`. The nested `rider` payload contains the `PublicRiderCard` fields:
+`GET /api/v1/riders/:id` returns the view envelope `{ viewerRole, allowedTabs, rider }`; clients use `getRiderView` / `useRiderView`. The nested `rider` payload contains the following fields:
 
 - `id`, `displayName`, `bio`, `city`, `country` (from address when set)
 - `disciplines`, `experienceYears`, `competitionHighlights`, `acceptsNewClients`, `isPublic`
@@ -50,6 +50,6 @@ Returns **404** when discovery rules deny access (same pattern as grooms and far
 
 - Ownership helper: `lib/riders/userLinkedProfileAccess.ts`
 - Discovery rules: `lib/riders/riderDiscoveryAccess.ts`
-- Public card mapper: `lib/riders/buildPublicRiderCard.ts`
+- View DTO: `toRiderView` / `getRiderView` in `lib/services/riderService.ts`
 - Service: `lib/services/riderService.ts`
 - Validation: `lib/validations/rider.ts`

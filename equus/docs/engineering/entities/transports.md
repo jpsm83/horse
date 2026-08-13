@@ -29,11 +29,11 @@ flowchart TB
   requester[RequesterContext]
   transportRules[Transport.isPublic]
   entityContact[Transport business fields]
-  publicCard[PublicTransportCard]
+  viewEnvelope[Transport view envelope]
 
   requester --> transportRules
   transportRules -->|"visible"| entityContact
-  entityContact --> publicCard
+  entityContact --> viewEnvelope
 ```
 
 - `Transport.isPublic` (default `true`) controls anonymous discovery.
@@ -44,7 +44,7 @@ flowchart TB
 
 ## Nested entity payload fields
 
-`GET /api/v1/transports/:id` returns the view envelope `{ viewerRole, allowedTabs, transport }`; clients use `getTransportView` / `useTransportView`. The nested `transport` payload contains the `PublicTransportCard` fields:
+`GET /api/v1/transports/:id` returns the view envelope `{ viewerRole, allowedTabs, transport }`; clients use `getTransportView` / `useTransportView`. The nested `transport` payload contains the following fields:
 
 - `id`, `companyName`, `description`, `city`, `country` (from address)
 - `specialties`, `serviceAreas`, `acceptsNewBookings`, `isPublic`
@@ -57,7 +57,7 @@ Returns **404** when discovery rules deny access (same pattern as horses and sta
 ## Implementation
 
 - Discovery rules: `lib/transports/transportDiscoveryAccess.ts`
-- Public card mapper: `lib/transports/buildPublicTransportCard.ts`
+- View DTO: `toTransportView` / `getTransportView` in `lib/services/transportService.ts`
 - Service: `lib/services/transportService.ts`
 - Validation: `lib/validations/transport.ts`
 

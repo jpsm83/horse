@@ -30,14 +30,14 @@ A single User may create **multiple** breeder entities (unlike user-linked roles
 
 ---
 
-`GET /api/v1/breeders/:id` returns the view envelope `{ viewerRole, allowedTabs, breeder }`; clients use `getBreederView` / `useBreederView`. The nested `breeder` payload contains the public-card fields.
+`GET /api/v1/breeders/:id` returns the view envelope `{ viewerRole, allowedTabs, breeder }`; clients use `getBreederView` / `useBreederView`. The nested `breeder` payload contains the following fields.
 
 ---
 
 ## Implementation
 
 - Discovery rules: `lib/breeders/breederDiscoveryAccess.ts`
-- Public card mapper: `lib/breeders/buildPublicBreederCard.ts`
+- View DTO: `toBreederView` / `getBreederView` in `lib/services/breederService.ts`
 - Service: `lib/services/breederService.ts`
 - Validation: `lib/validations/breeder.ts`
 
