@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/headers", () => ({
   cookies: vi.fn(async () => ({
-    toString: () => "access_token=test-access",
+    toString: (): string => "access_token=test-access",
   })),
 }));
 
