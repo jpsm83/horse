@@ -129,6 +129,12 @@ Sign-out must never land on `/signin` — only the guest home `/`.
 - [`touchUserLastActiveAt`](../../lib/auth/touchUserLastActive.ts) — throttled `lastActiveAt` persistence
 - [`establishSession`](../../lib/auth/establishSession.ts) — issue tokens after login, register, refresh, bridge
 
+## Expired access token vs richer owner cache
+
+`getServerUserId()` (see [`lib/auth/serverSession.ts`](../../lib/auth/serverSession.ts)) tries the access cookie, then a valid refresh cookie. RSC cannot rotate cookies; the client refresh path can.
+
+This mattered when layouts seeded TanStack cache from the server: an expired access token could look like a guest and overwrite an owner-scoped cache. The web UI no longer seeds entity views from RSC. Client `fetchWithAuth` retries once on `401` via `POST /api/v1/auth/refresh`. Do not reintroduce RSC service prefetch. If SSR seed via REST is added later, skip seeding when identity is unresolved but a refresh cookie exists, and never hydrate a guest view over an owner cache.
+
 ## Related docs
 
 - [profile.md](profile.md) — profile page loading, save flow, `PATCH /me` clear-field semantics

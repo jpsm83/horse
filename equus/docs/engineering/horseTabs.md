@@ -58,14 +58,14 @@ Horse tab UI lives under `components/horses/<tab>/` with a `horse-` filename pre
 The Hub tab is a **read-only social profile** for the horse. Redesigned as a social media-style page. No `HorsePageShell` — no ownership gate.
 
 **Data split:**
-- Shared chrome (`useHorseView` / layout-seeded): role, tabs, horse fields, cheap `horse.sections` (`identity`, `identification`, `pedigree`, `about`, `ownership`, `value`, `proactiveRepresentatives`, `coOwnerManagement`). Absent keys mean the viewer lacks access or the owner hid the section.
+- Shared chrome (`useHorseView` → `GET /api/v1/horses/:id`): role, tabs, horse fields, cheap `horse.sections` (`identity`, `identification`, `pedigree`, `about`, `ownership`, `value`, `proactiveRepresentatives`, `coOwnerManagement`). Absent keys mean the viewer lacks access or the owner hid the section.
 - Hub Media (`useHorseHubGallery` → `GET …/hub-gallery`, guest-safe, paginated): photos/videos grid. Not seeded by horse layout. Separate from Media / Planning / Connect management tab APIs (auth required).
 
 Layout: full-width hero, then a three-column body on `lg` (left details ≈25%, center media ≈45%, right pedigree/people ≈30%); stacked on smaller screens.
 
 Components (all read-only, no visibility popovers; under `components/horses/hub/`, each wrapped in `SectionErrorBoundary`):
 ```
-HubContent (reads useHorseView — cache hit from layout.tsx)
+HubContent (reads useHorseView → REST)
 ├── HorseHubHero          — cover (heroImageUrl), avatar (profileImageUrl), flag, name, Share; owners upload via ProfilePhotoField
 ├── Left column
 │   ├── HorseHubAbout         — profile description

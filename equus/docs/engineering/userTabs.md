@@ -16,7 +16,7 @@
 
 ```
 app/[locale]/user/[userId]/
-  layout.tsx    ← RSC prefetch getUserView → PreferHydrationBoundary → UserLayoutChrome
+  layout.tsx    ← UserLayoutChrome only (no service prefetch)
   page.tsx      ← thin Server Component (generateMetadata + HubContent)
   client.tsx    ← hub tab (UserPageShell + UserHubContent)
   loading.tsx   ← UserPageContentSkeleton
@@ -32,7 +32,7 @@ app/[locale]/user/[userId]/
 
 The owner hub tab and `/users/[userId]` render the **same** `UserHubContent`:
 
-- **Owner** — reads `user.sections` from the layout-seeded cache (`getUserView`).
+- **Owner** — reads `useUserView` → `GET /api/v1/users/me`.
 - **Public** — `useUserHub` → `GET /api/v1/users/:id/hub` (audience-filtered by L1 + L2).
 - Sections are server-filtered (`buildUserHubSections`); no visibility popovers on the hub.
 

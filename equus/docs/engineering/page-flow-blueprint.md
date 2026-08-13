@@ -6,7 +6,7 @@ Canonical pattern for all entity sub-pages in Equus. Every page follows this str
 
 ```
 app/[locale]/horses/[horseId]/
-  layout.tsx            ← RSC (no "use client"): server-side data prefetch + PreferHydrationBoundary
+  layout.tsx            ← RSC chrome only (EntityTabs). No connectDb, no lib/services.
   page.tsx              ← Server Component: generateMetadata + one client render (Hub page)
   client.tsx            ← "use client": Hub content assembly (reads cache — no extra fetch)
   loading.tsx           ← SSR skeleton (mandatory)
@@ -17,7 +17,7 @@ app/[locale]/horses/[horseId]/<tab>/
   loading.tsx           ← SSR skeleton (mandatory)
 ```
 
-**`layout.tsx`** pre-fetches once per navigation, seeds TanStack cache via `PreferHydrationBoundary` (skips guest overwrite of an owner-scoped horse view). `getServerUserId` falls back to a valid refresh cookie when the access token is expired so RSC does not seed a guest view mid-session. All child tabs read from this cache — no waterfall.
+**`layout.tsx`** renders entity chrome (`HorseLayoutChrome` / equivalent). It does not connect to MongoDB and does not call `lib/services`. Child tabs load the role-aware view with TanStack Query (`useHorseView` → `GET /api/v1/horses/:id`). `loading.tsx` shows the body skeleton on first navigation.
 
 ### Horse UI layout (`components/horses/`)
 
@@ -53,43 +53,22 @@ Sits at `app/[locale]/horses/[horseId]/layout.tsx`. Runs on the server for every
 
 ```tsx
 // No "use client"
-import { QueryClient, dehydrate } from "@tanstack/react-query";
-import { PreferHydrationBoundary } from "@/components/shared/prefer-hydration-boundary.tsx";
-import { getServerUserId, hasRefreshCookie } from "@/lib/auth/serverSession.ts";
-import { queryKeys } from "@/lib/api/queryKeys.ts";
-import { getHorseView } from "@/lib/services/horseService.ts";
-import connectDb from "@/lib/db.ts";
+import type { ReactNode } from "react";
+import { HorseLayoutChrome } from "@/components/horses/horse-layout-chrome.tsx";
 
-export default async function HorseLayout({ children, params }) {
+type HorseLayoutProps = {
+  children: ReactNode;
+  params: Promise<{ horseId: string; locale: string }>;
+};
+
+export default async function HorseLayout({ children, params }: HorseLayoutProps) {
   const { horseId } = await params;
-  const queryClient = new QueryClient();
-  try {
-    await connectDb();
-    const userId = await getServerUserId(); // access token, else refresh cookie
-    const canRecoverSession = !userId && (await hasRefreshCookie());
-    if (!canRecoverSession) {
-      const data = await getHorseView(horseId, userId);
-      queryClient.setQueryData(queryKeys.horses.view(horseId), data);
-    }
-  } catch {
-    // Non-fatal: client will fetch on hydration
-  }
-  return (
-    <PreferHydrationBoundary state={dehydrate(queryClient)}>
-      {children}
-    </PreferHydrationBoundary>
-  );
+  return <HorseLayoutChrome horseId={horseId}>{children}</HorseLayoutChrome>;
 }
 ```
 
 Rules:
 - No `"use client"`
-- Calls `getHorseView` directly (service layer, not REST) — no HTTP waterfall
-- `getServerUserId` falls back to refresh cookie when access is expired (RSC cannot set cookies; client refresh still rotates access)
-- Skip guest seed when refresh exists but identity unresolved — never overwrite owner cache with guest
-- `PreferHydrationBoundary` also blocks guest→owner downgrade hydrations client-side
-- Failure is non-fatal; client falls back to network fetch on hydration
-- Provides `viewerRole`, `allowedTabs`, and merged `HorseViewDto` to all child tabs
 
 ## 3. Server Component (`page.tsx`) — Thin
 
@@ -358,14 +337,11 @@ Hub (`/horses/[horseId]`) does NOT use `HorsePageShell` — it is public-facing.
 ### Flow
 ```mermaid
 flowchart TB
-  subgraph server ["Server (layout.tsx RSC)"]
-    L["layout.tsx\ngetServerUserId()"] --> SVC["getHorseView(horseId, userId)"]
-    SVC --> VR["deriveViewerRole(audience, horseDoc)"]
-    VR --> AT["deriveAllowedTabs(viewerRole)"]
-    SVC --> CACHE["PreferHydrationBoundary\nqueryClient.setQueryData(view)"]
+  subgraph layout ["Layout (chrome only)"]
+    LC["HorseLayoutChrome\nEntityTabs + content wrapper"]
   end
   subgraph client ["Client"]
-    CACHE --> HV["useHorseView(horseId)\n— cache hit"]
+    LC --> HV["useHorseView(horseId)\nGET /api/v1/horses/:id"]
     HV --> SHELL["HorsePageShell\ngetHorseTabs(horseId, allowedTabs)"]
     HV --> HUB["HubContent\ngetHorseTabs(horseId, allowedTabs)"]
     SHELL --> TABS["EntityTabs\n(only allowedTabs rendered)"]
@@ -558,7 +534,7 @@ Rules:
 
 ## 8. Data Fetching Rules
 
-1. **Layout-level prefetch** — `layout.tsx` RSC calls `getHorseView` directly (service layer) and seeds TanStack cache via `PreferHydrationBoundary`. `getServerUserId` resolves via access token, then refresh cookie. All tabs read from the pre-seeded cache — no waterfall.
+1. **No layout-level service prefetch** — `layout.tsx` is chrome only. `useHorseView` (and entity equivalents) call `GET /api/v1/...`. `placeholderData` keeps tab switches from flashing.
 2. **All client-side API calls** use TanStack Query (`useQuery` / `useMutation`)
 3. **No raw `fetch()`** in any component — use hooks from `hooks/queries/`
 4. **`placeholderData: (prev) => prev`** on every query — eliminates skeleton flash on tab switches
@@ -588,7 +564,7 @@ Rules:
 [ ] Create app/[locale]/horses/[horseId]/<tab>/page.tsx — thin Server Component
 [ ] Create app/[locale]/horses/[horseId]/<tab>/loading.tsx — uses HorsePageContentSkeleton (same as body skeleton)
 [ ] Create app/[locale]/horses/[horseId]/<tab>/client.tsx — HorsePageShell + <Section> components (co-located with route)
-[ ] Confirm layout.tsx exists at app/[locale]/horses/[horseId]/layout.tsx — it pre-fetches horse data for all sub-pages
+[ ] Confirm layout.tsx exists at app/[locale]/horses/[horseId]/layout.tsx — chrome only; no services/models/connectDb
 [ ] For each data section in the tab:
     [ ] Extract into a dedicated "use client" section component under components/horses/<tab>/
     [ ] Filename starts with horse- (e.g. horse-connections-table-section.tsx)
