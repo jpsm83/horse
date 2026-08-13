@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import Relationship from "@/models/Relationship.ts";
 import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
@@ -90,6 +90,31 @@ describe("stableService", () => {
     expect(view.stable.address.country).toBe("Portugal");
   });
 
+  it("does not query relationship access for the main owner view", async () => {
+    const owner = await createUser("stable-owner-view@example.com");
+    const created = await stableService.createStable(String(owner._id), {
+      tradeName: "Owner Barn",
+      description: "Owner managed",
+      email: "owner@example.com",
+      phoneNumber: "+351923333333",
+      address: minimalAddress,
+      isPublic: false,
+    });
+    const relationshipFind = vi.spyOn(Relationship, "findOne");
+    const collaborationFind = vi.spyOn(WorkplaceRelationship, "findOne");
+
+    try {
+      const view = await stableService.getStableView(String(created._id), String(owner._id));
+
+      expect(view.viewerRole).toBe("main_owner");
+      expect(relationshipFind).not.toHaveBeenCalled();
+      expect(collaborationFind).not.toHaveBeenCalled();
+    } finally {
+      relationshipFind.mockRestore();
+      collaborationFind.mockRestore();
+    }
+  });
+
   it("hides non-public stable from anonymous users", async () => {
     const owner = await createUser("stable-private-owner@example.com");
     const created = await stableService.createStable(String(owner._id), {
@@ -141,6 +166,8 @@ describe("stableService", () => {
     );
 
     expect(view.viewerRole).toBe("related");
+    expect(view.allowedTabs).toContain("profile");
+    expect(view.allowedTabs).not.toContain("admin");
     expect(view.stable.id).toBe(String(stable._id));
     expect(view.stable.email).toBe("rel@example.com");
   });

@@ -38,9 +38,9 @@ Riders are **user-linked**: one profile per User. A second `POST` returns **409*
 
 `GET /api/v1/riders/:id` returns the view envelope `{ viewerRole, allowedTabs, rider }`; clients use `getRiderView` / `useRiderView`. The nested `rider` payload contains the following fields:
 
-- `id`, `displayName`, `bio`, `city`, `country` (from address when set)
+- `id`, `displayName`, `bio`, `email`, `phoneNumber`
+- `address: { city?, country?, state?, street?, postCode?, buildingNumber? }`
 - `disciplines`, `experienceYears`, `competitionHighlights`, `acceptsNewClients`, `isPublic`
-- `contact: { email?, phone? }`
 
 Returns **404** when discovery rules deny access (same pattern as grooms and farriers).
 

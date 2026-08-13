@@ -383,10 +383,10 @@ export async function getTransportView(
     requesterUserId.length > 0 &&
     userOwnsEntity(requesterUserId, transportDoc);
 
-  const hasRelationship = requesterUserId
+  const hasRelationship = requesterUserId && !isOwner
     ? await hasAcceptedHorseTransportRelationship(requesterUserId, transportId)
     : false;
-  const hasCollaboration = requesterUserId
+  const hasCollaboration = requesterUserId && !isOwner
     ? await hasActiveTransportCollaboration(requesterUserId, transportId)
     : false;
 

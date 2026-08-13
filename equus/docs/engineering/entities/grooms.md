@@ -38,9 +38,9 @@ Grooms are **user-linked**: one profile per User. A second `POST` returns **409*
 
 `GET /api/v1/grooms/:id` returns the view envelope `{ viewerRole, allowedTabs, groom }`; clients use `getGroomView` / `useGroomView`. The nested `groom` payload contains the following fields:
 
-- `id`, `displayName`, `bio`, `city`, `country` (from address when set)
+- `id`, `displayName`, `bio`, `email`, `phoneNumber`
+- `address: { city?, country?, state?, street?, postCode?, buildingNumber? }`
 - `specialties`, `experienceYears`, `acceptsNewClients`, `isPublic`
-- `contact: { email?, phone? }`
 
 Returns **404** when discovery rules deny access (same pattern as trainers).
 

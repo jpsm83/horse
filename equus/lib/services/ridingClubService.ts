@@ -385,10 +385,10 @@ export async function getRidingClubView(
     requesterUserId.length > 0 &&
     userOwnsEntity(requesterUserId, clubDoc);
 
-  const hasRelationship = requesterUserId
+  const hasRelationship = requesterUserId && !isOwner
     ? await hasAcceptedHorseRidingClubRelationship(requesterUserId, clubId)
     : false;
-  const hasCollaboration = requesterUserId
+  const hasCollaboration = requesterUserId && !isOwner
     ? await hasActiveRidingClubCollaboration(requesterUserId, clubId)
     : false;
 

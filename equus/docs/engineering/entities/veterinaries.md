@@ -38,9 +38,9 @@ Veterinaries are **user-linked**: one profile per User. A second `POST` returns 
 
 `GET /api/v1/veterinaries/:id` returns the view envelope `{ viewerRole, allowedTabs, veterinary }`; clients use `getVeterinaryView` / `useVeterinaryView`. The nested `veterinary` payload contains the following fields:
 
-- `id`, `practiceName`, `description`, `city`, `country` (from address)
+- `id`, `practiceName`, `description`, `email`, `phoneNumber`, `emergencyPhoneNumber`
+- `address: { city?, country?, state?, street?, postCode?, buildingNumber? }`
 - `equineSpecializations`, `emergencyAvailability`, `serviceAreaKm`, `acceptsNewPatients`, `isPublic`
-- `contact: { email?, phone?, emergencyPhone? }`
 
 Returns **404** when discovery rules deny access (same pattern as coaches and trainers).
 

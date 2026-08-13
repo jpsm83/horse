@@ -88,12 +88,8 @@ describe("horseService", () => {
     );
   });
 
-  it("returns a guest view without private owner contact", async () => {
+  it("limits a guest view to the hub tab", async () => {
     const owner = await createUser("horse-private-owner@example.com");
-    await User.updateOne(
-      { _id: owner._id },
-      { $set: { preferences: { profileVisibility: "private" } } },
-    );
 
     const created = await horseService.createHorse(String(owner._id), {
       name: "Shadow",
@@ -106,8 +102,8 @@ describe("horseService", () => {
     const view = await horseService.getHorseView(String(created._id), null);
 
     expect(view.viewerRole).toBe("guest");
+    expect(view.allowedTabs).toEqual(["hub"]);
     expect(view.horse.id).toBe(String(created._id));
-    expect(view.horse).not.toHaveProperty("contactDisplay");
   });
 
   it("allows relationship visibility only for related users", async () => {

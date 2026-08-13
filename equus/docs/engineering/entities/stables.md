@@ -46,9 +46,9 @@ flowchart TB
 
 `GET /api/v1/stables/:id` returns the view envelope `{ viewerRole, allowedTabs, stable }`; clients use `getStableView` / `useStableView`. The nested `stable` payload contains the following fields:
 
-- `id`, `tradeName`, `description`, `city`, `country` (from address)
+- `id`, `tradeName`, `description`, `email`, `phoneNumber`
+- `address: { city?, country?, state?, street?, postCode?, buildingNumber? }`
 - `disciplines`, `services`, `acceptsNewHorses`, `isPublic`
-- `contact: { email?, phone? }`
 
 Returns **404** when discovery rules deny access (same pattern as horses).
 

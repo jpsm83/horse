@@ -378,10 +378,10 @@ export async function getStableView(
     requesterUserId.length > 0 &&
     userOwnsEntity(requesterUserId, stableDoc);
 
-  const hasRelationship = requesterUserId
+  const hasRelationship = requesterUserId && !isOwner
     ? await hasAcceptedHorseStableRelationship(requesterUserId, stableId)
     : false;
-  const hasCollaboration = requesterUserId
+  const hasCollaboration = requesterUserId && !isOwner
     ? await hasActiveStableCollaboration(requesterUserId, stableId)
     : false;
 

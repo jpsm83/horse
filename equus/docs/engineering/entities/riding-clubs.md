@@ -46,9 +46,9 @@ flowchart TB
 
 `GET /api/v1/riding-clubs/:id` returns the view envelope `{ viewerRole, allowedTabs, ridingClub }`; clients use `getRidingClubView` / `useRidingClubView`. The nested `ridingClub` payload contains the following fields:
 
-- `id`, `clubName`, `description`, `city`, `country` (from address)
+- `id`, `clubName`, `description`, `email`, `phoneNumber`
+- `address: { city?, country?, state?, street?, postCode?, buildingNumber? }`
 - `disciplines`, `facilities`, `membershipInfo`, `membershipFee`, `acceptsNewMembers`, `isPublic`
-- `contact: { email?, phone? }`
 
 Returns **404** when discovery rules deny access (same pattern as horses and stables).
 

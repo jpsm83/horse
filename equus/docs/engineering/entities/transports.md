@@ -46,9 +46,9 @@ flowchart TB
 
 `GET /api/v1/transports/:id` returns the view envelope `{ viewerRole, allowedTabs, transport }`; clients use `getTransportView` / `useTransportView`. The nested `transport` payload contains the following fields:
 
-- `id`, `companyName`, `description`, `city`, `country` (from address)
+- `id`, `companyName`, `description`, `email`, `phoneNumber`, `emergencyPhoneNumber`
+- `address: { city?, country?, state?, street?, postCode?, buildingNumber? }`
 - `specialties`, `serviceAreas`, `acceptsNewBookings`, `isPublic`
-- `contact: { email?, phone?, emergencyPhone? }`
 
 Returns **404** when discovery rules deny access (same pattern as horses and stables).
 

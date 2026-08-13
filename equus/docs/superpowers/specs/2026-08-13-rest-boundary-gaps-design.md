@@ -27,6 +27,8 @@ Close those gaps only. Do not rewrite PATCH, list, search, navigation, relations
 
 Guest on a public entity: `viewerRole: "guest"`, owner flag falsy. Private entity without access: 404 (covered in service tests via `getXView`, not duplicated on every route).
 
+For stables, breeders, transports, and riding clubs, accepted horse relationships and active workplace collaborations yield `viewerRole: "related"`. Related viewers receive the `profile` tab but not the owner-only `admin` tab.
+
 ## Tests
 
 - New GET tests live next to the route: `app/api/v1/<entity>/[id]/__tests__/route.get.test.ts`.

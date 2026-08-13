@@ -48,7 +48,7 @@ Living checklist derived from [equus/docs/features/userModule.md](../features/us
 
 - `profileVisibility` + `allowDirectMessagesFrom` stored and editable on `/profile`
 - `lib/privacy/userVisibility.ts` helpers + tests
-- Enforcement on **horse owner contact** (`resolveHorsePublicContact`) and **workplace roster labels**
+- Enforcement on **workplace roster labels**
 - Entity-only discovery policy locked (no user search / no `searchable` on User)
 
 ### §6–7 User inboxes (API + UI)

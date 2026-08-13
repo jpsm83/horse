@@ -372,10 +372,10 @@ export async function getBreederView(
     requesterUserId.length > 0 &&
     userOwnsEntity(requesterUserId, breederDoc);
 
-  const hasRelationship = requesterUserId
+  const hasRelationship = requesterUserId && !isOwner
     ? await hasAcceptedHorseBreederRelationship(requesterUserId, breederId)
     : false;
-  const hasCollaboration = requesterUserId
+  const hasCollaboration = requesterUserId && !isOwner
     ? await hasActiveBreederCollaboration(requesterUserId, breederId)
     : false;
 

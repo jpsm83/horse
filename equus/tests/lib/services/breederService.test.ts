@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import Breeder from "@/models/Breeder.ts";
 import Relationship from "@/models/Relationship.ts";
@@ -103,6 +103,31 @@ describe("breederService", () => {
     expect(view.viewerRole).toBe("guest");
     expect(view.breeder.operationName).toBe("Public Stud");
     expect(view.breeder.email).toBe("public@example.com");
+  });
+
+  it("does not query relationship access for the main owner view", async () => {
+    const owner = await createUser("breeder-owner-view@example.com");
+    const created = await breederService.createBreeder(String(owner._id), {
+      operationName: "Owner Stud",
+      description: "Owner managed",
+      email: "owner@example.com",
+      phoneNumber: "+351945555555",
+      address: minimalAddress,
+      isPublic: false,
+    });
+    const relationshipFind = vi.spyOn(Relationship, "findOne");
+    const collaborationFind = vi.spyOn(WorkplaceRelationship, "findOne");
+
+    try {
+      const view = await breederService.getBreederView(String(created._id), String(owner._id));
+
+      expect(view.viewerRole).toBe("main_owner");
+      expect(relationshipFind).not.toHaveBeenCalled();
+      expect(collaborationFind).not.toHaveBeenCalled();
+    } finally {
+      relationshipFind.mockRestore();
+      collaborationFind.mockRestore();
+    }
   });
 
   it("allows horse owner with accepted breeder relationship to view non-public breeder", async () => {

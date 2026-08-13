@@ -38,9 +38,9 @@ Unlike entity-owned host profiles (stable, breeder), coaches do **not** use `Wor
 
 `GET /api/v1/coaches/:id` returns the view envelope `{ viewerRole, allowedTabs, coach }`; clients use `getCoachView` / `useCoachView`. The nested `coach` payload contains the following fields:
 
-- `id`, `displayName`, `bio`, `city`, `country` (from address)
+- `id`, `displayName`, `bio`, `email`, `phoneNumber`
+- `address: { city?, country?, state?, street?, postCode?, buildingNumber? }`
 - `disciplines`, `competitionLevels`, `preparationServices`, `experienceYears`, `acceptsNewClients`, `isPublic`
-- `contact: { email?, phone? }`
 
 Returns **404** when discovery rules deny access (same pattern as trainers and grooms).
 

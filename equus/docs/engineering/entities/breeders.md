@@ -32,6 +32,10 @@ A single User may create **multiple** breeder entities (unlike user-linked roles
 
 `GET /api/v1/breeders/:id` returns the view envelope `{ viewerRole, allowedTabs, breeder }`; clients use `getBreederView` / `useBreederView`. The nested `breeder` payload contains the following fields.
 
+- `id`, `operationName`, `description`, `email`, `phoneNumber`
+- `address: { city?, country?, state?, street?, postCode?, buildingNumber? }`
+- `disciplines`, `bloodlines`, `isPublic`
+
 ---
 
 ## Implementation

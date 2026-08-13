@@ -35,9 +35,9 @@ Unlike entity-owned host profiles (stable, breeder), trainers do **not** use `Wo
 
 `GET /api/v1/trainers/:id` returns the view envelope `{ viewerRole, allowedTabs, trainer }`; clients use `getTrainerView` / `useTrainerView`. The nested `trainer` payload contains the following fields:
 
-- `id`, `displayName`, `bio`, `city`, `country` (from address)
+- `id`, `displayName`, `bio`, `email`, `phoneNumber`
+- `address: { city?, country?, state?, street?, postCode?, buildingNumber? }`
 - `specialties`, `acceptsNewClients`, `isPublic`
-- `contact: { email?, phone? }`
 
 Returns **404** when discovery rules deny access (same pattern as horses and breeders).
 

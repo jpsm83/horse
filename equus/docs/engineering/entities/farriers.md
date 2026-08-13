@@ -40,9 +40,9 @@ Farriers are **user-linked**: one profile per User. A second `POST` returns **40
 
 `GET /api/v1/farriers/:id` returns the view envelope `{ viewerRole, allowedTabs, farrier }`; clients use `getFarrierView` / `useFarrierView`. The nested `farrier` payload contains the following fields:
 
-- `id`, `displayName`, `bio`, `city`, `country` (from address when set)
+- `id`, `displayName`, `bio`, `email`, `phoneNumber`
+- `address: { city?, country?, state?, street?, postCode?, buildingNumber? }`
 - `experienceYears`, `serviceAreaKm`, `acceptsNewClients`, `isPublic`
-- `contact: { email?, phone? }`
 
 Returns **404** when discovery rules deny access (same pattern as grooms and trainers).
 
