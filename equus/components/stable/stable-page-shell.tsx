@@ -2,7 +2,7 @@
  * StablePageShell — auth and ownership gate for stable sub-page content.
  *
  * Tab chrome and content padding live in StableLayoutChrome (layout.tsx). Reads
- * the pre-seeded stable view from the TanStack cache populated by layout RSC.
+ * the stable view via `useStableView` (`GET /api/v1/stables/:id`).
  * Requires authentication for non-hub tabs; gates admin behind `requireMainOwner`.
  */
 

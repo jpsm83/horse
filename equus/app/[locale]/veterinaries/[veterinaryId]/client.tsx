@@ -2,7 +2,7 @@
  * VeterinaryHubContent — public veterinary hub assembly
  * (`/veterinaries/[veterinaryId]`).
  *
- * Reads the pre-seeded veterinary view from the TanStack cache (layout RSC) and
+ * Reads the veterinary view via `useVeterinaryView` (`GET /api/v1/veterinaries/:id`) and
  * renders the hero, about, and contact sections, each wrapped in
  * `SectionErrorBoundary`.
  */

@@ -1,7 +1,7 @@
 /**
  * StableHubContent — public stable hub assembly (`/stables/[stableId]`).
  *
- * Reads the pre-seeded stable view from the TanStack cache (layout RSC) and
+ * Reads the stable view via `useStableView` (`GET /api/v1/stables/:id`) and
  * renders the hero, about, and contact sections, each wrapped in
  * `SectionErrorBoundary`.
  */

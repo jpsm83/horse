@@ -1,7 +1,7 @@
 /**
  * BreederHubContent — public breeder hub assembly (`/breeders/[breederId]`).
  *
- * Reads the pre-seeded breeder view from the TanStack cache (layout RSC) and
+ * Reads the breeder view via `useBreederView` (`GET /api/v1/breeders/:id`) and
  * renders the hero, about, and contact sections, each wrapped in
  * `SectionErrorBoundary`.
  */

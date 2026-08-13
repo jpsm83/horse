@@ -607,7 +607,7 @@ Each entity type creates its own shell + skeleton following the exact same patte
 Unlike the horse (single public hub), the user has two surfaces that share one component:
 
 - **`/users/[userId]` (public)** — renders `UserHubContent` from `GET /api/v1/users/:id/hub` (`useUserHub`). No shell; audience-filtered by L1 (`profileVisibility`) + L2 (`hubSections`).
-- **`/user/[userId]` (owner account)** — the Hub tab renders the **same** `UserHubContent` via `useUserView` → `GET /api/v1/users/me`, gated by `UserPageShell`.
+- **`/user/[userId]` (owner account)** — the Hub tab renders the **same** `UserHubContent` via `useUserView` → `GET /api/v1/users/:id/view`, gated by `UserPageShell`.
 
 `UserLayoutChrome` (in `layout.tsx`) renders `EntityTabs` + `UnsavedChangesProvider` so tabs persist; `UserPageShell` only gates auth/self. Owner layout is chrome only — no service prefetch.
 

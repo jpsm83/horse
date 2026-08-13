@@ -3,7 +3,7 @@
  * content.
  *
  * Tab chrome and content padding live in RiderLayoutChrome (layout.tsx). Reads
- * the pre-seeded rider view from the TanStack cache populated by layout RSC.
+ * the rider view via `useRiderView` (`GET /api/v1/riders/:id`).
  * Gates on `isAuthenticated` and the view DTO's `isOwner` flag (computed by the
  * service when `rider.userId === user.id`). There is no co-owner/admin logic —
  * user-linked profiles have exactly one owner.

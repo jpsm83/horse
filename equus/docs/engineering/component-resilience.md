@@ -38,7 +38,7 @@ Every page component should be built so the **shell renders immediately** and **
 - While the page-level auth/data is loading, only the content children area shows `<HorsePageContentSkeleton>` (a compact, generic placeholder).
 - `loading.tsx` renders the **same** `<HorsePageContentSkeleton>` component — no visual swap between SSR and client hydration.
 - Once data resolves, children render — the `Section` wrapper renders immediately (headers, buttons). Only data-dependent children within the section show their own skeleton.
-- `HorsePageShell` checks auth via `useAppAuth()` and reads horse data from pre-seeded TanStack cache via `useHorseView()`. `placeholderData: (prev) => prev` keeps cached data visible during background refetch — no unnecessary skeleton flashes.
+- `HorsePageShell` checks auth via `useAppAuth()` and reads horse data via `useHorseView()` (`GET /api/v1/horses/:id`). `placeholderData: (prev) => prev` keeps cached data visible during background refetch — no unnecessary skeleton flashes.
 - Redirects (unauthenticated) are handled in a `useEffect` side effect — they never block the render.
 
 ### Creating a new page section

@@ -2,7 +2,7 @@
  * BreederPageShell — auth and ownership gate for breeder sub-page content.
  *
  * Tab chrome and content padding live in BreederLayoutChrome (layout.tsx). Reads
- * the pre-seeded breeder view from the TanStack cache populated by layout RSC.
+ * the breeder view via `useBreederView` (`GET /api/v1/breeders/:id`).
  * Requires authentication for non-hub tabs; gates admin behind `requireMainOwner`.
  */
 

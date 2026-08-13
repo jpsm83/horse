@@ -1,7 +1,7 @@
 /**
  * FarrierHubContent — public farrier hub assembly (`/farriers/[farrierId]`).
  *
- * Reads the pre-seeded farrier view from the TanStack cache (layout RSC) and
+ * Reads the farrier view via `useFarrierView` (`GET /api/v1/farriers/:id`) and
  * renders the hero, about, and contact sections, each wrapped in
  * `SectionErrorBoundary`.
  */

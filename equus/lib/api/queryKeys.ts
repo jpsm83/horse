@@ -10,7 +10,7 @@ export const queryKeys = {
   users: {
     detail: (userId: string) => ["users", userId] as const,
     me: ["users", "me"] as const,
-    /** Role-aware owner view — pre-seeded by layout.tsx RSC via HydrationBoundary. */
+    /** Role-aware owner view — GET /api/v1/users/:id/view via useUserView. */
     view: (userId: string) => ["users", userId, "view"] as const,
     /** Audience-filtered user hub sections (public profile page). */
     hub: (userId: string) => ["users", userId, "hub"] as const,

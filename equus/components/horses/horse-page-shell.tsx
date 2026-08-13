@@ -2,7 +2,7 @@
  * HorsePageShell — auth and ownership gate for horse sub-page content.
  *
  * Tab chrome and content padding live in HorseLayoutChrome (layout.tsx).
- * Reads the pre-seeded horse view from TanStack cache populated by layout RSC.
+ * Reads the horse view via `useHorseView` (`GET /api/v1/horses/:id`).
  */
 
 "use client";

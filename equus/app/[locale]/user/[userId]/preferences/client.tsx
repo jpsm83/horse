@@ -62,7 +62,7 @@ function PreferencesForm({ userId }: PreferencesFormProps) {
   const setDiscardHandler = useSetUnsavedDiscardHandler();
   const { setDirty, setSaving } = useUnsavedChanges();
 
-  // Reads from HydrationBoundary cache — no extra fetch when layout.tsx RSC succeeded.
+  // useUserView → GET /api/v1/users/:id/view
   const { data: view } = useUserView(userId);
   const profile = view?.user;
   const updateProfile = useUpdateProfile();

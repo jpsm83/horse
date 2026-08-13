@@ -1,7 +1,7 @@
 /**
  * GroomHubContent — public groom hub assembly (`/groomers/[groomId]`).
  *
- * Reads the pre-seeded groom view from the TanStack cache (layout RSC) and
+ * Reads the groom view via `useGroomView` (`GET /api/v1/grooms/:id`) and
  * renders the hero, about, and contact sections, each wrapped in
  * `SectionErrorBoundary`.
  */

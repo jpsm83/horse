@@ -1,7 +1,7 @@
 /**
  * RiderHubContent — public rider hub assembly (`/riders/[riderId]`).
  *
- * Reads the pre-seeded rider view from the TanStack cache (layout RSC) and
+ * Reads the rider view via `useRiderView` (`GET /api/v1/riders/:id`) and
  * renders the hero, about, and contact sections, each wrapped in
  * `SectionErrorBoundary`.
  */

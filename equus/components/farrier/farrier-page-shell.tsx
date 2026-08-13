@@ -2,8 +2,8 @@
  * FarrierPageShell — auth and ownership gate for farrier sub-page content.
  *
  * Tab chrome and content padding live in FarrierLayoutChrome (layout.tsx).
- * Reads the pre-seeded farrier view from the TanStack cache populated by layout
- * RSC. Farriers are user-linked: requires authentication and, when
+ * Reads the farrier view via `useFarrierView` (`GET /api/v1/farriers/:id`).
+ * Farriers are user-linked: requires authentication and, when
  * `requireOwnership` is set, the linked `farrier.userId` (`isOwner` on the view
  * DTO). There is no co-owner / main-owner concept.
  */

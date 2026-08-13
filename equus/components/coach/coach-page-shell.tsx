@@ -3,7 +3,7 @@
  * content.
  *
  * Tab chrome and content padding live in CoachLayoutChrome (layout.tsx). Reads
- * the pre-seeded coach view from the TanStack cache populated by layout RSC.
+ * the coach view via `useCoachView` (`GET /api/v1/coaches/:id`).
  * Gates on `isAuthenticated` and the view DTO's `isOwner` flag (computed by the
  * service when `coach.userId === user.id`). There is no co-owner/admin logic —
  * user-linked profiles have exactly one owner.

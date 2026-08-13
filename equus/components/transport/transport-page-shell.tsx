@@ -2,8 +2,8 @@
  * TransportPageShell — auth and ownership gate for transport sub-page content.
  *
  * Tab chrome and content padding live in TransportLayoutChrome (layout.tsx).
- * Reads the pre-seeded transport view from the TanStack cache populated by
- * layout RSC. Requires authentication for non-hub tabs; gates admin behind
+ * Reads the transport view via `useTransportView` (`GET /api/v1/transports/:id`).
+ * Requires authentication for non-hub tabs; gates admin behind
  * `requireMainOwner`.
  */
 

@@ -2,7 +2,7 @@
  * RidingClubHubContent — public riding club hub assembly
  * (`/riding-clubs/[clubId]`).
  *
- * Reads the pre-seeded club view from the TanStack cache (layout RSC) and
+ * Reads the club view via `useRidingClubView` (`GET /api/v1/riding-clubs/:id`) and
  * renders the hero, about, and contact sections, each wrapped in
  * `SectionErrorBoundary`.
  */

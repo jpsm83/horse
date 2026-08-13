@@ -1,7 +1,7 @@
 /**
  * CoachHubContent — public coach hub assembly (`/coaches/[coachId]`).
  *
- * Reads the pre-seeded coach view from the TanStack cache (layout RSC) and
+ * Reads the coach view via `useCoachView` (`GET /api/v1/coaches/:id`) and
  * renders the hero, about, and contact sections, each wrapped in
  * `SectionErrorBoundary`.
  */

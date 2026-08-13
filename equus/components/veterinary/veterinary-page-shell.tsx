@@ -2,8 +2,8 @@
  * VeterinaryPageShell — auth and ownership gate for veterinary sub-page content.
  *
  * Tab chrome and content padding live in VeterinaryLayoutChrome (layout.tsx).
- * Reads the pre-seeded veterinary view from the TanStack cache populated by
- * layout RSC. User-linked ownership: the view DTO's `isOwner` flag (computed by
+ * Reads the veterinary view via `useVeterinaryView` (`GET /api/v1/veterinaries/:id`).
+ * User-linked ownership: the view DTO's `isOwner` flag (computed by
  * the service from `Veterinary.userId`) gates the profile tab; there is no
  * co-owner or admin concept.
  */

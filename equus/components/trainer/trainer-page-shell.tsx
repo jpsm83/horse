@@ -2,8 +2,8 @@
  * TrainerPageShell — auth and ownership gate for trainer sub-page content.
  *
  * Tab chrome and content padding live in TrainerLayoutChrome (layout.tsx).
- * Reads the pre-seeded trainer view from the TanStack cache populated by layout
- * RSC. User-linked ownership: the view DTO's `isOwner` flag (computed by the
+ * Reads the trainer view via `useTrainerView` (`GET /api/v1/trainers/:id`).
+ * User-linked ownership: the view DTO's `isOwner` flag (computed by the
  * service from `Trainer.userId`) gates the profile tab; there is no co-owner or
  * admin concept.
  */

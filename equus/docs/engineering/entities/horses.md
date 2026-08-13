@@ -101,7 +101,7 @@ HubContent
 Deferred (not in current Hub shell): upcoming planning events block (would use hub-social `planning`).
 
 - Page: `app/[locale]/horses/[horseId]/page.tsx` + `client.tsx`
-- Chrome data: `useHorseView(horseId)` — cache hit from layout RSC
+- Chrome data: `useHorseView(horseId)` → `GET /api/v1/horses/:id`
 - Hub Media: `useHorseHubGallery(horseId)` → `GET …/hub-gallery` (paginated)
 - i18n: `horseHub` namespace
 
@@ -222,7 +222,7 @@ On success the UI toasts and redirects to `/horses/{horseId}`. Profile visibilit
 
 ### Horse hub (`/horses/[horseId]`)
 
-Read-only social profile page (optional auth). The Hub tab is the public face of a horse. Data flows from the `layout.tsx` RSC (pre-seeded TanStack cache) — no extra network call.
+Read-only social profile page (optional auth). The Hub tab is the public face of a horse. Data loads client-side via `useHorseView(horseId)` → `GET /api/v1/horses/:id`.
 
 - Page: `app/[locale]/horses/[horseId]/page.tsx` + `client.tsx`
 - Components: `components/horses/hub/horse-hub-hero.tsx`, `horse-hub-about.tsx`, `horse-hub-disciplines.tsx`, `horse-hub-value.tsx`, `horse-hub-gallery.tsx`, `horse-hub-pedigree.tsx`, `horse-hub-people.tsx`

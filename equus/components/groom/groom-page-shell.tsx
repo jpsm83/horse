@@ -2,7 +2,7 @@
  * GroomPageShell — auth and ownership gate for groom sub-page content.
  *
  * Tab chrome and content padding live in GroomLayoutChrome (layout.tsx). Reads
- * the pre-seeded groom view from the TanStack cache populated by layout RSC.
+ * the groom view via `useGroomView` (`GET /api/v1/grooms/:id`).
  * Grooms are user-linked: requires authentication and, when `requireOwnership`
  * is set, the linked `groom.userId` (`isOwner` on the view DTO). There is no
  * co-owner / main-owner concept.

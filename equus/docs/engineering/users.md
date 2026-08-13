@@ -16,6 +16,7 @@ Related:
 |--------|------|---------|
 | `GET` | `/api/v1/users/:id` | Public user profile **card** — audience-filtered by `profileVisibility`; 404 when blocked |
 | `GET` | `/api/v1/users/:id/hub` | **User hub sections** — `{ sections: { identity?, about?, contact?, entities? } }`, audience-filtered by L1 + L2 |
+| `GET` | `/api/v1/users/:id/view` | **Role-aware user view** — `{ user, isOwner }`; owner gets `user.sections` + owner-only fields |
 | `GET/PATCH` | `/api/v1/users/me` | Owner profile (JSON or multipart avatar) |
 | `PATCH` | `/api/v1/users/me/hub-sections` | Layer-2 per-section visibility (`hubSections[key].mode`) |
 | `GET` | `/api/v1/users/me/navigation` | Owned-entity flags |
@@ -70,7 +71,7 @@ Horse-hub-style public profile page. Reads `GET /api/v1/users/:id/hub` via `useU
 
 ### Owner hub tab (`/user/[userId]`)
 
-Renders the **same** `UserHubContent` from the layout-seeded cache (`user.sections` — no extra request).
+Renders the **same** `UserHubContent`, reading `user.sections` from `useUserView` (`GET /api/v1/users/:id/view`).
 
 - Page: `app/[locale]/user/[userId]/page.tsx` + `client.tsx`
 - Data: `useUserView(userId)` → `view.user.sections`

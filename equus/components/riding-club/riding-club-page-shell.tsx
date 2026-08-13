@@ -2,7 +2,7 @@
  * RidingClubPageShell — auth and ownership gate for riding club sub-page content.
  *
  * Tab chrome and content padding live in RidingClubLayoutChrome (layout.tsx).
- * Reads the pre-seeded club view from the TanStack cache populated by layout RSC.
+ * Reads the club view via `useRidingClubView` (`GET /api/v1/riding-clubs/:id`).
  * Requires authentication for non-hub tabs; gates admin behind `requireMainOwner`.
  */
 

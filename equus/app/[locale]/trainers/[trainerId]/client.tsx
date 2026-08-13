@@ -1,7 +1,7 @@
 /**
  * TrainerHubContent — public trainer hub assembly (`/trainers/[trainerId]`).
  *
- * Reads the pre-seeded trainer view from the TanStack cache (layout RSC) and
+ * Reads the trainer view via `useTrainerView` (`GET /api/v1/trainers/:id`) and
  * renders the hero, about, and contact sections, each wrapped in
  * `SectionErrorBoundary`.
  */

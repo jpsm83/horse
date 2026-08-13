@@ -1,7 +1,7 @@
 /**
  * TransportHubContent — public transport hub assembly (`/transport/[transportId]`).
  *
- * Reads the pre-seeded transport view from the TanStack cache (layout RSC) and
+ * Reads the transport view via `useTransportView` (`GET /api/v1/transports/:id`) and
  * renders the hero, about, and contact sections, each wrapped in
  * `SectionErrorBoundary`.
  */
