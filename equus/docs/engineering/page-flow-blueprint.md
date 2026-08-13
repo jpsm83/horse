@@ -8,7 +8,7 @@ Canonical pattern for all entity sub-pages in Equus. Every page follows this str
 app/[locale]/horses/[horseId]/
   layout.tsx            ← RSC chrome only (EntityTabs). No connectDb, no lib/services.
   page.tsx              ← Server Component: generateMetadata + one client render (Hub page)
-  client.tsx            ← "use client": Hub content assembly (reads cache — no extra fetch)
+  client.tsx            ← "use client": Hub content assembly (useHorseView → GET /api/v1/horses/:id)
   loading.tsx           ← SSR skeleton (mandatory)
 
 app/[locale]/horses/[horseId]/<tab>/
@@ -47,9 +47,9 @@ components/shared/        ← ONLY multi-module primitives (Section, FileUpload,
 - [ ] Not placed in `components/shared/` unless another module will import it
 - [ ] Docs (`equus/docs/engineering/entities/horses.md`, this blueprint) updated if the tab layout changes
 
-## 2. Layout RSC (`layout.tsx`) — Server Prefetch
+## 2. Layout RSC (`layout.tsx`) — Chrome Only
 
-Sits at `app/[locale]/horses/[horseId]/layout.tsx`. Runs on the server for every navigation to any horse sub-page.
+Sits at `app/[locale]/horses/[horseId]/layout.tsx`. As a Next.js layout, it re-runs on the server for every navigation to any horse sub-page. It renders entity chrome only — no `connectDb`, no `lib/services`, no TanStack cache seeding.
 
 ```tsx
 // No "use client"
@@ -69,6 +69,7 @@ export default async function HorseLayout({ children, params }: HorseLayoutProps
 
 Rules:
 - No `"use client"`
+- No data fetching — view data loads in child `client.tsx` via TanStack Query hooks (`useHorseView` → `GET /api/v1/horses/:id`; entity equivalents for other modules)
 
 ## 3. Server Component (`page.tsx`) — Thin
 
@@ -91,7 +92,7 @@ export default async function HorseConnectPage({ params }: PageProps) {
 ```
 
 Rules:
-- Only `generateMetadata` — no data fetching for content (layout handles that)
+- Only `generateMetadata` — no data fetching for content (client hooks handle view data)
 - Single client component render — no server-side section logic
 - No `"use client"`
 
@@ -254,14 +255,14 @@ Canonical overlay rules for all Equus UI. Do **not** invent a custom blur wrappe
 - **Title addon is optional** — use `titleAddon` for content immediately after the title with a left border (same visual pattern as description; e.g. Connect Invite, Documents Upload)
 - **Section visibility is section-owned via adapter** — modes are `owner` | `relationship` | `public`. Autosave through the shared control; never parent form dirty/Save for Layer-2; never `PATCH …/discovery` for section modes. Control UI is a **Popover** (allowed non-blocking overlay), not a Dialog.
 - **Hub-facing keys only on Hub** — Hub renders `identity` | `identification` | `pedigree` | `about` | `ownership` | `value` | `proactiveRepresentatives` | `coOwnerManagement` | `gallery` | `planning` | `connections`. All keys persist via `HorseSectionVisibility` and project to the Hub when Layer 2 allows.
-- **Hub consumer** — Hub page reads `useHorseView(horseId)` which hits the TanStack cache (pre-seeded by `layout.tsx`). No extra network request. Renders only sections present in `horse.sections` (server-filtered by L1+L2 visibility). Do not load full owner horse and hide sections in React.
+- **Hub consumer** — Hub page reads `useHorseView(horseId)` which fetches `GET /api/v1/horses/:id`. Renders only sections present in `horse.sections` (server-filtered by L1+L2 visibility). Do not load full owner horse and hide sections in React.
 - **Parent controls sizing** via `className` — use `className="flex-1"` for sections that should fill remaining space, `className="shrink-0"` for sections that take natural height
 
 ## 5.6 Shell Component (`HorsePageShell`)
 
 ### Responsibilities
 1. Check auth state via `useAppAuth()` — redirect unauthenticated users to sign-in
-2. Read horse data from TanStack cache via `useHorseView(horseId)` (pre-seeded by `layout.tsx` RSC)
+2. Fetch horse data via `useHorseView(horseId)` → `GET /api/v1/horses/:id`
 3. Gate content behind ownership using `horse.isAdmin` / `horse.isMainOwner`
 4. Show ONE body skeleton (`HorsePageContentSkeleton`) while auth or view data is loading
 5. Show "not allowed" fallback for permission failures
@@ -330,7 +331,7 @@ export function HorsePageShell({ horseId, requireOwnership, requireMainOwner, ch
 - **Render props pattern** — children receive `{ horse, isOwner }` directly, no prop drilling.
 
 ### Hub exception
-Hub (`/horses/[horseId]`) does NOT use `HorsePageShell` — it is public-facing. Its `client.tsx` reads from `useHorseView()` directly. `EntityTabs` still renders via `HorseLayoutChrome` (mounted in `layout.tsx`) and auto-hides when only `hub` is available. Data is already in the cache from `layout.tsx`. Hub **Media** loads via `useHorseHubGallery` (`GET …/hub-gallery`, paginated).
+Hub (`/horses/[horseId]`) does NOT use `HorsePageShell` — it is public-facing. Its `client.tsx` fetches via `useHorseView(horseId)` → `GET /api/v1/horses/:id`. `EntityTabs` still renders via `HorseLayoutChrome` (mounted in `layout.tsx`) and auto-hides when only `hub` is available. Hub **Media** loads via `useHorseHubGallery` (`GET …/hub-gallery`, paginated).
 
 ## 5.7 viewerRole and allowedTabs
 
@@ -599,15 +600,15 @@ Rules:
 | Breeder sub-page | `BreederPageShell` | `BreederPageContentSkeleton` |
 | (other entities) | `*PageShell` | `*PageContentSkeleton` |
 
-Each entity type creates its own shell + skeleton following the exact same pattern. New entity shells should also follow the `layout.tsx` RSC prefetch pattern (§2) with a corresponding `getEntityView` service function.
+Each entity type creates its own shell + skeleton following the exact same pattern. New entity layouts should follow the chrome-only `layout.tsx` pattern (§2); view data loads via client hooks (`useEntityView` → `GET /api/v1/...`).
 
 ### User exception — public vs owner hub
 
 Unlike the horse (single public hub), the user has two surfaces that share one component:
 
 - **`/users/[userId]` (public)** — renders `UserHubContent` from `GET /api/v1/users/:id/hub` (`useUserHub`). No shell; audience-filtered by L1 (`profileVisibility`) + L2 (`hubSections`).
-- **`/user/[userId]` (owner account)** — the Hub tab renders the **same** `UserHubContent` from the layout-seeded `user.sections` (no extra request), gated by `UserPageShell`.
+- **`/user/[userId]` (owner account)** — the Hub tab renders the **same** `UserHubContent` via `useUserView` → `GET /api/v1/users/me`, gated by `UserPageShell`.
 
-`UserLayoutChrome` (in `layout.tsx`) renders `EntityTabs` + `UnsavedChangesProvider` so tabs persist; `UserPageShell` only gates auth/self. The owner layout uses `PreferHydrationBoundary` (guest RSC seed cannot overwrite an owner cache).
+`UserLayoutChrome` (in `layout.tsx`) renders `EntityTabs` + `UnsavedChangesProvider` so tabs persist; `UserPageShell` only gates auth/self. Owner layout is chrome only — no service prefetch.
 
 See [`users.md`](users.md) and [`userTabs.md`](userTabs.md).
