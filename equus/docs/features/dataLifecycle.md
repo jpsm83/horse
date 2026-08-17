@@ -8,7 +8,7 @@ Related:
 - [`userModule.md`](userModule.md) — account deactivation vs profile visibility
 - [`ownershipTransfer.md`](ownershipTransfer.md) — consent-based ownership changes (never delete entity)
 - [`workplaceRelationship.md`](workplaceRelationship.md) — collaboration lifecycle
-- [equus/docs/engineering/userAuthTodo.md](../engineering/userAuthTodo.md) — execution tasks (UA-00, UA-27+)
+- [equus/docs/engineering/dataLifecycle.md](../engineering/dataLifecycle.md) — tombstones and allowed hard-delete exceptions
 
 ---
 
@@ -25,7 +25,7 @@ Hard `delete` in MongoDB is otherwise allowed **only** for failed compensating t
 | `Media` | Main owner, co-owner, responsible | `MediaDeletionRequest` | Responsibles if any; else main + co-owners |
 | `Document` | Main owner, co-owner, responsible | `DocumentDeletionRequest` | Same |
 
-See [equus/docs/engineering/dataLifecycle.md](../engineering/dataLifecycle.md) and [equus/docs/engineering/entities/horses.md](../engineering/entities/horses.md).
+See [equus/docs/engineering/dataLifecycle.md](../engineering/dataLifecycle.md) and [equus/docs/engineering/horses.md](../engineering/horses.md).
 
 
 ---
@@ -101,7 +101,9 @@ When a vet (or any provider) **deactivates their account**, **closes their pract
 | Provider hidden from discover / public cards | Owners (and authorized co-owners) **retain read access** to historical entries on that horse |
 | No new writes on that horse via that provider | Entries keep **attribution** (`uploadedByUserId`, `relationshipId`, optional label snapshots on `Relationship.historicalReference`) |
 
-`isActive: false` on `User` or `Veterinary` means **withdraw from discovery and operations** — it does **not** mean delete clinical or document history on horses the provider served.
+`isActive: false` on `User` or a provider profile means **withdraw from discovery and new operations** — it does **not** mean delete history on horses.
+
+**Stable write-lock** (subscription lapse) is the same integrity rule: **no new writes**, documents stay, owners still **see** saved Planning events and invoices. See [`entitySubscription.md`](entitySubscription.md).
 
 **Implementation status:** Models support this shape today (`Document.horseId`, `Relationship` history fields). Health events, vaccination rules, unified timeline, and owner read APIs are **planned** in [`horseModule.md`](horseModule.md) (§5–7, especially H-DASH-07, H-HEALTH-*, H-DOC-*). Build those features against this rule.
 
@@ -144,7 +146,8 @@ When a vet (or any provider) **deactivates their account**, **closes their pract
 
 | Date | Change |
 |------|--------|
-| 2026-06-30 | Initial policy — tombstone fields on models, lifecycle doc, userAuthTodo UA-00 / UA-27+ |
+| 2026-08-16 | Write-lock ≠ delete; owner still sees horse-attached history |
+| 2026-06-30 | Initial policy — tombstone fields on models, lifecycle doc |
 | 2026-06-30 | Horse-attached records section — provider deactivation does not remove owner-visible horse history |
 | 2026-06-30 | UA-31 — `anonymizeUserPii` pipeline documented and implemented |
 | 2026-07-21 | Media **and Document** hard-delete exception; representative-first deletion-request recipients |

@@ -7,7 +7,7 @@ Consent-based changes to **entity-owned** profiles only. Spec lives in the **use
 Related:
 - [`userModule.md`](userModule.md) §4 — ownership model and feature IDs
 - [equus/docs/product/productFlows.md](../product/productFlows.md) — Flows 10–12
-- [equus/docs/product/businessPlan.md](../product/businessPlan.md) §Phase 7
+- [equus/docs/product/graph-and-identity.md](../product/graph-and-identity.md) — waiting-transfer
 - [equus/docs/engineering/ownershipTransfer.md](../engineering/ownershipTransfer.md) — planned REST API
 - [`workplaceRelationship.md`](workplaceRelationship.md) — operational staff (distinct from ownership)
 
@@ -53,7 +53,8 @@ One collection models all ownership **lifecycle** events (like `Relationship` fo
 #### `transfer_main` (sale / handoff to another user)
 
 - **Precondition:** `coOwners[]` is **empty**. If any co-owners exist, the main owner must complete **`remove_co_owner`** flows (each accepted) before sending `transfer_main`.
-- **On accept:** New user becomes `mainOwnerUserId`. Horse subscription / billing responsibility moves to the new main owner per horse billing rules.
+- **On accept:** New user becomes `mainOwnerUserId`. **Horse Equus billing does not exist** — do not move an owner subscription. If this is a **Stable**, SaaS customer becomes the new stable `mainOwner`.
+- **Waiting-transfer claim:** same `transfer_main` (receiver = real owner). After accept, stable remains **host** via `Relationship`, not owner.
 - **On decline / cancel:** Entity unchanged.
 
 #### `remove_co_owner`
@@ -82,7 +83,7 @@ One collection models all ownership **lifecycle** events (like `Relationship` fo
 
 Receivers act at a dedicated inbox (**`/ownership-transfers`**) alongside `/relationships` and `/workplaces`.
 
-Email + signup bridge for unregistered recipients (same `referralReference` pattern as relationship invites) — optional v2 if all parties must be registered for MVP.
+Email + signup bridge for unregistered recipients — **no** owner-subscription `referralReference` commission.
 
 ---
 
@@ -102,4 +103,5 @@ Adding a new co-owner (partnership invite) may be a future **`add_co_owner`** ki
 
 | Date | Change |
 |------|--------|
+| 2026-08-16 | Waiting-transfer claim; **removed** horse-owner billing move |
 | 2026-06-30 | Locked consent-based OwnershipTransfer; three kinds; co-owner preconditions for external transfer |

@@ -1,9 +1,9 @@
 # First Delivery — Competitive Feature Backlog
 
-> **Purpose:** Extract from [`equus/docs/product/benchMarket/webapps.md`](benchMarket/webapps.md) every competitor capability relevant to Equus **first delivery** priorities: (1) **user + horse details for social interaction**, and (2) **stable SaaS**.  
-> **Rule:** This document **adds** market-derived scope. It does **not** remove or replace anything already defined in Equus module specs.  
-> **Policy:** Social features follow `businessPlan.md` Section 15 — **utility first, social second** (not an open Instagram-style network).  
-> **Research date:** July 2026 (from competitive benchmark).
+> **Purpose:** Extract from [`equus/docs/product/benchMarket/webapps.md`](benchMarket/webapps.md) every competitor capability relevant to Equus **first delivery**: (1) **user + horse Hub** (free social skin), and (2) **stable SaaS** (paid entity).  
+> **Rule:** This document **adds** market-derived scope. It does **not** remove or replace Equus module specs.  
+> **Policy:** Graph-first — [`vision.md`](vision.md), [`graph-and-identity.md`](graph-and-identity.md). Chat + favorites; **no** people search, follow, likes, or public feed. Entity pays: [`monetization.md`](monetization.md).  
+> **Research date:** July 2026 (benchmark); product locks **August 2026**.
 
 **Related Equus specs (append targets):**
 - [equus/docs/features/userModule.md](../features/userModule.md) — § First delivery market backlog
@@ -18,8 +18,8 @@
 
 | Priority | What we ship first | Why (market signal) |
 |----------|--------------------|---------------------|
-| **A — Social identity & horse public surface** | Rich user cards + rich horse profiles that support discovery, sharing, reviews, care-network visibility, and sale-ready history | My Cheval, Happie, Equestrian App, Equilab, ehorses, Ridely |
-| **B — Stable SaaS** | Multi-user barn ops: roster, tasks, health, feed, docs, finance, facilities, owner transparency | Equicty, HippoVibe, Equestrian App (StallPros), EquineM parity already in `equus/docs/features/stableModule.md` |
+| **A — Horse Hub (free social skin)** | Rich horse profiles, discovery, sharing, reviews, care-network visibility, sale-ready history, **favorites**, chat | My Cheval, Happie, Equestrian App, ehorses |
+| **B — Stable SaaS (paid entity)** | Multi-user barn ops: roster, tasks, health, feed, docs, finance, facilities, owner portal | Equicty, HippoVibe, Equestrian App (StallPros), EquineM parity in `equus/docs/features/stableModule.md` |
 
 **Explicitly later (still catalogued in webapps.md, not first delivery):** FEI compliance rebuild, BHA racing admin, BHS membership/insurance, full edtech video library (Ridely), GPS gait AI as primary product, fructan/laminitis OS as primary product, Smart Stable Board hardware.
 
@@ -38,7 +38,7 @@ Sources: Equestrian App, Equilab, Ridely, My Cheval, Happie, BHS membership card
 | Preferred language | Equus, Equilab (12 langs) | Keep `preferredLanguage` |
 | Profile visibility controls | Equus, Happie share modes | Keep `profileVisibility` + DM preference |
 | Business vs individual display name | Equus `userType` | Keep businessName on public cards |
-| Connect / follow friends | Equilab, My Cheval, Equestrian App | Optional utility: “connect” only when it serves horse care or booking — not a generic social graph |
+| Connect / follow friends | Equilab, My Cheval, Equestrian App | **Do not** ship follow. Use **favorites** + open chat + relationships |
 | Allow others to journal on shared horse | Equestrian App | Aligns with Relationship permissions + WorkplaceRelationship |
 | Barn Chat / group messaging | Equestrian App | Open chat (already Phase 1A) + horse/stable context threads |
 | Expert-moderated topic groups | Ridely | **Defer** — edtech community, not first delivery |
@@ -72,17 +72,17 @@ Sources: My Cheval, Happie, Equestrian App, ehorses listings, HippoVibe share pa
 
 ### A.3 Horse Hub / social interaction surfaces
 
-Sources: Equus Hub tab, Equestrian App journal+feed, Equilab home feed, My Cheval sharing, Ridely activity journal, businessPlan §15.
+Sources: Equus Hub tab, Equestrian App journal+feed, Equilab home feed, My Cheval sharing, Ridely activity journal, [`graph-and-identity.md`](graph-and-identity.md).
 
 | Market feature | Competitor(s) | Equus implication for first delivery |
 |----------------|---------------|--------------------------------------|
 | Public horse Hub / dashboard | Equus Hub | **Keep** — expand with identity summary, media, pedigree, ownership, discovery |
 | Activity journal / timeline posts | Equestrian App, Ridely, My Cheval | **Add** — horse Hub timeline (H-DASH-*) with provider-sourced entries |
-| News feed of horse activity for caregivers | Equestrian App | **Add** — relationship-scoped feed (not global Instagram) |
-| Community journal / social posts | Equestrian App, Equilab groups | Only when tied to horse/stable context; **no** public social feed (mvpScope deferral stands) |
+| News feed of horse activity for caregivers | Equestrian App | **Add** — **relationship-scoped** horse timeline only (not a global feed) |
+| Community journal / social posts | Equestrian App, Equilab groups | Horse/stable context only; **no** public social feed ([`mvpScope.md`](mvpScope.md)) |
 | Injury photo capture for vet | Equestrian App | **Add** via Media + timeline note |
 | Multi-party permissions (owner, trainer, vet, farrier, leasee) | Equestrian App, Happie, Equicty | **Keep** Relationship + WorkplaceRelationship; surface on Connect |
-| Horse-scoped verified reviews | Equus, businessPlan §15.3 | **Keep** H-REL-07/08 |
+| Horse-scoped verified reviews | Equus, [`graph-and-identity.md`](graph-and-identity.md) | **Keep** H-REL-07/08 |
 | Structured inquiry from discovery | Equus | **Keep** H-COM-03 |
 | Open live chat | Equus Phase 1A | **Keep** |
 | Live GPS ride share / RideSafe | Equilab, Ridely, My Cheval | **Defer** (ride product, not first delivery) |
@@ -160,7 +160,7 @@ Extracted from **Equicty (Equstable/Equclub)**, **HippoVibe**, **Equestrian App 
 | Training / treatment plan templates | EquineM | **Already** S-ACT-08/09 |
 | Customize activity types / form fields | EquineM | **Already** S-ACT-10/19 |
 | Filter by horse, type, staff; daily/weekly/monthly | EquineM | **Already** S-ACT-11–13 |
-| Owner-visible activity feed | Equus Beyond | **Already** S-ACT-23 |
+| Owner-visible activity feed | Equus Beyond | **Already** S-ACT-23 — **live** only while stable is in **good standing** ([`monetization.md`](monetization.md)) |
 | Announcements | EquineM | **Already** S-ACT-06 |
 | Smart Stable Board (32″ hardware) | Equicty | **Defer** hardware |
 | Hoofy AI stable assistant | Equicty | **Defer** AI (mvpScope) |
@@ -223,7 +223,7 @@ Extracted from **Equicty (Equstable/Equclub)**, **HippoVibe**, **Equestrian App 
 | Member self-service portal | Equicty Equclub | **Add** |
 | Auto notifications (cancellations, freed spots) | Equicty Equclub | **Add** |
 
-> Riding club as a separate entity remains in `equus/docs/engineering/entities/riding-clubs.md`; first delivery may ship **lesson-capable stable** subset only if product chooses.
+> Riding club as a separate entity remains in [`equus/docs/engineering/later-modules.md`](../engineering/later-modules.md); first delivery may ship **lesson-capable stable** subset only if product chooses.
 
 ### B.9 Breeding (pro stables / studs)
 
@@ -239,7 +239,7 @@ Extracted from **Equicty (Equstable/Equclub)**, **HippoVibe**, **Equestrian App 
 | Owner sees only their horses | Equus principle | **Already** |
 | Stable updates on horse timeline | Equus Beyond | **Already** S-HORSE-17 / S-ACT-23 |
 | Reports emailed to owner | EquineM | **Already** S-COM-04 |
-| Owner communication portal | Equus | **Already** S-COM-09 |
+| Owner communication portal | Equus | **Already** S-COM-09 — included in **stable** subscription, not an owner Equus fee |
 | Bidirectional horse-scoped reviews | Equus | **Already** S-REL-07/08 |
 
 ---
@@ -263,7 +263,7 @@ Extracted from **Equicty (Equstable/Equclub)**, **HippoVibe**, **Equestrian App 
 
 1. **Horse public Hub + profile completeness** (identity, media, pedigree, disciplines, sale fields, share pack) — social discovery surface  
 2. **User public card polish** (avatar, bio, username, business display) — linked from entities only  
-3. **Care-network social** (Connect, timeline feed, chat, reviews, read/full share modes)  
+3. **Care-network** (Connect, relationship-scoped timeline, chat, **favorites**, reviews, read/full share)  
 4. **Stable SaaS core** (profile, roster, stalls/groups, daily tasks drag-drop, health reminders, feed, docs)  
 5. **Stable finance** (expenses, invoices from activities, owner dashboard)  
 6. **Facilities + owner booking**  
@@ -277,3 +277,4 @@ Extracted from **Equicty (Equstable/Equclub)**, **HippoVibe**, **Equestrian App 
 | Date | Change |
 |------|--------|
 | 2026-07-24 | Initial extraction from `equus/docs/product/benchMarket/webapps.md` for first-delivery social (user/horse) + stable SaaS; linked into module specs |
+| 2026-08-16 | Align with graph-first locks: no follow/feed; entity-pays portal; favorites |

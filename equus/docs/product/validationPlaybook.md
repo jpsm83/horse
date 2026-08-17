@@ -1,47 +1,29 @@
 # Validation Playbook — Pre-Build Customer Discovery
 
-Run this playbook **before** starting Phase 1A development (`mvpScope.md`).
-
-Sources:
-- `businessPlan.md` — Section 18 (Phases 3 and 4)
-- `equus/docs/engineering/stack.md` — build only after validation passes
+Run **before** Phase 1A ([`mvpScope.md`](mvpScope.md)). GTM: [`go-to-market.md`](go-to-market.md). Pricing under test: [`monetization.md`](monetization.md).
 
 ---
 
 ## Objective
 
-Validate that the pain is real, workflows are painful enough, and horse owners/businesses will pay for the wedge:
+Validate that **Spanish (and nearby) stables** will pay for **yard SaaS**, and that **owners** will use a **free** Hub, chat, and portal (they do **not** pay Equus).
 
-**Stable/trainer operations + owner visibility (expenses, communication, control, paperwork).**
+Wedge: **Stable operations + owner visibility**, entity-pays.
 
 ---
 
 ## Interview targets
 
-| Segment | Target count |
-|---------|--------------|
-| Stable owners / managers | 10 |
-| Trainers | 10 |
-| Horse owners | 10 |
-| **Total** | **30** |
+| Segment | Target | What we learn |
+|---------|--------|----------------|
+| **Stable owners / managers (Spain)** | **12** | Pain, current tools, **WTP for catalog bands**, invite owners |
+| Horse owners | 8 | WhatsApp pain, portal desire — **not** Equus card |
+| Trainers (optional) | 5 | Collab / later module — not launch payer |
+| **Total core** | **20** stables+owners minimum | |
 
-Optional stretch: 5 vets (signals vet module priority for production gate — not required for Phase 1A go/no-go).
+Stretch: 3 vets (signals module #2, not launch gate).
 
----
-
-## Recruitment tips
-
-- Local stables and training centers
-- Riding clubs and competition communities
-- Vet referrals (relationship context)
-- Personal network + direct outreach (not surveys)
-
-Ask candidates to show real artifacts:
-- Spreadsheets
-- WhatsApp groups
-- Invoices
-- Schedules
-- Horse records
+Recruit **Spain first**. Artifacts: spreadsheets, WhatsApp, invoices, schedules, horse records.
 
 ---
 
@@ -49,190 +31,139 @@ Ask candidates to show real artifacts:
 
 ### Intro (2 min)
 
-> “I’m researching how stables/trainers/owners manage horses today. This is not a sales call. I want to understand your real workflow and pain points.”
+> “I’m researching how yards and owners run horses day to day. Not a sales call.”
 
-### Core questions (required)
+### Required questions
 
-**Q1 — Current tools**
-“What software or tools do you use today to manage horses, owners, schedules, and payments?”
+**Q1 — Current tools**  
+What software/tools for horses, owners, schedules, payments? (Excel, WhatsApp, EquineM, Equicty, HippoVibe, paper, …)
 
-Probe:
-- Excel/Google Sheets?
-- WhatsApp/Telegram?
-- Paper notebooks?
-- Other apps/vendors?
+**Q2 — Biggest pain**  
+Most annoying daily work?
 
-**Q2 — Biggest pain**
-“What is the most annoying or time-consuming part of managing horses in your day-to-day work?”
+**Q3 — Magic wand**  
+One fix tomorrow?
 
-Probe:
-- Communication chaos?
-- Missing records?
-- Invoice confusion?
-- Scheduling conflicts?
+**Q4 — Current spend (stables)**  
+What they pay today for barn software / admin. Gold: already paying EquineM-class tools.
 
-**Q3 — Magic wand**
-“If you could fix one thing tomorrow, what would it be?”
+**Q5 — Walkthrough**  
+One real case: new horse arrives, monthly owner invoice, update to owner.
 
-(Let them speak without steering.)
+**Q6 — Willingness to pay (stables only — critical)**  
+Show **EUR catalog** (not $99/horse):
 
-**Q4 — Current spend**
-“What do you currently pay for related to horse management (software, admin help, tools)?”
+> “If this replaced whiteboard + WhatsApp for the yard, and owners got a free app to see *their* horses, would you pay about **€49/month for up to 5 horses**, **€99 for 6–15**, **€179 for 16–30**, **€299 for 31–60**, then **€4/horse (min €299) above 60** — knowing you can pass it through in boarding?”
 
-(Gold signal: they already pay for partial solutions.)
+Rules: ask, stop talking, no feature pitch. “Maybe” = not a yes.
 
-**Q5 — Workflow walkthrough**
-“Can you show me how you handle one real case end-to-end?”
+**Q7 — Owner invite (stables)**  
+Would you invite clients onto a **free** owner Hub so they stop pinging WhatsApp for records/invoices?
 
-Examples:
-- New horse arrives at stable
-- Monthly owner invoice
-- Training session update to owner
-- Vet visit record sharing
+**Q8 — Owners only**  
+Would you use a free app if the barn put care and invoices there? Any deal-breaker if the barn’s software lapsed and live data paused?
 
-**Q6 — Willingness to pay (critical)**
-“If a platform replaced your scattered tools and gave owners one clear dashboard for expenses, communication, schedules, and records, would you pay **$99/month per horse** as the owner?”
-
-Rules:
-- Ask clearly
-- Then stop talking
-- Do not pitch features
-- Listen to exact words
-
-**Q7 — Business adoption (for stables/trainers)**
-“If the platform was free for your business and helped you manage operations while owners paid per horse, would you use it and invite your clients?”
+**Do not ask owners** if they would pay Equus $99/horse.
 
 ---
 
-## Scoring model
-
-Score each interview section from **0 to 2**.
-
-| Score | Meaning |
-|-------|---------|
-| 0 | No pain / not relevant |
-| 1 | Some pain, unclear urgency |
-| 2 | Strong pain, active workaround, high urgency |
-
-### Scoring rubric
+## Scoring (0–2)
 
 | Area | 0 | 1 | 2 |
 |------|---|---|---|
-| Pain severity | Minor annoyance | Regular friction | Major daily friction |
-| Current tool fragmentation | Single adequate tool | 2–3 tools | WhatsApp+Excel+manual chaos |
-| Existing spend | Pays nothing | Pays small amount | Already pays for partial solutions |
-| Willingness to pay ($99/horse) | No / vague | “Maybe” / “depends” | Clear yes (“absolutely”, “we’d pay”) |
-| Business invite likelihood | Would not invite owners | Might invite some | Would actively invite clients |
+| Pain | Minor | Regular | Daily fire |
+| Fragmentation | One OK tool | 2–3 tools | WhatsApp+Excel chaos |
+| Existing spend (stable) | Nothing | Small | Already pays yard SaaS |
+| **Stable WTP (catalog)** | No | Vague / “maybe” | Clear yes on band for their size |
+| Invite owners | Would not | Maybe | Would actively invite |
 
-### Response interpretation (Q6)
+Owner interviews: score pain/fragmentation/portal desire (Q8). **Do not** put them in the WTP-yes count.
 
-| Owner response | Score |
-|----------------|-------|
-| “Absolutely” / “Yes, if it works” | 2 |
-| “Maybe” / “Interesting” / “I’d try it” | 0 |
-| No answer / avoids pricing | 0 |
+### Q6 interpretation (stables)
 
-> “Maybe” is usually a polite no. Do not count it as validation.
+| Response | Score |
+|----------|-------|
+| Yes / “we’d pay that band” | 2 |
+| Maybe / interesting / I’d try free forever | 0 |
+| Avoids price | 0 |
 
 ---
 
-## Per-interview sheet (template)
+## Per-interview sheet
 
 ```
 Date:
-Segment: [Stable / Trainer / Owner]
-Name/Role:
-Location:
+Segment: [Stable / Owner / Trainer]
+Location: (Spain?)
+Roster size (if stable):
 
 Q1 Tools:
 Q2 Pain:
 Q3 Magic wand:
-Q4 Current spend:
-Q5 Workflow notes:
-Q6 WTP ($99/horse): [0/1/2]
-Q7 Business invite likelihood: [0/1/2]
+Q4 Spend:
+Q5 Workflow:
+Q6 WTP catalog: [0/2]  (stables only)
+Q7 Invite owners: [0-2]
+Q8 Owner portal (owners): 
 
-Pain severity [0-2]:
+Pain [0-2]:
 Fragmentation [0-2]:
-Existing spend [0-2]:
+Spend [0-2]:
 WTP [0-2]:
-Invite likelihood [0-2] (if business):
+Invite [0-2]:
 
-Total score (/10):
+Total /10 (stables) or /6 (owners):
 Key quote:
 Follow-up?
 ```
 
 ---
 
-## Aggregate decision criteria
+## Aggregate decision
 
-### Go (start Phase 1A build)
+### Go (start Phase 1A)
 
-Meet all:
-- At least **20 interviews** completed (minimum 6 per core segment)
-- At least **12 total “clear yes”** responses on $99/horse WTP (score 2 on Q6)
-- At least **8 business interviews** with invite likelihood score 2
-- Repeated pain themes appear in **≥60%** of interviews (communication, invoices, visibility, records)
+All of:
 
-### Iterate (refine positioning/scope)
+- ≥ **12 stable** interviews in/near Spain  
+- ≥ **8 owner** interviews  
+- ≥ **6 stables** with WTP score **2** on the catalog (or a **documented** counter-offer we adopt into [`monetization.md`](monetization.md))  
+- ≥ **6 stables** invite-likelihood **2**  
+- Same pains in ≥60% (communication, invoices, records, whiteboard)
 
-If:
-- Many “maybe” responses
-- Pain exists but price resistance is high
-- Businesses like idea but won’t invite owners
+### Iterate
 
-Actions:
-- Adjust MVP scope (`mvpScope.md`)
-- Test lower price hypothesis in next 10 interviews
-- Narrow wedge (stable-first or trainer-first)
+Many maybes; price too high vs HippoVibe/EquineM; yards like the idea but will not invite owners.
 
-### No-go (pause build)
+Actions: retune bands in `monetization.md`; another 8 stable interviews; do not secretly switch back to owner-pays.
 
-If:
-- Low pain across segments
-- No willingness to pay
-- No operational urgency
+### No-go
+
+Low pain; **stables** will not pay for SaaS; no urgency.
 
 ---
 
-## What we are validating (and not validating)
+## Validating vs not
 
-### Validating now
-- Stable/trainer/owner operational pain
-- Willingness to pay per horse
-- Business willingness to invite owners
-- Workflow fit for Phase 1A scope
+**Now:** yard pain, **entity** WTP, owner appetite for **free** Hub/portal, invite loop.
 
-### Not validating yet
-- Marketplace demand
-- Breeder/vet module depth
-- Social feature demand
-- Full ecosystem completeness
+**Not yet:** marketplace, vet module depth, Instagram social, owner Equus subscriptions.
 
 ---
 
 ## Post-validation outputs
 
-After interviews, produce:
-1. Top 5 recurring pains (ranked)
-2. Final Phase 1A must-have list adjustments
-3. Pricing confidence note ($99 confirmed or revised)
-4. First 3 pilot customers list (stable/trainer/owner triads)
+1. Top 5 pains  
+2. 1A must-have tweaks  
+3. Pricing note (catalog confirmed or revised — **entity**, not per-horse owner)  
+4. First 3 **pilot stables** in Spain (with a path to their owners)
 
 ---
 
-## Success quote targets
+## Quotes we want
 
-You want to hear statements like:
-- “I lose track of what I billed each owner.”
-- “Owners constantly message me on WhatsApp for updates.”
-- “I’d pay for one place to see all horse costs.”
-- “If my stable used it, I’d join tomorrow.”
+Stables: “I lose invoices.” “Owners only live on WhatsApp.” “€99 for 12 horses is cheaper than the mess.”
 
-If you mostly hear:
-- “Sounds cool”
-- “Maybe later”
-- “We’re fine with WhatsApp”
+Owners: “If the barn is there I’ll open it.” “I don’t want another paid app.”
 
-…iterate before building.
+Walk away if: “We’re fine with WhatsApp” / “I won’t pay for software” (from **yards**).

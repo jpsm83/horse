@@ -4,26 +4,23 @@ Living document for planning, updating, and tracking **stable-facing** capabilit
 
 **Audience:** product, engineering, and GTM — use this file to add, remove, or reprioritize stable features before implementation starts on each area.
 
-**Related docs:**
-- [`equus/docs/product/benchMarket/webapps.md`](../product/benchMarket/webapps.md#12-equinem) — market competitive benchmark (EquineM = §12 / primary stable-ERP parity baseline)
-- [equus/docs/product/firstDeliveryCompetitiveBacklog.md](../product/firstDeliveryCompetitiveBacklog.md) — first-delivery extract (user/horse social + stable SaaS)
-- [equus/docs/product/businessPlan.md](../product/businessPlan.md) — vision, monetization, competitive positioning (Section 20), relationship rules
-- [equus/docs/product/mvpScope.md](../product/mvpScope.md) — build phases vs production launch gate
-- [`userModule.md`](userModule.md) — identity; [`workplaceRelationship.md`](workplaceRelationship.md) — stable collaboration (User ↔ role profile)
-- [`ownershipTransfer.md`](ownershipTransfer.md) — consent-based stable ownership / co-owner changes
-- [`horseModule.md`](horseModule.md) — horse hub (owner view, discovery, timeline); complementary to stable roster sections here
+**Product is source of truth:** [`equus/docs/product/businessPlan.md`](../product/businessPlan.md), [`monetization.md`](../product/monetization.md) (prices — do not copy here), [`mvpScope.md`](../product/mvpScope.md).
+
+**Related:** [`entitySubscription.md`](entitySubscription.md), [`horseModule.md`](horseModule.md) (owner **display**), [`userModule.md`](userModule.md), [`workplaceRelationship.md`](workplaceRelationship.md), [`ownershipTransfer.md`](ownershipTransfer.md), [`chat.md`](chat.md), [`favorites.md`](favorites.md).
 
 ---
 
 ## Product principles (stable)
 
-1. **Free for stables** — stable accounts use operational features at no platform fee; horse owners pay per horse (see `equus/docs/product/businessPlan.md` Section 11).
-2. **Transparency by design** — stables that join the platform commit to owner-visible horse data for horses they host. Owners see **only their own horses**, never other clients' horses.
-3. **Collaborators are Users** — profile owner invites a User to collaborate at a **stable role profile** via `WorkplaceRelationship`; hierarchy on the link. See [`workplaceRelationship.md`](workplaceRelationship.md). **No `Business` model** — only `User` + role profiles.
-4. **Multi-stable collaboration** — same User may collaborate at multiple stables; scheduling detects cross-stable conflicts.
-5. **Relationship-first operations** — stable ↔ horse links require acceptance (typically after owner/stable communication). Once established, the relationship is **permanent** for history, owner access, and horse-scoped reviews — including after the horse leaves or during disputes.
-6. **Ecosystem, not silo** — vets, trainers, and owners are independent accounts linked to the same horse; the stable is one actor in the network, not the sole tenant admin.
-7. **EquineM parity + more** — match and exceed stable-centric tools (see parity sections below); add discovery, horse-scoped reviews, owner dashboard, referral commissions, and cross-provider connectivity EquineM does not offer.
+1. **Stable pays SaaS** — the owning User is the Equus customer. Horse owners are not billed. Numbers: [`../product/monetization.md`](../product/monetization.md). States: [`entitySubscription.md`](entitySubscription.md).
+2. **Ops writes live here** — whiteboard, feed, invoices, roster. The horse page **displays** (Planning / Documents); it does not run the yard.
+3. **Good standing required to write** — write-lock if the subscription lapses. **Do not delete** history; owners still **see** saved events and invoices.
+4. **Transparency** — owners see **only their horses**. Saved horse-attached data remains after leave or lapse.
+5. **Collaborators are Users** — `WorkplaceRelationship`. No `Business` login. Until vet/trainer **modules** ship, those people collaborate as Users.
+6. **Two hosting paths** — owner invites stable **or** stable creates a boarded horse (waiting-transfer + nags). See [`horseModule.md`](horseModule.md) H-OWN-08.
+7. **Roster feeds the meter** — current hosted + waiting-transfer. Price on the entity is overridable; adding a horse does not auto-charge.
+8. **EquineM parity + graph** — match barn ops; exceed with independent accounts, discovery, horse-scoped reviews, free owner Hub.
+9. **Stable list default = mine** (owned or collaborating). Discovery and Favorites are filters.
 
 ---
 
@@ -43,7 +40,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 
 ## 1. Stable profile and discovery
 
-**Baseline API (shipped):** minimal create + discovery + public read — `POST /api/v1/stables`, `PATCH /api/v1/stables/:id/discovery`, `GET /api/v1/stables/:id`. See [equus/docs/engineering/entities/stables.md](../engineering/entities/stables.md). Full profile fields (photos, facilities, pricing tiers, search directory) remain below.
+**Baseline API (shipped):** minimal create + discovery + public read — `POST /api/v1/stables`, `PATCH /api/v1/stables/:id/discovery`, `GET /api/v1/stables/:id`. See [equus/docs/engineering/stables.md](../engineering/stables.md). Full profile fields (photos, facilities, pricing tiers, search directory) remain below.
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
@@ -78,8 +75,10 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | S-HORSE-13 | URLs and external links per horse | Parity | planned |
 | S-HORSE-14 | Digital tack room | Parity | planned |
 | S-HORSE-15 | Vaccination rules / schedules per horse | Parity | planned |
-| S-HORSE-16 | Invite/link horse via relationship request (existing or email invite) | Beyond | planned |
-| S-HORSE-17 | Owner dashboard sync: stable updates visible on horse timeline | Beyond | planned |
+| S-HORSE-16 | Accept owner hosting invite; email invite for unregistered owner | Beyond | planned |
+| S-HORSE-17 | Emit events/invoices that **display** on horse Planning / Documents | Beyond | planned |
+| S-HORSE-18 | Create boarded horse (owner email required) + waiting-transfer | Beyond | planned |
+| S-LIST-01 | Stable index default = **mine**; discovery + Favorites filters | Beyond | planned |
 
 ---
 
@@ -109,7 +108,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | S-ACT-20 | Monthly overview per horse (activities + treatments) | Parity | planned |
 | S-ACT-21 | Activity reports and horse development insight | Parity | planned |
 | S-ACT-22 | Real-time status of progress and delays | Parity | planned |
-| S-ACT-23 | Owner-visible activity feed on horse timeline | Beyond | planned |
+| S-ACT-23 | Entity events appear on horse **Planning** (owner cannot edit them; reply = chat) | Beyond | planned |
 
 ---
 
@@ -138,7 +137,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | S-TEAM-15 | Monthly overview of collaborators at stable | Parity | planned |
 | S-TEAM-16 | Historic availability overview | Parity | planned |
 | S-TEAM-17 | Notifications on conflicts with horse scheduling | Parity | planned |
-| S-TEAM-18 | User dashboard: owned profiles + collaborations + pending invites | Beyond | planned |
+| S-TEAM-18 | Pending workplace invites appear on **home inbox** ([`myGraph.md`](myGraph.md)) | Beyond | planned |
 
 ---
 
@@ -171,7 +170,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | S-FEED-07 | Feed inventory tracking | Parity | planned |
 | S-FEED-08 | Filter by horse, horse group, owner | Parity | planned |
 | S-FEED-09 | Monthly feed overview by horse | Parity | planned |
-| S-FEED-10 | Owner-visible feed history on horse profile | Beyond | planned |
+| S-FEED-10 | Feed history visible on horse Planning (owner display) | Beyond | planned |
 
 ---
 
@@ -192,8 +191,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | S-FIN-11 | Account balances per owner/contact | Parity | planned |
 | S-FIN-12 | Financial reports for analysis and planning | Parity | planned |
 | S-FIN-13 | Bookkeeping integrations (Yuki, Moneybird, Exact Online — target list) | Parity | planned |
-| S-FIN-14 | Owner expense dashboard: all stable invoices in one place | Beyond | planned |
-| S-FIN-15 | Partner referral commission on owner subscriptions (Section 19) | Beyond | planned |
+| S-FIN-14 | Invoices **created here**; shown on horse **Documents → invoices** | Beyond | planned |
 | S-FIN-16 | Advanced analytics: facility occupancy insight and revenue forecasting | Parity | planned |
 
 ---
@@ -210,7 +208,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | S-COM-06 | Stable announcements and updates | Parity | planned |
 | S-COM-07 | Open live chat with owners, staff, and providers (WhatsApp-style) | Beyond | planned |
 | S-COM-08 | Booking and relationship notifications | Beyond | planned |
-| S-COM-09 | Owner communication portal (timeline + messages + documents) | Beyond | planned |
+| S-COM-09 | Chat with owners ([`chat.md`](chat.md)); horse display is Hub/Planning/Documents | Beyond | planned |
 
 ---
 
@@ -218,15 +216,14 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
-| S-REL-01 | Receive horse hosting invite from owner; accept/decline | Beyond | planned |
-| S-REL-02 | Email invitation for unregistered owner/stable | Beyond | planned |
+| S-REL-01 | Receive owner hosting invite; accept/decline | Beyond | planned |
+| S-REL-02 | Email invitation for unregistered owner | Beyond | planned |
 | S-REL-03 | Accept / decline pending request | Beyond | planned |
-| S-REL-04 | Resend request after mistaken decline | Beyond | planned |
-| S-REL-05 | Established relationship is permanent (history never deleted) | Beyond | planned |
-| S-REL-06 | Owner retains read access to their horse data after leave or dispute | Beyond | planned |
-| S-REL-07 | Horse-scoped review/rating after verified relationship (bidirectional: stable ↔ horse/owner) | Beyond | planned |
-| S-REL-08 | Reviewee can respond to horse-scoped reviews | Beyond | planned |
-| S-REL-09 | Referral reference on invitations (commission attribution) | Beyond | planned |
+| S-REL-04 | Resend after mistaken decline | Beyond | planned |
+| S-REL-05 | Established relationship permanent (history never deleted) | Beyond | planned |
+| S-REL-06 | Owner keeps **visible** saved horse data after leave, dispute, or write-lock | Beyond | planned |
+| S-REL-07 | Horse-scoped reviews (bidirectional) | Beyond | planned |
+| S-REL-08 | Reviewee can respond | Beyond | planned |
 
 ---
 
@@ -236,9 +233,8 @@ Capabilities EquineM does **not** center on stable-as-tenant:
 
 | ID | Feature | Status |
 |----|---------|--------|
-| S-DIFF-01 | Independent vet/trainer accounts linked to same horse (network, not org contacts) | planned |
-| S-DIFF-02 | Owner-paid model: stable free; owner subscribes for full horse hub | planned |
-| S-DIFF-03 | Portable horse record across stables and providers | planned |
+| S-DIFF-01 | Independent vet/trainer accounts on the same horse (post-launch as own SaaS; at launch = Users + collab) | planned |
+| S-DIFF-03 | Portable horse record; history remains if this stable lapses | planned |
 | S-DIFF-04 | Discovery: stable found by owners searching the ecosystem | planned |
 | S-DIFF-05 | Horse-scoped verified reviews (not anonymous wall) | planned |
 | S-DIFF-06 | Owner connectivity with other owners (where product policy allows) | planned |
@@ -252,14 +248,15 @@ Capabilities EquineM does **not** center on stable-as-tenant:
 
 The stable module is **production-ready** when every feature marked **required for launch** in Sections 1–9 above is `done` and acceptance criteria pass.
 
-Cross-module production gate (all must be ready together): see [equus/docs/product/mvpScope.md](../product/mvpScope.md) — **Production launch requirements** (User, Horse, Veterinary, Stable modules).
+Cross-module production gate: [`mvpScope.md`](../product/mvpScope.md) — **User + Horse + Stable** (Veterinary is **not** in the gate).
 
 ### Stable launch acceptance (summary)
 
 - [ ] Stable can create profile, roster horses, and operate daily care/activity/feed/facility/finance workflows at EquineM parity
 - [ ] Advanced analytics (occupancy, revenue forecasting) available as part of stable financial/operations tooling (S-FIN-16)
-- [ ] Stable can invite/link owners; relationship accept flow completes in minutes
-- [ ] Owner sees only their horses' stable data on owner dashboard
+- [ ] Owner invite **and** barn-created waiting-transfer; accept flow in minutes
+- [ ] Entity subscription in good standing for writes; write-lock does not hide owner history
+- [ ] Owner sees only their horses; invoices/events display on horse Documents/Planning
 - [ ] Established relationships retain history and owner access after horse departs
 - [ ] Horse-scoped reviews work for verified stable relationships
 - [ ] Collaboration invitation → user accept; hierarchy on `WorkplaceRelationship`; only User decides accept/decline
@@ -269,7 +266,7 @@ Cross-module production gate (all must be ready together): see [equus/docs/produ
 
 ## 12. First delivery — market backlog (stable SaaS)
 
-**Priority for first delivery:** stable SaaS capabilities that make Equus indispensable for barn operations (roster, tasks, health, feed, docs, finance, facilities) while feeding the **owner horse Hub** for social/transparency.
+**Priority for first delivery:** stable SaaS (roster, tasks, health, feed, docs, finance, facilities) feeding horse **Planning / Documents** (Hub stays social).
 
 Full extraction and competitor mapping: [equus/docs/product/firstDeliveryCompetitiveBacklog.md](../product/firstDeliveryCompetitiveBacklog.md) §B. Source detail: [`equus/docs/product/benchMarket/webapps.md`](../product/benchMarket/webapps.md) (Equicty, HippoVibe, Equestrian App StallPros). EquineM parity remains in Sections 1–9.
 
@@ -306,6 +303,7 @@ These rows **add** market-derived gaps not already covered as named IDs above. T
 
 | Date | Change |
 |------|--------|
+| 2026-08-16 | Align with product: entity pays; two hosting paths; write-lock ≠ delete; **removed** free-stable, owner-pays, commission rows |
 | 2026-07-24 | §12 First delivery market backlog (stable SaaS) from `equus/docs/product/benchMarket/webapps.md` / `equus/docs/product/firstDeliveryCompetitiveBacklog.md` |
 | 2026-06-30 | Removed post-launch / out-of-scope section; analytics promoted to S-FIN-16 (required for stable) |
 | 2026-06-29 | Collaborators as Users; WorkplaceRelationship + Stable.collaborators; barn staff horse access rules |

@@ -2,10 +2,13 @@
 
 Canonical product model for how one **User** collaborates at a **role profile** owned by another User — e.g. a groom helping at someone else's **stable profile**.
 
+**Launch:** vet/trainer/groomer **SaaS modules** are post-launch. Those people are **Users** who may **collaborate** at a stable. Direct horse `Relationship` to a veterinary **profile** may exist; full vet ops module is not the production gate.
+
 Related:
 - [`userModule.md`](userModule.md) — one login, role profiles on User, horse relationships
-- [equus/docs/product/productFlows.md](../product/productFlows.md) — Flow 7 (collaborator at a stable profile)
-- [`stableModule.md`](stableModule.md) — team management features
+- [equus/docs/product/productFlows.md](../product/productFlows.md) — Flow 7
+- [`stableModule.md`](stableModule.md) — team management
+- [`entitySubscription.md`](entitySubscription.md) — stable writes need good standing
 
 ---
 
@@ -193,7 +196,7 @@ Activities/jobs assigned within permissions on that collaboration
 | | Horse relationship | Stable collaboration |
 |---|-------------------|------------------------|
 | Parties | Horse ↔ provider role profile | **User** ↔ host **role profile** (e.g. Stable) |
-| Who initiates | **Horse owner only** (horse `Relationship`) | **Host profile owner** or admin (`Stable`, `RidingClub`, `Breeder`, `Transport`) — **services only** |
+| Who initiates | Owner (invite provider) **or** stable (create boarded horse + waiting-transfer) | **Host profile owner** or admin — **service Users** only |
 | Who decides | Provider accepts or declines | **Invited User** only |
 | Service profiles | **Never initiate** — inbox only | N/A |
 | After accept | Shared horse operational data (barn collaboration path or direct link) | Barn permissions + job assignment |

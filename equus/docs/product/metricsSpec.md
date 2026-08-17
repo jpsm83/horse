@@ -1,25 +1,17 @@
 # Metrics Spec — Internal Business Dashboard
 
-Private metrics layer for founders/developers to monitor product and business health.
+Private metrics for founders. Not shown to normal users.
 
-Source:
-- `businessPlan.md` — Section 18 (Phase 9)
-- `businessPlan.md` — Section 11 and Section 19 (monetization and commissions)
-- `equus/docs/engineering/stack.md` — internal admin UI (Next.js + shadcn)
-
-Access policy:
-- **Internal/private only** (developer/admin role)
-- Not visible to normal app users
+Sources: [`monetization.md`](monetization.md), [`go-to-market.md`](go-to-market.md), [`mvpScope.md`](mvpScope.md), `equus/docs/engineering/stack.md`.
 
 ---
 
-## Dashboard purpose
+## Dashboard purpose (weekly)
 
-Answer four questions weekly:
-1. Are horses and relationships growing with real usage?
-2. Are owners converting and staying paid?
-3. Are businesses driving referrals that convert?
-4. Are core workflows (booking, chat, invoices) actually used?
+1. Are **stables** converting and staying **paid**?  
+2. Are horses and relationships growing with real **ops** usage?  
+3. Are **owners** using free Hub / chat / portal (not paying us)?  
+4. Are waiting-transfers actually getting **claimed**?
 
 ---
 
@@ -27,179 +19,127 @@ Answer four questions weekly:
 
 ### 1) Growth and inventory
 
-| Metric | Definition | Formula |
-|--------|------------|---------|
-| Total users | Registered user accounts | `count(users)` |
-| Active businesses | Stable + trainer accounts with activity in period | `count(business_accounts where last_active_at in period)` |
-| Total horses | Horse profiles created | `count(horses)` |
-| Active horses | Horses with at least one accepted relationship and one event in period | `count(horses where active_relationship=true and last_activity_at in period)` |
-| Paying horses | Horses with active paid subscription status | `count(horses where subscription_status='active_paid')` |
-| Trial horses | Horses in trial window | `count(horses where subscription_status='trial')` |
+| Metric | Definition |
+|--------|------------|
+| Total users | `count(users)` |
+| Total stables | Stable profiles |
+| Active stables | Stables with ops activity in period (writes or logins by operators/collab) |
+| Stables in good standing | Free period, paid, or active promo |
+| Write-locked stables | Lapsed past grace |
+| Total horses | Horse profiles |
+| Roster horses | Horses counting toward a stable meter (active host + waiting-transfer hosted) |
+| Waiting-transfer horses | Flag true, unclaimed |
+| Active horses | Accepted relationship + activity in period |
 
-### 2) Revenue
+### 2) Revenue (entity SaaS)
 
-| Metric | Definition | Formula |
-|--------|------------|---------|
-| MRR | Monthly recurring revenue from horse subscriptions | `sum(active_paid_horse_subscriptions * 99)` |
-| New MRR | MRR added in period from new paying horses | `sum(new paid horses in period * 99)` |
-| Churned MRR | MRR lost in period from canceled/failed subscriptions | `sum(churned horses in period * 99)` |
-| Net MRR change | New MRR - Churned MRR | `new_mrr - churned_mrr` |
-| ARPU (horse) | Average revenue per paying horse | `MRR / paying_horses` |
-| Trial-to-paid conversion rate | % trial horses that become paid | `paid_from_trial / trial_started` |
+| Metric | Definition |
+|--------|------------|
+| MRR | Sum of **entity** subscription amounts in good standing (paid), monthly equivalent |
+| New MRR | MRR from newly paid stables in period |
+| Churned MRR | Lost from cancel / fail / write-lock after grace |
+| Net MRR | New − churned |
+| ARPU (stable) | MRR / paying stables |
+| Free-to-paid conversion | Stables that finish 30-day offer and pay / offers started |
+| Custom vs catalog | Count of entities not on default catalog price |
+
+**Do not** compute MRR from horses or $99.
 
 ### 3) Relationship funnel
 
-| Metric | Definition | Formula |
-|--------|------------|---------|
-| Relationship requests sent | New relationship proposals created | `count(relationship_requests created in period)` |
-| Relationship acceptance rate | Accepted / (accepted + declined) | `accepted / (accepted + declined)` |
-| Invitation emails sent | Invites to non-registered users | `count(invites sent in period)` |
-| Invite signup rate | Invited users who created account | `invite_signups / invites_sent` |
-| Invite accept rate | Signed-up invitees who accepted relationship | `invite_accepts / invite_signups` |
+| Metric | Definition |
+|--------|------------|
+| Relationship requests | Created in period |
+| Acceptance rate | Accepted / (accepted + declined) |
+| Barn-created horses | Path B creates |
+| Invite emails | To non-registered |
+| Invite signup rate | Signups from invites / invites sent |
+| Waiting-transfer claim rate | Claims / waiting-transfer stock |
+| Median days to claim | For claimed horses |
 
-### 4) Referral and commission (Section 19)
+### 4) Owner (free) engagement
 
-| Metric | Definition | Formula |
-|--------|------------|---------|
-| Attributed signups | Owner signups with first-used referral reference | `count(signups with attribution_source)` |
-| Attributed paying horses | Paying horses with attribution source | `count(paying horses with attribution_source)` |
-| Commission eligible businesses | Businesses meeting active threshold | `count(businesses where active_threshold_met=true)` |
-| Commission payout (month) | Total partner commission for period | `sum(paid_subscription_revenue * 0.10 for eligible attributed horses in first 12 paid months)` |
-| Commission per business | Payout by attributed business account | `group by attribution_business` |
+| Metric | Definition |
+|--------|------------|
+| Owners with ≥1 horse | |
+| Hub views | Horse Hub opens |
+| Portal views | Owner opened live barn slice |
+| Portal blocked (lapse) | Owner hit missing live data because stable write-locked / not in good standing |
+| Chat senders | Distinct users messaging |
 
-Commission rules reflected in metrics:
-- 10% only during first 12 paid months
-- Only on successful paid bills
-- Only for active businesses
+No “paying horses” and no commission payout metrics at launch.
 
 ### 5) Workflow adoption
 
-| Metric | Definition | Formula |
-|--------|------------|---------|
-| Booking requests | New booking requests created | `count(booking_requests created in period)` |
-| Booking acceptance rate | Accepted bookings / total booking requests | `accepted / total` |
-| Booking completion rate | Completed bookings / accepted bookings | `completed / accepted` |
-| Invoices created | Invoices issued by businesses | `count(invoices created in period)` |
-| Invoice view rate | Owner views of invoices | `invoice_views / invoices_created` |
-| Chat messages sent | Total messages in period | `count(messages in period)` |
-| Active chat users | Users sending at least one message in period | `count(distinct message_authors in period)` |
-| Median response time | Median time to first reply in chat threads | `median(first_reply_at - message_sent_at)` |
+| Metric | Definition |
+|--------|------------|
+| Booking requests / accept / complete | As before |
+| Invoices created | By stables |
+| Invoice view rate | Owner views / invoices |
+| Chat messages / median first reply | |
+| Activity logs | Care/task completions on roster horses |
 
 ### 6) Retention and quality
 
-| Metric | Definition | Formula |
-|--------|------------|---------|
-| Horse churn rate | Paying horses canceled in period / paying horses at start | `churned_paying_horses / paying_horses_start` |
-| Business weekly retention | Businesses active this week and previous week | `retained_businesses / active_businesses_prev_week` |
-| Owner weekly retention | Owners active in consecutive weeks | `retained_owners / active_owners_prev_week` |
-| Review submission rate | Reviews submitted / eligible verified relationships | `reviews / eligible_relationships` |
-| Failed payment rate | Failed subscription charges / charge attempts | `failed_charges / charge_attempts` |
+| Metric | Definition |
+|--------|------------|
+| Stable paid churn | Paying stables canceled or locked / paying at start |
+| Stable weekly retention | Active ops this week and last |
+| Owner weekly retention | Owners active (Hub/chat/portal) consecutive weeks |
+| Review rate | Reviews / eligible relationships |
+| Failed entity charges | Failed / attempts |
+| Roster vs billed band | Drift: roster size vs catalog band (custom prices excluded or flagged) |
 
 ---
 
-## Core dashboard panels
+## Panels
 
-### Panel A — Revenue snapshot
-- MRR
-- Paying horses
-- Trial horses
-- Trial-to-paid conversion
-- Net MRR change
+**A — Revenue:** MRR, paying stables, free-period stables, free-to-paid, net MRR, write-locked count  
 
-### Panel B — Growth loop
-- Invites sent
-- Invite signup rate
-- Attributed paying horses
-- Commission payout (month)
+**B — Graph:** invites, accept rate, waiting-transfer stock, claim rate  
 
-### Panel C — Operations health
-- Active horses
-- Booking acceptance rate
-- Invoices created
-- Chat active users
-- Median response time
+**C — Ops:** active stables, roster horses, bookings, invoices, chat  
 
-### Panel D — Relationship trust
-- Relationship requests
-- Acceptance rate
-- Review submission rate
-- Failed payment rate
+**D — Owners:** Hub views, portal views, portal-blocked, owner retention  
 
 ---
 
-## Suggested refresh cadence
+## Cadence
 
-| Metric group | Cadence |
-|--------------|---------|
-| Revenue snapshot | Daily |
-| Growth loop | Weekly |
-| Operations health | Weekly |
-| Retention/churn | Weekly |
-| Relationship trust | Weekly |
+| Group | Cadence |
+|-------|---------|
+| Revenue | Daily |
+| Graph / ops / owners | Weekly |
+| Churn | Weekly |
 
 ---
 
-## MVP implementation note (Phase 1B)
+## Implementation
 
-Phase 1A:
-- Track events in MongoDB (minimal analytics collection or event log)
-- Manual aggregation or simple internal page acceptable
+**1A:** Event log in MongoDB; manual or simple internal page.  
+**1B:** Private `/admin/metrics`, role-restricted.
 
-Phase 1B:
-- Private `/admin/metrics` dashboard (Next.js + shadcn/ui)
-- Read-only aggregates via REST or server components
-- Role-restricted access (developer/admin)
+### Events (minimum)
 
----
+`user_signed_up` · `horse_created` · `horse_created_by_stable` · `waiting_transfer_nag_sent` · `ownership_claimed` · `relationship_requested` · `relationship_accepted` · `relationship_declined` · `invite_sent` · `invite_signup` · `entity_trial_started` · `entity_subscription_paid` · `entity_subscription_failed` · `entity_write_locked` · `entity_promo_attached` · `booking_*` · `invoice_created` · `message_sent` · `review_submitted` · `favorite_added` · `hub_viewed` · `portal_viewed` · `portal_blocked`
 
-## Event tracking minimum (for engineering)
-
-Log these events from day one:
-- `user_signed_up`
-- `horse_created`
-- `relationship_requested`
-- `relationship_accepted`
-- `relationship_declined`
-- `invite_sent`
-- `invite_signup`
-- `trial_started`
-- `subscription_paid`
-- `subscription_failed`
-- `subscription_canceled`
-- `booking_requested`
-- `booking_accepted`
-- `booking_declined`
-- `invoice_created`
-- `message_sent`
-- `review_submitted`
-- `referral_attributed`
-
-Each event should include:
-- `timestamp`
-- `actor_user_id`
-- `horse_id` (if applicable)
-- `business_account_id` (if applicable)
-- `referral_reference` (if applicable)
+Each event: `timestamp`, `actor_user_id`, `horse_id?`, `entity_id?`, `entity_type?`.
 
 ---
 
-## North-star targets (initial)
+## North-star (first 90 days post-pilot, directional)
 
-Use as directional targets after first pilot (adjust with real data):
-
-| Metric | Early target (first 90 days post-pilot) |
-|--------|----------------------------------------|
-| Paying horses | 20+ |
-| Trial-to-paid conversion | 25%+ |
-| Relationship acceptance rate | 60%+ |
-| Booking acceptance rate | 50%+ |
-| Active businesses (weekly) | 10+ |
-| Attributed paying horses | 30%+ of new paying horses |
+| Metric | Early target |
+|--------|----------------|
+| Paying stables (Spain) | 5+ |
+| Free-to-paid | 25%+ of finished 30-day offers |
+| Relationship accept rate | 60%+ |
+| Waiting-transfer claim rate | 50%+ of barn-created horses within 30 days |
+| Active stables weekly | 8+ |
+| Owners opening Hub weekly (on hosted horses) | Rising with roster |
 
 ---
 
-## Related documents
+## Related
 
-- `businessPlan.md` — strategy and monetization
-- `mvpScope.md` — what to instrument first
-- `validationPlaybook.md` — pre-build validation metrics
+[`businessPlan.md`](businessPlan.md) · [`monetization.md`](monetization.md) · [`mvpScope.md`](mvpScope.md) · [`validationPlaybook.md`](validationPlaybook.md)

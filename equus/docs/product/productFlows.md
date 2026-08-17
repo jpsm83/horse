@@ -1,364 +1,230 @@
-# Product Flows — Onboarding And Core Journeys
+# Product Flows — Onboarding and Core Journeys
 
-User journeys for account creation, relationships, and day-one workflows.
+Journeys for identity, relationships, billing, and day-one work.
 
-Source:
-- `businessPlan.md` — Section 10, Section 14, Section 18 (Phase 11)
-- `mvpScope.md` — Phase 1A boundaries
-- `equus/docs/engineering/stack.md` — technical implementation
+Sources: [`graph-and-identity.md`](graph-and-identity.md), [`monetization.md`](monetization.md), [`mvpScope.md`](mvpScope.md), `equus/docs/engineering/stack.md`.
 
 ---
 
-## Technical mapping (implementation)
+## Technical mapping
 
 | Flow step | Backend |
 |-----------|---------|
 | Signup / login | Auth.js (web) or `POST /api/v1/auth/*` (mobile) |
-| Create horse / stable / transport / breeder / trainer / groom / coach / farrier / rider / veterinary | REST API + Zod validation + `lib/services` |
-| Relationship invite (horse) | `POST /api/v1/relationships` — **horse owner only** initiates |
-| Relationship accept / decline | `PATCH /api/v1/relationships/:id` — provider accepts or declines |
-| Staff invite / accept | Host entity (`Stable`, `RidingClub`, `Breeder`, `Transport`) invites **service Users** only — see [equus/docs/features/workplaceRelationship.md](../features/workplaceRelationship.md) |
+| Create horse / stable / later modules | REST + Zod + `lib/services` |
+| Horse ↔ provider | `POST /api/v1/relationships` — **owner or hosting stable** may initiate (see Flow 6) |
+| Accept / decline | `PATCH /api/v1/relationships/:id` |
+| Staff invite | Host entity invites **Users** — `workplaceRelationship.md` |
 | Chat | REST messages (1A); Socket.io when realtime ships |
-| Uploads | Cloudinary via API route |
-| Reviews | `Rating` tied to `relationshipId` + `horseId`; bidirectional between relationship parties |
+| Uploads | Cloudinary |
+| Reviews | `Rating` on `relationshipId` + `horseId`; bidirectional |
+| Entity billing | Subscription on **Stable** (later other entities); customer = owning User |
 
-Provider links (vet, stable, trainer, etc.) are **not** stored on `Horse` directly — query accepted `Relationship` documents by `horseId`.
-
----
-
-## Global rules (all roles)
-
-1. **User first** — everyone signs up as a User with one login; roles are optional profiles linked later
-2. **Browse without roles** — new users can search stables, trainers, vets, horses before creating any role
-3. **Personal profile required** before creating provider role profiles (stable, trainer, etc.)
-4. **Relationships require acceptance** by the receptor
-5. **Live chat is open** between users (WhatsApp-style), independent of relationship status
-6. **Operational data** (records, invoices tied to workflows) requires **accepted** horse relationship
-7. **Established relationships are permanent** — history and owner read access (their horses only) remain after service ends or dispute; declined pending requests may be resent
-8. **Collaborators are Users** — profile owner invites a User to collaborate at a **role profile** (e.g. stable) via `WorkplaceRelationship`; may collaborate at multiple profiles
-9. **Reviews are horse-scoped** and only allowed on verified established horse ↔ provider relationships
-10. **Invitations include referral reference number** — first reference used at owner signup wins attribution
-11. **Horse discovery is per horse** — `profileVisibility` and `contactDisplay` on each `Horse`; user profile exposure is controlled by `User.preferences` (see [equus/docs/features/userModule.md](../features/userModule.md))
-12. **Invitation policy (anti-spam)** — see [equus/docs/features/userModule.md](../features/userModule.md) §6: horse owners invite any provider type; host entities invite services only; services never initiate
+Provider links are **not** denormalized as the only source of truth on `Horse` — query accepted `Relationship` by `horseId`.
 
 ---
 
-## Flow 1 — Horse owner (primary payer)
+## Global rules
 
-### 1.1 Signup and setup
-
-```
-Sign up (email/password or auth provider)
-  → Browse app (search stables, trainers, vets, horses — no role required)
-  → Complete personal profile when ready
-  → Add first horse profile (sets mainOwnerUserId on Horse; per-horse visibility/contact defaults apply)
-  → Start 30-day trial for that horse
-```
-
-### 1.2 Connect stable
-
-```
-Owner opens horse profile (after offline agreement if needed)
-  → Search stable in platform
-      → If found: owner sends invitation (horse ↔ stable)
-      → If not found: add stable name + email → pending `Relationship` + invitation email with reference code
-  → Stable operator receives notification
-  → Stable accepts or declines (may resend after owner/stable chat if declined by mistake)
-  → If accepted: permanent horse ↔ stable relationship; shared ops unlock; owner sees only their horse data
-```
-
-**Only the horse owner initiates** horse hosting invites — stables do not request horses on the platform.
-
-### 1.3 Connect trainer, vet, groom, and other providers
-
-Same pattern as stable — **owner invites** from the horse hub:
-- Search provider → send invitation
-- Or invite by email with reference code (user-linked types)
-
-### 1.4 Daily owner usage
-
-```
-Open owner dashboard
-  → Select horse
-  → View timeline (updates, invoices, bookings, documents)
-  → Chat with any user (open chat)
-  → Request booking with linked stable/trainer
-  → Leave horse-scoped review after verified relationship activity
-```
-
-### 1.5 Subscription
-
-```
-Trial active (30 days)
-  → Trial ending notifications
-  → Main owner billed $99/month per horse
-  → Co-owners remain linked but do not become payer unless ownership transfer occurs
-```
-
-**Stable, riding club, transport, and breeder partnerships** use the same `mainOwnerUserId` + `coOwners[]` embed as horses (shared `coOwnerSchema`). Co-owners receive full profile-owner access. **Lifecycle changes** (transfer main, remove co-owner, promote co-owner) use [equus/docs/features/ownershipTransfer.md](../features/ownershipTransfer.md) — not direct PATCH on the entity.
+1. **User first** — one login; roles optional  
+2. **Browse without roles** — search **horses and stables** (and later other **entity** types). **Never search users**  
+3. Personal profile required before creating a **paid** entity (stable)  
+4. Relationships need **accept**  
+5. **Chat is open** (WhatsApp-style)  
+6. Ops data needs **accepted** horse relationship  
+7. Accepted relationships are **permanent** (`ended` keeps history)  
+8. Collaborators are **Users** via `WorkplaceRelationship`  
+9. Reviews are **horse-scoped**  
+10. **No** owner-subscription referral commission  
+11. Per-horse `profileVisibility` / `contactDisplay`  
+12. **Favorites** are private shortcuts, not relationships  
+13. Live barn data in owner Hub only if the **stable is in good standing**  
+14. Home is **My Graph**
 
 ---
 
-## Flow 2 — Stable owner / manager
+## Flow 1 — Horse owner (not an Equus payer)
 
-### 2.1 Signup and setup
-
-```
-Sign up
-  → Create personal profile
-  → Create Stable business account (name, location, services, photos)
-  → Configure availability/services (basic)
-```
-
-### 2.2 Hosted horses
-
-Horses appear on the stable roster only after the **horse owner** sends and the stable **accepts** a horse ↔ stable `Relationship`. The stable does not initiate horse hosting invites.
+### 1.1 Signup
 
 ```
-Horse owner invites stable from horse profile
-  → Stable operator accepts or declines
-  → If accepted: horse on stable roster; shared ops unlock for that horse
+Sign up (email/password or provider)
+  → Browse horses/stables
+  → Complete personal profile
+  → Add horse(s) — unlimited, free — or claim a waiting-transfer horse from email
+  → Land on My Graph
 ```
 
-If the horse or owner is not on the platform, the **horse owner** (or their delegate) adds the horse and invites the stable — not the reverse.
+No horse trial. No Equus card.
+
+### 1.2 Connect a stable (owner has the horse)
+
+```
+Owner on horse Hub
+  → Search stables
+      → Found: send horse ↔ stable invite
+      → Not found: name + email → pending Relationship + invite email
+  → Stable accepts or declines
+  → Accepted: host relationship; portal live if stable in good standing
+```
+
+### 1.3 Daily
+
+```
+My Graph → horse
+  → Hub (social) always
+  → Portal slice (logs, invoices, schedule, docs) if barn in good standing
+  → Chat, favorites, booking with linked stable
+  → Horse-scoped review when relationship exists
+```
+
+### 1.4 If the barn lapses
+
+Social Hub + chat remain. **Live** barn slice hides (or last snapshot if we ship that). The owner does not pay to restore it — the **stable** must pay.
+
+---
+
+## Flow 2 — Stable operator (Equus customer)
+
+### 2.1 Signup and SaaS
+
+```
+Sign up → personal profile → create Stable
+  → Location sets currency (Spain → EUR)
+  → 30 days full SaaS free (good standing)
+  → Catalog shown (1–5 €49 … 61+ €4/horse floor €299); price stored on entity (overridable)
+  → After 30 days: pay or enter 7-day grace then write-lock
+```
+
+### 2.2 Hosted horses — two paths
+
+**A. Owner invites** (Flow 1.2): stable accepts → horse on roster.
+
+**B. Barn already has the horse:**
+
+```
+Stable creates horse (owner email required)
+  → mainOwner = stable’s owning user
+  → waiting-transfer flag
+  → Email owner: sign up and take ownership
+  → Daily nag forever to barn user + owner until claim
+  → Horse counts on roster
+  → On claim: owner = mainOwner; stable = host Relationship
+```
 
 ### 2.3 Operations
 
 ```
-Stable dashboard
-  → Horse roster
-  → Post care/update note on linked horse
-  → Create invoice for owner
-  → Respond to booking requests
-  → Chat with owners/users (open chat)
+Stable module (if not write-locked)
+  → Roster, tasks, invoices, bookings, docs
+  → Chat
+  → Invite Users as collaborators
 ```
 
-### 2.4 Stable collaboration invitation
+### 2.4 Collaboration
 
-Collaborators are **never owned by a stable profile**. Every groom, rider, or manager is a **User** (same signup as everyone). The **profile owner** (User who owns the `Stable` role profile) or admin sends a **collaboration invitation** to **service Users** (trainer, vet, groom, farrier, coach, rider) — not to horses or other host entities.
+Unchanged pattern: profile owner invites User by email → User accepts → `WorkplaceRelationship` + hierarchy. Multi-stable OK. See `workplaceRelationship.md`.
 
-See [equus/docs/features/workplaceRelationship.md](../features/workplaceRelationship.md) for barn staff access on hosted horses.
+### 2.5 Promos
 
-```
-Profile owner (User) or admin on that stable profile invites User by email
-      → If email exists: user sees pending invite on GET /users/me/workplaces
-      → If email not registered: invite stored; user signs up → invite linked
-  → User accepts or declines (only the User decides)
-  → On accept: WorkplaceRelationship active (User ↔ stable role profile); id on Stable.collaborators[]
-  → Profile owner sets hierarchy on that collaboration (admin | manager | staff)
-  → Stable assigns activities/jobs within permissions on that link
-```
-
-**Multi-stable:** the same User may accept collaboration invitations from **multiple stable profiles**.
-
-Example: User who owns a vet profile invited as `manager` at someone else's stable — vet profile unchanged; access only via collaboration at that stable profile.
-
-### 2.5 Growth / commission
-
-```
-Invite owners to join for horse visibility
-  → Owner signs up using stable reference
-  → Owner converts to paid horse subscription
-  → Stable earns 10% commission for first 12 paid months (if active business threshold met)
-```
+Ops may attach free days / % off / complimentary periods on **this** entity at any time ([`monetization.md`](monetization.md)).
 
 ---
 
-## Flow 3 — Trainer
-
-### 3.1 Signup and setup
+## Flow 3 — Trainer (launch: User + collab, not a paid module)
 
 ```
-Sign up
-  → Create personal profile
-  → Create Trainer account (specialty, bio, service area)
+Sign up → profile
+  → Optional: collaborate at a stable (workplace invite)
+  → Horse links to a Trainer **profile/module** are post-launch
 ```
 
-### 3.2 Connect to horses
-
-Same two-path relationship model:
-- Request existing horse (owner accepts)
-- Invite owner/horse via email if not registered
-
-### 3.3 Operations
-
-```
-Trainer dashboard
-  → Linked horses list
-  → Create training session / note (text, photo, video)
-  → Propose training booking
-  → Issue training invoice (Phase 1B polish)
-  → Chat with owners (open chat)
-```
+Do not require a trainer SaaS subscription at launch.
 
 ---
 
-## Flow 4 — Veterinarian (required before production launch)
+## Flow 4 — Veterinarian (post-launch module)
 
-Documented for continuity. Not required for Phase 1A wedge pilots; **required** for public production (`mvpScope.md`). Spec: `businessPlan.md` Section 10.3 Vet module.
+Not required for production. When built: same entity-pays pattern as stable; owner invites or (if product allows) practice creates with waiting-transfer — reuse graph rules.
 
-```
-Sign up
-  → Create personal profile
-  → Create Vet business account
-  → Add/search horse (or receive owner invitation)
-  → Owner accepts relationship (typically after prior chat)
-  → Vet writes medical records (only vet can write medical data)
-  → Owner views horse-scoped health timeline on their horse only
-  → Horse-scoped review available after verified established relationship
-```
+Until then: vet is a User; may collaborate at a stable; owner may chat with them.
 
 ---
 
-## Flow 5 — Transport operator
+## Flow 5 — Transport (deferred module)
 
-```
-Sign up
-  → Create personal profile
-  → POST /api/v1/transports (create transport company; user may create multiple)
-  → Link horse move request or invite owner/horse (horse ↔ transport Relationship — see Flow 6)
-  → Owner accepts
-  → [Roadmap] Create transport booking + trip status updates
-  → [Roadmap] Transport invoice visible to owner
-```
-
-Baseline today: company create + discovery visibility (`isPublic`, `acceptsNewBookings`) + public card read. Booking, trips, and invoicing are deferred (see businessPlan §4.10).
+Identity/discovery may exist; deep ops deferred. Same graph + later entity billing.
 
 ---
 
 ## Flow 6 — Horse relationship invitation
 
-Applies when a **horse owner** links a horse to any provider profile (stable, vet, trainer, groom, transport, etc.).
+**Initiator:** horse **owner** (any provider) **or** **hosting stable** creating/claiming a boarded horse (Path B). Other provider types **do not** create horses at launch.
 
 ```
-Horse owner initiates invite (after offline agreement if needed)
-  → Provider notification (push + email)
-  → Provider accepts OR declines — providers never initiate horse links
-  → Accepted: permanent `Relationship` record + operational permissions
-  → Declined: owner may send again after chat; no operational data
+Invite sent → other party notified
+  → Accept: permanent Relationship + ops permissions
+  → Decline: no ops; may resend
 ```
 
-### If invitee is not registered
+Unregistered invitee: pending Relationship + email; on signup they accept.
+
+---
+
+## Flow 7 — User collaborates at a stable
+
+Same as before. See `workplaceRelationship.md`.
+
+Barn staff example: Alice owns Sunrise; Comet hosted; Carla accepts collab; Carla logs care on Comet without a groom↔Comet `Relationship`.
+
+---
+
+## Flow 8 — Booking
 
 ```
-Owner enters minimal profile data + email
-  → Create pending Relationship (invitedName, invitedEmail, referralReference)
-  → Invitation email with referral reference
-  → Invitee signs up
-  → On accept: receiverAccountId set on Relationship; operational access unlocks
+Requester: provider + horse + slot
+  → Accept / decline
+  → Calendars + horse timeline
+  → Chat may carry booking context
 ```
 
 ---
 
-## Flow 7 — User collaborates at a stable profile
+## Flow 9 — Review (horse-scoped, bidirectional)
 
-Applies when a **User** works at another User’s **stable role profile**. Both parties are people with one login each. Pattern: workplace invitation → invited User accepts → relationship document.
-
-See [equus/docs/features/workplaceRelationship.md](../features/workplaceRelationship.md).
-
-```
-User signs up or already has account (may also own horses, vet profile, trainer/rider profile, own stable, etc.)
-  → Profile owner (or admin on that stable profile) sends collaboration invitation
-  → Invited User accepts or declines
-  → On accept: WorkplaceRelationship (User ↔ Stable profile id); id on Stable.collaborators[]
-  → Hierarchy (admin | manager | staff) on collaboration document
-  → Work assigned per permissions on that link
-  → Same User may accept invites at other stable profiles
-```
-
-Permissions live on the **WorkplaceRelationship**, not on the User — see `equus/docs/features/userModule.md` and `equus/docs/features/workplaceRelationship.md`.
-
-### Barn staff examples
-
-**Groom at barn:** Alice owns Sunrise Stable. Bob accepts stable hosting for Comet. Alice invites Carla (groom subsection). Carla accepts collaboration. Carla logs feed/care on Comet without a separate groom↔Comet `Relationship`.
-
-**Vet at owner's home:** Bob invites Dr. Lee's veterinary profile to Comet. Bob accepts. Dr. Lee writes health records. Stable not required.
+Unchanged: verified `horseId` + `relationshipId`; either side; owner operates horse side.
 
 ---
 
-## Flow 8 — Booking request
+## Flow 10–12 — Ownership transfer
 
-```
-Requester selects provider + horse + proposed time/service
-  → Provider receives instant notification
-  → Provider accepts or declines
-  → If accepted: event appears on owner + provider calendars and horse timeline
-  → If declined: requester notified and can propose new slot
-  → Coordination can continue in open live chat with booking context attached
-```
+`transfer_main` / `remove_co_owner` / `promote_co_owner` as in `ownershipTransfer.md`.
 
----
+**Horse `transfer_main`:** used for sale **and** for **claiming** a waiting-transfer horse (owner takes over from barn user).
 
-## Flow 9 — Review submission (horse-scoped, bidirectional)
+**Stable `transfer_main`:** SaaS customer becomes the new stable `mainOwner`.
 
-```
-Party A attempts review on Party B
-  → System checks verified relationship for specific horse (accepted or ended)
-  → System checks Party A is an authorized actor for their side (owner for horse, profile operator for entity)
-  → If valid: review form opens (category ratings + optional text)
-  → Review stored against horse ↔ relationship context (reviewer → reviewee)
-  → If invalid: review blocked
-```
-
-**Bidirectional rule:** once connected by an accepted horse `Relationship`, either side may review the other in that same horse context — e.g. stable reviews horse, owner reviews stable, vet reviews stable, vet reviews horse (via owner), transport reviews owner/stable, etc.
-
-**Horse operator:** the horse does not log in; owner/co-owner submits or receives horse-side reviews.
-
-Examples:
-- Owner has Horse 1 (Vet A) and Horse 2 (Vet B)
-- Owner reviews Vet A only in Horse 1 ↔ Vet A context; Stable S may review Horse 1 only in Horse 1 ↔ Stable S context
-- Vet A may review Stable S only when both have Horse 1 relationships and the review stays horse-scoped
-
----
-
-## Flow 10 — Transfer main ownership (`transfer_main`)
-
-Applies to **Horse**, **Stable**, **Breeder**, **Transport**, **RidingClub** — not service profiles.
-
-```
-Main owner agrees sale/handoff offline with buyer
-  → If coOwners[] not empty: complete Flow 11 for each co-owner first
-  → Main owner sends OwnershipTransfer (transfer_main) to buyer
-  → Buyer accepts or declines
-  → On accept: mainOwnerUserId → buyer; coOwners[] empty; former main loses owner access
-  → Horse history / stable records remain on entity; billing moves to new main owner (horses)
-```
-
----
-
-## Flow 11 — Remove co-owner (`remove_co_owner`)
-
-```
-Main owner and co-owner agree offline
-  → Main owner sends OwnershipTransfer (remove_co_owner) to that co-owner
-  → Co-owner accepts or declines exclusion
-  → On accept: user removed from coOwners[]; main owner unchanged
-```
-
-Required before **Flow 10** when syndicate / partnership co-owners exist.
-
----
-
-## Flow 12 — Promote co-owner to main (`promote_co_owner`)
-
-```
-Main owner and co-owner agree offline (e.g. partner takes over operation)
-  → Main owner sends OwnershipTransfer (promote_co_owner) to that co-owner
-  → Co-owner accepts or declines
-  → On accept: co-owner → mainOwnerUserId; removed from coOwners[]; other co-owners unchanged; former main loses owner access
-```
-
-No requirement to remove other co-owners before this flow.
+Horse history stays on the horse. Entity SaaS billing does **not** follow horse `mainOwner`.
 
 ---
 
 ## Flow 13 — Relationship end / rejection
 
 ```
-Relationship rejected or ended
-  → Active operational access removed
-  → Historical records remain with static reference (“hard coded” historical link)
-  → Reviews previously submitted remain in historical horse-provider context per policy
+Rejected: no ops
+Ended: writes stop; history + horse-scoped reviews remain
+```
+
+---
+
+## Flow 14 — Entity subscription lapse
+
+```
+30-day free or paid/promo ends, no payment
+  → 7 days: ops live, reminders to entity owner
+  → Then: write-lock; read-only history; public page + chat stay
+  → Owner Hubs lose live portal for that stable
+  → Payment restores writes + live portal
 ```
 
 ---
@@ -366,15 +232,12 @@ Relationship rejected or ended
 ## MVP flow priority (Phase 1A)
 
 Must ship:
-1. Owner signup → add horse → invite stable/trainer
-2. Stable signup → add/invite horse → accept requests
-3. Trainer signup → link horse → post session update
-4. Relationship accept/decline
-5. Open chat
-6. Booking request accept/decline
-7. Basic invoice visibility for owner
 
-Can defer to Phase 1B:
-- Commission dashboard for businesses
-- Advanced document organization
-- Media-rich trainer logging polish
+1. Owner signup → horse → invite stable  
+2. Stable signup → 30-day SaaS → accept horse **or** create waiting-transfer horse  
+3. Owner claim of waiting-transfer  
+4. Chat, favorites, My Graph  
+5. Booking + basic invoices  
+6. Collaborator invite  
+
+Defer to 1B: live Stripe, promo admin, lapse write-lock polish, metrics admin.

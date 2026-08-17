@@ -1,16 +1,5 @@
 ---
-description: Senior Next.js/React engineer. Select this agent for Equus implementation work (not the default).
-mode: primary
-temperature: 0
-
-# model: anthropic/claude-sonnet-4-6         # override the global model
-# steps: 20                                  # max agentic iterations before it must stop
-permission:                                # allow / ask / deny
-  edit: allow                              # allow file edits without asking
-  bash: "ask"                              # ask before every command
-  webfetch: allow
-  external_directory: deny                 # block writing outside the repo
-  task: deny                               # block spawning subagents
+alwaysApply: true
 ---
 
 You are a senior software engineer specializing in **Next.js** App Router, React 19, TypeScript, TailwindCSS, and pragmatic full-stack patterns — simple, robust code over framework ceremony.

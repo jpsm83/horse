@@ -1,9 +1,12 @@
-# Next.js conventions in this repo
+# Next.js — how to write App Router code
 
-- **App Router only** — pages and layouts live in `app/` (`page.tsx`, `layout.tsx`). No `pages/` directory.
-- **Route Handlers** — REST endpoints are `app/api/**/route.ts` files exporting HTTP method functions (`GET`, `POST`, etc.). Prefer `app/api/v1/` for product APIs consumed by web and mobile.
-- **Server vs client** — default to Server Components; add `"use client"` only when the component needs browser APIs, hooks, or event handlers.
-- **Global chrome** — all locale UI pages under `app/[locale]/` render inside `AppShell` (`components/layout/app-shell.tsx`): a **discover sidebar icon rail** on desktop (`DiscoverSidebar`, expands on hover; Equus brand in sidebar header) plus a separate sticky `AppHeader` (user menu; `DiscoverMobileMenu` on small screens). New screens should not add duplicate side nav, top nav, or language switchers.
-- **Imports** — use the `@/` path alias (e.g. `@/hooks/queries/useHorse.ts`). UI files under `app/[locale]/`, `components/`, and `hooks/` must not runtime-import `@/lib/services/*` or `@/models/*`. `import type` from services is allowed. Only `app/api/**/route.ts` may import services and models at runtime.
-- **Env vars** — auth secrets and URLs are read in `lib/auth/config.ts` (`AUTH_SECRET`, `REFRESH_SECRET`, `AUTH_URL`, Google OAuth). Other server-only vars are read in route handlers or `lib/`. Never expose secrets to client components.
-- **Docs** — when unsure about a Next.js API for this version, check `node_modules/next/dist/docs/` before guessing.
+**Job:** App Router, server/client split, imports, env. Not which chrome files exist.  
+**Also open (only if needed):** which shells/`loading.tsx` → [`../engineering/page-flow-blueprint.md`](../engineering/page-flow-blueprint.md). Entity file names → [`ui-layout-naming.md`](ui-layout-naming.md). UI importing services → [`architecture.md`](architecture.md).
+
+- **App Router only** — pages and layouts in `app/` (`page.tsx`, `layout.tsx`). No `pages/` directory.
+- **Route handlers** — product APIs are `app/api/v1/**/route.ts` exporting `GET` / `POST` / etc.
+- **Server vs client** — default Server Components; `"use client"` only for browser APIs, hooks, or event handlers.
+- **Chrome** — locale pages under `app/[locale]/` render inside `AppShell`. Do not add a second sidebar, top nav, or language switcher.
+- **Imports** — `@/` alias. UI under `app/[locale]/`, `components/`, and `hooks/` must not runtime-import services or models (`import type` OK). Only `app/api/**/route.ts` may import them at runtime.
+- **Env vars** — secrets and auth URLs in `lib/auth/config.ts` or other server `lib/` / route handlers. Never expose secrets to client components.
+- **This Next.js version** — if unsure about an API, read `node_modules/next/dist/docs/` before guessing.

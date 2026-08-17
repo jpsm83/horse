@@ -1,136 +1,32 @@
-# Profile & Preferences (web UI + `PATCH /api/v1/users/me`)
+# Profile and preferences
 
-Account **settings** split across two routes under `UserPageShell`:
+**Job:** Account settings UI + `PATCH /api/v1/users/me`. Not the signed-in home.  
+**Upstream:** [`../features/userModule.md`](../features/userModule.md)  
+**Status:** **aligned**  
+**Code roots:** `app/[locale]/user/[userId]/{profile,preferences}/`, `components/user/profile/`, `lib/validations/user.ts`, `lib/services/userService.ts`, `app/api/v1/users/me/route.ts`
+
+Hub/view APIs: [`users.md`](users.md). Tabs: [`userTabs.md`](userTabs.md). Locale cookie: [`i18n.md`](i18n.md).
+
+---
+
+## Shipped
 
 | Route | Owns |
 |-------|------|
-| `/user/[userId]/profile` | Identity, address, photo, deactivate |
-| `/user/[userId]/preferences` | Theme, language, profile visibility, DM audience |
+| `/user/[userId]/profile` | Identity, address, photo, security, deactivate |
+| `/user/[userId]/preferences` | Theme, language, `profileVisibility`, DM audience |
+| `/profile` | Redirect → `/user/{me}/profile` |
 
-Legacy `/profile` redirects to `/user/{me}/profile`. Public cards stay at `/users/[userId]`. This is **not** the signed-in landing page; after auth users land on [`/home`](auth.md).
+`userId` must match the session user. Unauthenticated → sign-in.
 
-Related:
-- [`auth.md`](auth.md) — REST session and `fetchCurrentUser`
-- [`i18n.md`](i18n.md) — `preferredLanguage` and locale cookie sync
-- [`page-flow-blueprint.md`](page-flow-blueprint.md) — thin `page.tsx` / `loading.tsx` / `client.tsx`, deferred Save, unsaved guard
-- [`../AGENTS.md`](../../AGENTS.md) — web UI conventions
-- [equus/docs/features/userModule.md](../features/userModule.md) — `profileComplete` vs discovery visibility
-- [`dataLifecycle.md`](dataLifecycle.md) — account tombstone
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET`/`PATCH` | `/api/v1/users/me` | JSON or multipart avatar |
+| `PATCH` | `/api/v1/users/me/hub-sections` | Layer-2 hub section modes |
+| `DELETE` | `/api/v1/users/me` | Soft-deactivate + logout |
 
----
+**PATCH:** dirty fields only; `""` → `$unset` (`userService.updatePersonalDetails`). Theme/language preview live; cookies + DB **on Save**. Discard restores theme + locale.
 
-## Routes and files
+**Deactivate:** tombstone, not hard delete — [`dataLifecycle.md`](dataLifecycle.md). Copy: deactivate, not “delete account.”
 
-| Piece | Path |
-|-------|------|
-| Shell | `components/user/user-page-shell.tsx` + `components/user/user-layout-chrome.tsx` + `lib/navigation/userTabs.ts` |
-| Profile route | `app/[locale]/user/[userId]/profile/{page,client,loading}.tsx` |
-| Preferences route | `app/[locale]/user/[userId]/preferences/{page,client,loading}.tsx` |
-| Legacy redirect | `app/[locale]/profile/page.tsx` → `/user/{id}/profile` |
-| Skeleton | `components/user/user-page-content-skeleton.tsx` |
-| Profile form | `app/[locale]/user/[userId]/profile/client.tsx` (parent-owned `useForm`) + `components/user/profile/user-{personal,identification,address,account-type}-section.tsx` |
-| Preferences mapping | `lib/validations/preferencesForms.ts`, `lib/utils/preferencesFormMapping.ts` |
-| Client fetch | `useAppAuth()` + `useUserView()` — see [`auth.md`](auth.md) |
-| API | `PATCH /api/v1/users/me` — JSON or `multipart/form-data` (avatar on profile) |
-
-Unauthenticated users are redirected to sign-in. `userId` in the URL must match the session user (otherwise redirect to own profile).
-
-## Profile tab — sections
-
-The Profile tab is a deferred form (parent owns `useForm` + one Save, §6.5) composed of `<Section>` components, each wrapped in `SectionErrorBoundary`:
-
-| Section | Content | Visibility control |
-|---------|---------|--------------------|
-| **Personal** | profile image, username, bio, first/last name, gender, birth date | Layer-2 `identity` popover |
-| **Identification** | nationality, phone number, ID type, ID number | Layer-2 `identification` popover |
-| **Address** | address fields + geocoded map | Layer-2 `address` popover |
-| **Security** | password set/change (immediate) | — |
-| **Account** | account type (individual/business + business details, main form) + deactivation (`ConfirmActionDialog`, immediate) | — |
-
-Layer-1 `profileVisibility` + DM audience live on the **Preferences** tab (Privacy section). Layer-2 modes persist via `UserSectionVisibility` → `PATCH /api/v1/users/me/hub-sections`. See [`users.md`](users.md) and [`userTabs.md`](userTabs.md).
-
----
-
-## Preferences — preview, Save, discard
-
-One deferred RHF form (Appearance + Privacy). Theme and language **preview live** on change; cookies + DB update **only on Save**.
-
-| Action | Behavior |
-|--------|----------|
-| Theme change | `applyThemeToDocument` only (no cookie) |
-| Language change | `router.replace({ locale })` without `syncLocaleCookie` |
-| Save | Dirty-only PATCH → `syncThemeCookie` / `syncLocaleCookie` + `form.reset` + toast; invalidate `users.me` |
-| Leave dirty | `UnsavedChangesProvider` `onDiscard` restores saved theme + locale, then navigates |
-
-Theme swatches: `themeSwatches` in `lib/theme/appTheme.ts` (hexes mirrored from `globals.css`).
-
----
-
-## Profile — save flow
-
-| Step | Behavior |
-|------|----------|
-| Submit | React Hook Form + `profileForms.ts` (client Zod) |
-| Dirty fields only | `mapProfileFormValuesToPatch` |
-| No changes | `toast.info(profile.noChanges)` |
-| Has changes | `LoadingOverlay`, then `PATCH` |
-| Success | Reset form from saved user, toast |
-
-Language/theme/privacy are **not** on the profile form.
-
----
-
-## Visibility preferences
-
-Edited on **Preferences**. `PATCH /api/v1/users/me` persists:
-
-- `preferences.profileVisibility`: `public` | `platform` | `relationships` | `private`
-- `preferences.allowDirectMessagesFrom`: `everyone` | `relationships` | `nobody`
-
-**Public read:** `GET /api/v1/users/:id` via `getPublicUserForRequester`. Web page: `/users/[userId]`.
-
----
-
-## Clearing optional fields
-
-| Layer | Rule |
-|-------|------|
-| Client (`profileForms.ts`) | Empty strings allowed on optional fields; trim on validate |
-| PATCH body (`profileFormMapping.ts`) | Only **dirty** fields; cleared optionals sent as `""` |
-| API (`lib/validations/user.ts`) | Omitted = no change; `""` = clear |
-| Service (`userService.updatePersonalDetails`) | `""` / `null` → MongoDB **`$unset`** |
-
----
-
-## Avatar upload
-
-Multipart: `profile` JSON (dirty fields) + `image` file. See `lib/utils/parseProfileFormData.ts`.
-
----
-
-## Address map
-
-`ProfileAddressMap` via `next/dynamic({ ssr: false })`. Geocoding uses Nominatim.
-
----
-
-## `profileComplete` banner
-
-When `user.profileComplete` is false:
-
-| Location | Behavior |
-|----------|----------|
-| **`AppShell`** (except account profile/preferences) | `IncompleteProfileBanner` → `/user/{id}/profile` |
-| **`/user/.../profile`** | Inline `Alert`; global banner hidden via `isAccountSettingsPath` |
-
----
-
-## Account deactivation (not hard delete)
-
-| Step | Behavior |
-|------|----------|
-| Web UI | Profile tab → deactivate (`profile-deactivate-account.tsx`) |
-| Client | `DELETE /api/v1/users/me` → clear auth → `/signin` |
-| Data | Soft tombstone; document retained |
-
-Full policy: [`dataLifecycle.md`](../features/dataLifecycle.md).
+**`profileComplete`:** banner in `AppShell` except account settings paths → `/user/{id}/profile`.

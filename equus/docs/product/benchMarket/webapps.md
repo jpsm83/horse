@@ -47,7 +47,7 @@ The 12 products in this benchmark fall into **distinct categories**, not one hom
 
 **Key insight for our product:** No single competitor covers the full lifecycle of a horse owner — from acquisition → daily care → training → competition → sale/retirement — in one cohesive, modern experience. The closest "all-in-one owner" shapes are **My Cheval**, **Happie Horse**, and **The Equestrian App**, but each has significant gaps. The closest "pro stable ERP" shapes are **EquineM** (Equus's primary stable-ops parity baseline), **Equicty**, and **HippoVibe**. **Equilab** and **Ridely** own rider training/safety/education. **BHS**, **ehorses**, **BHA**, and **FEI HorseApp** are adjacent ecosystem players, not direct SaaS competitors — but they define trust, acquisition moments, and compliance layers we must integrate with or exceed.
 
-**EquineM-specific insight:** EquineM is a **stable-organization ERP** — the stable admin pays, owns the tenant, and adds owners/vets as contacts inside one org. Equus is a **connected horse ecosystem** — the horse is central, actors link by consent, businesses use the platform free, and owners pay for the unified horse hub. Stable feature parity targets EquineM; ecosystem features go beyond it (see `equus/docs/features/stableModule.md`, `equus/docs/product/businessPlan.md` §20).
+**EquineM-specific insight:** EquineM is a **stable-organization ERP** — the stable admin pays, owns the tenant, and adds owners/vets as contacts inside one org. Equus is a **connected horse graph** — the horse is central, actors link by consent. **The stable still pays for barn SaaS** (catalog on the entity); **horse Hub / chat / favorites are free**; owners get an included portal while the yard is in good standing. Vets/trainers become **independent paid modules** later, not contacts trapped in one tenant. See `equus/docs/product/businessPlan.md`, `monetization.md`, `equus/docs/features/stableModule.md`.
 
 ---
 
@@ -1705,7 +1705,7 @@ All-in-one digital management suite for equestrian businesses — stables, studs
 | **URL** | https://equinem.com/ |
 | **Organization** | EquineM — commercial stable-management SaaS |
 | **Type** | **Pro-yard / stable-organization ERP** (modular B2B SaaS) — Equus's primary **stable-ops parity baseline** |
-| **Role in Equus strategy** | Match EquineM barn operations in `equus/docs/features/stableModule.md`; exceed with horse-centric ecosystem (owners pay, businesses free, consent-based network) — see `equus/docs/product/businessPlan.md` §20 |
+| **Role in Equus strategy** | Match EquineM barn operations in `equus/docs/features/stableModule.md`; exceed with a horse-centric graph. **Entity pays SaaS** (like EquineM); owners do **not** pay Equus. Consent-based network + free Hub — see `equus/docs/product/businessPlan.md`, `monetization.md` |
 
 #### Positioning
 *"All you can do and more."* Clear team/horse planning, centralized records, billing/invoices, health logging, breeding/mare cards, and facility reservations. The **stable organization** is the tenant: admin pays, owns the account, and adds owners/vets/staff as contacts inside one org.
@@ -1941,7 +1941,7 @@ Marketing promises:
 | **Connection Bookkeeping** | **€10** |
 | **Studfarm & Webshop** | Contact us |
 
-*Pay only for modules needed. Full operational stack (activity + feed + facilities + team + finance + bookkeeping) approaches an all-in monthly cost comparable to owner-paid all-in pricing — often passed through in boarding fees.*
+*Pay only for modules needed. Full operational stack (activity + feed + facilities + team + finance + bookkeeping) approaches an all-in monthly cost often passed through in boarding fees — comparable to Equus yard catalog bands (`monetization.md`).*
 
 #### Business model
 Modular B2B SaaS paid by the **stable organization**. Owners/vets/staff are typically contacts or sub-logins inside the tenant, not independent ecosystem accounts with portable horse hubs.
@@ -1961,7 +1961,7 @@ Modular B2B SaaS paid by the **stable organization**. Owners/vets/staff are typi
 - Stable-centric tenant model — not horse-as-portable-hub across independent providers
 - No ecosystem discovery (owners finding stables publicly as first-class product)
 - No horse-scoped bidirectional reviews across independent accounts
-- Owners do not pay for a unified multi-provider hub; they sit inside one stable org
+- Owners sit inside one stable org (no portable Hub); Equus keeps the **yard as payer** but gives owners a **free Hub + portal** while the yard subscription is in good standing
 - No consumer ride tracking / social / edtech layer
 - No FEI/BHA compliance product
 
@@ -2059,7 +2059,7 @@ Based on this benchmark, the following whitespace represents the strongest diffe
 
 ### 5. Pricing white space
 - **Under $10/mo** full owner suite with unlimited horses: only Equestrian App (lifetime) and Happie (yearly promo) come close, both with UX/feature trade-offs
-- **Pro yards** pay EquineM-style modular fees (€1.10–€2.75/horse activity + €10–€35 modules) or €3–30+/horse elsewhere — often passed to owners via boarding; Equus owner-paid hub can be cost-comparable while giving owners the portable record
+- **Pro yards** pay EquineM-style modular fees (€1.10–€2.75/horse activity + €10–€35 modules) or €3–30+/horse elsewhere — often passed to owners via boarding; Equus **also bills the yard** (roster bands, see `monetization.md`) and gives owners a **free** portable Hub + portal instead of an owner Equus subscription
 
 ### 6. Features competitors have that we should not ignore
 | Must-have (table stakes) | Nice-to-have (differentiators) |

@@ -1,91 +1,30 @@
-# Users — Hub API + visibility (`/api/v1/users`)
+# Users — hub and view APIs
 
-Reference for the user hub and its visibility model. Mirrors `equus/docs/engineering/entities/horses.md` for the user entity.
+**Job:** Public/owner user hub. Users are **not** a searchable module.  
+**Upstream:** [`../features/userModule.md`](../features/userModule.md), [`../product/graph-and-identity.md`](../product/graph-and-identity.md)  
+**Status:** **drift** (`GET /users/search` is a people directory)  
+**Code roots:** `app/api/v1/users/`, `lib/privacy/userPublicProfile.ts`, `lib/users/userHubSections.ts`
 
-Related:
-- [`userTabs.md`](userTabs.md) — `/user/[userId]` tab map
-- [`profile.md`](profile.md) — profile/preferences edit UI and `PATCH /api/v1/users/me`
-- [`page-flow-blueprint.md`](page-flow-blueprint.md) — shared page/layout/error-boundary patterns
-- [equus/docs/features/userModule.md](../features/userModule.md) — user module spec (U-PRIV-05)
+Settings: [`profile.md`](profile.md). Tabs: [`userTabs.md`](userTabs.md). Favorites: [`favorites.md`](favorites.md).
 
 ---
 
-## Endpoints
+## Shipped
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/api/v1/users/:id` | Public user profile **card** — audience-filtered by `profileVisibility`; 404 when blocked |
-| `GET` | `/api/v1/users/:id/hub` | **User hub sections** — `{ sections: { identity?, about?, contact?, entities? } }`, audience-filtered by L1 + L2 |
-| `GET` | `/api/v1/users/:id/view` | **Role-aware user view** — `{ user, isOwner }`; owner gets `user.sections` + owner-only fields |
-| `GET/PATCH` | `/api/v1/users/me` | Owner profile (JSON or multipart avatar) |
-| `PATCH` | `/api/v1/users/me/hub-sections` | Layer-2 per-section visibility (`hubSections[key].mode`) |
+| `GET` | `/api/v1/users/:id` | Public card; 404 if L1 blocks |
+| `GET` | `/api/v1/users/:id/hub` | `{ sections }` L1+L2 |
+| `GET` | `/api/v1/users/:id/view` | `{ user, isOwner }` — owner gets all sections |
 | `GET` | `/api/v1/users/me/navigation` | Owned-entity flags |
+| `GET` | `/api/v1/users/search?q=` | Search users by name/email — **used by horse Admin invite** |
 
-### `GET /api/v1/users/:id/hub` — response shape
+Owner `GET`/`PATCH`/`DELETE /users/me`: [`profile.md`](profile.md).
 
-```ts
-type UserHubSectionsProjection = {
-  identity?: { firstName?; lastName?; username?; imageUrl?; bio?; businessName?; userType? };
-  identification?: { nationality?; phoneNumber?; idType?; idNumber? };
-  address?: { location? };
-  contact?: { email? };
-  entities?: { entities: Array<{ entityType; entityId; name; imageUrl? }> };
-};
-```
-
-Auth optional. 404 when the user is missing, inactive, or `profileVisibility` blocks the requester. Absent keys mean the viewer lacks access or the owner hid the section.
+L1: `preferences.profileVisibility` (`public` \| `platform` \| `relationships` \| `private`) on Preferences. L2 keys: `identity` \| `identification` \| `address` \| `contact` \| `entities` — Profile tab popovers, not Hub (PATCH: [`profile.md`](profile.md)). Enforce in `lib/privacy/userPublicProfile.ts` (`getUserHub`); owner view seeds `user.sections` via `getUserView`. `/user/[userId]` is self-only (`UserPageShell`). Public page: `/users/[userId]` (`useUserHub`). How to write the control: [`../conventions/visibility.md`](../conventions/visibility.md).
 
 ---
 
-## Three-control visibility model (user)
+## Target
 
-| Layer | Field | Values | Gate |
-|-------|-------|--------|------|
-| **L1 — global** | `preferences.profileVisibility` | `public` \| `platform` \| `relationships` \| `private` | Can the profile open at all? Deny → **404** |
-| **L2 — hub sections** | `hubSections[key].mode` | `public` \| `relationship` \| `owner` | Which hub sections appear? |
-| **Tabs** | — | — | `/user/[userId]` is self-only (`UserPageShell`); no role-based tab filtering |
-
-Hub section keys: `identity` | `identification` | `address` | `contact` | `entities` — 1:1 with the Profile tab sections (Personal / Identification / Address) plus contact (email) and entities (horses). Audiences: `self` ⊇ `relationship`/`collaboration` ⊇ `platform` ⊇ `public`; L2 `relationship` mode maps to the relationship / collaboration audiences; `owner` mode = self only.
-
-**Read flow:** L1 → L2 → return only allowed sections. Do **not** ship the full profile and hide sections in React.
-
-**Server:**
-- `buildUserHubSections(userDoc, audience)` — pure cheap projections (identity/identification/address/contact) — `lib/users/userHubSections.ts`
-- `canViewUserHubSection(userDoc, key, audience)` — L2 gate
-- `getUserHub(userId, requester?)` — L1 404 + sections + entities list — `lib/privacy/userPublicProfile.ts`
-- Owner view: `getUserView` seeds `user.sections` (owner sees all) for the account-layout cache
-
-**Autosave:** `UserSectionVisibility` adapter → shared `SectionVisibilityControl` → `useUpdateUserHubSection` → `PATCH /api/v1/users/me/hub-sections`. Popovers live on the Profile tab sections (Personal/Identification/Address), not on the hub.
-
----
-
-## Web UI
-
-### Public user hub (`/users/[userId]`)
-
-Horse-hub-style public profile page. Reads `GET /api/v1/users/:id/hub` via `useUserHub` (cookie auth optional).
-
-- Page: `app/[locale]/users/[userId]/page.tsx` + `client.tsx` (`UserHubPublicPage`)
-- Data: `useUserHub(userId)` → `GET …/hub`
-- Layout: full-width identity band + Identification/Address/Contact/Entities sections (read-only, no visibility popovers)
-
-### Owner hub tab (`/user/[userId]`)
-
-Renders the **same** `UserHubContent`, reading `user.sections` from `useUserView` (`GET /api/v1/users/:id/view`).
-
-- Page: `app/[locale]/user/[userId]/page.tsx` + `client.tsx`
-- Data: `useUserView(userId)` → `view.user.sections`
-- Visibility popovers are NOT on the hub — they live on the Profile tab sections.
-
-### Hub components (`components/user/hub/`)
-
-```
-UserHubContent (reads `sections`)
-├── UserHubHero            — identity band (avatar, name, @username, business badge, bio)
-├── UserHubIdentification  — nationality, phone, ID type, ID number
-├── UserHubAddress         — location
-├── UserHubContact         — email
-└── UserHubEntities        — owned-horse list (EntityChip → /horses/:id)
-```
-
-Each section is wrapped in `SectionErrorBoundary`; renders only `sections` keys present (server-filtered).
+**No people search module.** Do not expose `/users/search` as discovery. Ownership invites: email / entity-linked identity, not a user directory. User pages are reached from **entities**. Never favorite Users.
