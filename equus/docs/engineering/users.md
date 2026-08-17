@@ -2,7 +2,7 @@
 
 **Job:** Public/owner user hub. Users are **not** a searchable module.  
 **Upstream:** [`../features/userModule.md`](../features/userModule.md), [`../product/graph-and-identity.md`](../product/graph-and-identity.md)  
-**Status:** **drift** (`GET /users/search` is a people directory)  
+**Status:** **aligned**  
 **Code roots:** `app/api/v1/users/`, `lib/privacy/userPublicProfile.ts`, `lib/users/userHubSections.ts`
 
 Settings: [`profile.md`](profile.md). Tabs: [`userTabs.md`](userTabs.md). Favorites: [`favorites.md`](favorites.md).
@@ -17,7 +17,6 @@ Settings: [`profile.md`](profile.md). Tabs: [`userTabs.md`](userTabs.md). Favori
 | `GET` | `/api/v1/users/:id/hub` | `{ sections }` L1+L2 |
 | `GET` | `/api/v1/users/:id/view` | `{ user, isOwner }` — owner gets all sections |
 | `GET` | `/api/v1/users/me/navigation` | Owned-entity flags |
-| `GET` | `/api/v1/users/search?q=` | Search users by name/email — **used by horse Admin invite** |
 
 Owner `GET`/`PATCH`/`DELETE /users/me`: [`profile.md`](profile.md).
 
@@ -28,3 +27,5 @@ L1: `preferences.profileVisibility` (`public` \| `platform` \| `relationships` \
 ## Target
 
 **No people search module.** Do not expose `/users/search` as discovery. Ownership invites: email / entity-linked identity, not a user directory. User pages are reached from **entities**. Never favorite Users.
+
+**Aligned:** Horse Admin ownership/co-owner/responsible invites use `EmailInviteSection` (email only). Connect uses `ProviderInvitePicker` → `/discover/providers`. No `GET /users/search` route.

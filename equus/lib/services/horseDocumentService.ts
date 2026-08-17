@@ -3,6 +3,10 @@ import Document from "@/models/Document.ts";
 import Horse from "@/models/Horse.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { ownedByUserQuery } from "@/lib/ownership/entityOwnership.ts";
+import {
+  assertCanViewHorseGlobal,
+  resolveHorseViewerAudience,
+} from "@/lib/horses/horseVisibilityAccess.ts";
 import { recordAudit } from "@/lib/services/horseAuditService.ts";
 import configureCloudinary from "@/lib/cloudinary/cloudinaryConfig.ts";
 import { buildDocumentDownloadUrls } from "@/lib/cloudinary/documentDelivery.ts";
@@ -77,11 +81,56 @@ export async function listHorseDocuments(horseId: string): Promise<PublicHorseDo
   return docs.map(toPublic);
 }
 
+async function assertHorseDocumentTabAccess(
+  actorUserId: string,
+  horseId: string,
+): Promise<Record<string, unknown>> {
+  if (!mongoose.Types.ObjectId.isValid(horseId)) {
+    throw new ApiError(400, "Invalid horse id", "VALIDATION_ERROR");
+  }
+
+  const horse = await Horse.findById(horseId).lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  const horseDoc = horse as Record<string, unknown>;
+  const audience = await resolveHorseViewerAudience(horseDoc, actorUserId);
+  assertCanViewHorseGlobal(horseDoc, audience);
+
+  if (!audience.isOwnerTeam && !audience.isRelationshipAudience) {
+    throw new ApiError(403, "You cannot access documents for this horse", "FORBIDDEN");
+  }
+
+  return horseDoc;
+}
+
+async function assertHorseDocumentOwnerTeam(
+  actorUserId: string,
+  horseId: string,
+): Promise<void> {
+  if (!mongoose.Types.ObjectId.isValid(horseId)) {
+    throw new ApiError(400, "Invalid horse id", "VALIDATION_ERROR");
+  }
+
+  const horse = await Horse.findOne({
+    _id: horseId,
+    ...ownedByUserQuery(actorUserId),
+  })
+    .select("_id")
+    .lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+}
+
 export async function createHorseDocument(
   userId: string,
   horseId: string,
   input: Record<string, unknown>,
 ): Promise<PublicHorseDocument> {
+  await assertHorseDocumentOwnerTeam(userId, horseId);
+
   const doc = await Document.create({
     ...input,
     horseId,
@@ -114,19 +163,8 @@ export async function getHorseDocumentDownloadMeta(
   if (!mongoose.Types.ObjectId.isValid(docId)) {
     throw new ApiError(400, "Invalid document id", "VALIDATION_ERROR");
   }
-  if (!mongoose.Types.ObjectId.isValid(horseId)) {
-    throw new ApiError(400, "Invalid horse id", "VALIDATION_ERROR");
-  }
 
-  const horse = await Horse.findOne({
-    _id: horseId,
-    ...ownedByUserQuery(actorUserId),
-  })
-    .select("_id")
-    .lean();
-  if (!horse) {
-    throw new ApiError(404, "Horse not found", "NOT_FOUND");
-  }
+  await assertHorseDocumentTabAccess(actorUserId, horseId);
 
   const record = await Document.findOne({ _id: docId, horseId, isActive: true })
     .select("storagePublicId fileUrl fileName mimeType")
@@ -159,19 +197,8 @@ export async function deleteHorseDocument(
   if (!mongoose.Types.ObjectId.isValid(docId)) {
     throw new ApiError(400, "Invalid document id", "VALIDATION_ERROR");
   }
-  if (!mongoose.Types.ObjectId.isValid(horseId)) {
-    throw new ApiError(400, "Invalid horse id", "VALIDATION_ERROR");
-  }
 
-  const horse = await Horse.findOne({
-    _id: horseId,
-    ...ownedByUserQuery(actorUserId),
-  })
-    .select("_id")
-    .lean();
-  if (!horse) {
-    throw new ApiError(404, "Horse not found", "NOT_FOUND");
-  }
+  await assertHorseDocumentOwnerTeam(actorUserId, horseId);
 
   const record = await Document.findOne({ _id: docId, horseId })
     .select("storagePublicId mimeType title")

@@ -14,6 +14,29 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
   ]),
   {
+    files: ["components/**/*.{ts,tsx}", "hooks/**/*.{ts,tsx}", "app/[locale]/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/lib/services", "@/lib/services/*", "@/lib/services/**"],
+              message:
+                "UI and hooks must call /api/v1; use import type from services when types are needed.",
+              allowTypeImports: true,
+            },
+            {
+              group: ["@/models", "@/models/*", "@/models/**"],
+              message: "UI and hooks must not import models.",
+              allowTypeImports: true,
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ["components/**/*.{ts,tsx}", "app/**/*.{ts,tsx}"],
     ignores: ["components/icons/google-icon.tsx"],
     rules: {

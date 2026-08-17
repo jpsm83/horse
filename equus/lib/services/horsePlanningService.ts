@@ -115,12 +115,11 @@ export async function createPlanningItem(
     eventType: input.eventType,
     title: input.title,
     location: input.location,
-    sourceEntityType: input.sourceEntityType,
-    sourceEntityId: input.sourceEntityId,
     horseId,
     createdByUserId: userId,
     startDate: new Date(input.startDate),
     endDate: input.endDate ? new Date(input.endDate) : undefined,
+    visibilityMode: "public",
   });
   recordAudit({
     horseId,

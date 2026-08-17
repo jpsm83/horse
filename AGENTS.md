@@ -35,7 +35,7 @@ Do **not** load `equus/docs/` wholesale. Open **only** files this task needs. Sk
 
 ## How to work
 
-**senior-engineer** is **opt-in** (not the default). Use it when you want the full how-to-work rules (root-cause, file headers, workflow).
+**senior-engineer** is **opt-in** (not the default). Use it when you want the full how-to-work rules (root-cause, file headers, workflow). Shared prompt: [`agents/senior-engineer.md`](agents/senior-engineer.md).
 
-* **Cursor:** `@senior-engineer` in the prompt (manual rule — not auto-attached).
-* **OpenCode:** select the **senior-engineer** agent in the agent picker before you prompt.
+* **Cursor:** `@senior-engineer` in the prompt (manual rule — not auto-attached, not agent-requested).
+* **OpenCode:** select the **senior-engineer** agent in the agent picker (Tab) before you prompt.

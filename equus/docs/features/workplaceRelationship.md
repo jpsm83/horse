@@ -103,18 +103,18 @@ See [`equus/models/Relationship.ts`](../../models/Relationship.ts) and `Workplac
 
 | Scenario | Required links | Horse operational write? |
 |----------|----------------|--------------------------|
-| **Groom at barn** on hosted horse | (1) Active `WorkplaceRelationship` groom User ↔ stable profile **and** (2) Accepted `Relationship` horse ↔ stable (`type: stable`) | **Yes** — derived from barn context; **no** separate groom↔horse `Relationship` required |
+| **Groom at stable** on hosted horse | (1) Active `WorkplaceRelationship` groom User ↔ stable profile **and** (2) Accepted `Relationship` horse ↔ stable (`type: stable`) | **Yes** — derived from stable context; **no** separate groom↔horse `Relationship` required |
 | **Vet at owner's home** (off-site) | Accepted `Relationship` horse ↔ veterinary profile only | **Yes** — direct horse link; stable not involved |
-| **External farrier** visiting barn horse | Direct `Relationship` horse ↔ farrier **or** barn path (collaboration + stable hosts horse) | Per active link |
+| **External farrier** visiting stable horse | Direct `Relationship` horse ↔ farrier **or** stable path (collaboration + stable hosts horse) | Per active link |
 | **Stable offers boarding/services** | Horse owner accepts `Relationship` horse ↔ stable | Stable ops on that horse |
 
-**Permission check (barn collaborator):** `canCollaboratorActOnHorse(user, horse, stableProfile)` = user has active collaboration at stable **AND** horse has accepted stable hosting relationship with that stable.
+**Permission check (stable collaborator):** `canCollaboratorActOnHorse(user, horse, stableProfile)` = user has active collaboration at stable **AND** horse has accepted stable hosting relationship with that stable.
 
 **Permission check (direct provider):** accepted horse `Relationship` for that provider type/id.
 
 ### Worked examples
 
-**Groom at barn:** Alice owns Sunrise Stable. Horse owner Bob accepts stable hosting for horse Comet. Alice invites Carla (User with groom subsection). Carla accepts collaboration. Carla may log feed/care on Comet **without** a separate groom↔Comet `Relationship`.
+**Groom at stable:** Alice owns Sunrise Stable. Horse owner Bob accepts stable hosting for horse Comet. Alice invites Carla (User with groom subsection). Carla accepts collaboration. Carla may log feed/care on Comet **without** a separate groom↔Comet `Relationship`.
 
 **Vet at owner's home:** Horse owner Bob invites Dr. Lee's veterinary profile directly to Comet. Bob accepts. Dr. Lee writes health records. Sunrise Stable not required.
 
@@ -129,7 +129,7 @@ After signup, that same User may add **role profiles** to their account (optiona
 | Role profile | Example | Ownership link |
 |--------------|---------|----------------|
 | Horses | Entity-owned; user may own many | `Horse.mainOwnerUserId` (+ optional `coOwners[]`) |
-| Stable | Runs a barn they own | `Stable.mainOwnerUserId` (+ optional `coOwners[]`) |
+| Stable | Runs a stable they own | `Stable.mainOwnerUserId` (+ optional `coOwners[]`) |
 | Riding club | Host club profile | `RidingClub.mainOwnerUserId` (+ optional `coOwners[]`) |
 | Transport | Transport company | `Transport.mainOwnerUserId` (+ optional `coOwners[]`) |
 | Breeder | Breeding operation (user may own many) | `Breeder.mainOwnerUserId` (+ optional `coOwners[]`) |
@@ -156,7 +156,7 @@ When a User **creates a stable profile**, they access stable features **through 
 
 ## Core principle: users are never owned by a stable profile
 
-A groom, rider, manager, or vet helping at a barn is always the **same User** — even if they collaborate at only one stable.
+A groom, rider, manager, or vet helping at a stable is always the **same User** — even if they collaborate at only one stable.
 
 | Wrong mental model | Correct mental model |
 |--------------------|----------------------|
@@ -199,7 +199,7 @@ Activities/jobs assigned within permissions on that collaboration
 | Who initiates | Owner (invite provider) **or** stable (create boarded horse + waiting-transfer) | **Host profile owner** or admin — **service Users** only |
 | Who decides | Provider accepts or declines | **Invited User** only |
 | Service profiles | **Never initiate** — inbox only | N/A |
-| After accept | Shared horse operational data (barn collaboration path or direct link) | Barn permissions + job assignment |
+| After accept | Shared horse operational data (stable collaboration path or direct link) | Stable permissions + job assignment |
 | User unchanged | N/A | Same login, same own role profiles |
 
 ---
@@ -258,7 +258,7 @@ The **profile owner** is not "staff of themselves" — they operate the host pro
 
 ## Multi-profile collaboration
 
-One User may hold **multiple active collaborations** at different stable (or other host) profiles — e.g. groom at two barns.
+One User may hold **multiple active collaborations** at different stable (or other host) profiles — e.g. groom at two stables.
 
 - Each link has its own hierarchy and permissions.
 - Scheduling must consider **all active collaborations** for conflict detection.

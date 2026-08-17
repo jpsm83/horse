@@ -2,7 +2,7 @@
  * Hex color mirrors of `:root` (default theme) tokens in `app/globals.css`
  * for contexts that cannot use CSS variables (HTML email, Excel export, meta).
  *
- * Keep in sync with `:root` — enforced by `tests/theme/nonCssColorsSync.test.ts`.
+ * Keep in sync with `:root` — enforced by `lib/theme/__tests__/nonCssColorsSync.test.ts`.
  * User-selected themes (e.g. onyx) do not affect these values.
  */
 

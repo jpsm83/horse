@@ -109,3 +109,25 @@ export function useToggleMediaVisibility(horseId: string) {
     },
   });
 }
+
+export function useCreateMediaDeletionRequest(horseId: string) {
+  return useMutation({
+    mutationFn: async ({
+      mediaId,
+      requestMessage,
+    }: {
+      mediaId: string;
+      requestMessage?: string;
+    }) => {
+      const res = await fetchWithAuth(
+        `/api/v1/horses/${encodeURIComponent(horseId)}/media-deletion-requests`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mediaId, requestMessage }),
+        },
+      );
+      return parseApiResponse<{ request: { id: string } }>(res);
+    },
+  });
+}

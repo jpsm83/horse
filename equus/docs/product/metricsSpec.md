@@ -51,7 +51,7 @@ Sources: [`monetization.md`](monetization.md), [`go-to-market.md`](go-to-market.
 |--------|------------|
 | Relationship requests | Created in period |
 | Acceptance rate | Accepted / (accepted + declined) |
-| Barn-created horses | Path B creates |
+| Stable-created horses | Path B creates |
 | Invite emails | To non-registered |
 | Invite signup rate | Signups from invites / invites sent |
 | Waiting-transfer claim rate | Claims / waiting-transfer stock |
@@ -63,7 +63,7 @@ Sources: [`monetization.md`](monetization.md), [`go-to-market.md`](go-to-market.
 |--------|------------|
 | Owners with ≥1 horse | |
 | Hub views | Horse Hub opens |
-| Portal views | Owner opened live barn slice |
+| Portal views | Owner opened live stable slice |
 | Portal blocked (lapse) | Owner hit missing live data because stable write-locked / not in good standing |
 | Chat senders | Distinct users messaging |
 
@@ -134,7 +134,7 @@ Each event: `timestamp`, `actor_user_id`, `horse_id?`, `entity_id?`, `entity_typ
 | Paying stables (Spain) | 5+ |
 | Free-to-paid | 25%+ of finished 30-day offers |
 | Relationship accept rate | 60%+ |
-| Waiting-transfer claim rate | 50%+ of barn-created horses within 30 days |
+| Waiting-transfer claim rate | 50%+ of stable-created horses within 30 days |
 | Active stables weekly | 8+ |
 | Owners opening Hub weekly (on hosted horses) | Rising with roster |
 

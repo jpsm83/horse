@@ -62,9 +62,9 @@ A connected horse **graph**: free horse social (Hub, chat, favorites) plus **pai
 | Search | **No people search.** First-class = current module / page. Horse/stable lists default **mine**. |
 | Social | Ops links + **WhatsApp-style chat** + **private favorites** (filter on entity lists). No follow, public feed, or likes. |
 | Launch | **User + Horse + Stable SaaS.** Then vet / trainer / groomer as **their own paid SaaS**, also optional stable **collaborators**. |
-| Links | Owner invites entity **or** barn creates a boarded horse and must push **ownership transfer**. |
-| Temp owner | Creator’s **user** is `mainOwner` + **waiting-transfer** flag. After claim: owner owns, barn **hosts**. |
-| Unclaimed | **Daily nag forever** (barn + invited owner). No feature lock for waiting-transfer. |
+| Links | Owner invites entity **or** stable creates a boarded horse and must push **ownership transfer**. |
+| Temp owner | Creator’s **user** is `mainOwner` + **waiting-transfer** flag. After claim: owner owns, stable **hosts**. |
+| Unclaimed | **Daily nag forever** (stable + invited owner). No feature lock for waiting-transfer. |
 | Who pays | **Entity pays SaaS.** Horse Hub / chat / favorites / unlimited profiles = **free**. Equus never invoices horse owners. Yard may pass cost through in boarding. |
 | Owner horse page | Hub = social. Planning = calendar. Documents include invoices. **History always visible.** Write-lock only stops **new** stable ops. |
 | Meter | **Current roster** (active horse↔stable links + waiting-transfer horses still hosted). Past horses do not count. |
@@ -82,12 +82,12 @@ A connected horse **graph**: free horse social (Hub, chat, favorites) plus **pai
 - Businesses use SaaS free as the growth tactic  
 - 14-day **horse-owner** trial  
 - Hub opaque because *the owner* did not pay Equus  
-- Dunning owners then freezing the horse inside every barn/vet screen  
+- Dunning owners then freezing the horse inside every stable/vet screen  
 - Partner **10% commission on owner subscriptions** (old Section 19)  
 - Production launch requiring a full **Veterinary** module  
 - “Utility first, not a horse social app” as the product identity (social is a real skin; it is not Instagram)
 
-## Positioning vs barn ERPs
+## Positioning vs stable ERPs
 
 EquineM / Equicty / HippoVibe: **stable tenant pays**, owners are contacts inside one org.  
 Equus: **stable (entity) still pays** for ops, but the **horse is portable** across independent accounts, owners get a **free Hub + included portal**, and later vets/trainers are **their own SaaS**, not contacts trapped in the yard.

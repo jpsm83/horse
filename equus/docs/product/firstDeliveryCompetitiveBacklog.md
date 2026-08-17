@@ -19,7 +19,7 @@
 | Priority | What we ship first | Why (market signal) |
 |----------|--------------------|---------------------|
 | **A — Horse Hub (free social skin)** | Rich horse profiles, discovery, sharing, reviews, care-network visibility, sale-ready history, **favorites**, chat | My Cheval, Happie, Equestrian App, ehorses |
-| **B — Stable SaaS (paid entity)** | Multi-user barn ops: roster, tasks, health, feed, docs, finance, facilities, owner portal | Equicty, HippoVibe, Equestrian App (StallPros), EquineM parity in `equus/docs/features/stableModule.md` |
+| **B — Stable SaaS (paid entity)** | Multi-user stable ops: roster, tasks, health, feed, docs, finance, facilities, owner portal | Equicty, HippoVibe, Equestrian App (StallPros), EquineM parity in `equus/docs/features/stableModule.md` |
 
 **Explicitly later (still catalogued in webapps.md, not first delivery):** FEI compliance rebuild, BHA racing admin, BHS membership/insurance, full edtech video library (Ridely), GPS gait AI as primary product, fructan/laminitis OS as primary product, Smart Stable Board hardware.
 
@@ -64,7 +64,7 @@ Sources: My Cheval, Happie, Equestrian App, ehorses listings, HippoVibe share pa
 | Share horse pack (age, pedigree, videos, results links) | HippoVibe | **Add** — shareable horse information pack for buyers/owners |
 | Share modes: read-only vs full access | Happie | **Add** — map to Relationship / collaborator permission levels |
 | Profile transfer / ownership handover | My Cheval, Equestrian App, Equus OwnershipTransfer | **Keep** OwnershipTransfer |
-| HorseTag QR / scan for quick lookup | Equestrian App | **Add** for barn + social discovery of horse Hub |
+| HorseTag QR / scan for quick lookup | Equestrian App | **Add** for stable + social discovery of horse Hub |
 | Weight tracker / body values | Equestrian App, Happie | **Add** light body metrics on horse (social/care context) |
 | Weather / blanket / rug recommendations | My Cheval, Equestrian App, Happie web tools | **Defer** or light Hub widget after core |
 | Fructan / pollen / PPID diaries | Happie | **Defer** (health OS depth) |
@@ -121,7 +121,7 @@ Extracted from **Equicty (Equstable/Equclub)**, **HippoVibe**, **Equestrian App 
 | Embed calendar on website | Equestrian App Platinum | **Add** |
 | Seen-first in search (paid boost) | Equestrian App Platinum | **Defer** ads |
 
-### B.2 Horse roster & records (barn view)
+### B.2 Horse roster & records (stable view)
 
 | Market feature | Competitor(s) | Status vs Equus |
 |----------------|---------------|-----------------|
@@ -139,9 +139,9 @@ Extracted from **Equicty (Equstable/Equclub)**, **HippoVibe**, **Equestrian App 
 | Vaccination schedules | All | **Already** S-HORSE-15 |
 | Share horse info pack with owners/buyers | HippoVibe | **Add** (same as horse social share pack) |
 | Stall assignment (1–100+ stalls) | Equestrian App StallPros | **Add** |
-| Multiple barns and turnouts | Equestrian App | **Add** |
+| Multiple yards and turnouts | Equestrian App | **Add** |
 | Emergency contacts per stall/horse | Equestrian App | **Add** |
-| HorseTag QR in barn | Equestrian App | **Add** |
+| HorseTag QR in stable | Equestrian App | **Add** |
 | Website horse catalog sync | Equicty | **Defer** |
 
 ### B.3 Daily ops / activity planning (whiteboard replacement)

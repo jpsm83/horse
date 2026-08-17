@@ -1,5 +1,5 @@
 /**
- * Client-side NEXT_LOCALE cookie sync (language switcher).
+ * Client-side NEXT_LOCALE cookie sync (preferences Save and post-login locale alignment).
  */
 
 import {

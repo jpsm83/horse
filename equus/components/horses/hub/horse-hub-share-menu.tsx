@@ -39,6 +39,7 @@ import { useAppToast } from "@/hooks/use-app-toast.ts";
 
 type HorseHubShareMenuProps = {
   horseName: string;
+  shareUrl: string;
   coverUrl?: string;
 };
 
@@ -60,14 +61,13 @@ const NETWORK_BUTTON_CLASS =
 
 export function HorseHubShareMenu({
   horseName,
+  shareUrl,
   coverUrl,
 }: HorseHubShareMenuProps) {
   const t = useTranslations("horseHub");
   const toast = useAppToast();
   const [open, setOpen] = useState(false);
 
-  const shareUrl =
-    typeof window !== "undefined" ? window.location.href : "";
   const title = t("shareTitle", { name: horseName });
   const aria = (key: ShareNetworkKey) => t(`shareNetworks.${key}`);
 

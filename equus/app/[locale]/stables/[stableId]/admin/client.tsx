@@ -10,6 +10,7 @@
 import { useTranslations } from "next-intl";
 
 import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
+import { StableBillingSection } from "@/components/stable/admin/stable-billing-section.tsx";
 import { StableOwnershipSection } from "@/components/stable/admin/stable-ownership-section.tsx";
 import { StableVisibilitySection } from "@/components/stable/admin/stable-visibility-section.tsx";
 import { StablePageShell } from "@/components/stable/stable-page-shell.tsx";
@@ -26,6 +27,12 @@ export function StableAdminContent({ stableId }: { stableId: string }) {
             <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("title")}</h1>
             <p className="text-muted-foreground">{t("description")}</p>
           </div>
+
+          <Section title={t("billingSection")} description={t("billingDescription")}>
+            <SectionErrorBoundary message={t("loadFailed")}>
+              <StableBillingSection stableId={stableId} />
+            </SectionErrorBoundary>
+          </Section>
 
           <Section title={t("visibilitySection")} description={t("visibilityDescription")}>
             <SectionErrorBoundary message={t("loadFailed")}>

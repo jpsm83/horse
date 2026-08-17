@@ -1,10 +1,8 @@
 /**
- * HomeContent — signed-in user home content assembly (`/home`).
+ * HomeContent — signed-in action inbox (`/home`).
  *
- * Auth gate + data fetch (profile + owned navigation) + user home panels.
- * Guests are redirected to sign-in via a `useEffect` side effect. While auth
- * or data resolves, the same `HomePageContentSkeleton` used by `loading.tsx`
- * renders. Called by `app/[locale]/home/page.tsx`.
+ * Shows pending relationship and workplace invites only — not owned-entity
+ * rosters or create shortcuts. Guests redirect to sign-in.
  */
 
 "use client";
@@ -13,16 +11,11 @@ import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 
 import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
-import {
-  CREATE_MENU_HORSE_LINK,
-  filterHomeSubsectionLinks,
-} from "@/components/layout/navigation-config.ts";
+import { HomeActionInbox } from "@/components/home/home-action-inbox.tsx";
 import { HomePageContentSkeleton } from "@/components/home/home-page-content-skeleton.tsx";
-import { HomeUserAddHorseCard } from "@/components/home/home-user-add-horse-card.tsx";
-import { HomeUserSubsectionCard } from "@/components/home/home-user-subsection-card.tsx";
 import { HomeUserWelcomeHero } from "@/components/home/home-user-welcome-hero.tsx";
 import { useAppAuth } from "@/hooks/use-app-auth.ts";
-import { useUserNavigation, useUserProfile } from "@/hooks/queries/useCurrentUser.ts";
+import { useUserProfile } from "@/hooks/queries/useCurrentUser.ts";
 import { usePathname, useRouter } from "@/i18n/navigation.ts";
 import { buildSignInPath, USER_HOME_PATH } from "@/lib/navigation/postAuthRedirect.ts";
 
@@ -30,13 +23,10 @@ export function HomeContent() {
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations("home");
-  const tCreate = useTranslations("header.create");
-  const tMyOwn = useTranslations("header.myOwn");
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAppAuth();
-  const { data: ownedNavigation, isPending: isNavPending } = useUserNavigation(isAuthenticated);
   const { data: profile, isPending: isProfilePending } = useUserProfile(isAuthenticated);
 
-  const isLoading = isAuthLoading || (isAuthenticated && (isNavPending || isProfilePending));
+  const isLoading = isAuthLoading || (isAuthenticated && isProfilePending);
 
   useEffect(() => {
     if (pathname !== USER_HOME_PATH) return;
@@ -56,8 +46,6 @@ export function HomeContent() {
     typeof details.imageUrl === "string" ? details.imageUrl.trim() || undefined : undefined;
   const displayName = [profileFirstName, profileLastName].filter(Boolean).join(" ") || user.email;
 
-  const subsectionLinks = filterHomeSubsectionLinks(ownedNavigation ?? null);
-
   return (
     <div
       className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-8 sm:gap-10 sm:py-12"
@@ -72,42 +60,18 @@ export function HomeContent() {
         />
       </SectionErrorBoundary>
 
-      <section aria-labelledby="user-home-add-horse-heading">
-        <h2 id="user-home-add-horse-heading" className="sr-only">
-          {tCreate("addHorse")}
-        </h2>
+      <section aria-labelledby="home-inbox-heading">
+        <div className="mb-4 space-y-1">
+          <h2 id="home-inbox-heading" className="text-lg font-semibold tracking-tight sm:text-xl">
+            {t("inboxHeading")}
+          </h2>
+          <p className="text-sm text-muted-foreground">{t("inboxDescription")}</p>
+        </div>
+
         <SectionErrorBoundary message={t("loadFailed")}>
-          <HomeUserAddHorseCard
-            href={CREATE_MENU_HORSE_LINK.href}
-            eyebrow={t("addHorseEyebrow")}
-            title={tCreate("addHorse")}
-            description={t("addHorseDescription")}
-            icon={CREATE_MENU_HORSE_LINK.icon}
-          />
+          <HomeActionInbox userId={user.id} />
         </SectionErrorBoundary>
       </section>
-
-      {subsectionLinks.length > 0 ? (
-        <section aria-labelledby="user-home-profiles-heading">
-          <div className="mb-4 space-y-1">
-            <h2
-              id="user-home-profiles-heading"
-              className="text-lg font-semibold tracking-tight sm:text-xl"
-            >
-              {t("profilesHeading")}
-            </h2>
-            <p className="text-sm text-muted-foreground">{t("profilesDescription")}</p>
-          </div>
-
-          <SectionErrorBoundary message={t("loadFailed")}>
-            <nav className="grid gap-3 sm:grid-cols-2" aria-label={t("subsectionsLabel")}>
-              {subsectionLinks.map(({ key, href, icon }) => (
-                <HomeUserSubsectionCard key={key} href={href} label={tMyOwn(key)} icon={icon} />
-              ))}
-            </nav>
-          </SectionErrorBoundary>
-        </section>
-      ) : null}
     </div>
   );
 }

@@ -32,6 +32,7 @@ import {
   useDeleteMedia,
   useToggleMediaVisibility,
   useUploadMedia,
+  useCreateMediaDeletionRequest,
 } from "@/hooks/queries/useMedia.ts";
 import { useUpdateHorse } from "@/hooks/queries/useHorse.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
@@ -41,6 +42,8 @@ type HorseMediaGallerySectionProps = {
   horseId: string;
   sourceEntityType: string;
   sourceEntityId?: string;
+  /** Owner team (main owner, co-owner, responsible) — upload, delete, visibility. */
+  canManageMedia?: boolean;
 };
 
 type HorseMediaGalleryTileImageProps = {
@@ -83,8 +86,10 @@ function HorseMediaGalleryTileImage({
 type HorseMediaGalleryTileProps = {
   item: PublicMedia;
   onOpen: () => void;
-  onToggleVisibility: () => void;
-  onRequestDelete: () => void;
+  canManageMedia: boolean;
+  onToggleVisibility?: () => void;
+  onRequestDelete?: () => void;
+  onRequestDeletion?: () => void;
   onRequestSetAs?: () => void;
   setAsPending?: boolean;
 };
@@ -92,8 +97,10 @@ type HorseMediaGalleryTileProps = {
 function HorseMediaGalleryTile({
   item,
   onOpen,
+  canManageMedia,
   onToggleVisibility,
   onRequestDelete,
+  onRequestDeletion,
   onRequestSetAs,
   setAsPending = false,
 }: HorseMediaGalleryTileProps) {
@@ -102,7 +109,9 @@ function HorseMediaGalleryTile({
     item.type === "image" || item.thumbnailUrl
       ? (item.thumbnailUrl ?? item.url)
       : null;
-  const canSetAsImage = item.type === "image" && Boolean(onRequestSetAs);
+  const canSetAsImage = canManageMedia && item.type === "image" && Boolean(onRequestSetAs);
+  const showActions =
+    canManageMedia || Boolean(onRequestDeletion);
 
   return (
     <div
@@ -129,49 +138,68 @@ function HorseMediaGalleryTile({
         </div>
       )}
 
-      <div className="absolute top-1 right-1 z-20 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-        {canSetAsImage ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7 rounded-full bg-overlay/70 text-overlay-foreground hover:bg-overlay/90 hover:text-overlay-foreground border-overlay-foreground"
-            disabled={setAsPending}
-            aria-label={t("setAsImage")}
-            onClick={(e) => {
-              e.stopPropagation();
-              onRequestSetAs?.();
-            }}
-          >
-            <ImagePlus className="size-3.5" />
-          </Button>
-        ) : null}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-7 rounded-full bg-overlay/70 text-overlay-foreground hover:bg-overlay/90 hover:text-overlay-foreground border-overlay-foreground"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleVisibility();
-          }}
-        >
-          {item.isVisibleOnHub !== false ? (
-            <Eye className="size-3.5" />
+      {showActions ? (
+        <div className="absolute top-1 right-1 z-20 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          {canSetAsImage ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 rounded-full bg-overlay/70 text-overlay-foreground hover:bg-overlay/90 hover:text-overlay-foreground border-overlay-foreground"
+              disabled={setAsPending}
+              aria-label={t("setAsImage")}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRequestSetAs?.();
+              }}
+            >
+              <ImagePlus className="size-3.5" />
+            </Button>
+          ) : null}
+          {canManageMedia ? (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 rounded-full bg-overlay/70 text-overlay-foreground hover:bg-overlay/90 hover:text-overlay-foreground border-overlay-foreground"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleVisibility?.();
+                }}
+              >
+                {item.isVisibleOnHub !== false ? (
+                  <Eye className="size-3.5" />
+                ) : (
+                  <EyeOff className="size-3.5" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 rounded-full bg-destructive/70 text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground border-overlay-foreground"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRequestDelete?.();
+                }}
+              >
+                <Trash2 className="size-3.5" />
+              </Button>
+            </>
           ) : (
-            <EyeOff className="size-3.5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 rounded-full bg-destructive/70 text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground border-overlay-foreground"
+              aria-label={t("requestDelete")}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRequestDeletion?.();
+              }}
+            >
+              <Trash2 className="size-3.5" />
+            </Button>
           )}
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-7 rounded-full bg-destructive/70 text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground border-overlay-foreground"
-          onClick={(e) => {
-            e.stopPropagation();
-            onRequestDelete();
-          }}
-        >
-          <Trash2 className="size-3.5" />
-        </Button>
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -308,18 +336,21 @@ export function HorseMediaGallerySection({
   horseId,
   sourceEntityType,
   sourceEntityId,
+  canManageMedia = false,
 }: HorseMediaGallerySectionProps) {
   const t = useTranslations("horseMedia");
   const tCommon = useTranslations("common");
   const toast = useAppToast();
   const { data: media = [], isPending, isError } = useMedia(horseId);
   const deleteMutation = useDeleteMedia(horseId);
+  const deletionRequestMutation = useCreateMediaDeletionRequest(horseId);
   const toggleVisibilityMutation = useToggleMediaVisibility(horseId);
   const uploadMutation = useUploadMedia(horseId);
   const updateHorse = useUpdateHorse();
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deletionRequestTarget, setDeletionRequestTarget] = useState<string | null>(null);
   const [setAsTarget, setSetAsTarget] = useState<PublicMedia | null>(null);
   const [files, setFiles] = useState<UploadedFileState[]>([]);
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
@@ -389,6 +420,21 @@ export function HorseMediaGallerySection({
           }
         },
         onError: () => toast.error(t("deleteError")),
+      },
+    );
+  }
+
+  function handleRequestDeletion() {
+    if (!deletionRequestTarget) return;
+
+    deletionRequestMutation.mutate(
+      { mediaId: deletionRequestTarget },
+      {
+        onSuccess: () => {
+          toast.success(t("requestDeleteSuccess"));
+          setDeletionRequestTarget(null);
+        },
+        onError: () => toast.error(t("requestDeleteError")),
       },
     );
   }
@@ -463,39 +509,51 @@ export function HorseMediaGallerySection({
   return (
     <>
       <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
-        <div className="aspect-square w-full">
-          <FileUpload
-            variant="tile"
-            showPreviewList={false}
-            value={files}
-            onChange={setFiles}
-            accept="image/*,video/*"
-            maxFiles={10}
-            maxSizeBytes={10 * 1024 * 1024}
-            disabled={isUploading}
-            uploading={isUploading}
-          />
-        </div>
+        {canManageMedia ? (
+          <div className="aspect-square w-full">
+            <FileUpload
+              variant="tile"
+              showPreviewList={false}
+              value={files}
+              onChange={setFiles}
+              accept="image/*,video/*"
+              maxFiles={10}
+              maxSizeBytes={10 * 1024 * 1024}
+              disabled={isUploading}
+              uploading={isUploading}
+            />
+          </div>
+        ) : null}
 
         {media.map((item, index) => (
           <HorseMediaGalleryTile
             key={item.id}
             item={item}
+            canManageMedia={canManageMedia}
             onOpen={() => openLightbox(index)}
-            onToggleVisibility={() => {
-              toggleVisibilityMutation.mutate(
-                {
-                  mediaId: item.id,
-                  isVisibleOnHub: !item.isVisibleOnHub,
-                },
-                {
-                  onSuccess: () => toast.success(t("visibilityUpdateSuccess")),
-                  onError: () => toast.error(t("visibilityUpdateError")),
-                },
-              );
-            }}
-            onRequestDelete={() => setDeleteTarget(item.id)}
-            onRequestSetAs={() => setSetAsTarget(item)}
+            onToggleVisibility={
+              canManageMedia
+                ? () => {
+                    toggleVisibilityMutation.mutate(
+                      {
+                        mediaId: item.id,
+                        isVisibleOnHub: !item.isVisibleOnHub,
+                      },
+                      {
+                        onSuccess: () => toast.success(t("visibilityUpdateSuccess")),
+                        onError: () => toast.error(t("visibilityUpdateError")),
+                      },
+                    );
+                  }
+                : undefined
+            }
+            onRequestDelete={
+              canManageMedia ? () => setDeleteTarget(item.id) : undefined
+            }
+            onRequestDeletion={
+              canManageMedia ? undefined : () => setDeletionRequestTarget(item.id)
+            }
+            onRequestSetAs={canManageMedia ? () => setSetAsTarget(item) : undefined}
             setAsPending={updateHorse.isPending}
           />
         ))}
@@ -533,30 +591,42 @@ export function HorseMediaGallerySection({
           }}
           onPrevious={goPrevious}
           onNext={goNext}
-          onToggleVisibility={() => {
-            const item = media[lightboxIndex];
-            if (!item) return;
-            toggleVisibilityMutation.mutate(
-              {
-                mediaId: item.id,
-                isVisibleOnHub: !item.isVisibleOnHub,
-              },
-              {
-                onSuccess: () => toast.success(t("visibilityUpdateSuccess")),
-                onError: () => toast.error(t("visibilityUpdateError")),
-              },
-            );
-          }}
-          onRequestDelete={() => {
-            const item = media[lightboxIndex];
-            if (!item) return;
-            setDeleteTarget(item.id);
-          }}
-          onRequestSetAs={() => {
-            const item = media[lightboxIndex];
-            if (!item || item.type !== "image") return;
-            setSetAsTarget(item);
-          }}
+          onToggleVisibility={
+            canManageMedia
+              ? () => {
+                  const item = media[lightboxIndex];
+                  if (!item) return;
+                  toggleVisibilityMutation.mutate(
+                    {
+                      mediaId: item.id,
+                      isVisibleOnHub: !item.isVisibleOnHub,
+                    },
+                    {
+                      onSuccess: () => toast.success(t("visibilityUpdateSuccess")),
+                      onError: () => toast.error(t("visibilityUpdateError")),
+                    },
+                  );
+                }
+              : undefined
+          }
+          onRequestDelete={
+            canManageMedia
+              ? () => {
+                  const item = media[lightboxIndex];
+                  if (!item) return;
+                  setDeleteTarget(item.id);
+                }
+              : undefined
+          }
+          onRequestSetAs={
+            canManageMedia
+              ? () => {
+                  const item = media[lightboxIndex];
+                  if (!item || item.type !== "image") return;
+                  setSetAsTarget(item);
+                }
+              : undefined
+          }
           setAsPending={updateHorse.isPending}
         />
       )}
@@ -582,6 +652,19 @@ export function HorseMediaGallerySection({
         cancelLabel={tCommon("cancel")}
         isPending={deleteMutation.isPending}
         onConfirm={handleDelete}
+      />
+
+      <ConfirmDeleteDialog
+        open={deletionRequestTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletionRequestTarget(null);
+        }}
+        title={t("requestDeleteConfirm")}
+        description={t("requestDeleteConfirmDescription")}
+        confirmLabel={t("requestDelete")}
+        cancelLabel={tCommon("cancel")}
+        isPending={deletionRequestMutation.isPending}
+        onConfirm={handleRequestDeletion}
       />
     </>
   );

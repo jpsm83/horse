@@ -12,7 +12,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -38,10 +37,7 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [authRevision, setAuthRevision] = useState(0);
-  // Non-DOM guards: prevent re-entrant session restore / resolve while an
-  // async auth flow is in flight (state alone can't serialize across awaits).
-  const isLoadingRef = useRef(false);
-  const hasResolvedUserRef = useRef(false);
+  const [hasEverResolvedUser, setHasEverResolvedUser] = useState(false);
 
   const nextAuthUserId =
     sessionStatus === "authenticated" ? session?.user?.id : undefined;
@@ -52,7 +48,7 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
         nextAuthUserId,
       });
       setUser(currentUser);
-      if (currentUser) hasResolvedUserRef.current = true;
+      if (currentUser) setHasEverResolvedUser(true);
     } catch (err) {
       console.error("Auth session load failed:", err);
       appToast.error("Failed to connect to server");
@@ -70,21 +66,25 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (sessionStatus === "loading" || isLoggingOut) return;
-    if (isLoadingRef.current) return;
-    isLoadingRef.current = true;
+
+    let cancelled = false;
 
     void (async () => {
-      // Only flash global auth loading on first resolve — revalidations keep prior user.
-      if (!hasResolvedUserRef.current) {
+      if (!hasEverResolvedUser) {
         setIsLoading(true);
       }
       try {
         await loadAuthState();
       } finally {
-        setIsLoading(false);
-        isLoadingRef.current = false;
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [loadAuthState, sessionStatus, authRevision, isLoggingOut]);
 
   const logout = useCallback(async () => {
@@ -95,7 +95,7 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
       router.replace(GUEST_LANDING_PATH);
       await clearClientAuthSession();
       setUser(null);
-      hasResolvedUserRef.current = false;
+      setHasEverResolvedUser(false);
       applyThemeToDocument("default");
       syncThemeCookie("default");
     } finally {

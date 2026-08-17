@@ -17,8 +17,8 @@ Horse life is split across products that do not share a horse:
 
 | Job | Who owns it today | Gap |
 |-----|-------------------|-----|
-| Daily barn ops | EquineM, Equicty, HippoVibe | Stable **tenant** owns the data; owners and vets are contacts inside one org |
-| Owner CRM / health diary | Happie, My Cheval, Equestrian App | Weak or no multi-business network; little real barn ERP |
+| Daily stable ops | EquineM, Equicty, HippoVibe | Stable **tenant** owns the data; owners and vets are contacts inside one org |
+| Owner CRM / health diary | Happie, My Cheval, Equestrian App | Weak or no multi-business network; little real stable ERP |
 | Ride / social / training content | Equilab, Ridely | Not operations |
 | Buy/sell | ehorses | No care record after the sale |
 | Compliance | FEI HorseApp, BHA | Mandatory niches; not a life OS |
@@ -27,7 +27,7 @@ Nobody runs **one horse record** that a livery, a vet, a trainer, and an owner a
 
 ## What we are not
 
-- Not EquineM’s **tenant model** (stable owns every contact). We match barn **ops depth**; we exceed on graph and owner Hub.
+- Not EquineM’s **tenant model** (stable owns every contact). We match stable **ops depth**; we exceed on graph and owner Hub.
 - Not Instagram / Equilab-for-horses. No open feed, follow, or people directory.
 - Not ehorses. Marketplace deal-flow is last.
 - Not a federation app. Integrate/export later; do not rebuild FEI or BHA.
@@ -36,7 +36,7 @@ Nobody runs **one horse record** that a livery, a vet, a trainer, and an owner a
 
 | Person | Job on Equus |
 |--------|----------------|
-| **Horse owner** | Free Hub, chat, favorites, unlimited horse profiles. Sees barn ops on a horse **only** while that stable’s subscription is in good standing (included portal). Never pays Equus. |
+| **Horse owner** | Free Hub, chat, favorites, unlimited horse profiles. Sees stable ops on a horse **only** while that stable’s subscription is in good standing (included portal). Never pays Equus. |
 | **Stable operator** | Pays for Stable SaaS. Runs the yard. Invites owners. May pass Equus through in boarding. Can also own horses on the same login (social stays free; the **stable** is what they pay for). |
 | **Collaborators** (groom, rider, …) | Users invited to a stable via `WorkplaceRelationship`. Until their own module exists they are not a separate SaaS product. |
 | **Later: vet, trainer, groomer, …** | Independent paid modules, same pattern as stable. Can also collaborate at a stable. |
@@ -49,8 +49,8 @@ One **User** (one email, one login) can wear every hat at once: own a stable, be
 |-------------------------|--------------|------|
 | User + Horse + **Stable SaaS** | Veterinary, trainer, groomer, … each as its own SaaS | Marketplace, stud webshop, ride GPS as a product, federation rebuilds |
 
-Success at launch is **yards in Spain running daily ops** and **owners using Hub + chat** because their barn is on Equus — not feature count.
+Success at launch is **yards in Spain running daily ops** and **owners using Hub + chat** because their stable is on Equus — not feature count.
 
 ## Competitive one-liner
 
-Barn ERPs charge the yard and trap the horse in one org. Consumer apps charge the owner and skip the yard. Equus charges the **yard** (like EquineM) and keeps the **horse as a portable Hub** (like a modern owner app), with chat and favorites instead of a social network.
+Stable ERPs charge the yard and trap the horse in one org. Consumer apps charge the owner and skip the yard. Equus charges the **yard** (like EquineM) and keeps the **horse as a portable Hub** (like a modern owner app), with chat and favorites instead of a social network.

@@ -46,10 +46,5 @@ next-env.d.ts
 # Superpowers SDD / brainstorm scratch
 .superpowers/
 
-# OpenCode generated install files (keep .opencode/agents/ committed)
-.opencode/node_modules/
-.opencode/package.json
-.opencode/package-lock.json
-.opencode/bun.lock
-.opencode/.gitignore
-.opencode/plans/
+# OpenCode generated install files (agent prompt is agents/senior-engineer.md via opencode.json)
+.opencode/

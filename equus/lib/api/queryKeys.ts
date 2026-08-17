@@ -135,6 +135,7 @@ export const queryKeys = {
   },
   billing: {
     current: ["billing", "current"] as const,
+    entity: (stableId: string) => ["billing", "entity", stableId] as const,
   },
   notifications: {
     all: ["notifications"] as const,

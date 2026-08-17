@@ -36,7 +36,7 @@ See [equus/docs/engineering/dataLifecycle.md](../engineering/dataLifecycle.md) a
 |-------|-------------|-----------|----------------|
 | **Account deactivation** | “Close my Equus login” | `User.isActive: false` + session revoke | Yes — `userId` refs stay valid |
 | **Visibility / privacy** | “Hide my personal profile” | `User.preferences.profileVisibility` | Yes — separate from login |
-| **Operational end** | “Stop working with this vet / leave the barn” | `Relationship.status: ended`, `WorkplaceRelationship` end | Yes — with `endedAt` + snapshots |
+| **Operational end** | “Stop working with this vet / leave the stable” | `Relationship.status: ended`, `WorkplaceRelationship` end | Yes — with `endedAt` + snapshots |
 | **Ownership change** | “Sell the horse / remove a co-owner” | `OwnershipTransfer` accept → update entity fields | Yes — transfer doc + entity |
 | **Entity deactivation** | “Retire this horse listing / close stable profile” | Entity `isActive: false` + audit fields | Yes |
 | **Record archive** | “Archive this document / void invoice” | `isActive` or domain status (`isArchived`, `canceled`) | Yes |

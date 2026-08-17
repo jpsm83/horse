@@ -1,7 +1,7 @@
 /**
  * User tab navigation — path helpers and tab list for all /user/[userId]/* sub-pages.
  *
- * Tab order: Hub → Profile → Preferences → Notifications → Workplace → Relationships → Subscription
+ * Tab order: Hub → Profile → Preferences → Notifications → Workplace → Relationships
  */
 
 import type { EntityTab } from "@/components/shared/entity-tabs.tsx";
@@ -32,10 +32,6 @@ export function userRelationshipsPath(userId: string): string {
   return `/user/${userId}/relationships`;
 }
 
-export function userSubscriptionPath(userId: string): string {
-  return `/user/${userId}/subscription`;
-}
-
 // --- Tab list ---
 
 export type UserTabLabels = {
@@ -45,7 +41,6 @@ export type UserTabLabels = {
   notifications: string;
   workplace: string;
   relationships: string;
-  subscription: string;
 };
 
 export function getUserTabs(userId: string, labels: UserTabLabels): EntityTab[] {
@@ -56,6 +51,5 @@ export function getUserTabs(userId: string, labels: UserTabLabels): EntityTab[] 
     { id: "notifications", label: labels.notifications, href: userNotificationsPath(userId) },
     { id: "workplace", label: labels.workplace, href: userWorkplacePath(userId) },
     { id: "relationships", label: labels.relationships, href: userRelationshipsPath(userId) },
-    { id: "subscription", label: labels.subscription, href: userSubscriptionPath(userId) },
   ];
 }

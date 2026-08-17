@@ -1,5 +1,5 @@
 /**
- * Barn collaborator horse access — may act on horses hosted by their stable.
+ * Stable collaborator horse access — may act on horses hosted by their stable.
  *
  * Requires active WorkplaceRelationship at the stable AND accepted horse↔stable Relationship.
  * Direct providers use horse Relationship only (see relationshipService).

@@ -1,5 +1,5 @@
 /**
- * Admin role invite dialog — PendingDialog + UserInviteSection for
+ * Admin role invite dialog — PendingDialog + email invite for
  * proactive representatives / co-owners (OwnershipTransfer invite).
  */
 
@@ -7,11 +7,8 @@
 
 import { useTranslations } from "next-intl";
 
+import { EmailInviteSection } from "@/components/shared/email-invite-section.tsx";
 import { PendingDialog } from "@/components/shared/pending-dialog.tsx";
-import {
-  UserInviteSection,
-  type UserInviteLabels,
-} from "@/components/shared/user-invite-section.tsx";
 import {
   useCreateOwnershipTransfer,
   type CreateOwnershipTransferInput,
@@ -29,7 +26,6 @@ type HorseAdminRoleInviteDialogProps = {
   title: string;
   description: string;
   successMessage: string;
-  inviteSectionLabels: UserInviteLabels;
 };
 
 export function HorseAdminRoleInviteDialog({
@@ -40,30 +36,11 @@ export function HorseAdminRoleInviteDialog({
   title,
   description,
   successMessage,
-  inviteSectionLabels,
 }: HorseAdminRoleInviteDialogProps) {
   const t = useTranslations("horseAdmin");
   const toast = useAppToast();
   const createTransfer = useCreateOwnershipTransfer();
   const isInviting = createTransfer.isPending;
-
-  function handleInviteUser(userId: string) {
-    createTransfer.mutate(
-      {
-        entityType: "horse",
-        entityId: horseId,
-        transferKind,
-        receiverUserId: userId,
-      },
-      {
-        onSuccess: () => {
-          toast.success(successMessage);
-          onOpenChange(false);
-        },
-        onError: () => toast.error(t("inviteFailed")),
-      },
-    );
-  }
 
   function handleEmailInvite(email: string) {
     createTransfer.mutate(
@@ -92,12 +69,15 @@ export function HorseAdminRoleInviteDialog({
       pending={isInviting}
     >
       {open ? (
-        <UserInviteSection
+        <EmailInviteSection
           key={`${horseId}-${transferKind}`}
           isInviting={isInviting}
-          onInviteUser={handleInviteUser}
           onEmailInvite={handleEmailInvite}
-          labels={inviteSectionLabels}
+          labels={{
+            hint: t("emailFallbackHint"),
+            emailLabel: t("emailLabel"),
+            sendLabel: t("sendEmailInvite"),
+          }}
         />
       ) : null}
     </PendingDialog>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { HubContent } from "./client.tsx";
+import { generateCanonicalUrl } from "@/lib/seo/canonical.ts";
 import { generateHorseMetadata } from "@/lib/seo/entity-metadata.ts";
 import { fetchApiJson } from "@/lib/seo/fetchApiJson.ts";
 import type { HorseViewResponse } from "@/lib/services/horseService.ts";
@@ -36,6 +37,7 @@ export async function generateMetadata({ params }: HorseHubPageProps): Promise<M
 }
 
 export default async function HorseHubPage({ params }: HorseHubPageProps) {
-  const { horseId } = await params;
-  return <HubContent horseId={horseId} />;
+  const { horseId, locale } = await params;
+  const shareUrl = generateCanonicalUrl(locale, `/horses/${horseId}`);
+  return <HubContent horseId={horseId} shareUrl={shareUrl} />;
 }

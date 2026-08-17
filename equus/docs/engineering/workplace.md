@@ -24,7 +24,7 @@ Horse↔provider invites: [`relationships.md`](relationships.md).
 
 `hierarchyLevel`: `admin` \| `manager` \| `staff`. Collaborators are **Users**; they do not receive `mainOwnerUserId` on the host.
 
-Barn ops on a hosted horse require **both** an accepted horse↔stable `Relationship` **and** an active workplace at that stable. No extra groom↔horse link required for barn staff.
+Stable ops on a hosted horse require **both** an accepted horse↔stable `Relationship` **and** an active workplace at that stable. No extra groom↔horse link required for stable staff.
 
 Host types in code: stable, breeder, transport, riding club (`BusinessRoleType`). Launch product: **stable** is the paid host.
 

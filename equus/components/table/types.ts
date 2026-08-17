@@ -174,7 +174,8 @@ export interface UseEnhancedTableReturn<TData> {
   handleDrop: (e: React.DragEvent, targetColumnId: string) => void;
   handleDragEnd: () => void;
   resetColumns: () => void;
-  dragActive: React.RefObject<boolean>;
+  suppressHeaderClick: boolean;
+  clearSuppressHeaderClick: () => void;
 }
 
 // --- Filter Hook Types (from useTableColumnFilters.ts) ---

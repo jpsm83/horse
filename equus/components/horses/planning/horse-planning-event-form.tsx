@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * HorsePlanningEventForm — owner-team personal events on the horse calendar.
+ * Entity-sourced care/feed/stable events are created on the provider entity (not built yet).
+ */
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -15,14 +20,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toSelectValue, fromSelectValue, selectItemValue } from "@/lib/ui/selectEmptyValue";
 import {
   planningEventFormSchema,
   planningEventTypeEnums,
   type PlanningEventFormValues,
 } from "@/lib/validations/horsePlanningForms.ts";
 import { useCreatePlanningEvent } from "@/hooks/queries/useHorsePlanning.ts";
-import { useHorseProviders } from "@/hooks/queries/useHorse.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 
 type HorsePlanningEventFormProps = {
@@ -39,7 +42,6 @@ export function HorsePlanningEventForm({
   const t = useTranslations("horsePlanning");
   const toast = useAppToast();
   const createMutation = useCreatePlanningEvent(horseId);
-  const { data: providers = [] } = useHorseProviders(horseId, "accepted");
 
   const schema = useMemo(
     () =>
@@ -58,15 +60,10 @@ export function HorsePlanningEventForm({
       startDate: defaultDate,
       endDate: "",
       location: "",
-      sourceProviderId: "",
     },
   });
 
   async function onSubmit(values: PlanningEventFormValues) {
-    const provider = values.sourceProviderId
-      ? providers.find((p) => p.id === values.sourceProviderId)
-      : undefined;
-
     try {
       await createMutation.mutateAsync({
         eventType: values.eventType,
@@ -74,8 +71,6 @@ export function HorsePlanningEventForm({
         startDate: values.startDate,
         endDate: values.endDate.trim() || undefined,
         location: values.location.trim() || undefined,
-        sourceEntityType: provider?.relationshipType,
-        sourceEntityId: provider?.receiverAccountId,
       });
       toast.success(t("eventCreated"));
       onSaved();
@@ -133,34 +128,6 @@ export function HorsePlanningEventForm({
         <Label htmlFor="ev-loc">{t("location")}</Label>
         <Input id="ev-loc" {...form.register("location")} />
       </div>
-
-      {providers.length > 0 && (
-        <div className="space-y-2">
-          <Label htmlFor="ev-prov">{t("provider")}</Label>
-          <Controller
-            control={form.control}
-            name="sourceProviderId"
-            render={({ field }) => (
-              <Select
-                value={toSelectValue(field.value, [{ value: "" }], t("noProvider"))}
-                onValueChange={(value) => field.onChange(fromSelectValue(value, t("noProvider")))}
-              >
-                <SelectTrigger id="ev-prov" className="h-9 w-full">
-                  <SelectValue placeholder={t("noProvider")} />
-                </SelectTrigger>
-                <SelectContent side="bottom" align="start" alignItemWithTrigger={false} className="max-h-60">
-                  <SelectItem value={selectItemValue("", t("noProvider"))}>{t("noProvider")}</SelectItem>
-                  {providers.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.receiverLabel ?? p.relationshipType}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
-      )}
 
       <Button
         type="submit"

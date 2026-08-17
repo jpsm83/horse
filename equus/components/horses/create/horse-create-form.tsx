@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { SelectField } from "@/components/forms/select-field.tsx";
@@ -59,9 +59,6 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
   const [galleryFiles, setGalleryFiles] = useState<UploadedFileState[]>([]);
   const [profileFile, setProfileFile] = useState<File | undefined>();
   const [profilePreview, setProfilePreview] = useState<string | undefined>();
-  // Non-DOM: AbortController held across renders so the in-flight upload can be
-  // cancelled from unmount cleanup (an object reference, not a DOM node).
-  const abortRef = useRef<AbortController | null>(null);
 
   const photoLabels = useMemo(
     () => ({
@@ -153,7 +150,7 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
       let profileImageUrl: string | undefined;
       let gallery: string[] = [];
 
-      abortRef.current = new AbortController();
+      const abortController = new AbortController();
 
       const uploadables = [...galleryFiles];
       if (profileFile) {
@@ -168,7 +165,7 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
       if (uploadables.length > 0) {
         const results = await uploadFiles(
           uploadables.map((u) => u.file),
-          abortRef.current.signal,
+          abortController.signal,
         );
 
         for (const result of results) {
@@ -203,7 +200,6 @@ export function CreateHorseForm({ onSubmittingChange }: CreateHorseFormProps) {
       toast.error(err instanceof Error ? err.message : t("saveFailed"));
     } finally {
       setIsSubmitting(false);
-      abortRef.current = null;
     }
   }
 

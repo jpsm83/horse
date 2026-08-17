@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { ErrorBoundary } from "react-error-boundary";
 import { UserPlus } from "lucide-react";
 
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { HorseConnectInviteDialog } from "@/components/horses/connect/horse-connect-invite-dialog.tsx";
 import { HorseConnectionsTableSection } from "@/components/horses/connect/horse-connections-table-section.tsx";
 import { HorseSectionVisibility } from "@/components/horses/shared/horse-section-visibility.tsx";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { Section } from "@/components/shared/section.tsx";
 import { SectionTitleAction } from "@/components/shared/section-title-action.tsx";
 import type { OwnerHorseSummary } from "@/lib/services/horseService.ts";
@@ -57,9 +56,9 @@ function ConnectSections({ horseId, horse }: ConnectSectionsProps) {
           />
         }
       >
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+        <SectionErrorBoundary resetKeys={[horseId]}>
           <HorseConnectionsTableSection horseId={horseId} />
-        </ErrorBoundary>
+        </SectionErrorBoundary>
       </Section>
 
       <HorseConnectInviteDialog

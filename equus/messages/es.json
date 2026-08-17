@@ -142,14 +142,22 @@
     },
     "home": {
         "welcomeUser": "Bienvenido, {name}",
-        "welcomeSubtitle": "Su panel para caballos, establos y perfiles profesionales.",
+        "welcomeSubtitle": "Revise invitaciones pendientes y acciones que requieren su atención.",
         "guestTitle": "Bienvenido a Equus",
         "guestDescription": "La plataforma para profesionales ecuestres, equipos de establos y propietarios de caballos.",
-        "addHorseEyebrow": "Acción rápida",
-        "addHorseDescription": "Añada un caballo a su cuenta y empiece a gestionar registros, cuidados y visibilidad.",
-        "profilesHeading": "Sus perfiles",
-        "profilesDescription": "Acceda directamente a las áreas que ya gestiona en Equus.",
-        "subsectionsLabel": "Sus perfiles",
+        "inboxHeading": "Bandeja de acciones",
+        "inboxDescription": "Invitaciones pendientes de conexión con caballos y lugares de trabajo.",
+        "inboxLoading": "Cargando su bandeja…",
+        "relationshipsHeading": "Invitaciones de conexión con caballos",
+        "workplacesHeading": "Invitaciones a lugares de trabajo",
+        "emptyInbox": "Está al día.",
+        "emptyInboxHint": "Gestione caballos y establos desde sus módulos — las listas muestran lo suyo por defecto.",
+        "openHorsesModule": "Ir a caballos",
+        "openStablesModule": "Ir a establos",
+        "openConnect": "Abrir Conectar",
+        "openWorkplace": "Pestaña Lugar de trabajo",
+        "viewAllRelationships": "Todas las invitaciones de relación",
+        "viewAllWorkplaces": "Todas las invitaciones de trabajo",
         "getStartedTitle": "Comenzar",
         "getStartedDescription": "Inicie sesión o cree una cuenta gratuita para añadir caballos y construir su presencia en Equus.",
         "loadFailed": "No se pudo cargar la página de inicio."
@@ -776,16 +784,16 @@
         "proactiveRepresentativesDescription": "Invite representantes proactivos que puedan ayudar a gestionar este caballo.",
         "proactiveEmpty": "Aún no hay representantes proactivos.",
         "proactiveInviteDialogTitle": "Añadir representante proactivo",
-        "proactiveInviteDialogDescription": "Busque un usuario o invite por correo electrónico.",
+        "proactiveInviteDialogDescription": "Ingrese su correo electrónico y le enviaremos una invitación.",
         "coOwnerManagementTitle": "Gestión de Co-propietarios",
         "coOwnerManagementDescription": "Añadir nuevos co-propietarios.",
         "coOwnerEmpty": "Aún no hay co-propietarios.",
         "coOwnerInviteDialogTitle": "Añadir co-propietario",
-        "coOwnerInviteDialogDescription": "Busque un usuario o invite por correo electrónico.",
+        "coOwnerInviteDialogDescription": "Ingrese su correo electrónico y le enviaremos una invitación.",
         "ownershipTitle": "Gestión de Propiedad",
         "changeOwner": "Cambiar propietario",
         "changeOwnerDialogTitle": "Cambiar propietario",
-        "changeOwnerDialogDescription": "Busque al nuevo propietario o invítelo por correo. Confirmará antes de enviar la transferencia.",
+        "changeOwnerDialogDescription": "Ingrese el correo del nuevo propietario. Confirmará antes de enviar la transferencia.",
         "currentOwnerMissing": "No hay propietario registrado.",
         "add": "Añadir",
         "ownershipHistory": "Historial de Propiedad",
@@ -796,16 +804,10 @@
         "inviteFailed": "Error al enviar la invitación.",
         "removeFailed": "Error al eliminar.",
         "cancel": "Cancelar",
-        "searchPlaceholder": "Buscar por usuario, correo o nombre...",
-        "searchingLabel": "Buscando...",
-        "searchErrorLabel": "Búsqueda fallida.",
-        "noResultsLabel": "No se encontraron usuarios.",
-        "emailFallbackToggle": "Invitar por correo electrónico",
         "emailFallbackHint": "Ingrese su correo electrónico y le enviaremos una invitación.",
         "emailLabel": "Correo electrónico",
         "nameLabel": "Nombre (opcional)",
         "sendEmailInvite": "Enviar invitación",
-        "inviteLabel": "Invitar",
         "adminTypes": {
             "owner": "Propietario",
             "co_owner": "Co-propietario",
@@ -1118,6 +1120,7 @@
     },
     "notifications": {
         "title": "Notificaciones",
+        "description": "Alertas en la aplicación y actualizaciones de actividad de tu cuenta.",
         "empty": "No tiene notificaciones.",
         "markRead": "Marcar como leída",
         "loadFailed": "No se pudieron cargar las notificaciones.",
@@ -1163,9 +1166,28 @@
             "saveFailed": "No se pudo guardar el establo.",
             "loadFailed": "No se pudo cargar el establo."
         },
+        "billing": {
+            "loading": "Cargando facturación…",
+            "loadFailed": "No se pudo cargar la facturación.",
+            "status": "Estado",
+            "statusTrialing": "Prueba gratuita",
+            "statusGoodStanding": "Al corriente",
+            "statusWriteLocked": "Escritura bloqueada — actualice la facturación",
+            "planBand": "Plan {band}",
+            "perMonth": "/mes",
+            "rosterCount": "{count} caballos en el roster",
+            "suggestedBand": "sugerido: {band}",
+            "trialEnds": "La prueba termina el {date}",
+            "manageBilling": "Gestionar facturación",
+            "subscribe": "Suscribirse",
+            "subscribeAfterTrial": "Configurar facturación",
+            "writeLockedHint": "Las ediciones de perfil y descubrimiento están pausadas hasta actualizar la facturación."
+        },
         "admin": {
             "title": "Administración",
-            "description": "Gestione visibilidad, descubrimiento y propiedad.",
+            "description": "Gestione visibilidad, descubrimiento, facturación y propiedad.",
+            "billingSection": "Suscripción",
+            "billingDescription": "Facturación SaaS del establo — los caballos son gratis para los propietarios; usted paga por este establo.",
             "visibilitySection": "Visibilidad",
             "visibilityDescription": "Controle quién puede descubrir este establo.",
             "isPublic": "Público",
@@ -1787,7 +1809,7 @@
     },
     "horsePlanning": {
         "title": "Planificación",
-        "description": "Programa citas, competiciones, entrenamiento y actividades diarias.",
+        "description": "Agenda personal de este caballo: citas, competiciones y entrenamiento. Los eventos del establo aparecerán aquí cuando las entidades vinculadas los añadan.",
         "addEvent": "Añadir evento",
         "cancel": "Cancelar",
         "date": "Fecha",
@@ -1852,7 +1874,12 @@
         "previous": "Anterior",
         "next": "Siguiente",
         "close": "Cerrar",
-        "galleryLoadFailed": "No se pudo cargar la galería. Inténtalo de nuevo."
+        "galleryLoadFailed": "No se pudo cargar la galería. Inténtalo de nuevo.",
+        "requestDelete": "Solicitar eliminación",
+        "requestDeleteConfirm": "¿Solicitar eliminación de este archivo?",
+        "requestDeleteConfirmDescription": "El equipo del caballo revisará tu solicitud. El archivo permanece hasta que la aprueben.",
+        "requestDeleteSuccess": "Solicitud de eliminación enviada.",
+        "requestDeleteError": "Error al enviar la solicitud de eliminación."
     },
     "horseDocuments": {
         "documentsTitle": "Documentos",
@@ -1890,7 +1917,12 @@
             "competition": "Competición",
             "other": "Documento"
         },
-        "docsLoadFailed": "No se pudieron cargar los documentos. Inténtalo de nuevo."
+        "docsLoadFailed": "No se pudieron cargar los documentos. Inténtalo de nuevo.",
+        "requestDelete": "Solicitar eliminación",
+        "requestDeleteConfirm": "¿Solicitar eliminación de este documento?",
+        "requestDeleteConfirmDescription": "El equipo del caballo revisará tu solicitud. El archivo permanece hasta que la aprueben.",
+        "requestDeleteSuccess": "Solicitud de eliminación enviada.",
+        "requestDeleteError": "Error al enviar la solicitud de eliminación."
     },
     "metadata": {
         "home": {
@@ -2045,7 +2077,7 @@
         },
         "notifications": {
             "title": "Notificaciones | Equus",
-            "description": "Gestiona tus preferencias de notificaciones.",
+            "description": "Consulta alertas en la aplicación y actualizaciones de actividad de tu cuenta Equus.",
             "keywords": ""
         },
         "notFound": {
@@ -2070,7 +2102,7 @@
         },
         "horsePlanning": {
             "title": "Planificación | Equus",
-            "description": "Planifica y gestiona citas, competiciones y actividades diarias de tu caballo.",
+            "description": "Consulta la agenda personal de tu caballo y añade citas, competiciones o entrenamientos.",
             "keywords": ""
         },
         "horseMedia": {
@@ -2329,8 +2361,8 @@
         "loadFailed": "No se pudo cargar tu perfil."
     },
     "userNotifications": {
-        "title": "Notificaciones",
-        "description": "Gestiona tus preferencias de notificaciones por correo.",
+        "title": "Notificaciones por correo",
+        "description": "Elige qué eventos envían correo. Esta pestaña no muestra la bandeja de notificaciones en la aplicación.",
         "saveFailed": "Error al guardar la configuración de notificaciones.",
         "sections": {
             "email": "Notificaciones por correo",
@@ -2351,7 +2383,7 @@
             },
             "messages": {
                 "label": "Mensajes directos",
-                "description": "Recibe un correo cuando recibes un nuevo mensaje directo."
+                "description": "Preferencia de correo para mensajes directos cuando esa función esté disponible."
             },
             "system": {
                 "label": "Notificaciones del sistema",
@@ -2399,28 +2431,6 @@
             "requestsDescription": "Solicitudes de relación pendientes esperando tu respuesta.",
             "active": "Relaciones activas",
             "activeDescription": "Tus relaciones de caballos aceptadas."
-        }
-    },
-    "userSubscription": {
-        "title": "Suscripción",
-        "description": "Gestiona tu plan y datos de facturación.",
-        "horseLimit": "Caballos incluidos",
-        "unlimited": "Ilimitado",
-        "renewsOn": "Se renueva el {date}",
-        "trialEndsOn": "El período de prueba termina el {date}",
-        "upgradeCallout": "Desbloquea más caballos con un plan de pago",
-        "upgradeDescription": "Añade hasta 3 caballos con Bronze, o ilimitados con Diamond.",
-        "upgradeButton": "Cambiar plan",
-        "upgradeComingSoon": "El portal de facturación llegará pronto.",
-        "status": {
-            "trial": "Prueba",
-            "active": "Activo",
-            "past_due": "Vencido",
-            "canceled": "Cancelado",
-            "incomplete": "Incompleto"
-        },
-        "sections": {
-            "plan": "Plan actual"
         }
     },
     "table": {

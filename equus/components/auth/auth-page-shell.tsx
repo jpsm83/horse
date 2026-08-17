@@ -19,7 +19,7 @@ type AuthPageShellProps = {
   footer: React.ReactNode;
 };
 
-/** Centered auth card layout — global AppHeader provides branding and locale switcher. */
+/** Centered auth card layout — branding comes from the guest/auth page chrome. */
 export function AuthPageShell({
   title,
   description,

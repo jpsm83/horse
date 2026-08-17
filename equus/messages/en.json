@@ -142,14 +142,22 @@
     },
     "home": {
         "welcomeUser": "Welcome, {name}",
-        "welcomeSubtitle": "Your dashboard for horses, stables, and professional profiles.",
+        "welcomeSubtitle": "Review pending invites and actions that need your attention.",
         "guestTitle": "Welcome to Equus",
         "guestDescription": "The platform for equine professionals, stable teams, and horse owners.",
-        "addHorseEyebrow": "Quick action",
-        "addHorseDescription": "Add a horse to your account and start managing records, care, and visibility.",
-        "profilesHeading": "Your profiles",
-        "profilesDescription": "Jump straight into the areas you already manage on Equus.",
-        "subsectionsLabel": "Your profiles",
+        "inboxHeading": "Action inbox",
+        "inboxDescription": "Pending horse connection and workplace invites waiting for your response.",
+        "inboxLoading": "Loading your inbox…",
+        "relationshipsHeading": "Horse connection invites",
+        "workplacesHeading": "Workplace invitations",
+        "emptyInbox": "You're all caught up.",
+        "emptyInboxHint": "Manage horses and stables from their modules — lists default to what you own.",
+        "openHorsesModule": "Go to horses",
+        "openStablesModule": "Go to stables",
+        "openConnect": "Open Connect",
+        "openWorkplace": "Workplace tab",
+        "viewAllRelationships": "All relationship invites",
+        "viewAllWorkplaces": "All workplace invites",
         "getStartedTitle": "Get started",
         "getStartedDescription": "Sign in or create a free account to add horses and build your Equus presence.",
         "loadFailed": "Failed to load home content."
@@ -338,7 +346,7 @@
                 "veterinary": "Veterinary",
                 "veterinaryHint": "Invite a vet practice for this horse.",
                 "groom": "Groom",
-                "groomHint": "Invite a groom for direct care at home (not barn staff).",
+                "groomHint": "Invite a groom for direct care at home (not stable staff).",
                 "farrier": "Farrier",
                 "farrierHint": "Invite a farrier for this horse.",
                 "trainer": "Trainer",
@@ -776,16 +784,16 @@
         "proactiveRepresentativesDescription": "Invite proactive representatives who can help manage this horse.",
         "proactiveEmpty": "No proactive representatives yet.",
         "proactiveInviteDialogTitle": "Add proactive representative",
-        "proactiveInviteDialogDescription": "Search for a user or invite by email.",
+        "proactiveInviteDialogDescription": "Enter their email address and we'll send them an invitation.",
         "coOwnerManagementTitle": "Co-owner Management",
         "coOwnerManagementDescription": "Add new co-owners.",
         "coOwnerEmpty": "No co-owners yet.",
         "coOwnerInviteDialogTitle": "Add co-owner",
-        "coOwnerInviteDialogDescription": "Search for a user or invite by email.",
+        "coOwnerInviteDialogDescription": "Enter their email address and we'll send them an invitation.",
         "ownershipTitle": "Ownership Management",
         "changeOwner": "Change owner",
         "changeOwnerDialogTitle": "Change owner",
-        "changeOwnerDialogDescription": "Search for the new owner or invite them by email. You will confirm before the transfer is sent.",
+        "changeOwnerDialogDescription": "Enter the new owner's email address. You will confirm before the transfer is sent.",
         "currentOwnerMissing": "No owner on record.",
         "add": "Add",
         "ownershipHistory": "Ownership History",
@@ -796,16 +804,10 @@
         "inviteFailed": "Failed to send invitation.",
         "removeFailed": "Failed to remove.",
         "cancel": "Cancel",
-        "searchPlaceholder": "Search by username, email, or name...",
-        "searchingLabel": "Searching...",
-        "searchErrorLabel": "Search failed.",
-        "noResultsLabel": "No users found.",
-        "emailFallbackToggle": "Invite by email instead",
         "emailFallbackHint": "Enter their email address and we'll send them an invitation.",
         "emailLabel": "Email address",
         "nameLabel": "Name (optional)",
         "sendEmailInvite": "Send invite",
-        "inviteLabel": "Invite",
         "adminTypes": {
             "owner": "Owner",
             "co_owner": "Co-owner",
@@ -1118,6 +1120,7 @@
     },
     "notifications": {
         "title": "Notifications",
+        "description": "In-app alerts and activity updates for your account.",
         "empty": "You have no notifications.",
         "markRead": "Mark as read",
         "loadFailed": "Failed to load notifications.",
@@ -1163,9 +1166,28 @@
             "saveFailed": "Failed to save stable.",
             "loadFailed": "Failed to load stable."
         },
+        "billing": {
+            "loading": "Loading billing…",
+            "loadFailed": "Failed to load billing.",
+            "status": "Status",
+            "statusTrialing": "Free trial",
+            "statusGoodStanding": "Good standing",
+            "statusWriteLocked": "Write locked — update billing",
+            "planBand": "{band} plan",
+            "perMonth": "/month",
+            "rosterCount": "{count} horses on roster",
+            "suggestedBand": "suggested: {band}",
+            "trialEnds": "Trial ends {date}",
+            "manageBilling": "Manage billing",
+            "subscribe": "Subscribe",
+            "subscribeAfterTrial": "Set up billing",
+            "writeLockedHint": "Profile and discovery edits are paused until billing is updated."
+        },
         "admin": {
             "title": "Admin",
-            "description": "Manage visibility, discovery, and ownership.",
+            "description": "Manage visibility, discovery, billing, and ownership.",
+            "billingSection": "Subscription",
+            "billingDescription": "Stable SaaS billing — horses are free for owners; you pay for this stable.",
             "visibilitySection": "Visibility",
             "visibilityDescription": "Control who can discover this stable.",
             "isPublic": "Public",
@@ -1787,7 +1809,7 @@
     },
     "horsePlanning": {
         "title": "Planning",
-        "description": "Schedule appointments, competitions, training, and daily activities.",
+        "description": "Personal schedule for this horse — appointments, competitions, and training. Care and stable events appear here when linked entities add them.",
         "addEvent": "Add event",
         "cancel": "Cancel",
         "date": "Date",
@@ -1852,7 +1874,12 @@
         "previous": "Previous",
         "next": "Next",
         "close": "Close",
-        "galleryLoadFailed": "Failed to load gallery. Please try again."
+        "galleryLoadFailed": "Failed to load gallery. Please try again.",
+        "requestDelete": "Request deletion",
+        "requestDeleteConfirm": "Request deletion of this media?",
+        "requestDeleteConfirmDescription": "The horse owner team will review your request. The file stays until they approve deletion.",
+        "requestDeleteSuccess": "Deletion request sent.",
+        "requestDeleteError": "Failed to send deletion request."
     },
     "horseDocuments": {
         "documentsTitle": "Documents",
@@ -1890,7 +1917,12 @@
             "competition": "Competition",
             "other": "Document"
         },
-        "docsLoadFailed": "Failed to load documents. Please try again."
+        "docsLoadFailed": "Failed to load documents. Please try again.",
+        "requestDelete": "Request deletion",
+        "requestDeleteConfirm": "Request deletion of this document?",
+        "requestDeleteConfirmDescription": "The horse owner team will review your request. The file stays until they approve deletion.",
+        "requestDeleteSuccess": "Deletion request sent.",
+        "requestDeleteError": "Failed to send deletion request."
     },
     "metadata": {
         "home": {
@@ -2045,7 +2077,7 @@
         },
         "notifications": {
             "title": "Notifications | Equus",
-            "description": "Manage your notification preferences.",
+            "description": "View in-app alerts and activity updates for your Equus account.",
             "keywords": ""
         },
         "notFound": {
@@ -2070,7 +2102,7 @@
         },
         "horsePlanning": {
             "title": "Planning | Equus",
-            "description": "Plan and manage appointments, competitions, and daily activities for your horse.",
+            "description": "View your horse's personal schedule and add appointments, competitions, or training.",
             "keywords": ""
         },
         "horseMedia": {
@@ -2329,8 +2361,8 @@
         "loadFailed": "Failed to load your profile."
     },
     "userNotifications": {
-        "title": "Notifications",
-        "description": "Manage your email notification preferences.",
+        "title": "Email notifications",
+        "description": "Choose which events send email. This tab does not show your in-app notification inbox.",
         "saveFailed": "Failed to save notification settings.",
         "sections": {
             "email": "Email notifications",
@@ -2351,7 +2383,7 @@
             },
             "messages": {
                 "label": "Direct messages",
-                "description": "Receive an email when you get a new direct message."
+                "description": "Email preference for direct messages when that feature is available."
             },
             "system": {
                 "label": "System notifications",
@@ -2399,28 +2431,6 @@
             "requestsDescription": "Pending relationship requests waiting for your response.",
             "active": "Active relationships",
             "activeDescription": "Your accepted horse relationships."
-        }
-    },
-    "userSubscription": {
-        "title": "Subscription",
-        "description": "Manage your plan and billing details.",
-        "horseLimit": "Horses included",
-        "unlimited": "Unlimited",
-        "renewsOn": "Renews on {date}",
-        "trialEndsOn": "Trial ends on {date}",
-        "upgradeCallout": "Unlock more horses with a paid plan",
-        "upgradeDescription": "Add up to 3 horses on Bronze, or unlimited with Diamond.",
-        "upgradeButton": "Upgrade plan",
-        "upgradeComingSoon": "Billing portal coming soon.",
-        "status": {
-            "trial": "Trial",
-            "active": "Active",
-            "past_due": "Past due",
-            "canceled": "Canceled",
-            "incomplete": "Incomplete"
-        },
-        "sections": {
-            "plan": "Current plan"
         }
     },
     "table": {

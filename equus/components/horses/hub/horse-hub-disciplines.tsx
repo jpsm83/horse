@@ -1,8 +1,7 @@
 /**
  * HorseHubDisciplines — Hub tab discipline tags as colored pills.
  *
- * Assembled by HubContent. Reads disciplines from identity hub section
- * (guest-safe) with owner-team `horse.disciplines` fallback.
+ * Assembled by HubContent. Reads disciplines from the Layer-2 `identity` section only.
  * Colors use `--discipline-*` tokens from globals.css (default + onyx).
  */
 
@@ -52,12 +51,10 @@ export function HorseHubDisciplines({
   const t = useTranslations("horseHub");
   const tProfile = useTranslations("horseProfile");
 
-  const disciplines =
-    horse.sections.identity?.disciplines ?? horse.disciplines ?? [];
+  const identity = horse.sections.identity;
+  if (!identity) return null;
 
-  const hasIdentity = Boolean(horse.sections.identity);
-  const hasOwnerDisciplines = Array.isArray(horse.disciplines);
-  if (!hasIdentity && !hasOwnerDisciplines) return null;
+  const disciplines = identity.disciplines ?? [];
 
   return (
     <Section title={t("disciplines")} className={cn(className)}>

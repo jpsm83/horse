@@ -3,10 +3,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
-import { ErrorBoundary } from "react-error-boundary";
 import { useForm, useFormState } from "react-hook-form";
 
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { HorseAboutSection } from "@/components/horses/profile/horse-about-section.tsx";
 import { HorseIdentificationSection } from "@/components/horses/profile/horse-identification-section.tsx";
@@ -14,7 +13,10 @@ import { HorseIdentitySection } from "@/components/horses/profile/horse-identity
 import { HorsePedigreeSection } from "@/components/horses/profile/horse-pedigree-section.tsx";
 import { HorseSectionVisibility } from "@/components/horses/shared/horse-section-visibility.tsx";
 import { Section } from "@/components/shared/section.tsx";
-import { useUnsavedChanges } from "@/components/shared/unsaved-changes-context.tsx";
+import {
+  useSetUnsavedDiscardHandler,
+  useUnsavedChanges,
+} from "@/components/shared/unsaved-changes-context.tsx";
 import { Button } from "@/components/ui/button";
 import type { OwnerHorseSummary } from "@/lib/services/horseService.ts";
 import { normalizeHubSections } from "@/lib/horses/hubSections.ts";
@@ -53,6 +55,7 @@ function ProfileForm({ horseId, horse }: ProfileFormProps) {
   const tCommon = useTranslations("common");
   const toast = useAppToast();
   const updateHorse = useUpdateHorse();
+  const setDiscardHandler = useSetUnsavedDiscardHandler();
   const { setDirty, setSaving } = useUnsavedChanges();
 
   const hubSections = normalizeHubSections(horse.hubSections);
@@ -82,6 +85,12 @@ function ProfileForm({ horseId, horse }: ProfileFormProps) {
   useEffect(() => {
     setSaving(isSaving);
   }, [isSaving, setSaving]);
+
+  useEffect(() => {
+    setDiscardHandler?.(() => {
+      form.reset(toProfileFormValues(horse));
+    });
+  }, [setDiscardHandler, form, horse]);
 
   async function onSave(values: ProfileFormValues) {
     const { horsePatch } = buildProfileSavePatches(
@@ -118,9 +127,9 @@ function ProfileForm({ horseId, horse }: ProfileFormProps) {
         }
         className="w-full"
       >
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+        <SectionErrorBoundary resetKeys={[horseId]}>
           <HorseIdentitySection control={form.control} />
-        </ErrorBoundary>
+        </SectionErrorBoundary>
       </Section>
 
       <Section
@@ -136,9 +145,9 @@ function ProfileForm({ horseId, horse }: ProfileFormProps) {
         }
         className="w-full"
       >
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+        <SectionErrorBoundary resetKeys={[horseId]}>
           <HorseIdentificationSection control={form.control} />
-        </ErrorBoundary>
+        </SectionErrorBoundary>
       </Section>
 
       <Section
@@ -154,9 +163,9 @@ function ProfileForm({ horseId, horse }: ProfileFormProps) {
         }
         className="w-full"
       >
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+        <SectionErrorBoundary resetKeys={[horseId]}>
           <HorsePedigreeSection horseId={horseId} control={form.control} />
-        </ErrorBoundary>
+        </SectionErrorBoundary>
       </Section>
 
       <Section
@@ -172,9 +181,9 @@ function ProfileForm({ horseId, horse }: ProfileFormProps) {
         }
         className="w-full"
       >
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+        <SectionErrorBoundary resetKeys={[horseId]}>
           <HorseAboutSection control={form.control} />
-        </ErrorBoundary>
+        </SectionErrorBoundary>
       </Section>
 
       <div className="flex justify-end">

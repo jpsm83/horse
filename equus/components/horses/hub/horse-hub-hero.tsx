@@ -40,6 +40,7 @@ import {
 
 type HorseHubHeroProps = {
   horse: HorseViewDto;
+  shareUrl: string;
   canEditImages?: boolean;
   className?: string;
 };
@@ -60,6 +61,7 @@ function horseInitials(name?: string): string {
 
 export function HorseHubHero({
   horse,
+  shareUrl,
   canEditImages = false,
   className,
 }: HorseHubHeroProps) {
@@ -280,7 +282,11 @@ export function HorseHubHero({
       {/* Content overlaid on top of the image */}
       <div className="relative z-10 flex min-h-40 flex-col sm:min-h-60 h-full pointer-events-none">
         <div className="flex justify-end p-4 pb-0 sm:p-6 sm:pb-0 pointer-events-auto">
-          <HorseHubShareMenu horseName={horse.name ?? ""} coverUrl={coverUrl} />
+          <HorseHubShareMenu
+            horseName={horse.name ?? ""}
+            shareUrl={shareUrl}
+            coverUrl={coverUrl}
+          />
         </div>
 
         <div className="mt-auto flex min-w-0 flex-1 items-center gap-4 p-4 sm:gap-8 sm:p-6">

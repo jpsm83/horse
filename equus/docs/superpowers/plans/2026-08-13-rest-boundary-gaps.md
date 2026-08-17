@@ -4,7 +4,7 @@
 
 **Goal:** Close the remaining REST-boundary gaps: `__tests__/` GET coverage for all converted entity views, delete unused `getPublicXCard` wrappers, and leave a human hub checklist.
 
-**Architecture:** Do not change route handlers or view services except deleting dead card wrappers/mappers. Tests assert the existing `{ viewerRole, allowedTabs, <entity> }` envelope. User-linked profiles use `viewerRole: "owner"` and `isOwner`; barn-style entities use `main_owner` and `isMainOwner`.
+**Architecture:** Do not change route handlers or view services except deleting dead card wrappers/mappers. Tests assert the existing `{ viewerRole, allowedTabs, <entity> }` envelope. User-linked profiles use `viewerRole: "owner"` and `isOwner`; entity-owned profiles use `main_owner` and `isMainOwner`.
 
 **Tech Stack:** Vitest, mongodb-memory-server (`tests/setup.ts`), Next.js route handlers, existing `authService.register` / `createX` helpers.
 

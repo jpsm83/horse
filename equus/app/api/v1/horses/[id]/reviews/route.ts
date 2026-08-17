@@ -1,7 +1,7 @@
 import connectDb from "@/lib/db.ts";
 import { withRoute, ok } from "@/lib/api/response.ts";
-import { requireAuthFromRequest, readOptionalAuthFromRequest } from "@/lib/auth/requireAuth.ts";
-import { createReviewSchema, listReviewsQuerySchema } from "@/lib/validations/review.ts";
+import { requireAuthFromRequest } from "@/lib/auth/requireAuth.ts";
+import { createReviewSchema } from "@/lib/validations/review.ts";
 import * as reviewService from "@/lib/services/reviewService.ts";
 
 type RouteContext = { params: Promise<{ id: string }> };

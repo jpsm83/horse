@@ -3,13 +3,13 @@
  * thumbnail grid, pagination, and view-only lightbox.
  *
  * Fetches via useHorseHubGallery (GET …/hub-gallery) — page size follows
- * breakpoints (2×3=6, 3×3=9, 4×3=12). No setState-in-effect: the grid density
- * changes on resize (event callback) and the clamped page is derived in render.
+ * breakpoints (2×3=6, 3×3=9, 4×3=12). Page size follows breakpoints via
+ * `useHubGalleryPageSize` (matchMedia + useSyncExternalStore).
  */
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, ImageIcon, Play, VideoIcon } from "lucide-react";
 
@@ -18,6 +18,7 @@ import { Section } from "@/components/shared/section.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { useHorseHubGallery } from "@/hooks/queries/useHorse.ts";
+import { useHubGalleryPageSize } from "@/hooks/use-hub-gallery-page-size.ts";
 import type { HubGalleryTypeFilter } from "@/lib/services/mediaService.ts";
 import { cn } from "@/lib/utils";
 
@@ -25,12 +26,6 @@ type HorseHubGalleryProps = {
   horseId: string;
   className?: string;
 };
-
-function resolvePageSize(width: number): number {
-  if (width >= 1024) return 12; // lg: 4 cols × 3 rows
-  if (width >= 640) return 9; // sm: 3 × 3
-  return 6; // 2 × 3
-}
 
 /** Centered, icon-led empty state for the Hub media grid (type-aware copy). */
 function HubGalleryEmptyState({ type }: { type: HubGalleryTypeFilter }) {
@@ -57,27 +52,12 @@ export function HorseHubGallery({ horseId, className }: HorseHubGalleryProps) {
   const t = useTranslations("horseHub");
   const [type, setType] = useState<HubGalleryTypeFilter>("all");
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(() =>
-    typeof window !== "undefined" ? resolvePageSize(window.innerWidth) : 12,
-  );
+  const pageSize = useHubGalleryPageSize();
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const pageSizeRef = useRef(pageSize);
 
-  // Resize drives the grid density (6/9/12). Reset to the first page only when
-  // the page size actually crosses a breakpoint; tracking the applied value in a
-  // ref avoids resetting the page on every resize tick.
   useEffect(() => {
-    function handleResize() {
-      const next = resolvePageSize(window.innerWidth);
-      if (next !== pageSizeRef.current) {
-        pageSizeRef.current = next;
-        setPageSize(next);
-        setPage(1);
-      }
-    }
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    setPage(1);
+  }, [pageSize]);
 
   const { data, isPending, isError } = useHorseHubGallery(horseId, {
     page,

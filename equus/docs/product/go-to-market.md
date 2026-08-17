@@ -36,7 +36,7 @@ Trainers and vets: useful as **collaborators** at launch; they are **not** the p
 Yard signs up (catalog + 30 days free)
   → Runs roster / whiteboard / invoices (SaaS)
   → Creates boarded horses or accepts owner invites
-  → Emails owners to claim Hub (waiting-transfer nags if barn created the horse)
+  → Emails owners to claim Hub (waiting-transfer nags if stable created the horse)
   → Owners join for free (chat, Hub, portal while yard is in good standing)
   → Graph densifies; later a vet module can attach to the same horses
 ```
@@ -55,9 +55,9 @@ Invites by email stay. **No** partner commission program at launch (old Section 
 
 ## Competitive GTM story (yards)
 
-“You pay for the barn product, similar to EquineM/HippoVibe. Owners get a modern Hub and chat for free. The horse is not trapped in your tenant — vets and trainers can be real accounts later. If you stop paying, you go read-only; the public page stays.”
+“You pay for the stable product, similar to EquineM/HippoVibe. Owners get a modern Hub and chat for free. The horse is not trapped in your tenant — vets and trainers can be real accounts later. If you stop paying, you go read-only; the public page stays.”
 
-Owners: “Your barn invited you. You don’t pay us. You see care and invoices in Hub while the barn’s subscription is active.”
+Owners: “Your stable invited you. You don’t pay us. You see care and invoices in Hub while the stable’s subscription is active.”
 
 ## What we are not pitching
 

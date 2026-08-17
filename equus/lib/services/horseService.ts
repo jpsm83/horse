@@ -9,7 +9,6 @@ import mongoose from "mongoose";
 import Horse from "@/models/Horse.ts";
 import User from "@/models/User.ts";
 import { ApiError } from "@/lib/api/errors.ts";
-import { guardHorseCreation } from "@/lib/billing/subscriptionGuard.ts";
 import { ownedByUserQuery, userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
 import {
   assertCanViewHorseGlobal,
@@ -300,8 +299,9 @@ export type HorseHubDto = {
  * Owner-only fields are populated when the viewer is on the ownership team.
  * `sections` holds cheap Hub projections (identity, identification, pedigree,
  * about, ownership, value, proactiveRepresentatives, coOwnerManagement)
- * filtered by L1+L2. Gallery / planning / connections lists are NOT populated
- * here — use `getHorseHubSocial` / GET …/hub-social.
+ * filtered by L1+L2. When Layer 2 allows gallery, `sections.gallery` is `[]`
+ * (presence marker only — paginated items via GET …/hub-gallery). Planning /
+ * connections lists are NOT populated here — use `getHorseHubSocial`.
  */
 export type HorseViewDto = {
   id: string;
@@ -382,16 +382,6 @@ function ensureObjectId(id: string, fieldName: string): void {
 export async function createHorse(actorUserId: string, input: CreateHorseInput) {
   ensureObjectId(actorUserId, "user id");
 
-  // Subscription guard
-  const guard = await guardHorseCreation(actorUserId);
-  if (!guard.ok) {
-    throw new ApiError(
-      403,
-      `Horse limit reached (${guard.current}/${guard.limit}). Upgrade to ${guard.requiredTier} to add more horses.`,
-      guard.code,
-    );
-  }
-
   const doc: Record<string, unknown> = {
     name: input.name,
     breed: input.breed,
@@ -399,7 +389,7 @@ export async function createHorse(actorUserId: string, input: CreateHorseInput) 
     mainOwnerUserId: actorUserId,
     createdByUserId: actorUserId,
     registration: {
-      payerUserId: actorUserId,
+      isActive: true,
     },
   };
 
@@ -1315,6 +1305,11 @@ export async function getHorseView(
     ]);
     sections.pedigree.sireSummary = sireSummary;
     sections.pedigree.damSummary = damSummary;
+  }
+
+  // Layer-2 presence marker for Hub gallery — paginated items load via GET …/hub-gallery.
+  if (canViewHorseHubSection(horseDoc, "gallery", audience)) {
+    sections.gallery = [];
   }
 
   const horseView: HorseViewDto = {

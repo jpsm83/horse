@@ -52,7 +52,7 @@ Each module has its own focus and UX. They connect **only** through the graph (r
 |--------|--------|------|
 | **User** | Required | Identity, My Graph, chat, favorites, prefs |
 | **Horse** | Required | Free social Hub + owner record |
-| **Stable** | Required | Paid barn SaaS |
+| **Stable** | Required | Paid stable SaaS |
 | Veterinary, trainer, groomer, … | Post-launch | Own paid SaaS; optional `WorkplaceRelationship` at a stable |
 | Transport, breeder, riding club, … | Later | Same pattern |
 
@@ -75,7 +75,7 @@ Favorites are **not** relationships. They do not unlock ops, reviews, or roster 
 1. **`Relationship`** — horse ↔ provider profile (stable, later vet, …). Operational data for that horse requires **accepted** status. Established (accepted) records are **permanent**; they may move to `ended` but are not deleted. Owner sees **only their horses**.
 2. **`WorkplaceRelationship`** — User ↔ host profile (e.g. Stable). Hierarchy on the link (`admin` \| `manager` \| `staff`). Multi-stable allowed. See `equus/docs/features/workplaceRelationship.md`.
 
-Barn staff write on a hosted horse when they have an **active workplace** at that stable **and** the horse has an **accepted** horse↔stable `Relationship`. No separate groom↔horse link required.
+Stable staff write on a hosted horse when they have an **active workplace** at that stable **and** the horse has an **accepted** horse↔stable `Relationship`. No separate groom↔horse link required.
 
 **Direct path:** owner may accept horse↔provider without a stable (e.g. later: vet at home).
 
@@ -97,7 +97,7 @@ The stable **may create** the horse they host. That does **not** make the stable
 - App emails the owner: create an Equus account and **take ownership**.  
 - After the owner accepts transfer: they are `mainOwner`; the stable is **host** (accepted horse↔stable `Relationship`), not owner.
 
-If the owner never claims: the creating user **stays** `mainOwner` (the incorrect real-world state). Mitigation is **not** a feature lock and **not** a horse invoice. Mitigation is **daily reminders forever** to the barn user and the invited owner until transfer completes.
+If the owner never claims: the creating user **stays** `mainOwner` (the incorrect real-world state). Mitigation is **not** a feature lock and **not** a horse invoice. Mitigation is **daily reminders forever** to the stable user and the invited owner until transfer completes.
 
 Waiting-transfer horses **count on the stable roster** for SaaS pricing (they are hosted). See [`monetization.md`](monetization.md).
 
@@ -116,13 +116,13 @@ Access is **role + relationship + scope + time**:
 - A stable operates horses it currently hosts (and historical read per policy).  
 - After `ended`, write stops; history remains.  
 - Owners see full Hub **social** always (free).  
-- Owners see **live barn ops** on a horse only while that stable subscription is in **good standing** ([`monetization.md`](monetization.md)).  
+- Owners see **live stable ops** on a horse only while that stable subscription is in **good standing** ([`monetization.md`](monetization.md)).  
 - Chat does not grant ops access.
 
 ## Privacy tiers (horse)
 
 - **Public:** Hub identity, media per visibility, competition results as configured  
-- **Relationship-visible:** care logs, treatments, invoices — when the provider is accepted **and** (for live barn data) the entity is in good standing  
+- **Relationship-visible:** care logs, treatments, invoices — when the provider is accepted **and** (for live stable data) the entity is in good standing  
 - **Owner-only:** sensitive docs, private notes  
 
 Per-horse `profileVisibility` and `contactDisplay` remain.

@@ -53,3 +53,25 @@ export function useDeleteHorseDocument(horseId: string) {
     },
   });
 }
+
+export function useCreateDocumentDeletionRequest(horseId: string) {
+  return useMutation({
+    mutationFn: async ({
+      documentId,
+      requestMessage,
+    }: {
+      documentId: string;
+      requestMessage?: string;
+    }) => {
+      const res = await fetchWithAuth(
+        `/api/v1/horses/${encodeURIComponent(horseId)}/document-deletion-requests`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ documentId, requestMessage }),
+        },
+      );
+      return parseApiResponse<{ request: { id: string } }>(res);
+    },
+  });
+}

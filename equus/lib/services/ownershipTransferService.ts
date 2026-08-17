@@ -15,8 +15,6 @@ import Transport from "../../models/Transport.ts";
 import RidingClub from "../../models/RidingClub.ts";
 import User from "../../models/User.ts";
 import { ApiError } from "../api/errors.ts";
-import { reassignHorseSubscriptionPayerAfterTransferMain } from "../horses/horseSubscriptionBilling.ts";
-import { guardAcceptTransfer } from "@/lib/billing/subscriptionGuard.ts";
 import { sendOwnershipTransferInviteEmail } from "../email/sendOwnershipTransferInviteEmail.ts";
 import type {
   ownershipTransferEntityTypeEnums,
@@ -417,13 +415,6 @@ async function applyEntityOwnershipChange(
           "CONFLICT",
         );
       }
-
-      if (entityType === "horse") {
-        await reassignHorseSubscriptionPayerAfterTransferMain(
-          String(entityId),
-          String(receiverUserId),
-        );
-      }
       break;
     }
 
@@ -717,17 +708,6 @@ export async function acceptOwnershipTransfer(
 
   if (!transfer.receiverUserId) {
     transfer.receiverUserId = new mongoose.Types.ObjectId(actorUserId);
-  }
-
-  if (transfer.transferKind === "transfer_main") {
-    const guard = await guardAcceptTransfer(actorUserId);
-    if (!guard.ok) {
-      throw new ApiError(
-        403,
-        `Cannot accept horse: subscription limit reached (${guard.current}/${guard.limit}). Upgrade to ${guard.requiredTier} to accept.`,
-        guard.code,
-      );
-    }
   }
 
   await applyEntityOwnershipChange(transfer, entity);

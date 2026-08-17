@@ -11,7 +11,27 @@ import {
 } from "./sharedSchemas/index.ts";
 import * as enums from "../utils/enums.ts";
 
-const { horseDisciplineEnums, stableServiceEnums } = enums;
+const { horseDisciplineEnums, stableServiceEnums, catalogBandEnums, entitySubscriptionStatusEnums, billingCurrencyEnums } = enums;
+
+const entitySubscriptionSchema = new Schema(
+  {
+    status: {
+      type: String,
+      enum: entitySubscriptionStatusEnums,
+      default: "trialing",
+    },
+    catalogBand: { type: String, enum: catalogBandEnums, default: "starter" },
+    monthlyPriceCents: { type: Number, min: 0 },
+    currency: { type: String, enum: billingCurrencyEnums, default: "EUR" },
+    stripeCustomerId: { type: String },
+    stripeSubscriptionId: { type: String },
+    trialEndsAt: { type: Date },
+    currentPeriodStart: { type: Date },
+    currentPeriodEnd: { type: Date },
+    canceledAt: { type: Date },
+  },
+  { _id: false },
+);
 
 const pricingTierSchema = new Schema(
   {
@@ -73,6 +93,9 @@ const stableSchema = new Schema(
       type: [{ type: Schema.Types.ObjectId, ref: "WorkplaceRelationship" }],
       default: undefined,
     },
+
+    /** Entity SaaS subscription — owning User is Stripe customer; fields live on Stable */
+    subscription: { type: entitySubscriptionSchema, default: () => ({}) },
 
     /** Activity tracking */
     lastActiveAt: { type: Date },

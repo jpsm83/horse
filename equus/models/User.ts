@@ -20,7 +20,7 @@ import {
   userTypeEnums,
   visibilityEnums,
 } from "../utils/enums.ts";
-import { tierEnums } from "@/lib/billing/plans.ts";
+import { tierEnums } from "../utils/enums.ts";
 
 /** Layer-2 per-section visibility for the user public profile hub. */
 const userHubSectionSchema = new Schema(

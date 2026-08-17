@@ -176,6 +176,20 @@ export async function createMedia(
   horseId: string,
   input: Record<string, unknown>,
 ): Promise<PublicMedia> {
+  if (!mongoose.Types.ObjectId.isValid(horseId)) {
+    throw new ApiError(400, "Invalid horse id", "VALIDATION_ERROR");
+  }
+
+  const horse = await Horse.findOne({
+    _id: horseId,
+    ...ownedByUserQuery(userId),
+  })
+    .select("_id")
+    .lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
   const item = await Media.create({
     ...input,
     horseId,
@@ -238,4 +252,41 @@ export async function deleteMedia(
     actionType: "media.deleted",
     description: `Media "${record.title ?? "untitled"}" deleted`,
   }).catch(() => {});
+}
+
+/**
+ * Toggle whether a media item appears on the horse Hub gallery.
+ * Owner/co-owner/responsible team only (same gate as deleteMedia).
+ */
+export async function updateMediaHubVisibility(
+  actorUserId: string,
+  horseId: string,
+  mediaId: string,
+  isVisibleOnHub: boolean,
+): Promise<PublicMedia> {
+  if (!mongoose.Types.ObjectId.isValid(horseId) || !mongoose.Types.ObjectId.isValid(mediaId)) {
+    throw new ApiError(400, "Invalid id", "VALIDATION_ERROR");
+  }
+
+  const horse = await Horse.findOne({
+    _id: horseId,
+    ...ownedByUserQuery(actorUserId),
+  })
+    .select("_id")
+    .lean();
+  if (!horse) {
+    throw new ApiError(404, "Horse not found", "NOT_FOUND");
+  }
+
+  const record = await Media.findOneAndUpdate(
+    { _id: mediaId, horseId, isActive: true },
+    { isVisibleOnHub },
+    { new: true },
+  ).lean();
+
+  if (!record) {
+    throw new ApiError(404, "Media not found", "NOT_FOUND");
+  }
+
+  return toPublic(record as Record<string, unknown>);
 }

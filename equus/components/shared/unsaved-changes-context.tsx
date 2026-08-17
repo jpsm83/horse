@@ -6,7 +6,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -49,17 +48,18 @@ export function UnsavedChangesProvider({
   const [isDirty, setDirty] = useState(false);
   const [isSaving, setSaving] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  // Non-DOM latest-refs: pending nav target + latest onDiscard callback, read by
-  // the confirm dialog without re-creating it on every provider render.
-  const pendingHrefRef = useRef<string | null>(null);
-  const onDiscardRef = useRef(onDiscard);
-  // Keep the ref synced after render (never write refs during render).
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const [discardHandler, setDiscardHandlerState] = useState<
+    (() => void) | undefined
+  >(() => onDiscard);
+
   useEffect(() => {
-    onDiscardRef.current = onDiscard;
+    setDiscardHandlerState(() => onDiscard);
   }, [onDiscard]);
 
   useEffect(() => {
     if (!isDirty) return;
+    // Justified imperative API: `beforeunload` has no declarative React equivalent.
     const handler = (event: BeforeUnloadEvent) => {
       event.preventDefault();
     };
@@ -73,26 +73,26 @@ export function UnsavedChangesProvider({
         router.push(href);
         return;
       }
-      pendingHrefRef.current = href;
+      setPendingHref(href);
       setDialogOpen(true);
     },
     [isDirty, isSaving, router],
   );
 
   const confirmLeave = useCallback(() => {
-    const href = pendingHrefRef.current;
-    pendingHrefRef.current = null;
+    const href = pendingHref;
+    setPendingHref(null);
     setDialogOpen(false);
-    onDiscardRef.current?.();
+    discardHandler?.();
     setDirty(false);
     if (href) router.push(href);
-  }, [router]);
+  }, [discardHandler, pendingHref, router]);
 
   // Lets a nested form (e.g. preferences) override the discard handler when the
   // provider lives at the layout level (no per-page onDiscard prop).
   const setDiscardHandler = useCallback(
     (handler: (() => void) | undefined) => {
-      onDiscardRef.current = handler;
+      setDiscardHandlerState(() => handler);
     },
     [],
   );
@@ -110,7 +110,7 @@ export function UnsavedChangesProvider({
           open={dialogOpen}
           onOpenChange={(open) => {
             setDialogOpen(open);
-            if (!open) pendingHrefRef.current = null;
+            if (!open) setPendingHref(null);
           }}
           title={dialogTitle}
           description={dialogDescription}

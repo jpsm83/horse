@@ -127,7 +127,8 @@ export function DataTable<TData extends Record<string, unknown>>({
     handleDrop,
     handleDragEnd,
     resetColumns,
-    dragActive,
+    suppressHeaderClick,
+    clearSuppressHeaderClick,
   } = useEnhancedTable({
     data,
     columns,
@@ -206,8 +207,8 @@ export function DataTable<TData extends Record<string, unknown>>({
                   const sortDir = header.column.getIsSorted();
                   const handleSortClick = canSort
                     ? (e: React.MouseEvent) => {
-                        if (dragActive.current) {
-                          dragActive.current = false;
+                        if (suppressHeaderClick) {
+                          clearSuppressHeaderClick();
                           return;
                         }
                         header.column.getToggleSortingHandler()?.(e);

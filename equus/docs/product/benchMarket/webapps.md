@@ -47,7 +47,7 @@ The 12 products in this benchmark fall into **distinct categories**, not one hom
 
 **Key insight for our product:** No single competitor covers the full lifecycle of a horse owner — from acquisition → daily care → training → competition → sale/retirement — in one cohesive, modern experience. The closest "all-in-one owner" shapes are **My Cheval**, **Happie Horse**, and **The Equestrian App**, but each has significant gaps. The closest "pro stable ERP" shapes are **EquineM** (Equus's primary stable-ops parity baseline), **Equicty**, and **HippoVibe**. **Equilab** and **Ridely** own rider training/safety/education. **BHS**, **ehorses**, **BHA**, and **FEI HorseApp** are adjacent ecosystem players, not direct SaaS competitors — but they define trust, acquisition moments, and compliance layers we must integrate with or exceed.
 
-**EquineM-specific insight:** EquineM is a **stable-organization ERP** — the stable admin pays, owns the tenant, and adds owners/vets as contacts inside one org. Equus is a **connected horse graph** — the horse is central, actors link by consent. **The stable still pays for barn SaaS** (catalog on the entity); **horse Hub / chat / favorites are free**; owners get an included portal while the yard is in good standing. Vets/trainers become **independent paid modules** later, not contacts trapped in one tenant. See `equus/docs/product/businessPlan.md`, `monetization.md`, `equus/docs/features/stableModule.md`.
+**EquineM-specific insight:** EquineM is a **stable-organization ERP** — the stable admin pays, owns the tenant, and adds owners/vets as contacts inside one org. Equus is a **connected horse graph** — the horse is central, actors link by consent. **The stable still pays for stable SaaS** (catalog on the entity); **horse Hub / chat / favorites are free**; owners get an included portal while the yard is in good standing. Vets/trainers become **independent paid modules** later, not contacts trapped in one tenant. See `equus/docs/product/businessPlan.md`, `monetization.md`, `equus/docs/features/stableModule.md`.
 
 ---
 
@@ -989,15 +989,15 @@ Freemium SaaS (App Store, Play, Paddle). Brand affiliate offers. Team B2B group 
 | **Organization** | Extreme Software Inc. (Patrick Husting, founder) |
 | **HQ** | Sammamish, Washington, USA |
 | **Founded** | 2018 |
-| **Type** | Horse management + barn/business ops + social/community + marketplace/directory |
+| **Type** | Horse management + stable/business ops + social/community + marketplace/directory |
 
 #### Positioning
-*"Microsoft Office for horses."* Free all-in-one horse care, barn management, and equine community connecting owners, providers, and businesses. Emphasizes communal care with permissions.
+*"Microsoft Office for horses."* Free all-in-one horse care, stable management, and equine community connecting owners, providers, and businesses. Emphasizes communal care with permissions.
 
 #### Target audience
 - Individual horse owners, multi-horse households, leasees/share-boarders
 - Youth: 4-H members (free Clover edition)
-- Businesses: barn/boarding managers, trainers, instructors, farriers, bodyworkers, rescues
+- Businesses: stable/boarding managers, trainers, instructors, farriers, bodyworkers, rescues
 - **Geography:** Global English; strongest US identity; "tens of thousands" members; 10K+ Android downloads
 
 #### Complete feature inventory
@@ -1039,8 +1039,8 @@ Freemium SaaS (App Store, Play, Paddle). Brand affiliate offers. Team B2B group 
 - Appointment tracking
 - Business: enhanced calendar; friends can see calendar; embed calendar on website
 
-**Stable / barn management (StallPros)**
-- Multiple barns and turnouts
+**Stable / stable management (StallPros)**
+- Multiple yards and turnouts
 - Staff invitations
 - Stall assignment (1–100+ stalls)
 - Feeding & care schedules
@@ -1070,9 +1070,9 @@ Freemium SaaS (App Store, Play, Paddle). Brand affiliate offers. Team B2B group 
 - Schedule lease days
 
 **Messaging & community**
-- Barn Chat (barn-focused group messaging)
+- Barn Chat (stable-focused group messaging)
 - Connect/follow friends
-- Contacts management (farriers, vets, trainers, barn managers)
+- Contacts management (farriers, vets, trainers, stable managers)
 - Permissions for others to journal/update horse records
 - Community feed / social features
 
@@ -1090,7 +1090,7 @@ Freemium SaaS (App Store, Play, Paddle). Brand affiliate offers. Team B2B group 
 - Tack room tracker
 
 **Expenses & invoicing**
-- Expense tracking for horse/barn costs
+- Expense tracking for horse/stable costs
 - Business: invoice customers
 - Payments processing beyond invoicing: **not found publicly**
 
@@ -1300,7 +1300,7 @@ Andrew Hoy, Henrik von Eckermann, Carl Hester, Ingrid Klimke, Alan Davies, Mered
 #### Gaps
 - Expensive vs management apps
 - Free tier heavily gated
-- Weak barn/business ops (by design)
+- Weak stable/business ops (by design)
 - No marketplace for horses/jobs
 - Health features observational, not full medical record vault
 
@@ -1338,7 +1338,7 @@ Andrew Hoy, Henrik von Eckermann, Carl Hester, Ingrid Klimke, Alan Davies, Mered
 - Share horse information pack (age, pedigree, videos, results-page links) with owners/buyers
 - Unlimited users
 
-**Daily ops / barn & yard**
+**Daily ops / stable & yard**
 - Digital task lists / daily plan
 - Real-time team visibility of tasks
 - **Staff schedule** (recent expansion)
@@ -1441,7 +1441,7 @@ Consumer-first equine health & daily yard app — prevention (laminitis, PPID, a
 - **Cushing / PPID diary:** symptoms, ACTH, cortisol/insulin values
 - Inhalation logging (Premium)
 - Histories & trends
-- Emergency / barn contacts (call/directions from app)
+- Emergency / stable contacts (call/directions from app)
 - First-aid cards (Academy)
 
 **Pasture / environment / prevention**
@@ -1705,7 +1705,7 @@ All-in-one digital management suite for equestrian businesses — stables, studs
 | **URL** | https://equinem.com/ |
 | **Organization** | EquineM — commercial stable-management SaaS |
 | **Type** | **Pro-yard / stable-organization ERP** (modular B2B SaaS) — Equus's primary **stable-ops parity baseline** |
-| **Role in Equus strategy** | Match EquineM barn operations in `equus/docs/features/stableModule.md`; exceed with a horse-centric graph. **Entity pays SaaS** (like EquineM); owners do **not** pay Equus. Consent-based network + free Hub — see `equus/docs/product/businessPlan.md`, `monetization.md` |
+| **Role in Equus strategy** | Match EquineM stable operations in `equus/docs/features/stableModule.md`; exceed with a horse-centric graph. **Entity pays SaaS** (like EquineM); owners do **not** pay Equus. Consent-based network + free Hub — see `equus/docs/product/businessPlan.md`, `monetization.md` |
 
 #### Positioning
 *"All you can do and more."* Clear team/horse planning, centralized records, billing/invoices, health logging, breeding/mare cards, and facility reservations. The **stable organization** is the tenant: admin pays, owns the account, and adds owners/vets/staff as contacts inside one org.
@@ -1834,7 +1834,7 @@ Marketing promises:
 **Schedule of Feed and Supplements**
 
 Marketing promises:
-- Feed & supplements schedule visible for everyone in the barn
+- Feed & supplements schedule visible for everyone in the stable
 - Feed schedule adjustable from anywhere
 - Automatic historical log of everything the horse has received
 
@@ -1952,7 +1952,7 @@ Modular B2B SaaS paid by the **stable organization**. Owners/vets/staff are typi
 - Branded stud order portal embedded via customer website
 
 #### Strengths
-- Deepest documented **stable ERP** feature set among EU barn tools (activity + roster + feed + facilities + finance + staff + stud)
+- Deepest documented **stable ERP** feature set among EU stable tools (activity + roster + feed + facilities + finance + staff + stud)
 - Modular pricing; unlimited free horse profiles
 - Strong breeding/stud + webshop suite
 - Clear Equus **parity checklist** source (`equus/docs/features/stableModule.md` Parity: EquineM rows)

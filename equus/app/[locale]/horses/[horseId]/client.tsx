@@ -17,9 +17,10 @@ import { isFetchError } from "@/lib/api/fetchWithAuth";
 
 type HubContentProps = {
   horseId: string;
+  shareUrl: string;
 };
 
-export function HubContent({ horseId }: HubContentProps) {
+export function HubContent({ horseId, shareUrl }: HubContentProps) {
   const t = useTranslations("horseHub");
   const { data: view, isLoading, error } = useHorseView(horseId);
 
@@ -56,6 +57,7 @@ export function HubContent({ horseId }: HubContentProps) {
       <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
         <HorseHubHero
           horse={horse}
+          shareUrl={shareUrl}
           canEditImages={horse.isAdmin === true}
         />
       </SectionErrorBoundary>
@@ -73,11 +75,13 @@ export function HubContent({ horseId }: HubContentProps) {
           </SectionErrorBoundary>
         </div>
 
-        <div className="flex min-h-0 min-w-0 flex-col lg:h-full">
-          <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
-            <HorseHubGallery horseId={horseId} className="h-full min-h-0 flex-1" />
-          </SectionErrorBoundary>
-        </div>
+        {horse.sections.gallery != null ? (
+          <div className="flex min-h-0 min-w-0 flex-col lg:h-full">
+            <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>
+              <HorseHubGallery horseId={horseId} className="h-full min-h-0 flex-1" />
+            </SectionErrorBoundary>
+          </div>
+        ) : null}
 
         <div className="flex min-w-0 flex-col gap-4">
           <SectionErrorBoundary resetKeys={[horseId]} message={t("loadFailed")}>

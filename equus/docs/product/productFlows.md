@@ -38,7 +38,7 @@ Provider links are **not** denormalized as the only source of truth on `Horse` �
 10. **No** owner-subscription referral commission  
 11. Per-horse `profileVisibility` / `contactDisplay`  
 12. **Favorites** are private shortcuts, not relationships  
-13. Live barn data in owner Hub only if the **stable is in good standing**  
+13. Live stable data in owner Hub only if the **stable is in good standing**  
 14. Home is **My Graph**
 
 ---
@@ -73,14 +73,14 @@ Owner on horse Hub
 ```
 My Graph → horse
   → Hub (social) always
-  → Portal slice (logs, invoices, schedule, docs) if barn in good standing
+  → Portal slice (logs, invoices, schedule, docs) if stable in good standing
   → Chat, favorites, booking with linked stable
   → Horse-scoped review when relationship exists
 ```
 
-### 1.4 If the barn lapses
+### 1.4 If the stable lapses
 
-Social Hub + chat remain. **Live** barn slice hides (or last snapshot if we ship that). The owner does not pay to restore it — the **stable** must pay.
+Social Hub + chat remain. **Live** stable slice hides (or last snapshot if we ship that). The owner does not pay to restore it — the **stable** must pay.
 
 ---
 
@@ -100,14 +100,14 @@ Sign up → personal profile → create Stable
 
 **A. Owner invites** (Flow 1.2): stable accepts → horse on roster.
 
-**B. Barn already has the horse:**
+**B. Stable already has the horse:**
 
 ```
 Stable creates horse (owner email required)
   → mainOwner = stable’s owning user
   → waiting-transfer flag
   → Email owner: sign up and take ownership
-  → Daily nag forever to barn user + owner until claim
+  → Daily nag forever to stable user + owner until claim
   → Horse counts on roster
   → On claim: owner = mainOwner; stable = host Relationship
 ```
@@ -175,7 +175,7 @@ Unregistered invitee: pending Relationship + email; on signup they accept.
 
 Same as before. See `workplaceRelationship.md`.
 
-Barn staff example: Alice owns Sunrise; Comet hosted; Carla accepts collab; Carla logs care on Comet without a groom↔Comet `Relationship`.
+Stable staff example: Alice owns Sunrise; Comet hosted; Carla accepts collab; Carla logs care on Comet without a groom↔Comet `Relationship`.
 
 ---
 
@@ -200,7 +200,7 @@ Unchanged: verified `horseId` + `relationshipId`; either side; owner operates ho
 
 `transfer_main` / `remove_co_owner` / `promote_co_owner` as in `ownershipTransfer.md`.
 
-**Horse `transfer_main`:** used for sale **and** for **claiming** a waiting-transfer horse (owner takes over from barn user).
+**Horse `transfer_main`:** used for sale **and** for **claiming** a waiting-transfer horse (owner takes over from stable user).
 
 **Stable `transfer_main`:** SaaS customer becomes the new stable `mainOwner`.
 

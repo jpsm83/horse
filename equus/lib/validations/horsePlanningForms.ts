@@ -4,11 +4,11 @@
 
 import { z } from "zod";
 
+/** Owner-team personal events on the horse calendar (not stable ops / entity-sourced writes). */
 export const planningEventTypeEnums = [
   "appointment",
   "competition",
   "training",
-  "feeding",
   "other",
 ] as const;
 
@@ -20,15 +20,13 @@ function optionalTrimmedString(max?: number) {
     .transform((value) => (value && value.length > 0 ? value : undefined));
 }
 
-/** API body for POST /api/v1/horses/:id/planning */
+/** API body for POST /api/v1/horses/:id/planning — owner personal events only. */
 export const createPlanningEventSchema = z.object({
   eventType: z.enum(planningEventTypeEnums),
   title: z.string().trim().min(1).max(200),
   startDate: z.string().trim().min(1),
   endDate: optionalTrimmedString(),
   location: optionalTrimmedString(200),
-  sourceEntityType: optionalTrimmedString(),
-  sourceEntityId: optionalTrimmedString(),
 });
 
 export type CreatePlanningEventInput = z.infer<typeof createPlanningEventSchema>;
@@ -45,7 +43,6 @@ export type PlanningEventFormValues = {
   startDate: string;
   endDate: string;
   location: string;
-  sourceProviderId: string;
 };
 
 export function planningEventFormSchema(messages: PlanningEventFormMessages) {
@@ -55,6 +52,5 @@ export function planningEventFormSchema(messages: PlanningEventFormMessages) {
     startDate: z.string().trim().min(1, messages.startDateRequired),
     endDate: z.string(),
     location: z.string().max(200),
-    sourceProviderId: z.string(),
   });
 }

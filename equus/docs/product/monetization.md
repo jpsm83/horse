@@ -12,7 +12,7 @@ Who pays, catalog, promos, lapse, and what owners see. Index: [`businessPlan.md`
 
 Equus **never invoices horse owners**. Stables already bill owners; they may add a line or fold Equus into boarding. That fee is **not** set or enforced by Equus.
 
-A user who operates a stable **and** owns horses: pays **for the stable**, not for “being an owner.” Hub stays free. That closes the gap where a barn user never needs Hub and would skip an owner paywall.
+A user who operates a stable **and** owns horses: pays **for the stable**, not for “being an owner.” Hub stays free. That closes the gap where a stable user never needs Hub and would skip an owner paywall.
 
 Later modules: **one subscription per entity**. A vet practice is not billed on the stable’s invoice. Same catalog **shape** (roster/caseload bands); exact vet bands can be copied or adjusted when that module ships.
 
@@ -55,7 +55,7 @@ Why the floor: 60 horses at Large = €299; 61 × €4 = €244 would **cut** th
 
 **Billing cycle:** monthly at launch.
 
-Vs market (full barn stack, not activity-only): HippoVibe ~€3/horse; EquineM full stack ~€90 at 5 horses / ~€130 at 20; Equicty from ~€30/month by band. We sell **one** Stable bundle (ops + owner portal + graph), so we sit near EquineM all-in, a bit under, not at HippoVibe’s floor.
+Vs market (full stable stack, not activity-only): HippoVibe ~€3/horse; EquineM full stack ~€90 at 5 horses / ~€130 at 20; Equicty from ~€30/month by band. We sell **one** Stable bundle (ops + owner portal + graph), so we sit near EquineM all-in, a bit under, not at HippoVibe’s floor.
 
 ## Default offer + custom promos
 
@@ -83,7 +83,7 @@ This is **not** “the horse is blocked because the owner didn’t pay us.” Th
 Waiting-transfer is an **ownership** problem. It does **not** create a horse-owner Equus invoice.
 
 - Daily nag forever until claim ([`graph-and-identity.md`](graph-and-identity.md)).  
-- Those horses **do** sit on the paid/free **roster** (the barn is using SaaS on them).  
+- Those horses **do** sit on the paid/free **roster** (the stable is using SaaS on them).  
 - No extra Hub/ops lock **because** they are unclaimed.
 
 ## What we do not sell (launch)

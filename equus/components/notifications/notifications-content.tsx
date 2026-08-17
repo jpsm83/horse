@@ -1,9 +1,8 @@
 /**
- * NotificationsContent — user notification inbox (`/notifications`).
+ * NotificationsContent — in-app notification inbox (`/notifications`).
  *
- * Auth-gated paginated list of notifications with a mark-read action. Data goes
- * through TanStack Query hooks (`useNotifications`, `useMarkNotificationRead`).
- * List is wrapped in `SectionErrorBoundary` so a crash never takes down the page.
+ * Distinct from the account Notifications tab (`/user/[userId]/notifications`),
+ * which manages email opt-ins only. Auth-gated paginated list with mark-read.
  */
 
 "use client";
@@ -11,8 +10,10 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { AuthPageShell } from "@/components/auth/auth-page-shell.tsx";
 import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { NotificationsPageContentSkeleton } from "@/components/notifications/notifications-page-content-skeleton.tsx";
+import { AppHomeLink } from "@/components/navigation/app-home-link.tsx";
 import { Button } from "@/components/ui/button";
 import { useAppAuth } from "@/hooks/use-app-auth";
 import { useMarkNotificationRead, useNotifications } from "@/hooks/queries/useNotification.ts";
@@ -29,6 +30,7 @@ function formatRelative(iso: string): string {
 export function NotificationsContent() {
   const router = useRouter();
   const t = useTranslations("notifications");
+  const tCommon = useTranslations("common");
   const { isAuthenticated, isLoading: authLoading } = useAppAuth();
   const [page, setPage] = useState(1);
   const { data, isPending } = useNotifications(page);
@@ -44,7 +46,7 @@ export function NotificationsContent() {
     try {
       await markRead.mutateAsync(id);
     } catch {
-      // Toast fallback is not wired here; keep the UI stable on failure.
+      // Keep the UI stable on failure; no toast wired here.
     }
   }
 
@@ -56,12 +58,15 @@ export function NotificationsContent() {
   const totalPages = data?.totalPages ?? 1;
 
   return (
-    <div
-      className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-4 py-8"
-      suppressHydrationWarning
+    <AuthPageShell
+      title={t("title")}
+      description={t("description")}
+      footer={
+        <AppHomeLink className="font-medium text-foreground underline-offset-4 hover:underline">
+          {tCommon("home")}
+        </AppHomeLink>
+      }
     >
-      <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("title")}</h1>
-
       <SectionErrorBoundary message={t("loadFailed")}>
         {notifications.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("empty")}</p>
@@ -98,7 +103,7 @@ export function NotificationsContent() {
       </SectionErrorBoundary>
 
       {totalPages > 1 ? (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pt-2">
           <Button
             size="sm"
             variant="outline"
@@ -120,6 +125,6 @@ export function NotificationsContent() {
           </Button>
         </div>
       ) : null}
-    </div>
+    </AuthPageShell>
   );
 }

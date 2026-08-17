@@ -12,7 +12,7 @@ Related: [`userModule.md`](userModule.md), [`favorites.md`](favorites.md), [`hor
 |-------|----------|
 | **Pending relationships** | Horse↔provider invites to accept/decline |
 | **Pending workplaces** | Collaboration invites |
-| **Waiting-transfer** | Horses this User still `mainOwner`s that are flagged waiting-transfer (barn-created, real owner not claimed) |
+| **Waiting-transfer** | Horses this User still `mainOwner`s that are flagged waiting-transfer (stable-created, real owner not claimed) |
 
 That is the full home. **No** “all my horses,” **no** “all my stables,” **no** full favorites catalog.
 
@@ -29,6 +29,6 @@ That is the full home. **No** “all my horses,” **no** “all my stables,” 
 
 | ID | Feature | Status |
 |----|---------|--------|
-| MG-01 | Home route after login = inbox (pending + waiting-transfer) | planned |
-| MG-02 | Deep links from inbox to Connect / ownership-transfer / horse | planned |
-| MG-03 | Empty inbox copy points to Horse / Stable modules | planned |
+| MG-01 | Home route after login = inbox (pending + waiting-transfer) | partial (waiting-transfer omitted) |
+| MG-02 | Deep links from inbox to Connect / ownership-transfer / horse | done |
+| MG-03 | Empty inbox copy points to Horse / Stable modules | done |

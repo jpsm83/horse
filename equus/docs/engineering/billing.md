@@ -2,34 +2,38 @@
 
 **Job:** Stripe + good-standing enforcement for **paid entities**. Prices stay in product.  
 **Upstream:** [`../features/entitySubscription.md`](../features/entitySubscription.md), [`../product/monetization.md`](../product/monetization.md)  
-**Status:** **drift**  
-**Code roots (dead owner-tier — do not extend):** `lib/billing/{plans,horseCounter,subscriptionGuard,stripe,paymentGate}.ts`, `app/api/v1/billing/`, `models/User.subscription`, `Horse.subscription.payerUserId`, `components/user/subscription/`, `lib/horses/horseSubscriptionBilling.ts`
+**Status:** **aligned** (Stable at launch)  
+**Code roots:** `lib/billing/`, `app/api/v1/billing/`, `models/Stable.subscription`, `components/stable/admin/stable-billing-section.tsx`
 
 ---
 
-## Shipped — do not extend
+## Shipped
 
-Owner-pays **horse-count tiers** on `User.subscription` (`free` / `bronze` / …). `horseCounter.ts` counts owned horses; `subscriptionGuard` blocks `horseService.createHorse` and ownership accept. Stripe checkout/portal/webhook/current assume **user** as customer. UI: `/user/[userId]/subscription`.
+- **Customer:** Stripe customer = owning **User**; subscription metadata + status stored on **Stable** (`subscription` subdocument).
+- **Trial:** New stables get **30-day trialing** good standing (`buildDefaultEntitySubscription` on `createStable`).
+- **Catalog:** Roster bands (`starter` … `scale`) in `entityCatalog.ts`; persisted `monthlyPriceCents` on entity wins at checkout.
+- **Meter:** `rosterMeter.countStableRoster` — active accepted horse↔stable `Relationship` rows (not an enforced cap).
+- **Guards:** `assertStableWriteAllowed` on stable profile/discovery PATCH when not in good standing.
+- **API:** `GET /api/v1/billing/current?stableId=` · `POST /api/v1/billing/create-checkout` · `POST /api/v1/billing/portal` · webhook updates Stable subscription.
+- **UI:** Stable Admin → Subscription section (`StableBillingSection`). Global `/subscription` redirects to `/home`.
+- **Horses:** Free, unlimited — no user-tier caps on `createHorse` or `transfer_main` accept.
 
-**Do not** add tiers, currencies, or new guards on this model. **Do not** reintroduce owner horse-count paywalls or `$99`/horse.
+**Do not wire:** `Horse.registration.payerUserId` on create/transfer · `User.subscription` tiers for horse counts · `dataAvailability: payment_blocked`.
 
-| File | Today |
-|------|--------|
-| `lib/billing/plans.ts` | Horse-limit tiers + prices |
-| `lib/billing/horseCounter.ts` | Count horses the user owns |
-| `lib/billing/subscriptionGuard.ts` | Create-horse / transfer accept caps |
-| `lib/billing/stripe.ts` | Checkout from `plans.ts` + `STRIPE_PRODUCT_*` |
-| `app/api/v1/billing/*` | `create-checkout`, `portal`, `current`, `webhook` |
+| File | Role |
+|------|------|
+| `lib/billing/entityCatalog.ts` | Band shape + suggest price |
+| `lib/billing/entitySubscription.ts` | Good standing + billing DTO |
+| `lib/billing/rosterMeter.ts` | Current roster count |
+| `lib/billing/entityWriteGuard.ts` | Stable write gate |
+| `lib/billing/stripe.ts` | Checkout, portal, webhook |
 
 ---
 
-## Target
+## Target / later
 
-Who-pays, meter, lapse, catalog: [`../features/entitySubscription.md`](../features/entitySubscription.md) + [`../product/monetization.md`](../product/monetization.md). Do not copy prices here.
+- Waiting-transfer horses in roster count (greenfield flag).
+- Write-lock on stable **ops** routes when they ship (roster, whiteboard, …).
+- Paid entity types beyond Stable copy the same pattern per [`later-modules.md`](later-modules.md).
 
-| Piece | Contract |
-|-------|----------|
-| Stripe | Customer + subscription **on the entity** (owning User is the Stripe customer). Replace user-tier checkout/portal/webhook. |
-| Guards | Gate **stable (entity) writes**, not `createHorse`. |
-| Meter code | Count current roster (formula in features). Adding a horse does not auto-change Stripe. |
-| Dead fields | Do not wire `Horse.subscription.payerUserId` or `dataAvailability: payment_blocked`. |
+Owner-tier **dead code removed:** `plans.ts`, `horseCounter.ts`, `subscriptionGuard.ts`, `paymentGate.ts`, `horseSubscriptionBilling.ts`, user Subscription tab UI.

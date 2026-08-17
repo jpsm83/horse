@@ -25,12 +25,16 @@ import {
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { Spinner } from "@/components/ui/spinner.tsx";
 import { fetchWithAuth } from "@/lib/api/fetchWithAuth";
-import { useHorseDocuments, useDeleteHorseDocument } from "@/hooks/queries/useHorseDocuments.ts";
+import { useHorseDocuments, useDeleteHorseDocument, useCreateDocumentDeletionRequest } from "@/hooks/queries/useHorseDocuments.ts";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
 import type { PublicHorseDocument } from "@/lib/services/horseDocumentService";
 import { documentTypeEnums } from "@/utils/enums";
 
-type Props = { horseId: string };
+type Props = {
+  horseId: string;
+  /** Owner team — upload and hard-delete. */
+  canManageDocuments?: boolean;
+};
 
 type DocumentRow = PublicHorseDocument & {
   userInitials: string;
@@ -52,14 +56,21 @@ const documentTypeFilterOptions = documentTypeEnums.map((dt) => ({
   label: dt.charAt(0).toUpperCase() + dt.slice(1),
 }));
 
-export function HorseDocumentsTableSection({ horseId }: Props) {
+export function HorseDocumentsTableSection({
+  horseId,
+  canManageDocuments = false,
+}: Props) {
   const t = useTranslations("horseDocuments");
   const tCommon = useTranslations("common");
   const tTypes = useTranslations("horseDocuments.types");
   const toast = useAppToast();
   const { data: docs = [], isPending, isError } = useHorseDocuments(horseId);
   const deleteMutation = useDeleteHorseDocument(horseId);
+  const deletionRequestMutation = useCreateDocumentDeletionRequest(horseId);
   const [deleteTarget, setDeleteTarget] = useState<PublicHorseDocument | null>(null);
+  const [deletionRequestTarget, setDeletionRequestTarget] = useState<PublicHorseDocument | null>(
+    null,
+  );
 
   const handleDownload = useCallback(
     async (doc: PublicHorseDocument) => {
@@ -97,6 +108,21 @@ export function HorseDocumentsTableSection({ horseId }: Props) {
           setDeleteTarget(null);
         },
         onError: () => toast.error(t("deleteError")),
+      },
+    );
+  }
+
+  function handleRequestDeletion() {
+    if (!deletionRequestTarget) return;
+
+    deletionRequestMutation.mutate(
+      { documentId: deletionRequestTarget.id },
+      {
+        onSuccess: () => {
+          toast.success(t("requestDeleteSuccess"));
+          setDeletionRequestTarget(null);
+        },
+        onError: () => toast.error(t("requestDeleteError")),
       },
     );
   }
@@ -209,19 +235,29 @@ export function HorseDocumentsTableSection({ horseId }: Props) {
               >
                 <Download className="h-4 w-4" />
               </TableIconAction>
-              <TableIconAction
-                onClick={() => setDeleteTarget(doc)}
-                title={t("delete")}
-                aria-label={t("delete")}
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </TableIconAction>
+              {canManageDocuments ? (
+                <TableIconAction
+                  onClick={() => setDeleteTarget(doc)}
+                  title={t("delete")}
+                  aria-label={t("delete")}
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </TableIconAction>
+              ) : (
+                <TableIconAction
+                  onClick={() => setDeletionRequestTarget(doc)}
+                  title={t("requestDelete")}
+                  aria-label={t("requestDelete")}
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </TableIconAction>
+              )}
             </div>
           );
         },
       },
     ],
-    [t, tTypes, handleDownload],
+    [t, tTypes, handleDownload, canManageDocuments],
   );
 
   if (isPending) {
@@ -257,6 +293,19 @@ export function HorseDocumentsTableSection({ horseId }: Props) {
         cancelLabel={tCommon("cancel")}
         isPending={deleteMutation.isPending}
         onConfirm={handleConfirmDelete}
+      />
+
+      <ConfirmDeleteDialog
+        open={deletionRequestTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletionRequestTarget(null);
+        }}
+        title={t("requestDeleteConfirm")}
+        description={t("requestDeleteConfirmDescription")}
+        confirmLabel={t("requestDelete")}
+        cancelLabel={tCommon("cancel")}
+        isPending={deletionRequestMutation.isPending}
+        onConfirm={handleRequestDeletion}
       />
     </>
   );

@@ -46,14 +46,14 @@ Open **one** guide for the kind of change. Open engineering only when you need k
 | [`engineering/stack.md`](engineering/stack.md) | aligned | Runtime, folders, API shape |
 | [`engineering/auth.md`](engineering/auth.md) | aligned | Cookies, JWT, Google bridge |
 | [`engineering/profile.md`](engineering/profile.md) | aligned | `PATCH /users/me`, preferences, deactivate |
-| [`engineering/users.md`](engineering/users.md) | drift | User hub/view; people-search |
-| [`engineering/userTabs.md`](engineering/userTabs.md) | drift | Account tabs (subscription) |
+| [`engineering/users.md`](engineering/users.md) | aligned | User hub/view |
+| [`engineering/userTabs.md`](engineering/userTabs.md) | aligned | Account tabs |
 | [`engineering/myGraph.md`](engineering/myGraph.md) | drift | `/home` inbox |
 | [`engineering/favorites.md`](engineering/favorites.md) | drift | `User.favorites` (not built) |
 | [`engineering/chat.md`](engineering/chat.md) | drift | User-to-user chat (not built) |
 | [`engineering/horses.md`](engineering/horses.md) | drift | Horse REST; ops writes |
 | [`engineering/horseTabs.md`](engineering/horseTabs.md) | aligned | Horse tab routes + `allowedTabs` |
-| [`engineering/stables.md`](engineering/stables.md) | drift | Stable REST; SaaS writes |
+| [`engineering/stables.md`](engineering/stables.md) | aligned | Stable REST (profile); ops greenfield |
 | [`engineering/later-modules.md`](engineering/later-modules.md) | aligned | Post-launch entity CRUD |
 | [`engineering/relationships.md`](engineering/relationships.md) | aligned | Horse ↔ provider |
 | [`engineering/workplace.md`](engineering/workplace.md) | aligned | User ↔ host collab |

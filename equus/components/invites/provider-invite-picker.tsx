@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronsUpDownIcon } from "lucide-react";
 
@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx";
 import { useAppToast } from "@/hooks/use-app-toast.ts";
+import { useDebouncedValue } from "@/hooks/use-debounced-value.ts";
 import { useDiscoverProviders } from "@/hooks/queries/useDiscover";
 import { useCreateRelationshipInvite } from "@/hooks/queries/useRelationship";
 import type { DiscoverProviderCard, DiscoverProviderType } from "@/lib/api/discoverClient";
@@ -34,6 +35,7 @@ export type ProviderInvitePickerProps = {
   relationshipType: DiscoverProviderType;
   disabled?: boolean;
   isPending?: boolean;
+  onInvited?: () => void;
 };
 
 export function ProviderInvitePicker({
@@ -42,6 +44,7 @@ export function ProviderInvitePicker({
   relationshipType,
   disabled = false,
   isPending = false,
+  onInvited,
 }: ProviderInvitePickerProps) {
   const t = useTranslations("invites.horseProviders");
   const tStatus = useTranslations("status");
@@ -49,7 +52,7 @@ export function ProviderInvitePicker({
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(open ? query : "", 300);
   const [showEmailFallback, setShowEmailFallback] = useState(false);
   const [invitedEmail, setInvitedEmail] = useState("");
   const [invitedName, setInvitedName] = useState("");
@@ -65,12 +68,6 @@ export function ProviderInvitePicker({
   const isSubmitting = createInvite.isPending;
   const isDisabled = disabled || isPending || isSubmitting;
 
-  useEffect(() => {
-    if (!open) return;
-    const handle = window.setTimeout(() => setDebouncedQuery(query), 300);
-    return () => window.clearTimeout(handle);
-  }, [open, query]);
-
   async function handleInviteByProfile(provider: DiscoverProviderCard) {
     if (inviteContext !== "horse") return;
 
@@ -84,6 +81,7 @@ export function ProviderInvitePicker({
         onSuccess: () => {
           toast.success(t("invited"));
           setOpen(false);
+          onInvited?.();
         },
         onError: (err) => {
           toast.error(err instanceof Error ? err.message : tStatus("requestFailed"));
@@ -108,6 +106,7 @@ export function ProviderInvitePicker({
           setInvitedEmail("");
           setInvitedName("");
           setShowEmailFallback(false);
+          onInvited?.();
         },
         onError: (err) => {
           toast.error(err instanceof Error ? err.message : tStatus("requestFailed"));

@@ -1,11 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ErrorBoundary } from "react-error-boundary";
 
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { HorseHistoryAuditSection } from "@/components/horses/history/horse-history-audit-section.tsx";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { Section } from "@/components/shared/section.tsx";
 
 type HistoryContentProps = {
@@ -18,9 +17,9 @@ export function HistoryContent({ horseId }: HistoryContentProps) {
   return (
     <HorsePageShell horseId={horseId} requireOwnership>
       <Section title={t("title")} description={t("description")} className="flex-1">
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+        <SectionErrorBoundary resetKeys={[horseId]}>
           <HorseHistoryAuditSection horseId={horseId} />
-        </ErrorBoundary>
+        </SectionErrorBoundary>
       </Section>
     </HorsePageShell>
   );

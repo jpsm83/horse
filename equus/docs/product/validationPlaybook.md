@@ -45,7 +45,7 @@ Most annoying daily work?
 One fix tomorrow?
 
 **Q4 — Current spend (stables)**  
-What they pay today for barn software / admin. Gold: already paying EquineM-class tools.
+What they pay today for stable software / admin. Gold: already paying EquineM-class tools.
 
 **Q5 — Walkthrough**  
 One real case: new horse arrives, monthly owner invoice, update to owner.
@@ -61,7 +61,7 @@ Rules: ask, stop talking, no feature pitch. “Maybe” = not a yes.
 Would you invite clients onto a **free** owner Hub so they stop pinging WhatsApp for records/invoices?
 
 **Q8 — Owners only**  
-Would you use a free app if the barn put care and invoices there? Any deal-breaker if the barn’s software lapsed and live data paused?
+Would you use a free app if the stable put care and invoices there? Any deal-breaker if the stable’s software lapsed and live data paused?
 
 **Do not ask owners** if they would pay Equus $99/horse.
 
@@ -164,6 +164,6 @@ Low pain; **stables** will not pay for SaaS; no urgency.
 
 Stables: “I lose invoices.” “Owners only live on WhatsApp.” “€99 for 12 horses is cheaper than the mess.”
 
-Owners: “If the barn is there I’ll open it.” “I don’t want another paid app.”
+Owners: “If the stable is there I’ll open it.” “I don’t want another paid app.”
 
 Walk away if: “We’re fine with WhatsApp” / “I won’t pay for software” (from **yards**).

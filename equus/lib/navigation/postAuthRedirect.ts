@@ -2,7 +2,7 @@
  * Post-auth navigation — safe in-app redirects after sign-in and sign-up.
  */
 
-/** Signed-in user's personal home hub (dashboard, quick actions, owned subsections). */
+/** Signed-in user's action inbox (pending invites). */
 export const USER_HOME_PATH = "/home";
 
 /** Account settings alias — redirects to `/user/{id}/profile`. */

@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { ErrorBoundary } from "react-error-boundary";
 import { Upload } from "lucide-react";
 
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { Section } from "@/components/shared/section.tsx";
 import { SectionTitleAction } from "@/components/shared/section-title-action.tsx";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { HorseDocumentsTableSection } from "@/components/horses/documents/horse-documents-table-section.tsx";
 import { HorseDocumentsUploadDialog } from "@/components/horses/documents/horse-documents-upload-dialog.tsx";
 
@@ -22,26 +21,37 @@ export function DocumentsContent({ horseId }: DocumentsContentProps) {
 
   return (
     <HorsePageShell horseId={horseId}>
-      <Section
-        title={t("documentsTitle")}
-        className="flex-1"
-        titleAddon={
-          <SectionTitleAction onClick={() => setUploadOpen(true)}>
-            <Upload className="size-3" />
-            {t("uploadButton")}
-          </SectionTitleAction>
-        }
-      >
-        <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
-          <HorseDocumentsTableSection horseId={horseId} />
-        </ErrorBoundary>
-      </Section>
+      {({ horse }) => (
+        <>
+          <Section
+            title={t("documentsTitle")}
+            className="flex-1"
+            titleAddon={
+              horse.isAdmin ? (
+                <SectionTitleAction onClick={() => setUploadOpen(true)}>
+                  <Upload className="size-3" />
+                  {t("uploadButton")}
+                </SectionTitleAction>
+              ) : undefined
+            }
+          >
+            <SectionErrorBoundary resetKeys={[horseId]}>
+              <HorseDocumentsTableSection
+                horseId={horseId}
+                canManageDocuments={horse.isAdmin === true}
+              />
+            </SectionErrorBoundary>
+          </Section>
 
-      <HorseDocumentsUploadDialog
-        horseId={horseId}
-        open={uploadOpen}
-        onOpenChange={setUploadOpen}
-      />
+          {horse.isAdmin ? (
+            <HorseDocumentsUploadDialog
+              horseId={horseId}
+              open={uploadOpen}
+              onOpenChange={setUploadOpen}
+            />
+          ) : null}
+        </>
+      )}
     </HorsePageShell>
   );
 }

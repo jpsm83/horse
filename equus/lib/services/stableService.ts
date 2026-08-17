@@ -12,6 +12,8 @@ import WorkplaceRelationship from "@/models/WorkplaceRelationship.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { ownedByUserQuery, userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
+import { buildDefaultEntitySubscription } from "@/lib/billing/entitySubscription.ts";
+import { assertStableWriteAllowed } from "@/lib/billing/entityWriteGuard.ts";
 import type { z } from "zod";
 import type {
   createStableSchema,
@@ -132,6 +134,8 @@ async function hasActiveStableCollaboration(
 export async function createStable(actorUserId: string, input: CreateStableInput) {
   ensureObjectId(actorUserId, "user id");
 
+  const defaultSubscription = buildDefaultEntitySubscription("EUR");
+
   const stable = await Stable.create({
     mainOwnerUserId: actorUserId,
     tradeName: input.tradeName,
@@ -139,6 +143,7 @@ export async function createStable(actorUserId: string, input: CreateStableInput
     email: input.email,
     phoneNumber: input.phoneNumber,
     address: input.address,
+    subscription: defaultSubscription,
     ...(input.legalName ? { legalName: input.legalName } : {}),
     ...(input.websiteUrl ? { websiteUrl: input.websiteUrl } : {}),
     ...(input.disciplines ? { disciplines: input.disciplines } : {}),
@@ -159,6 +164,8 @@ export async function updateStableDiscovery(
 ) {
   ensureObjectId(actorUserId, "user id");
   ensureObjectId(stableId, "stable id");
+
+  await assertStableWriteAllowed(stableId);
 
   const stable = await Stable.findOne({
     _id: stableId,
@@ -187,6 +194,8 @@ export async function updateStableProfile(
 ) {
   ensureObjectId(actorUserId, "user id");
   ensureObjectId(stableId, "stable id");
+
+  await assertStableWriteAllowed(stableId);
 
   const stable = await Stable.findOne({
     _id: stableId,

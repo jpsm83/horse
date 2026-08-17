@@ -81,7 +81,7 @@ Guest: Hub only (per `allowedTabs`).
 | H-OWN-05 | Owner/co-owner authorization for discovery PATCH and sensitive fields | Beyond | done |
 | H-OWN-06 | Transfer / co-owner lifecycle via `OwnershipTransfer` | Beyond | done |
 | H-OWN-07 | Responsible persons (`responsibles[]`) | New | done |
-| H-OWN-08 | **Waiting-transfer:** barn-created horse; flag; owner email required; daily nag until claim | Beyond | planned |
+| H-OWN-08 | **Waiting-transfer:** stable-created horse; flag; owner email required; daily nag until claim | Beyond | planned |
 
 Claim uses `transfer_main` (or equivalent accept). After claim: owner = `mainOwner`; stable = **host** `Relationship`. Equus **horse billing does not exist** — do not move an owner subscription.
 
@@ -125,7 +125,7 @@ Claim uses `transfer_main` (or equivalent accept). After claim: owner = `mainOwn
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
 | H-HUB-01 | Read-only social Hub (hero, about, media subset, pedigree, people) | Beyond | done |
-| H-HUB-02 | No ops, invoices, or care editing on Hub | Beyond | planned |
+| H-HUB-02 | No ops, invoices, or care editing on Hub | Beyond | done |
 
 ---
 
@@ -186,7 +186,7 @@ Writes for hosted horses are on **stable** (and later vet). Horse shows them on 
 | H-COM-01 | Open chat (user-to-user; horse context optional) — [`chat.md`](chat.md) | Beyond | planned |
 | H-COM-02 | Relationship and booking notifications | Beyond | planned |
 | H-COM-03 | Structured inquiries from discovery | Beyond | planned |
-| H-COM-05 | Waiting-transfer **daily nag** (barn user + invited owner) until claim | Beyond | planned |
+| H-COM-05 | Waiting-transfer **daily nag** (stable user + invited owner) until claim | Beyond | planned |
 
 ---
 

@@ -1,9 +1,8 @@
 /**
- * TanStack Query hooks for subscription billing data.
+ * TanStack Query hooks for stable entity subscription billing.
  *
- * `useBilling` reads current plan usage (`GET /api/v1/billing/current`).
- * `useCreateCheckout` opens a Stripe Checkout session for a tier.
- * `useStripePortal` opens the Stripe Customer Portal.
+ * `useEntityBilling` reads subscription state for a stable (`GET /api/v1/billing/current?stableId=`).
+ * Checkout and portal mutations require `stableId` in the body.
  */
 
 "use client";
@@ -12,49 +11,53 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { fetchWithAuth, parseApiResponse } from "@/lib/api/fetchWithAuth";
 import { queryKeys } from "@/lib/api/queryKeys";
-import type { TierId } from "@/lib/billing/plans";
-
-type BillingUsage = {
-  current: number;
-  limit: number;
-  tierId: TierId;
-  remaining: number;
-};
+import type { EntityBillingDto } from "@/lib/billing/entitySubscription.ts";
+import type { BillingCurrencyCode } from "@/lib/billing/entityCatalog.ts";
 
 type CheckoutResponse = { url: string };
 
-export type { BillingUsage };
-
-async function fetchBilling(): Promise<BillingUsage> {
-  const response = await fetchWithAuth("/api/v1/billing/current");
-  return parseApiResponse<BillingUsage>(response);
+async function fetchEntityBilling(stableId: string): Promise<EntityBillingDto> {
+  const response = await fetchWithAuth(
+    `/api/v1/billing/current?stableId=${encodeURIComponent(stableId)}`,
+  );
+  return parseApiResponse<EntityBillingDto>(response);
 }
 
-export function useBilling(enabled = true) {
+export function useEntityBilling(stableId: string, enabled = true) {
   return useQuery({
-    queryKey: queryKeys.billing.current,
-    queryFn: fetchBilling,
+    queryKey: queryKeys.billing.entity(stableId),
+    queryFn: () => fetchEntityBilling(stableId),
     staleTime: 30_000,
-    enabled,
+    enabled: enabled && Boolean(stableId),
   });
 }
 
-export function useCreateCheckout() {
+export function useCreateEntityCheckout() {
   return useMutation({
-    mutationFn: (tierId: TierId) =>
+    mutationFn: ({
+      stableId,
+      currency = "EUR",
+    }: {
+      stableId: string;
+      currency?: BillingCurrencyCode;
+    }) =>
       fetchWithAuth("/api/v1/billing/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tierId }),
+        body: JSON.stringify({ stableId, currency }),
       }).then((response) => parseApiResponse<CheckoutResponse>(response)),
   });
 }
 
-export function useStripePortal() {
+export function useEntityStripePortal() {
   return useMutation({
-    mutationFn: () =>
-      fetchWithAuth("/api/v1/billing/portal", { method: "POST" }).then((response) =>
-        parseApiResponse<CheckoutResponse>(response),
-      ),
+    mutationFn: (stableId: string) =>
+      fetchWithAuth("/api/v1/billing/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stableId }),
+      }).then((response) => parseApiResponse<CheckoutResponse>(response)),
   });
 }
+
+export type { EntityBillingDto };

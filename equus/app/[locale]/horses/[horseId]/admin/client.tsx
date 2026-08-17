@@ -3,11 +3,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
-import { ErrorBoundary } from "react-error-boundary";
 import { useForm, useFormState } from "react-hook-form";
 import { Plus, UserCog } from "lucide-react";
 
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { HorseAdminRoleInviteDialog } from "@/components/horses/admin/horse-admin-role-invite-dialog.tsx";
 import { HorseCoOwnerManagementSection } from "@/components/horses/admin/horse-co-owner-management-section.tsx";
 import { HorseOwnershipChangeDialog } from "@/components/horses/admin/horse-ownership-change-dialog.tsx";
@@ -19,7 +18,10 @@ import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { HorseSectionVisibility } from "@/components/horses/shared/horse-section-visibility.tsx";
 import { Section } from "@/components/shared/section.tsx";
 import { SectionTitleAction } from "@/components/shared/section-title-action.tsx";
-import { useUnsavedChanges } from "@/components/shared/unsaved-changes-context.tsx";
+import {
+  useSetUnsavedDiscardHandler,
+  useUnsavedChanges,
+} from "@/components/shared/unsaved-changes-context.tsx";
 import { Button } from "@/components/ui/button";
 import type { OwnerHorseSummary } from "@/lib/services/horseService.ts";
 import { normalizeHubSections } from "@/lib/horses/hubSections.ts";
@@ -65,6 +67,7 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
   const toast = useAppToast();
   const updateHorseSale = useUpdateHorseSale();
   const updateVisibility = useUpdateHorseVisibility();
+  const setDiscardHandler = useSetUnsavedDiscardHandler();
   const { setDirty, setSaving } = useUnsavedChanges();
 
   const [proactiveInviteOpen, setProactiveInviteOpen] = useState(false);
@@ -73,22 +76,6 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
 
   const hubSections = normalizeHubSections(horse.hubSections);
   const isMainOwner = horse.isMainOwner === true;
-
-  const inviteSectionLabels = useMemo(
-    () => ({
-      searchPlaceholder: t("searchPlaceholder"),
-      inviteLabel: t("inviteLabel"),
-      searchingLabel: t("searchingLabel"),
-      searchErrorLabel: t("searchErrorLabel"),
-      noResultsLabel: t("noResultsLabel"),
-      emailFallbackToggle: t("emailFallbackToggle"),
-      emailFallbackHint: t("emailFallbackHint"),
-      emailLabel: t("emailLabel"),
-      sendEmailInvite: t("sendEmailInvite"),
-      cancelLabel: t("cancel"),
-    }),
-    [t],
-  );
 
   const formMessages = useMemo(
     () => horseFormMessagesFromTranslations(tSale),
@@ -118,6 +105,12 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
   useEffect(() => {
     setSaving(isSaving);
   }, [isSaving, setSaving]);
+
+  useEffect(() => {
+    setDiscardHandler?.(() => {
+      form.reset(toSaleFormValues(horse));
+    });
+  }, [setDiscardHandler, form, horse]);
 
   async function onSave(values: SaleFormValues) {
     const salePatch = buildSaleSavePatch(
@@ -158,9 +151,9 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
           title={tProfile("sections.visibility")}
           description={tProfile("sectionDescriptions.visibility")}
         >
-          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <SectionErrorBoundary resetKeys={[horseId]}>
             <HorseVisibilitySection control={form.control} />
-          </ErrorBoundary>
+          </SectionErrorBoundary>
         </Section>
 
         <Section
@@ -184,11 +177,9 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
           }
         >
           <div className="min-h-0 flex-1 overflow-auto">
-            <ErrorBoundary
-              fallbackRender={(p) => <InlineErrorFallback {...p} />}
-            >
+            <SectionErrorBoundary resetKeys={[horseId]}>
               <HorseOwnershipManagementSection horseId={horseId} />
-            </ErrorBoundary>
+            </SectionErrorBoundary>
           </div>
         </Section>
       </div>
@@ -208,14 +199,12 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
           }
         >
           <div className="min-h-0 flex-1 overflow-auto">
-            <ErrorBoundary
-              fallbackRender={(p) => <InlineErrorFallback {...p} />}
-            >
+            <SectionErrorBoundary resetKeys={[horseId]}>
               <HorseValueSection
                 control={form.control}
                 acquisitionSourceUser={horse.acquisitionSourceUser}
               />
-            </ErrorBoundary>
+            </SectionErrorBoundary>
           </div>
         </Section>
 
@@ -240,9 +229,9 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
             />
           }
         >
-          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <SectionErrorBoundary resetKeys={[horseId]}>
             <HorseProactiveRepresentativesSection horseId={horseId} />
-          </ErrorBoundary>
+          </SectionErrorBoundary>
         </Section>
 
         <Section
@@ -266,9 +255,9 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
             />
           }
         >
-          <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+          <SectionErrorBoundary resetKeys={[horseId]}>
             <HorseCoOwnerManagementSection horseId={horseId} />
-          </ErrorBoundary>
+          </SectionErrorBoundary>
         </Section>
         <div className="flex justify-end">
           <Button
@@ -291,7 +280,6 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
         title={t("proactiveInviteDialogTitle")}
         description={t("proactiveInviteDialogDescription")}
         successMessage={t("proactiveInvited")}
-        inviteSectionLabels={inviteSectionLabels}
       />
 
       <HorseAdminRoleInviteDialog
@@ -302,7 +290,6 @@ function AdminForm({ horseId, horse }: AdminFormProps) {
         title={t("coOwnerInviteDialogTitle")}
         description={t("coOwnerInviteDialogDescription")}
         successMessage={t("coOwnerInvited")}
-        inviteSectionLabels={inviteSectionLabels}
       />
 
       <HorseOwnershipChangeDialog

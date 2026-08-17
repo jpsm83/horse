@@ -28,7 +28,7 @@ import { Ban, Send } from "lucide-react";
 
 type Props = { horseId: string };
 
-type ConnectionStatus = "accepted" | "pending" | "refused" | "ended";
+type ConnectionStatus = "accepted" | "pending" | "declined" | "ended";
 
 type ConnectionRow = {
   id: string;
@@ -39,6 +39,7 @@ type ConnectionRow = {
   name: string;
   email: string;
   since: string;
+  receiverAccountId?: string;
 };
 
 type ActionTarget = {
@@ -68,6 +69,11 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
     isError: isProvidersError,
   } = useHorseProviders(horseId, "accepted");
   const {
+    data: endedProviders = [],
+    isPending: isEndedPending,
+    isError: isEndedError,
+  } = useHorseProviders(horseId, "ended");
+  const {
     data: pendingRelationships = [],
     isPending: isRelationshipsPending,
     isError: isRelationshipsError,
@@ -77,9 +83,9 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
   const resendMutation = useCreateRelationshipInvite();
   const [actionTarget, setActionTarget] = useState<ActionTarget | null>(null);
 
-  const isPending = isProvidersPending || isRelationshipsPending;
+  const isPending = isProvidersPending || isEndedPending || isRelationshipsPending;
   const isActionPending = endMutation.isPending || cancelMutation.isPending || resendMutation.isPending;
-  const hasError = isProvidersError || isRelationshipsError;
+  const hasError = isProvidersError || isEndedError || isRelationshipsError;
 
   function formatStatus(status: ConnectionStatus): string {
     switch (status) {
@@ -87,7 +93,7 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
         return t("statusActive");
       case "pending":
         return t("statusPending");
-      case "refused":
+      case "declined":
         return t("statusRefused");
       case "ended":
         return t("statusEnded");
@@ -124,6 +130,7 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
       {
         horseId,
         relationshipType: row.type as Parameters<typeof resendMutation.mutate>[0]["relationshipType"],
+        receiverAccountId: row.receiverAccountId,
         invitedEmail: row.email !== "-" ? row.email : undefined,
         invitedName: row.name !== "-" ? row.name : undefined,
       },
@@ -244,7 +251,7 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
   );
 
   const rows: ConnectionRow[] = useMemo(() => {
-    const allRelationships = [...currentProviders, ...pendingRelationships];
+    const allRelationships = [...currentProviders, ...endedProviders, ...pendingRelationships];
     return allRelationships.map((rel) => {
       const name = rel.receiverLabel ?? rel.invitedEmail ?? "-";
       const email = rel.invitedEmail ?? "-";
@@ -256,14 +263,17 @@ export function HorseConnectionsTableSection({ horseId }: Props) {
         status: rel.status as ConnectionStatus,
         name,
         email,
-        since: rel.respondedAt
-          ? new Date(rel.respondedAt).toLocaleDateString()
-          : rel.requestedAt
-            ? new Date(rel.requestedAt).toLocaleDateString()
-            : "-",
+        receiverAccountId: rel.receiverAccountId,
+        since: rel.endedAt
+          ? new Date(rel.endedAt).toLocaleDateString()
+          : rel.respondedAt
+            ? new Date(rel.respondedAt).toLocaleDateString()
+            : rel.requestedAt
+              ? new Date(rel.requestedAt).toLocaleDateString()
+              : "-",
       };
     });
-  }, [currentProviders, pendingRelationships]);
+  }, [currentProviders, endedProviders, pendingRelationships]);
 
   if (isPending) {
     return <HorseConnectionsTableSkeleton />;

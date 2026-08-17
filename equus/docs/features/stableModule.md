@@ -19,7 +19,7 @@ Living document for planning, updating, and tracking **stable-facing** capabilit
 5. **Collaborators are Users** — `WorkplaceRelationship`. No `Business` login. Until vet/trainer **modules** ship, those people collaborate as Users.
 6. **Two hosting paths** — owner invites stable **or** stable creates a boarded horse (waiting-transfer + nags). See [`horseModule.md`](horseModule.md) H-OWN-08.
 7. **Roster feeds the meter** — current hosted + waiting-transfer. Price on the entity is overridable; adding a horse does not auto-charge.
-8. **EquineM parity + graph** — match barn ops; exceed with independent accounts, discovery, horse-scoped reviews, free owner Hub.
+8. **EquineM parity + graph** — match stable ops; exceed with independent accounts, discovery, horse-scoped reviews, free owner Hub.
 9. **Stable list default = mine** (owned or collaborating). Discovery and Favorites are filters.
 
 ---
@@ -116,7 +116,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 
 **Policy:** collaborators are **Users** (same signup as everyone). There is no business login. A stable is a **role profile** on the owning User's account. The profile owner invites a User; on accept, a **WorkplaceRelationship** links that User to the stable profile and the collaboration id is added to `Stable.collaborators[]`.
 
-**Barn staff on hosted horses:** a collaborator may act on a horse when (1) active collaboration at this stable **and** (2) accepted horse ↔ stable `Relationship`. No separate groom↔horse link required. See [`workplaceRelationship.md`](workplaceRelationship.md).
+**Stable staff on hosted horses:** a collaborator may act on a horse when (1) active collaboration at this stable **and** (2) accepted horse ↔ stable `Relationship`. No separate groom↔horse link required. See [`workplaceRelationship.md`](workplaceRelationship.md).
 
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
@@ -131,7 +131,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | S-TEAM-09 | **Multi-stable:** same User, multiple collaborations | Beyond | planned |
 | S-TEAM-10 | Cross-stable schedule conflict awareness | Beyond | planned |
 | S-TEAM-11 | Assign activities/jobs to Users via active collaboration | Parity | planned |
-| S-TEAM-12 | External providers (vet, farrier) as ecosystem profiles — direct horse link or barn path | Beyond | planned |
+| S-TEAM-12 | External providers (vet, farrier) as ecosystem profiles — direct horse link or stable path | Beyond | planned |
 | S-TEAM-13 | Collaborator scheduling / availability per collaboration | Parity | planned |
 | S-TEAM-14 | Track full/half day absence vs default schedule | Parity | planned |
 | S-TEAM-15 | Monthly overview of collaborators at stable | Parity | planned |
@@ -164,7 +164,7 @@ Update status as work progresses. Add rows freely; keep IDs stable once referenc
 | S-FEED-01 | Feed schedule per horse | Parity | planned |
 | S-FEED-02 | Feed types and default quantities | Parity | planned |
 | S-FEED-03 | Supplements in schedule | Parity | planned |
-| S-FEED-04 | Barn-visible feed overview for staff | Parity | planned |
+| S-FEED-04 | Stable-visible feed overview for staff | Parity | planned |
 | S-FEED-05 | Adjust schedule from anywhere | Parity | planned |
 | S-FEED-06 | Automatic historical log of what each horse received | Parity | planned |
 | S-FEED-07 | Feed inventory tracking | Parity | planned |
@@ -254,7 +254,7 @@ Cross-module production gate: [`mvpScope.md`](../product/mvpScope.md) — **User
 
 - [ ] Stable can create profile, roster horses, and operate daily care/activity/feed/facility/finance workflows at EquineM parity
 - [ ] Advanced analytics (occupancy, revenue forecasting) available as part of stable financial/operations tooling (S-FIN-16)
-- [ ] Owner invite **and** barn-created waiting-transfer; accept flow in minutes
+- [ ] Owner invite **and** stable-created waiting-transfer; accept flow in minutes
 - [ ] Entity subscription in good standing for writes; write-lock does not hide owner history
 - [ ] Owner sees only their horses; invoices/events display on horse Documents/Planning
 - [ ] Established relationships retain history and owner access after horse departs
@@ -275,7 +275,7 @@ These rows **add** market-derived gaps not already covered as named IDs above. T
 | ID | Feature | Market source | Status |
 |----|---------|---------------|--------|
 | S-FD-01 | Stall assignment UI (boxes 1–N) with horse + emergency contacts | Equestrian App StallPros | planned |
-| S-FD-02 | Multiple barns / turnouts under one stable profile | Equestrian App | planned |
+| S-FD-02 | Multiple yards / turnouts under one stable profile | Equestrian App | planned |
 | S-FD-03 | Digital whiteboard daily board: real-time task list visible to whole team (mobile + web) | HippoVibe | planned |
 | S-FD-04 | Bulk move / copy / delete of planned tasks | Equicty interactive planning | planned |
 | S-FD-05 | Staff schedule (roster of who works when) alongside horse activities | HippoVibe staff schedule | planned |
@@ -306,6 +306,6 @@ These rows **add** market-derived gaps not already covered as named IDs above. T
 | 2026-08-16 | Align with product: entity pays; two hosting paths; write-lock ≠ delete; **removed** free-stable, owner-pays, commission rows |
 | 2026-07-24 | §12 First delivery market backlog (stable SaaS) from `equus/docs/product/benchMarket/webapps.md` / `equus/docs/product/firstDeliveryCompetitiveBacklog.md` |
 | 2026-06-30 | Removed post-launch / out-of-scope section; analytics promoted to S-FIN-16 (required for stable) |
-| 2026-06-29 | Collaborators as Users; WorkplaceRelationship + Stable.collaborators; barn staff horse access rules |
+| 2026-06-29 | Collaborators as Users; WorkplaceRelationship + Stable.collaborators; stable staff horse access rules |
 | 2026-06-29 | Staff policy: invite/accept; multi-stable employment |
 | 2026-06-29 | Initial specification from EquineM parity (now in `equus/docs/product/benchMarket/webapps.md` §12) + business plan stable module |

@@ -28,22 +28,22 @@ lib/services/__tests__/ownershipTransferService.transferMain.test.ts
 
 ### Shared harness (keep centralized)
 
-`tests/` is only for setup and fixtures that many suites share — not a second copy of the source tree.
+Shared setup and fixtures are not a second copy of the source tree:
 
 ```
-tests/setup.ts
-tests/helpers/businessRoleFixtures.ts
+vitest.setup.ts
+models/__tests__/helpers/businessRoleFixtures.ts
 ```
 
-Integration tests use `mongodb-memory-server` via `tests/setup.ts`.
+Integration tests use `mongodb-memory-server` via `vitest.setup.ts`. Cross-cutting guards that scan the whole tree live next to the closest owning module (`lib/__tests__/`, `lib/theme/__tests__/`).
 
 ### Rules
 
 - Folder name is **`__tests__`**, not `__test__`.
-- Never import `__tests__/` from app, `lib/`, or route code.
+- Never import `__tests__/` from app, `lib/`, or route code. Other test files may import shared fixtures from `models/__tests__/helpers/`.
 - Do not put tests inside shadcn files under `components/ui/` unless Equus owns that file.
 - Prefer `__tests__/` beside `lib/` (or a private `_` folder) over scattering tests as if they were App Router pages.
 
 ### Migration
 
-Existing files under `tests/lib/`, `tests/components/`, `tests/app/`, etc. still run until moved. **New tests follow `__tests__/`.** When you touch a module, move its tests into that module’s `__tests__/` folder and update Vitest include if needed. Do not mix sibling `*.test.ts` next to source, `__tests__/`, and the old mirror for the same module.
+Do not add a top-level `tests/` tree. **New tests follow `__tests__/`.** Do not mix sibling `*.test.ts` next to source and `__tests__/` for the same module.

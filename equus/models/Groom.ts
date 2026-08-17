@@ -1,7 +1,7 @@
 /**
  * Groom model — position-linked role profile for users who provide grooming services.
  *
- * One Groom per User (`User.groomProfileId`). Barn work uses `WorkplaceRelationship`;
+ * One Groom per User (`User.groomProfileId`). Stable work uses `WorkplaceRelationship`;
  * direct owner requests use horse `Relationship` (type groom).
  */
 

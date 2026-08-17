@@ -19,7 +19,7 @@ Living document for planning, updating, and tracking **user identity, roles, pri
 5. **Two ownership patterns** — entity-owned (`mainOwnerUserId`) vs user-linked (`*ProfileId`). Helpers: `lib/ownership/entityOwnership.ts`.
 6. **Layered discovery** — User privacy vs role-profile `isPublic` vs horse visibility.
 7. **Entity-first discovery** — no global find-people directory.
-8. **Two access paths** — horse `Relationship` vs `WorkplaceRelationship`. Barn staff need both gates.
+8. **Two access paths** — horse `Relationship` vs `WorkplaceRelationship`. Stable staff need both gates.
 9. **Two horse-hosting invite paths** — owner invites stable **or** stable creates boarded horse (waiting-transfer). Hosts still invite **service Users** via workplace only.
 10. **Favorites** on User — [`favorites.md`](favorites.md). **Chat** user-to-user — [`chat.md`](chat.md).
 11. **Multi-role** — one User may own horses, operate a paid stable, and collaborate elsewhere.
@@ -238,14 +238,14 @@ Create routes: canonical `/<entity>/new` pattern — `/horses/new`, `/trainers/n
 | Consent | Horse owner / receiving party per type | Invited User accepts |
 | Example | Owner accepts Dr. Lee (vet) for Comet at home | Carla (groom) collaborates at Sunrise Stable |
 
-### Barn staff access (locked policy)
+### Stable staff access (locked policy)
 
 A **collaborator** at a stable may write operational data on a hosted horse when **both**:
 
 1. Active `WorkplaceRelationship` between the User and that stable profile.
 2. Accepted `Relationship` (`relationshipType: stable`) between the horse and that stable.
 
-No separate groom↔horse `Relationship` is required for barn staff on hosted horses.
+No separate groom↔horse `Relationship` is required for stable staff on hosted horses.
 
 **Direct providers** (e.g. vet at owner's home) need only an accepted horse `Relationship` for that provider type.
 
@@ -266,7 +266,7 @@ No separate groom↔horse `Relationship` is required for barn staff on hosted ho
 | ID | Feature | Parity | Status |
 |----|---------|--------|--------|
 | U-ACCESS-01 | Horse ↔ provider `Relationship` model and enums | Beyond | done |
-| U-ACCESS-02 | Barn staff dual-gate policy documented and enforced in services | Beyond | done |
+| U-ACCESS-02 | Stable staff dual-gate policy documented and enforced in services | Beyond | done |
 | U-ACCESS-03 | Relationship send / accept / decline APIs | Beyond | done |
 | U-ACCESS-04 | Email invitation for unregistered party on relationship | Beyond | done |
 | U-ACCESS-05 | Non-public role discovery bypass via accepted horse relationship only | Beyond | done |
@@ -304,7 +304,7 @@ Role-profile discovery is **per document**, not per User. Business contact lives
 
 **Entity-owned** — `isPublic` (default `true`); when `false`, visible to owner/co-owner, active collaborators, and users with accepted horse ↔ entity `Relationship`. Optional operational flags (`acceptsNewHorses`, `acceptsNewBookings`, etc.) vary by type.
 
-**User-linked** — `isPublic` (default `true`); when `false`, visible to profile owner (`userId`) and users with accepted horse ↔ role `Relationship`. Barn `WorkplaceRelationship` is **operational only** — not a discovery bypass for non-public listings.
+**User-linked** — `isPublic` (default `true`); when `false`, visible to profile owner (`userId`) and users with accepted horse ↔ role `Relationship`. Stable `WorkplaceRelationship` is **operational only** — not a discovery bypass for non-public listings.
 
 | Role | Ownership | Discovery doc | Baseline API |
 |------|-----------|---------------|--------------|
@@ -345,7 +345,7 @@ Cross-module production gate: [`mvpScope.md`](../product/mvpScope.md) — **User
 - [ ] User privacy preferences enforced on personal and delegated horse contact
 - [x] Public user profile (`GET /api/v1/users/:id`, `/users/[userId]`) respects `profileVisibility` for all audiences (U-PRIV-05)
 - [ ] Workplace invite → accept → hierarchy; collaborator never gains entity ownership
-- [ ] Barn staff horse access follows dual-gate policy
+- [ ] Stable staff horse access follows dual-gate policy
 - [ ] Horse ↔ provider invite **and** waiting-transfer claim
 - [ ] Create web flows for **horse + stable** (trainer/vet as **profiles/collab**, not launch SaaS)
 - [ ] Home inbox ([`myGraph.md`](myGraph.md)); horse/stable lists default **mine**; favorites filter

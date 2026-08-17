@@ -1,15 +1,9 @@
-import type { Metadata } from "next";
-
-import { SubscriptionClient } from "./client";
-import { generatePublicMetadata } from "@/lib/seo/metadata-factory.ts";
+import { redirect } from "@/i18n/navigation.ts";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+/** Legacy owner-tier route — billing lives on Stable Admin (Block 26). */
+export default async function SubscriptionPage({ params }: PageProps) {
   const { locale } = await params;
-  return generatePublicMetadata(locale, "/subscription", "metadata.subscription");
-}
-
-export default function SubscriptionPage() {
-  return <SubscriptionClient />;
+  redirect({ href: "/home", locale });
 }

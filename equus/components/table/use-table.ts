@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import {
   useReactTable,
@@ -40,9 +40,7 @@ export function useEnhancedTable<TData = Record<string, unknown>>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
-  // Non-DOM: drag-in-progress flag shared across native drag events without
-  // causing re-renders on every dragEnter/Leave.
-  const dragActive = useRef(false);
+  const [suppressHeaderClick, setSuppressHeaderClick] = useState(false);
 
   const handleSortingChange = useCallback(
     (updater: SortingState | ((prev: SortingState) => SortingState)) => {
@@ -107,7 +105,7 @@ export function useEnhancedTable<TData = Record<string, unknown>>({
 
   const handleDragStart = useCallback(
     (e: React.DragEvent, columnId: string) => {
-      dragActive.current = true;
+      setSuppressHeaderClick(true);
       setDraggedColumn(columnId);
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("text/plain", columnId);
@@ -152,7 +150,7 @@ export function useEnhancedTable<TData = Record<string, unknown>>({
   );
 
   const handleDragEnd = useCallback(() => {
-    dragActive.current = true;
+    setSuppressHeaderClick(true);
     setDraggedColumn(null);
   }, []);
 
@@ -184,6 +182,7 @@ export function useEnhancedTable<TData = Record<string, unknown>>({
     handleDrop,
     handleDragEnd,
     resetColumns,
-    dragActive,
+    suppressHeaderClick,
+    clearSuppressHeaderClick: () => setSuppressHeaderClick(false),
   };
 }

@@ -24,4 +24,4 @@ Horse owner / co-owner **only** creates. Provider accepts/declines. Provider-ini
 
 Entity-owned types (`stable`, `breeder`, `ridingClub`, `transport`) require `receiverAccountId`. Email: `sendRelationshipInviteEmail` (`/signup?ref=` or `/relationships?relationship=`).
 
-Barn staff ops dual-gate: [`workplace.md`](workplace.md).
+Stable staff ops dual-gate: [`workplace.md`](workplace.md).

@@ -293,6 +293,19 @@ export const expenseCategoryEnums = [
 
 export const tierEnums = ["free", "bronze", "silver", "gold", "diamond"] as const;
 
+/** Stable entity subscription catalog bands (see product/monetization.md). */
+export const catalogBandEnums = ["starter", "small", "medium", "large", "scale"] as const;
+
+export const entitySubscriptionStatusEnums = [
+  "trialing",
+  "active",
+  "past_due",
+  "write_locked",
+  "canceled",
+] as const;
+
+export const billingCurrencyEnums = ["EUR", "USD", "GBP"] as const;
+
 export const horseBreedEnums = [
   "Akhal-Teke",
   "American Paint Horse",

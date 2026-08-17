@@ -45,7 +45,6 @@ export function UserLayoutChrome({ userId, children }: UserLayoutChromeProps) {
           notifications: tAccount("notifications"),
           workplace: tAccount("workplaces"),
           relationships: tAccount("relationships"),
-          subscription: tAccount("subscription"),
         })}
         isAdmin
         isPending={isAuthLoading || isViewLoading}

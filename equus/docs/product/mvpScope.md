@@ -49,7 +49,7 @@ Aligned with `equus/docs/engineering/stack.md`:
 
 ## Build goal (wedge)
 
-Become indispensable **daily barn software** for Spanish stables, with owners on a **free Hub + chat + portal**. Success is operational usage, not vanity signups.
+Become indispensable **daily stable software** for Spanish stables, with owners on a **free Hub + chat + portal**. Success is operational usage, not vanity signups.
 
 ---
 
@@ -69,7 +69,7 @@ Target: ~8–10 weeks after validation ([`validationPlaybook.md`](validationPlay
 
 #### Horse
 - Create profile (identity, photos, visibility, contact display)
-- `mainOwnerUserId` + waiting-transfer flag when barn-created
+- `mainOwnerUserId` + waiting-transfer flag when stable-created
 - Hub (social) + timeline for relationship-scoped activity
 - Documents via Cloudinary
 
@@ -164,13 +164,13 @@ Target: ~4–6 weeks after 1A pilot feedback.
 
 - [ ] One User operates horses and/or a stable under one login
 - [ ] Horse is the shared record; owners see only their horses
-- [ ] Stable runs daily barn workflows per `stableModule.md`
+- [ ] Stable runs daily stable workflows per `stableModule.md`
 - [ ] **Stable pays** (catalog or custom); owners **never** pay Equus
 - [ ] Owner portal live only in entity good standing
 - [ ] Established relationships permanent; history after `ended`
 - [ ] Workplace collab; same user at two stables
 - [ ] Horse-scoped reviews
-- [ ] Both relationship start paths (owner invite + barn create + claim)
+- [ ] Both relationship start paths (owner invite + stable create + claim)
 
 ### Post-launch modules (not launch gate)
 
@@ -216,7 +216,7 @@ Veterinary, trainer, groomer, transport, breeder, riding club — each a module 
 
 ## Positioning (one line)
 
-> Stables pay for barn SaaS; owners get a free horse Hub, chat, and a live portal while the yard’s subscription is in good standing.
+> Stables pay for stable SaaS; owners get a free horse Hub, chat, and a live portal while the yard’s subscription is in good standing.
 
 ---
 

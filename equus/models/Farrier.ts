@@ -2,7 +2,7 @@
  * Farrier model — position-linked role profile for hoof-care providers.
  *
  * One Farrier per User (`User.farrierProfileId`). Horse access via direct `Relationship`
- * or barn path (collaboration + stable hosts horse).
+ * or stable path (collaboration + stable hosts horse).
  */
 
 import mongoose, { Schema, model } from "mongoose";

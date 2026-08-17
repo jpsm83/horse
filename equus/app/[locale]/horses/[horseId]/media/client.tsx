@@ -1,12 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ErrorBoundary } from "react-error-boundary";
 
+import { SectionErrorBoundary } from "@/components/errors/section-error-boundary.tsx";
 import { HorsePageShell } from "@/components/horses/horse-page-shell.tsx";
 import { HorseMediaGallerySection } from "@/components/horses/media/horse-media-gallery-section.tsx";
 import { HorseSectionVisibility } from "@/components/horses/shared/horse-section-visibility.tsx";
-import { InlineErrorFallback } from "@/components/errors/inline-error-fallback.tsx";
 import { Section } from "@/components/shared/section.tsx";
 import type { OwnerHorseSummary } from "@/lib/services/horseService.ts";
 import { normalizeHubSections } from "@/lib/horses/hubSections.ts";
@@ -47,12 +46,13 @@ function MediaSections({ horseId, horse }: MediaSectionsProps) {
         ) : undefined
       }
     >
-      <ErrorBoundary fallbackRender={(p) => <InlineErrorFallback {...p} />}>
+      <SectionErrorBoundary resetKeys={[horseId]}>
         <HorseMediaGallerySection
           horseId={horseId}
           sourceEntityType="horse"
+          canManageMedia={horse.isAdmin === true}
         />
-      </ErrorBoundary>
+      </SectionErrorBoundary>
     </Section>
   );
 }

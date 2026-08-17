@@ -1,7 +1,6 @@
 /**
  * UserPageContentSkeleton — body skeleton for all `/user/[userId]` sub-pages
- * (hub, profile, preferences, notifications, workplace, relationships,
- * subscription) and the public `/users/[userId]` page.
+ * (hub, profile, preferences, notifications, workplace, relationships)
  *
  * Used by each route's `loading.tsx` (SSR streaming) and by `UserPageShell` /
  * hub content while auth or view data is loading. Sharing one component means

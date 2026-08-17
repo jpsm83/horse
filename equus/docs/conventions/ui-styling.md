@@ -16,11 +16,11 @@
 - **Product themes** (color only): `default` (`:root`) and `onyx` (`html.theme-onyx`). Components reference colors only through semantic tokens (`text-primary`, `bg-muted`, `text-success`, `bg-card`, `text-destructive`, `bg-overlay`, …). Never raw Tailwind color names, `bg-black` / `text-white` / `bg-white`, or inline hex. Entity tab chrome uses `bg-nav-tab-background` / `text-nav-tab-foreground` (never `text-secondary` for text — that token is a background color).
 - **Overlays / scrims**: `bg-overlay` (with opacity modifiers), `bg-overlay-heavy`, `text-overlay-foreground`. Dialog/sheet backdrops are forced via `[data-slot="*-overlay"]` in `globals.css` so they survive `npm run ui:sync`.
 - **Badge bands**: table color-range badges use `--badge-band-*` tokens and `.badge-band-*` classes.
-- **Non-CSS contexts** (HTML email, Excel ARGB, browser `theme-color`): import hex from `lib/theme/nonCssColors.ts` only (mirrors **default** `:root`, not onyx). Sync is enforced by `tests/theme/nonCssColorsSync.test.ts`.
+- **Non-CSS contexts** (HTML email, Excel ARGB, browser `theme-color`): import hex from `lib/theme/nonCssColors.ts` only (mirrors **default** `:root`, not onyx). Sync is enforced by `lib/theme/__tests__/nonCssColorsSync.test.ts`.
 - **Adding a color**: add the CSS variable in `app/globals.css` (`@theme inline`, `:root`, `.theme-onyx`) before using it; add to `nonCssColors.ts` + extend the sync test if email/meta/export need it.
 - **Opacity via modifiers**: `bg-primary/5` — not on the variable definition.
 - **Allowlist**: Google brand fills in `components/icons/google-icon.tsx` only.
-- **Enforcement**: `tests/theme/colorCentralization.test.ts` + ESLint `no-restricted-syntax` on hex in `components/` / `app/` (except the Google icon).
+- **Enforcement**: `lib/theme/__tests__/colorCentralization.test.ts` + ESLint `no-restricted-syntax` on hex in `components/` / `app/` (except the Google icon).
 
 ## Toasts (mutation feedback)
 
