@@ -148,4 +148,10 @@ export const queryKeys = {
     list: (entityType?: string) =>
       [...queryKeys.favorites.all, "list", entityType ?? "all"] as const,
   },
+  chat: {
+    all: ["chat"] as const,
+    threads: () => [...queryKeys.chat.all, "threads"] as const,
+    messages: (threadId: string) => [...queryKeys.chat.all, "messages", threadId] as const,
+    blocks: () => [...queryKeys.chat.all, "blocks"] as const,
+  },
 };

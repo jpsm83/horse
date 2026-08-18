@@ -12,6 +12,7 @@ import {
   Hammer,
   ArrowRightLeft,
   Link2,
+  MessageSquare,
   PersonStanding,
   Sprout,
   Stethoscope,
@@ -35,7 +36,7 @@ export type NavigationEntityKey =
   | "farriers"
   | "riders";
 
-export type UserActivityMenuKey = "workplaces" | "relationships" | "ownershipTransfers";
+export type UserActivityMenuKey = "workplaces" | "relationships" | "ownershipTransfers" | "messages";
 
 export type NavigationLinkItem = {
   key: NavigationEntityKey;
@@ -51,6 +52,7 @@ export type UserActivityLinkItem = {
 
 /** Signed-in user hubs — collaborations, horse relationship invites, etc. */
 export const USER_ACTIVITY_LINKS: UserActivityLinkItem[] = [
+  { key: "messages", href: "/messages", icon: MessageSquare },
   { key: "workplaces", href: "/workplaces", icon: Briefcase },
   { key: "relationships", href: "/relationships", icon: Link2 },
   { key: "ownershipTransfers", href: "/ownership-transfers", icon: ArrowRightLeft },

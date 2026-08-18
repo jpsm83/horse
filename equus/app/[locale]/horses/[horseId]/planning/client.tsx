@@ -50,6 +50,7 @@ function PlanningSections({ horseId, horse }: PlanningSectionsProps) {
       <SectionErrorBoundary resetKeys={[horseId]}>
         <HorsePlanningCalendarSection
           horseId={horseId}
+          horseName={horse.name}
           isAdmin={horse.isAdmin === true}
         />
       </SectionErrorBoundary>

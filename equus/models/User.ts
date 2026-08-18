@@ -87,6 +87,15 @@ const userPreferencesSchema = new Schema(
   { _id: false },
 );
 
+/** Blocked users — unique per blocked user id. */
+const userBlockSchema = new Schema(
+  {
+    blockedUserId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+);
+
 /** Private entity shortcuts — horse and stable in v1; never Users. */
 const userFavoriteSchema = new Schema(
   {
@@ -177,6 +186,9 @@ const userSchema = new Schema(
     /** Private bookmarks for horses, stables, and future entity modules. */
     favorites: { type: [userFavoriteSchema], default: undefined },
 
+    /** Users this account has blocked from direct messaging. */
+    blocks: { type: [userBlockSchema], default: undefined },
+
     /** Auth lifecycle */
     emailVerified: { type: Boolean, default: false },
     verificationToken: { type: String, default: undefined },
@@ -236,6 +248,7 @@ userSchema.index({ verificationToken: 1 }, { sparse: true });
 userSchema.index({ resetPasswordToken: 1 }, { sparse: true });
 userSchema.index({ googleSubjectId: 1 }, { unique: true, sparse: true });
 userSchema.index({ _id: 1, "favorites.entityType": 1, "favorites.entityId": 1 });
+userSchema.index({ _id: 1, "blocks.blockedUserId": 1 });
 
 const User = mongoose.models.User || model("User", userSchema);
 export default User;

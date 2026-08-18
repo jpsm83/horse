@@ -11,7 +11,7 @@ import {
 } from "@/lib/horses/horseVisibilityAccess.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import { recordAudit } from "@/lib/services/horseAuditService.ts";
-import type { CreatePlanningEventInput } from "@/lib/validations/horsePlanningForms.ts";
+import { resolveEntityOperatorUserId } from "@/lib/chat/resolveEntityOperatorUserId.ts";
 
 export type PublicPlanningItem = {
   id: string;
@@ -25,6 +25,7 @@ export type PublicPlanningItem = {
   location?: string;
   sourceEntityType?: string;
   sourceEntityId?: string;
+  sourceOperatorUserId?: string;
   visibilityMode: string;
   createdAt: string;
 };
@@ -42,9 +43,25 @@ function toPublic(record: Record<string, unknown>): PublicPlanningItem {
     location: record.location as string | undefined,
     sourceEntityType: record.sourceEntityType as string | undefined,
     sourceEntityId: record.sourceEntityId ? String(record.sourceEntityId) : undefined,
+    sourceOperatorUserId: record.sourceOperatorUserId as string | undefined,
     visibilityMode: record.visibilityMode as string,
     createdAt: (record.createdAt as Date).toISOString(),
   };
+}
+
+async function enrichPlanningItem(record: Record<string, unknown>): Promise<PublicPlanningItem> {
+  const base = toPublic(record);
+  if (!base.sourceEntityId) {
+    return base;
+  }
+  const sourceOperatorUserId = await resolveEntityOperatorUserId(
+    base.sourceEntityType,
+    base.sourceEntityId,
+  );
+  if (!sourceOperatorUserId) {
+    return base;
+  }
+  return { ...base, sourceOperatorUserId };
 }
 
 /**
@@ -81,21 +98,23 @@ export async function listPlanning(
   const events = await HorseEvent.find(query).sort({ startDate: 1 }).lean();
 
   if (audience.isOwnerTeam) {
-    return events.map((item) => toPublic(item as Record<string, unknown>));
+    return Promise.all(events.map((item) => enrichPlanningItem(item as Record<string, unknown>)));
   }
 
   if (!canViewHorseHubSection(horseDoc, "planning", audience)) {
     return [];
   }
 
-  return events
-    .filter((item) =>
-      canAccessByItemVisibilityMode(
-        (item as Record<string, unknown>).visibilityMode as string | undefined,
-        audience,
-      ),
-    )
-    .map((item) => toPublic(item as Record<string, unknown>));
+  return Promise.all(
+    events
+      .filter((item) =>
+        canAccessByItemVisibilityMode(
+          (item as Record<string, unknown>).visibilityMode as string | undefined,
+          audience,
+        ),
+      )
+      .map((item) => enrichPlanningItem(item as Record<string, unknown>)),
+  );
 }
 
 export async function createPlanningItem(
@@ -127,7 +146,7 @@ export async function createPlanningItem(
     actionType: "event.created",
     description: `Event "${input.title}" scheduled`,
   }).catch(() => {});
-  return toPublic(event.toObject());
+  return enrichPlanningItem(event.toObject() as Record<string, unknown>);
 }
 
 export async function listProviderPlanning(
@@ -148,5 +167,5 @@ export async function listProviderPlanning(
     if (to) (query.startDate as Record<string, unknown>).$lte = new Date(to);
   }
   const events = await HorseEvent.find(query).sort({ startDate: 1 }).lean();
-  return events.map((item) => toPublic(item as Record<string, unknown>));
+  return Promise.all(events.map((item) => enrichPlanningItem(item as Record<string, unknown>)));
 }

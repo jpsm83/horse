@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { UserPageShell } from "@/components/user/user-page-shell.tsx";
 import { UserAppearanceSection } from "@/components/user/preferences/user-appearance-section.tsx";
 import { UserPrivacySection } from "@/components/user/preferences/user-privacy-section.tsx";
+import { UserBlockedUsersSection } from "@/components/user/preferences/user-blocked-users-section.tsx";
 import {
   useSetUnsavedDiscardHandler,
   useUnsavedChanges,
@@ -54,6 +55,7 @@ type PreferencesFormProps = {
 
 function PreferencesForm({ userId }: PreferencesFormProps) {
   const t = useTranslations("preferences");
+  const tMessages = useTranslations("messages");
   const tValidation = useTranslations("validation");
   const toast = useAppToast();
   const router = useRouter();
@@ -196,6 +198,12 @@ function PreferencesForm({ userId }: PreferencesFormProps) {
         >
           <SectionErrorBoundary>
             <UserPrivacySection control={form.control} />
+          </SectionErrorBoundary>
+        </Section>
+
+        <Section title={tMessages("blockedUsers")}>
+          <SectionErrorBoundary>
+            <UserBlockedUsersSection />
           </SectionErrorBoundary>
         </Section>
 

@@ -2,9 +2,9 @@
 - section visibility should be seen and control only by the owner or representative
 
 Step │ Planfile │ Whattodo
-1 │ equus/docs/superpowers/plans/2026-08-18-waiting-transfer.md │ Executefully
-2 │ equus/docs/superpowers/plans/2026-08-18-favorites.md │ Executefully
-3 │ equus/docs/superpowers/plans/2026-08-18-chat.md │ Executefully
+1 │ equus/docs/superpowers/plans/2026-08-18-waiting-transfer.md │ DONE
+2 │ equus/docs/superpowers/plans/2026-08-18-favorites.md │ DONE
+3 │ equus/docs/superpowers/plans/2026-08-18-chat.md │ DONE
 4 │ equus/docs/superpowers/plans/2026-08-18-stable-saas-ops.md │ Readonly(umbrella + shared setup rules)
 5 │ equus/docs/superpowers/plans/2026-08-18-stable-saas-roster.md │ Executefully
 6 │ equus/docs/superpowers/plans/2026-08-18-stable-saas-documents.md │ Executefully

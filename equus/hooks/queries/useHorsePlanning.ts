@@ -15,6 +15,7 @@ export type CalendarEvent = {
   location?: string;
   sourceEntityType?: string;
   sourceEntityId?: string;
+  sourceOperatorUserId?: string;
   backgroundColor?: string;
 };
 

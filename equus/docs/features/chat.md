@@ -18,7 +18,7 @@ Product: [`equus/docs/product/graph-and-identity.md`](../product/graph-and-ident
 
 | ID | Feature | Status |
 |----|---------|--------|
-| CHAT-01 | User-to-user threads (REST; Socket.io when UX requires) | planned |
-| CHAT-02 | Attach horse / entity / booking / planning-event context | planned |
-| CHAT-03 | Planning “reply” = chat + event, not comments or change-requests | planned |
-| CHAT-04 | Respect DM preference / blocks | planned |
+| CHAT-01 | User-to-user threads (REST; Socket.io when UX requires) | shipped |
+| CHAT-02 | Attach horse / entity / booking / planning-event context | shipped (text `contextPrefix` on first message) |
+| CHAT-03 | Planning “reply” = chat + event, not comments or change-requests | shipped |
+| CHAT-04 | Respect DM preference / blocks | shipped |

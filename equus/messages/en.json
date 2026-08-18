@@ -74,6 +74,7 @@
             "hub": "Hub",
             "preferences": "Preferences",
             "notifications": "Notifications",
+            "messages": "Messages",
             "workplaces": "Workplace",
             "relationships": "Relationships",
             "ownershipTransfers": "Ownership transfers",
@@ -1138,6 +1139,24 @@
         "next": "Next",
         "pageOf": "Page {page} of {total}"
     },
+    "messages": {
+        "title": "Messages",
+        "description": "Private conversations with other Equus users.",
+        "emptyThreads": "No conversations yet.",
+        "emptyMessages": "No messages in this conversation.",
+        "selectThread": "Select a conversation to start messaging.",
+        "threadWithUser": "User …{userId}",
+        "composerPlaceholder": "Write a message…",
+        "send": "Send",
+        "loadFailed": "Failed to load messages.",
+        "openFullPage": "Open messages",
+        "message": "Message",
+        "blockedUsers": "Blocked users",
+        "blockUser": "Block user",
+        "unblockUser": "Unblock",
+        "blockUserIdPlaceholder": "User ID to block",
+        "noBlockedUsers": "You have not blocked anyone."
+    },
     "stable": {
         "hub": {
             "title": "Stable",
@@ -2089,6 +2108,11 @@
         "notifications": {
             "title": "Notifications | Equus",
             "description": "View in-app alerts and activity updates for your Equus account.",
+            "keywords": ""
+        },
+        "messages": {
+            "title": "Messages | Equus",
+            "description": "Private conversations with other Equus users.",
             "keywords": ""
         },
         "notFound": {

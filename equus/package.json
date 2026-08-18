@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "tsx server.ts",
+    "dev:next": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "tsx server.ts",
+    "start:next": "next start",
     "lint": "eslint",
     "ui:sync": "shadcn add alert avatar button card checkbox dropdown-menu field input label separator sheet sidebar skeleton slider tooltip textarea select sonner --overwrite --yes",
     "test": "vitest run",
@@ -48,6 +50,8 @@
     "react-share": "^5.3.0",
     "react-spinners": "^0.17.0",
     "shadcn": "^4.11.0",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
     "sonner": "^2.0.7",
     "stripe": "^22.3.1",
     "tailwind-merge": "^3.6.0",
@@ -67,6 +71,7 @@
     "jsdom": "^29.1.1",
     "mongodb-memory-server": "^11.2.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "^5",
     "vitest": "^4.1.9"
   }

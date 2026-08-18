@@ -28,6 +28,8 @@ export { default as Booking } from "./Booking.ts";
 export { default as Invoice } from "./Invoice.ts";
 export { default as Document } from "./Document.ts";
 export { default as Notification } from "./Notification.ts";
+export { default as ChatThread } from "./ChatThread.ts";
+export { default as ChatMessage } from "./ChatMessage.ts";
 export { default as HorseEvent } from "./HorseEvent.ts";
 export { default as Media } from "./Media.ts";
 export { default as HorseAuditLog } from "./HorseAuditLog.ts";

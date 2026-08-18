@@ -11,10 +11,11 @@ import type { CalendarEvent } from "@/hooks/queries/useHorsePlanning.ts";
 
 type Props = {
   horseId: string;
+  horseName: string;
   isAdmin: boolean;
 };
 
-export function HorsePlanningCalendarSection({ horseId, isAdmin }: Props) {
+export function HorsePlanningCalendarSection({ horseId, horseName, isAdmin }: Props) {
   const t = useTranslations("horsePlanning");
   const { data: events = [], isPending, isError } = useHorsePlanning(horseId);
   const { data: providers = [] } = useHorseProviders(horseId, "accepted");
@@ -41,6 +42,7 @@ export function HorsePlanningCalendarSection({ horseId, isAdmin }: Props) {
   return (
     <HorseEventsCalendar
       horseId={horseId}
+      horseName={horseName}
       events={calendarEvents}
       isAdmin={isAdmin}
     />

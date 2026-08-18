@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { DISCOVER_LINKS } from "@/components/layout/navigation-config.ts";
+import { DISCOVER_LINKS, USER_ACTIVITY_LINKS } from "@/components/layout/navigation-config.ts";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -146,6 +146,18 @@ export function AppSidebar({ onHoverChange }: AppSidebarProps) {
             {/* Account actions — hidden when collapsed */}
             <div className="mt-2 space-y-0.5 group-data-[collapsible=icon]:hidden">
               <SidebarMenu>
+                {USER_ACTIVITY_LINKS.map(({ key, href, icon: Icon }) => (
+                  <SidebarMenuItem key={key}>
+                    <SidebarMenuButton
+                      render={<Link href={href} />}
+                      isActive={pathname === href || pathname.startsWith(`${href}/`)}
+                      tooltip={tAccount(key)}
+                    >
+                      <Icon className="size-4" />
+                      <span>{tAccount(key)}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     tooltip={tCommon("signOut")}
