@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-import mongoose from "mongoose";
 
 import Horse from "@/models/Horse.ts";
 import Notification from "@/models/Notification.ts";

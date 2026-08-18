@@ -70,6 +70,15 @@ const queryState = vi.hoisted(() => ({
     hierarchyLevel?: string;
   }>,
   workplacesPending: false,
+  waitingTransferHorses: [] as Array<{
+    horseId: string;
+    horseName: string;
+    hostStableId: string;
+    hostStableName?: string;
+    invitedOwnerEmail: string;
+    role: "provisional_owner" | "invited_owner";
+  }>,
+  waitingTransferPending: false,
 }));
 
 vi.mock("next-intl", () => ({
@@ -115,6 +124,10 @@ vi.mock("@/hooks/queries/useAuthData.ts", () => ({
   useWorkplaces: () => ({
     data: queryState.workplaces,
     isPending: queryState.workplacesPending,
+  }),
+  useWaitingTransferHorses: () => ({
+    data: queryState.waitingTransferHorses,
+    isPending: queryState.waitingTransferPending,
   }),
   useAcceptWorkplaceInvitation: () => ({ isPending: false, mutateAsync: vi.fn(async () => {}) }),
   useDeclineWorkplaceInvitation: () => ({ isPending: false, mutateAsync: vi.fn(async () => {}) }),
@@ -166,8 +179,10 @@ describe("HomeActionInbox", () => {
   beforeEach(() => {
     queryState.relationships = [];
     queryState.workplaces = [];
+    queryState.waitingTransferHorses = [];
     queryState.relationshipsPending = false;
     queryState.workplacesPending = false;
+    queryState.waitingTransferPending = false;
   });
 
   it("shows empty state with module links when there are no pending invites", () => {
