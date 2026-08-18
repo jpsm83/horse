@@ -15,6 +15,10 @@ vi.mock("@/lib/email/sendPedigreeConnectInviteEmail.ts", () => ({
   sendPedigreeConnectInviteEmail: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("@/lib/email/sendWaitingTransferNagEmail.ts", () => ({
+  sendWaitingTransferNagEmail: vi.fn().mockResolvedValue(undefined),
+}));
+
 let mongoServer: MongoMemoryServer | null = null;
 
 beforeAll(async () => {

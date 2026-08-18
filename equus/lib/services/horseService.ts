@@ -41,6 +41,7 @@ import HorseEvent from "@/models/HorseEvent.ts";
 import Relationship from "@/models/Relationship.ts";
 import * as relationshipService from "@/lib/services/relationshipService.ts";
 import * as ownershipTransferService from "@/lib/services/ownershipTransferService.ts";
+import { notifyWaitingTransferParties } from "@/lib/services/waitingTransferService.ts";
 
 export type CreateHorseInput = z.infer<typeof createHorseSchema>;
 export type UpdateHorseDiscoveryInput = z.infer<typeof updateHorseDiscoverySchema>;
@@ -479,12 +480,20 @@ export async function createHorse(actorUserId: string, input: CreateHorseInput) 
       actorUserId,
     });
 
-    await ownershipTransferService.createOwnershipTransfer(actorUserId, {
+    const transfer = await ownershipTransferService.createOwnershipTransfer(actorUserId, {
       entityType: "horse",
       entityId: String(horse._id),
       transferKind: "transfer_main",
       invitedEmail: input.waitingTransfer.invitedOwnerEmail.toLowerCase().trim(),
     });
+
+    void notifyWaitingTransferParties({
+      horseId: String(horse._id),
+      horseName: String(horseObject.name ?? "Horse"),
+      provisionalOwnerUserId: actorUserId,
+      invitedOwnerEmail: input.waitingTransfer.invitedOwnerEmail.toLowerCase().trim(),
+      ownershipTransferId: transfer.id,
+    }).catch(() => {});
   }
 
   return horseObject;

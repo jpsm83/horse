@@ -386,6 +386,19 @@ async function applyEntityOwnershipChange(
         throw new ApiError(400, "Receiver user is required to accept", "VALIDATION_ERROR");
       }
 
+      const updatePayload: Record<string, unknown> = {
+        $set: {
+          mainOwnerUserId: receiverUserId,
+          ...(entityType === "horse"
+            ? { acquisitionSourceUserId: mainOwnerUserId }
+            : {}),
+        },
+      };
+
+      if (entityType === "horse" && entity.waitingTransfer) {
+        updatePayload.$unset = { waitingTransfer: "" };
+      }
+
       const updated = await Model.findOneAndUpdate(
         {
           _id: entityId,
@@ -396,15 +409,7 @@ async function applyEntityOwnershipChange(
             { coOwners: null },
           ],
         },
-        {
-          $set: {
-            mainOwnerUserId: receiverUserId,
-            // The previous owner becomes the horse's acquisition source (read-only).
-            ...(entityType === "horse"
-              ? { acquisitionSourceUserId: mainOwnerUserId }
-              : {}),
-          },
-        },
+        updatePayload,
         { returnDocument: "after" },
       );
 
