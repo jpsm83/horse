@@ -74,6 +74,13 @@ export const createHorseSchema = z
     description: z.string().trim().max(2000).optional(),
 
     profileVisibility: z.enum(visibilityEnums).optional(),
+
+    waitingTransfer: z
+      .object({
+        invitedOwnerEmail: z.string().email(),
+        hostStableId: z.string().min(1),
+      })
+      .optional(),
   })
   .transform((data) => {
     // Spread `ids` (optional-keyed) so the inferred output type keeps the

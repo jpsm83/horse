@@ -11,6 +11,7 @@ import { randomUUID } from "node:crypto";
 import mongoose from "mongoose";
 import Relationship from "../../models/Relationship.ts";
 import Horse from "../../models/Horse.ts";
+import Stable from "../../models/Stable.ts";
 import User from "../../models/User.ts";
 import { ApiError } from "../api/errors.ts";
 import { userOwnsEntity } from "../ownership/entityOwnership.ts";
@@ -595,4 +596,55 @@ export async function getInvitePreviewByReferral(
     relationshipType: relationship.relationshipType as string,
     requesterLabel: historical?.requesterLabel,
   };
+}
+
+/** Creates an accepted horse↔stable hosting link (Path B waiting-transfer create). */
+export async function createAcceptedStableHostingRelationship(input: {
+  horseId: string;
+  stableId: string;
+  actorUserId: string;
+}): Promise<void> {
+  if (!mongoose.Types.ObjectId.isValid(input.horseId)) {
+    throw new ApiError(400, "Invalid horse id", "VALIDATION_ERROR");
+  }
+  if (!mongoose.Types.ObjectId.isValid(input.stableId)) {
+    throw new ApiError(400, "Invalid stable id", "VALIDATION_ERROR");
+  }
+
+  const existing = await Relationship.findOne({
+    horseId: input.horseId,
+    receiverAccountType: "stable",
+    receiverAccountId: input.stableId,
+    status: "accepted",
+  }).lean();
+
+  if (existing) {
+    return;
+  }
+
+  const horse = await Horse.findById(input.horseId).select("name").lean();
+  const horseName = horse ? String((horse as Record<string, unknown>).name ?? "") : "";
+  const requesterLabel = await getRequesterLabel(input.actorUserId);
+
+  const stable = await Stable.findById(input.stableId).select("mainOwnerUserId tradeName").lean();
+  const stableRecord = stable as Record<string, unknown> | null;
+  const receiverLabel = stableRecord?.tradeName
+    ? String(stableRecord.tradeName)
+    : undefined;
+
+  await Relationship.create({
+    horseId: input.horseId,
+    status: "accepted",
+    relationshipType: "stable",
+    requesterUserId: input.actorUserId,
+    receiverAccountType: "stable",
+    receiverAccountId: input.stableId,
+    receiverUserId: stableRecord?.mainOwnerUserId,
+    respondedAt: new Date(),
+    historicalReference: {
+      requesterLabel,
+      receiverLabel,
+      horseNameSnapshot: horseName,
+    },
+  });
 }

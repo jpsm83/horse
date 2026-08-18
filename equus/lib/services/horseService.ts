@@ -7,6 +7,7 @@
 
 import mongoose from "mongoose";
 import Horse from "@/models/Horse.ts";
+import Stable from "@/models/Stable.ts";
 import User from "@/models/User.ts";
 import { ApiError } from "@/lib/api/errors.ts";
 import { ownedByUserQuery, userOwnsEntity } from "@/lib/ownership/entityOwnership.ts";
@@ -38,6 +39,8 @@ import { horseHubSectionKeys } from "@/utils/enums.ts";
 import Media from "@/models/Media.ts";
 import HorseEvent from "@/models/HorseEvent.ts";
 import Relationship from "@/models/Relationship.ts";
+import * as relationshipService from "@/lib/services/relationshipService.ts";
+import * as ownershipTransferService from "@/lib/services/ownershipTransferService.ts";
 
 export type CreateHorseInput = z.infer<typeof createHorseSchema>;
 export type UpdateHorseDiscoveryInput = z.infer<typeof updateHorseDiscoverySchema>;
@@ -435,8 +438,56 @@ export async function createHorse(actorUserId: string, input: CreateHorseInput) 
   // Discovery
   if (input.profileVisibility) doc.profileVisibility = input.profileVisibility;
 
+  if (input.waitingTransfer) {
+    const stable = await Stable.findById(input.waitingTransfer.hostStableId).lean();
+    if (!stable) {
+      throw new ApiError(404, "Stable not found", "NOT_FOUND");
+    }
+
+    const stableRecord = stable as Record<string, unknown>;
+    if (!userOwnsEntity(actorUserId, stableRecord)) {
+      throw new ApiError(403, "You do not own this stable", "FORBIDDEN");
+    }
+
+    const invitedOwnerEmail = input.waitingTransfer.invitedOwnerEmail.toLowerCase().trim();
+    const actor = await User.findById(actorUserId).select("personalDetails.email").lean();
+    const actorEmail = (actor as Record<string, unknown> | null)?.personalDetails as
+      | { email?: string }
+      | undefined;
+    const normalizedActorEmail = actorEmail?.email?.toLowerCase().trim();
+
+    if (normalizedActorEmail && normalizedActorEmail === invitedOwnerEmail) {
+      throw new ApiError(400, "Cannot invite your own email", "VALIDATION_ERROR");
+    }
+
+    doc.waitingTransfer = {
+      active: true,
+      invitedOwnerEmail,
+      hostStableId: input.waitingTransfer.hostStableId,
+      createdAt: new Date(),
+      nagLastSentAt: new Date(),
+    };
+  }
+
   const horse = await Horse.create(doc);
-  return horse.toObject();
+  const horseObject = horse.toObject();
+
+  if (input.waitingTransfer) {
+    await relationshipService.createAcceptedStableHostingRelationship({
+      horseId: String(horse._id),
+      stableId: input.waitingTransfer.hostStableId,
+      actorUserId,
+    });
+
+    await ownershipTransferService.createOwnershipTransfer(actorUserId, {
+      entityType: "horse",
+      entityId: String(horse._id),
+      transferKind: "transfer_main",
+      invitedEmail: input.waitingTransfer.invitedOwnerEmail.toLowerCase().trim(),
+    });
+  }
+
+  return horseObject;
 }
 
 // --- List ---
