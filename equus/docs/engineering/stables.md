@@ -25,6 +25,8 @@ Collaboration: `/api/v1/role-profiles/stable/:id/workplace-relationships`.
 
 UI tabs: Hub / Profile / Admin only (`getStableTabs`).
 
+**List UI:** `/stables` — owned stables; Favorites **filter** shipped ([`favorites.md`](favorites.md)).
+
 ---
 
 ## Target

@@ -28,6 +28,7 @@ export function HorseListPage() {
 
   const filters: HorseListFilters = useMemo(() => ({
     mine: searchParams.get("mine") === "true" ? true : isAuthenticated ? true : undefined,
+    favorites: searchParams.get("favorites") === "true" ? true : undefined,
     forSale: searchParams.get("forSale") === "true" ? true : undefined,
     breed: searchParams.get("breed") ?? undefined,
     sex: searchParams.get("sex") ?? undefined,
@@ -73,6 +74,7 @@ export function HorseListPage() {
 
     if (isAuthenticated) {
       fields.push({ key: "mine", label: t("mineLabel"), type: "toggle" });
+      fields.push({ key: "favorites", label: t("favoritesLabel"), type: "toggle" });
     }
 
     fields.push(

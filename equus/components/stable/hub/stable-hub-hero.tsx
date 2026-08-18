@@ -5,6 +5,7 @@
 
 import { Building2 } from "lucide-react";
 
+import { FavoriteStarButton } from "@/components/shared/favorite-star-button.tsx";
 import type { StableViewDto } from "@/lib/services/stableService.ts";
 
 export function StableHubHero({ stable }: { stable: StableViewDto }) {
@@ -18,6 +19,9 @@ export function StableHubHero({ stable }: { stable: StableViewDto }) {
         aria-hidden
         className="pointer-events-none absolute -top-16 -right-10 size-48 rounded-full bg-primary/5 blur-3xl"
       />
+      <div className="absolute top-4 right-4">
+        <FavoriteStarButton entityType="stable" entityId={stable.id} />
+      </div>
       <div className="relative flex items-start gap-4">
         <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
           <Building2 className="size-7" aria-hidden />

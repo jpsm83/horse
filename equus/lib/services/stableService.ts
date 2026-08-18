@@ -14,6 +14,7 @@ import { ownedByUserQuery, userOwnsEntity } from "@/lib/ownership/entityOwnershi
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
 import { buildDefaultEntitySubscription } from "@/lib/billing/entitySubscription.ts";
 import { assertStableWriteAllowed } from "@/lib/billing/entityWriteGuard.ts";
+import { getFavoriteIdSet } from "@/lib/services/favoriteService.ts";
 import type { z } from "zod";
 import type {
   createStableSchema,
@@ -89,6 +90,12 @@ export type StableListResult = {
   total: number;
   page: number;
   limit: number;
+};
+
+export type StableListFilters = {
+  favorites?: boolean;
+  page?: number;
+  limit?: number;
 };
 
 function ensureObjectId(id: string, fieldName: string): void {
@@ -318,22 +325,44 @@ export async function listStablesForOwner(
   page = 1,
   limit = 20,
 ): Promise<StableListResult> {
-  ensureObjectId(actorUserId, "user id");
-  const safePage = Math.max(1, page);
-  const safeLimit = Math.min(100, Math.max(1, limit));
-  const skip = (safePage - 1) * safeLimit;
+  return listStables(actorUserId, { page, limit });
+}
 
-  const query = { ...ownedByUserQuery(actorUserId), isActive: { $ne: false } };
+/** List stables for the authenticated user with optional favorites filter. */
+export async function listStables(
+  actorUserId: string,
+  filters: StableListFilters = {},
+): Promise<StableListResult> {
+  ensureObjectId(actorUserId, "user id");
+  const page = Math.max(1, filters.page ?? 1);
+  const limit = Math.min(100, Math.max(1, filters.limit ?? 20));
+  const skip = (page - 1) * limit;
+
+  let query: Record<string, unknown>;
+
+  if (filters.favorites) {
+    const favoriteIds = await getFavoriteIdSet(actorUserId, "stable");
+    if (favoriteIds.size === 0) {
+      return { stables: [], total: 0, page, limit };
+    }
+    query = {
+      _id: { $in: [...favoriteIds].map((id) => new mongoose.Types.ObjectId(id)) },
+      isActive: { $ne: false },
+    };
+  } else {
+    query = { ...ownedByUserQuery(actorUserId), isActive: { $ne: false } };
+  }
+
   const [docs, total] = await Promise.all([
-    Stable.find(query).sort({ updatedAt: -1 }).skip(skip).limit(safeLimit).lean(),
+    Stable.find(query).sort({ updatedAt: -1 }).skip(skip).limit(limit).lean(),
     Stable.countDocuments(query),
   ]);
 
   return {
     stables: (docs as unknown as Record<string, unknown>[]).map(toStableListItem),
     total,
-    page: safePage,
-    limit: safeLimit,
+    page,
+    limit,
   };
 }
 

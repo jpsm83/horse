@@ -22,6 +22,7 @@ import {
 import { useState } from "react";
 
 import { HorseHubShareMenu } from "@/components/horses/hub/horse-hub-share-menu.tsx";
+import { FavoriteStarButton } from "@/components/shared/favorite-star-button.tsx";
 import { FlagIcon } from "@/components/shared/country-flag.tsx";
 import { LoadingOverlay } from "@/components/shared/loading-overlay.tsx";
 import { ProfilePhotoField } from "@/components/shared/profile-photo-field.tsx";
@@ -281,7 +282,8 @@ export function HorseHubHero({
       
       {/* Content overlaid on top of the image */}
       <div className="relative z-10 flex min-h-40 flex-col sm:min-h-60 h-full pointer-events-none">
-        <div className="flex justify-end p-4 pb-0 sm:p-6 sm:pb-0 pointer-events-auto">
+        <div className="flex justify-end gap-1 p-4 pb-0 sm:p-6 sm:pb-0 pointer-events-auto">
+          <FavoriteStarButton entityType="horse" entityId={horse.id} />
           <HorseHubShareMenu
             horseName={horse.name ?? ""}
             shareUrl={shareUrl}

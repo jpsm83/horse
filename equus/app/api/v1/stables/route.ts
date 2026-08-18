@@ -28,7 +28,8 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get("page") ?? 1);
     const limit = Number(url.searchParams.get("limit") ?? 20);
-    const data = await stableService.listStablesForOwner(session.id, page, limit);
+    const favorites = url.searchParams.get("favorites") === "true";
+    const data = await stableService.listStables(session.id, { page, limit, favorites });
     return ok(data);
   });
 }

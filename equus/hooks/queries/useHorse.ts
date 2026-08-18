@@ -95,6 +95,7 @@ async function fetchOwnershipTransfers(horseId: string): Promise<PublicOwnership
 async function fetchHorseList(filters: HorseListFilters): Promise<HorseListResult> {
   const params = new URLSearchParams();
   if (filters.mine) params.set("mine", "true");
+  if (filters.favorites) params.set("favorites", "true");
   if (filters.forSale) params.set("forSale", "true");
   if (filters.breed) params.set("breed", filters.breed);
   if (filters.sex) params.set("sex", filters.sex);

@@ -678,6 +678,7 @@
         "prevPage": "Anterior",
         "nextPage": "Siguiente",
         "mineLabel": "Mis caballos",
+        "favoritesLabel": "Favoritos",
         "onSale": "En venta",
         "breed": "Raza",
         "anyBreed": "Cualquier raza",
@@ -687,6 +688,10 @@
         "anyCountry": "Cualquier país",
         "age": "Edad (años)",
         "value": "Valor est. ($)"
+    },
+    "favorites": {
+        "addFavorite": "Añadir a favoritos",
+        "removeFavorite": "Quitar de favoritos"
     },
     "visibility": {
         "title": "Visibilidad de la sección",
@@ -1230,6 +1235,7 @@
             "empty": "Aún no ha añadido establos.",
             "addStable": "Añadir un establo",
             "acceptsNewHorses": "Acepta nuevos caballos",
+            "favoritesLabel": "Favoritos",
             "loadFailed": "No se pudieron cargar sus establos."
         }
     },

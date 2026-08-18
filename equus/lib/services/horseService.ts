@@ -23,6 +23,7 @@ import {
   type HubSections,
 } from "@/lib/horses/hubSections.ts";
 import { assertPublicReadAllowed } from "@/lib/lifecycle/activeQuery.ts";
+import { getFavoriteIdSet } from "@/lib/services/favoriteService.ts";
 import type { z } from "zod";
 import type {
   createHorseSchema,
@@ -90,6 +91,7 @@ export type HorseListResult = {
 
 export type HorseListFilters = {
   mine?: boolean;
+  favorites?: boolean;
   forSale?: boolean;
   breed?: string;
   sex?: string;
@@ -572,6 +574,19 @@ export async function listHorses(
     if (filters.valueMin !== undefined) valueFilter.$gte = filters.valueMin;
     if (filters.valueMax !== undefined) valueFilter.$lte = filters.valueMax;
     query.estimatedValue = valueFilter;
+  }
+
+  if (filters.favorites) {
+    if (!actorUserId) {
+      return { horses: [], total: 0, page, limit };
+    }
+    const favoriteIds = await getFavoriteIdSet(actorUserId, "horse");
+    if (favoriteIds.size === 0) {
+      return { horses: [], total: 0, page, limit };
+    }
+    query._id = {
+      $in: [...favoriteIds].map((id) => new mongoose.Types.ObjectId(id)),
+    };
   }
 
   const [docs, total] = await Promise.all([

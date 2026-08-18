@@ -48,6 +48,6 @@ Public contact from main owner via `lib/privacy/userVisibility.ts`. How to write
 
 - **Reads** on horse: Hub, aggregated Planning/Documents/History, Connect, identity.  
 - **Writes** for care, invoices, feed, whiteboard, roster: **stable (entity) APIs** — horse `POST …/planning` is **owner personal events only** until entity ops exist. Owner “reply” on an event = [`chat.md`](chat.md).  
-- List default stays **mine**; add Favorites **filter** ([`favorites.md`](favorites.md)).  
+- List default stays **mine**; Favorites **filter** shipped ([`favorites.md`](favorites.md)).  
 - Do not add owner Equus subscription or horse-count caps on `POST /horses`.
 - Stable roster UI for Path B create (uses existing waiting-transfer POST).

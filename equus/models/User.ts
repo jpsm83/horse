@@ -87,6 +87,16 @@ const userPreferencesSchema = new Schema(
   { _id: false },
 );
 
+/** Private entity shortcuts — horse and stable in v1; never Users. */
+const userFavoriteSchema = new Schema(
+  {
+    entityType: { type: String, enum: ["horse", "stable"], required: true },
+    entityId: { type: Schema.Types.ObjectId, required: true },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+);
+
 const userSchema = new Schema(
   {
     personalDetails: {
@@ -164,6 +174,9 @@ const userSchema = new Schema(
     /** User-level privacy/discovery preferences for profile exposure. */
     preferences: { type: userPreferencesSchema, default: undefined },
 
+    /** Private bookmarks for horses, stables, and future entity modules. */
+    favorites: { type: [userFavoriteSchema], default: undefined },
+
     /** Auth lifecycle */
     emailVerified: { type: Boolean, default: false },
     verificationToken: { type: String, default: undefined },
@@ -222,6 +235,7 @@ userSchema.index({ "notifications.notificationId": 1 });
 userSchema.index({ verificationToken: 1 }, { sparse: true });
 userSchema.index({ resetPasswordToken: 1 }, { sparse: true });
 userSchema.index({ googleSubjectId: 1 }, { unique: true, sparse: true });
+userSchema.index({ _id: 1, "favorites.entityType": 1, "favorites.entityId": 1 });
 
 const User = mongoose.models.User || model("User", userSchema);
 export default User;

@@ -678,6 +678,7 @@
         "prevPage": "Previous",
         "nextPage": "Next",
         "mineLabel": "My horses",
+        "favoritesLabel": "Favorites",
         "onSale": "On Sale",
         "breed": "Breed",
         "anyBreed": "Any breed",
@@ -687,6 +688,10 @@
         "anyCountry": "Any country",
         "age": "Age (years)",
         "value": "Est. value ($)"
+    },
+    "favorites": {
+        "addFavorite": "Add to favorites",
+        "removeFavorite": "Remove from favorites"
     },
     "visibility": {
         "title": "Section visibility",
@@ -1230,6 +1235,7 @@
             "empty": "You have not added any stables yet.",
             "addStable": "Add a stable",
             "acceptsNewHorses": "Accepting new horses",
+            "favoritesLabel": "Favorites",
             "loadFailed": "Failed to load your stables."
         }
     },

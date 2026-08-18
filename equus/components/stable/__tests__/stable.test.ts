@@ -61,6 +61,10 @@ vi.mock("@/hooks/queries/useStable.ts", () => ({
   useStableView: () => ({ data: viewState.data, isLoading: viewState.isLoading }),
 }));
 
+vi.mock("@/components/shared/favorite-star-button.tsx", () => ({
+  FavoriteStarButton: () => null,
+}));
+
 // children passed as positional createElement arg (React-first); cast keeps TS
 // from requiring children in the props object.
 const Shell = StablePageShell as ComponentType<{ stableId: string }>;

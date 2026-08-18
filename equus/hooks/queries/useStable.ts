@@ -14,6 +14,7 @@ import { fetchWithAuth, parseApiResponse } from "@/lib/api/fetchWithAuth";
 import { queryKeys } from "@/lib/api/queryKeys";
 import type {
   CreateStableInput,
+  StableListFilters,
   StableListResult,
   StableViewResponse,
 } from "@/lib/services/stableService";
@@ -32,15 +33,20 @@ export function useStableView(stableId: string | undefined) {
   });
 }
 
-async function fetchStableList(): Promise<StableListResult> {
-  const response = await fetchWithAuth("/api/v1/stables?mine=true");
+async function fetchStableList(filters: StableListFilters = {}): Promise<StableListResult> {
+  const params = new URLSearchParams();
+  if (filters.favorites) params.set("favorites", "true");
+  if (filters.page) params.set("page", String(filters.page));
+  if (filters.limit) params.set("limit", String(filters.limit));
+  const qs = params.toString();
+  const response = await fetchWithAuth(`/api/v1/stables${qs ? `?${qs}` : ""}`);
   return parseApiResponse<StableListResult>(response);
 }
 
-export function useStableList() {
+export function useStableList(filters: StableListFilters = {}) {
   return useQuery({
-    queryKey: queryKeys.stables.lists(),
-    queryFn: fetchStableList,
+    queryKey: [...queryKeys.stables.lists(), filters],
+    queryFn: () => fetchStableList(filters),
     staleTime: 30_000,
   });
 }

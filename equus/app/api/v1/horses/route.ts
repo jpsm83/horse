@@ -15,6 +15,7 @@ function parseListParams(url: string): horseService.HorseListFilters {
   const parsed = new URL(url);
   return {
     mine: parsed.searchParams.get("mine") === "true" ? true : undefined,
+    favorites: parsed.searchParams.get("favorites") === "true" ? true : undefined,
     forSale: parsed.searchParams.get("forSale") === "true" ? true : undefined,
     breed: parsed.searchParams.get("breed") ?? undefined,
     sex: parsed.searchParams.get("sex") ?? undefined,
@@ -33,6 +34,9 @@ export async function GET(request: Request) {
     await connectDb();
     const requester = await readOptionalAuthFromRequest(request);
     const filters = parseListParams(request.url);
+    if (filters.favorites && !requester.id) {
+      return ok({ horses: [], total: 0, page: filters.page ?? 1, limit: filters.limit ?? 20 });
+    }
     return ok(await horseService.listHorses(requester.id, filters));
   });
 }

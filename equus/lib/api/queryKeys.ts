@@ -143,4 +143,9 @@ export const queryKeys = {
     lists: () => [...queryKeys.notifications.all, "list"] as const,
     list: (page: number) => [...queryKeys.notifications.all, "list", page] as const,
   },
+  favorites: {
+    all: ["favorites"] as const,
+    list: (entityType?: string) =>
+      [...queryKeys.favorites.all, "list", entityType ?? "all"] as const,
+  },
 };
