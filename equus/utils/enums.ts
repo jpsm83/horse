@@ -212,6 +212,7 @@ export const notificationTypeEnums = [
   "system",
   "media_deletion",
   "document_deletion",
+  "waiting_transfer",
 ] as const;
 
 export const genderEnums = ["Man", "Woman", "Other"] as const;

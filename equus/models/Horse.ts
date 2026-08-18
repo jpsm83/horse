@@ -40,6 +40,17 @@ const horseRegistrationSchema = new Schema(
   { _id: false }
 );
 
+const horseWaitingTransferSchema = new Schema(
+  {
+    active: { type: Boolean, required: true, default: true },
+    invitedOwnerEmail: { type: String, required: true, lowercase: true, trim: true },
+    hostStableId: { type: Schema.Types.ObjectId, ref: "Stable", required: true, index: true },
+    createdAt: { type: Date, default: Date.now },
+    nagLastSentAt: { type: Date },
+  },
+  { _id: false },
+);
+
 const horseSchema = new Schema(
   {
     /** Identity */
@@ -143,6 +154,9 @@ const horseSchema = new Schema(
     /** Operational flags */
     ...deactivationAuditFields,
     createdByUserId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+
+    /** Waiting-transfer — stable creates horse before real owner claims */
+    waitingTransfer: { type: horseWaitingTransferSchema, default: undefined },
   },
   {
     timestamps: true,
@@ -158,6 +172,7 @@ horseSchema.index({ "registration.referralReference": 1 }, { sparse: true });
 horseSchema.index({ registryId: 1 }, { unique: true, sparse: true });
 horseSchema.index({ microchipId: 1 }, { unique: true, sparse: true });
 horseSchema.index({ passportNumber: 1 }, { unique: true, sparse: true });
+horseSchema.index({ "waitingTransfer.active": 1, "waitingTransfer.nagLastSentAt": 1 });
 
 const Horse = mongoose.models.Horse || model("Horse", horseSchema);
 export default Horse;
