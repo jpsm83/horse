@@ -83,6 +83,7 @@ This document maps every topic needed for the transition, prioritized by industr
 - [ ] Prompt-driven development workflows
 - [ ] Iterative development & rapid prototyping
 - [ ] Integration into daily dev workflows
+- [x] AI Hero: AI Coding Crash Course — agent skills, steering, planning workflows (aihero.dev)
 
 ---
 
@@ -123,6 +124,14 @@ This document maps every topic needed for the transition, prioritized by industr
 - [ ] Runtime management & cost implications (token budgeting)
 - [ ] Multi-agent architectures with CrewAI
 
+### 5.2 Domain-Specific Agents
+- [ ] Designing agents scoped to a vertical (healthcare, legal, finance, etc.)
+- [ ] Domain-specific tool sets — curating APIs and functions for a single domain
+- [ ] Domain knowledge injection (ontologies, regulations, terminology via RAG or system prompts)
+- [ ] Domain guardrails & compliance (safety boundaries, regulatory constraints, PII handling)
+- [ ] Domain-specific evaluation — expert-driven metrics beyond generic LLM evals
+- [ ] Vertical SaaS agent patterns — embedding agents into industry-specific products
+
 ---
 
 ## 🟡 PHASE 6: Applied LLM Engineering — MEDIUM PRIORITY
@@ -137,7 +146,7 @@ This document maps every topic needed for the transition, prioritized by industr
 - [ ] Resiliency: error handling, retries, exponential backoff, schema validation
 - [ ] Context engineering (prompt chaining, dynamic context injection)
 - [ ] Progressive disclosure (revealing complexity gradually to LLMs)
-- [ ] Agent skills development (composable capabilities)
+- [ ] Agent skills development (composable capabilities: `grill-me`, `tdd`, `handoff`, `review`, `to-prd`, `to-issues`)
 
 ---
 
