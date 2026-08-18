@@ -29,6 +29,6 @@ That is the full home. **No** “all my horses,” **no** “all my stables,” 
 
 | ID | Feature | Status |
 |----|---------|--------|
-| MG-01 | Home route after login = inbox (pending + waiting-transfer) | partial (waiting-transfer omitted) |
+| MG-01 | Home route after login = inbox (pending + waiting-transfer) | done |
 | MG-02 | Deep links from inbox to Connect / ownership-transfer / horse | done |
 | MG-03 | Empty inbox copy points to Horse / Stable modules | done |

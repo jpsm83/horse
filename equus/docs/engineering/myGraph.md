@@ -13,13 +13,11 @@
 |-------|----------|
 | Route | `/home` after login (`resolvePostAuthPath`) |
 | Gate | Unauthenticated → sign-in |
-| Data | Pending `Relationship` + `WorkplaceRelationship` invites |
-| UI | Welcome hero + **action inbox** (accept/decline + deep links); empty → Horse/Stable modules |
-
-Waiting-transfer rows omitted until the horse flag exists.
+| Data | Pending `Relationship` + `WorkplaceRelationship` invites + waiting-transfer horses (`GET /api/v1/users/me/waiting-transfer-horses`) |
+| UI | Welcome hero + **action inbox** (accept/decline + deep links); waiting-transfer section; empty → Horse/Stable modules |
 
 ---
 
 ## Target
 
-Same as shipped, plus waiting-transfer horses when the flag ships. No roster, favorites catalog, or last-used module on home.
+Same as shipped. No roster, favorites catalog, or last-used module on home.

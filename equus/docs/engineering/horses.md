@@ -2,7 +2,7 @@
 
 **Job:** Horse REST + visibility. Horse page is **display**; ops writes belong on the entity.  
 **Upstream:** [`../features/horseModule.md`](../features/horseModule.md)  
-**Status:** **drift** (entity-sourced planning aggregation + waiting-transfer not built; horse POST limited to owner personal events)  
+**Status:** **drift** (entity-sourced planning aggregation not built; horse POST limited to owner personal events; waiting-transfer shipped)  
 **Code roots:** `app/api/v1/horses/`, `lib/services/horseService.ts`, `lib/horses/horseVisibilityAccess.ts`, `models/Horse.ts`
 
 Tabs: [`horseTabs.md`](horseTabs.md). Relationships: [`relationships.md`](relationships.md). Lifecycle: [`dataLifecycle.md`](dataLifecycle.md).
@@ -14,7 +14,7 @@ Tabs: [`horseTabs.md`](horseTabs.md). Relationships: [`relationships.md`](relati
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/api/v1/horses?mine=true` | List; `mine` = owned/co-owned; guests get public horses |
-| `POST` | `/api/v1/horses` | Create (`mainOwnerUserId` = session). **Free** — no owner-tier horse-count cap ([`billing.md`](billing.md) entity billing is separate) |
+| `POST` | `/api/v1/horses` | Create (`mainOwnerUserId` = session). Optional `waitingTransfer: { invitedOwnerEmail, hostStableId }` for stable Path B (provisional owner + accepted stable link + pending `transfer_main`). **Free** — no owner-tier horse-count cap ([`billing.md`](billing.md) entity billing is separate) |
 | `GET` | `/api/v1/horses/:id` | `{ viewerRole, allowedTabs, horse }` — cheap Hub sections only |
 | `GET` | `/api/v1/horses/:id/hub-social` | Hub lists `{ gallery?, planning?, connections? }` |
 | `GET` | `/api/v1/horses/:id/hub-gallery` | Paginated Hub media |
@@ -38,6 +38,8 @@ Hub cheap keys: `identity` \| `identification` \| `pedigree` \| `about` \| `owne
 
 Public contact from main owner via `lib/privacy/userVisibility.ts`. How to write the control: [`../conventions/visibility.md`](../conventions/visibility.md).
 
+**Waiting-transfer:** embedded `Horse.waitingTransfer` (`active`, `invitedOwnerEmail`, `hostStableId`, `nagLastSentAt`). Cleared on successful horse `transfer_main` accept. Recurring nag: `lib/jobs/processWaitingTransferNags.ts` via `POST /api/v1/cron/waiting-transfer-nags` (`CRON_SECRET`). In-app type `"waiting_transfer"`.
+
 **List UI:** `/horses` — authenticated default owned; guests public. Create: `/horses/new` (media upload then `POST /horses`). Hub: `/horses/[id]`.
 
 ---
@@ -46,6 +48,6 @@ Public contact from main owner via `lib/privacy/userVisibility.ts`. How to write
 
 - **Reads** on horse: Hub, aggregated Planning/Documents/History, Connect, identity.  
 - **Writes** for care, invoices, feed, whiteboard, roster: **stable (entity) APIs** — horse `POST …/planning` is **owner personal events only** until entity ops exist. Owner “reply” on an event = [`chat.md`](chat.md).  
-- Waiting-transfer flag + daily nag when a stable creates a boarded horse (creating user temporary `mainOwner`).  
 - List default stays **mine**; add Favorites **filter** ([`favorites.md`](favorites.md)).  
 - Do not add owner Equus subscription or horse-count caps on `POST /horses`.
+- Stable roster UI for Path B create (uses existing waiting-transfer POST).
