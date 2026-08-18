@@ -1,8 +1,7 @@
 /**
- * HomeActionInbox — pending relationship and workplace invites on `/home`.
+ * HomeActionInbox — pending relationship, workplace, and waiting-transfer rows on `/home`.
  *
- * Action inbox only (not a roster). Waiting-transfer rows are omitted until
- * that flag exists. Accept/decline uses the same mutations as dedicated inboxes.
+ * Action inbox only (not a roster). Accept/decline uses the same mutations as dedicated inboxes.
  */
 
 "use client";
@@ -16,6 +15,7 @@ import {
   useAcceptWorkplaceInvitation,
   useDeclineWorkplaceInvitation,
   usePendingRelationships,
+  useWaitingTransferHorses,
   useWorkplaces,
 } from "@/hooks/queries/useAuthData";
 import {
@@ -43,6 +43,8 @@ export function HomeActionInbox({ userId }: HomeActionInboxProps) {
   const { data: relationships = [], isPending: isRelationshipsPending } =
     usePendingRelationships();
   const { data: workplaces = [], isPending: isWorkplacesPending } = useWorkplaces();
+  const { data: waitingTransferHorses = [], isPending: isWaitingTransferPending } =
+    useWaitingTransferHorses();
   const acceptRelationship = useAcceptRelationship();
   const declineRelationship = useDeclineRelationship();
   const acceptWorkplace = useAcceptWorkplaceInvitation();
@@ -56,8 +58,11 @@ export function HomeActionInbox({ userId }: HomeActionInboxProps) {
       Boolean(workplace.workplaceRelationshipId ?? workplace.membershipId),
   );
 
-  const isLoading = isRelationshipsPending || isWorkplacesPending;
-  const isEmpty = relationships.length === 0 && pendingWorkplaces.length === 0;
+  const isLoading = isRelationshipsPending || isWorkplacesPending || isWaitingTransferPending;
+  const isEmpty =
+    relationships.length === 0 &&
+    pendingWorkplaces.length === 0 &&
+    waitingTransferHorses.length === 0;
 
   async function handleRelationshipAction(
     relationshipId: string,
@@ -254,6 +259,63 @@ export function HomeActionInbox({ userId }: HomeActionInboxProps) {
               })}
             </ul>
           </SectionErrorBoundary>
+        </section>
+      ) : null}
+
+      {waitingTransferHorses.length > 0 ? (
+        <section aria-labelledby="home-inbox-waiting-transfer-heading">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2
+              id="home-inbox-waiting-transfer-heading"
+              className="text-lg font-semibold tracking-tight"
+            >
+              {t("waitingTransferHeading")}
+            </h2>
+            <Link
+              href="/ownership-transfers"
+              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+            >
+              {t("viewAllOwnershipTransfers")}
+            </Link>
+          </div>
+
+          <ul className="space-y-3">
+            {waitingTransferHorses.map((item) => (
+              <li key={`${item.horseId}-${item.role}`} className="rounded-lg border p-4">
+                <div className="space-y-1">
+                  <p className="font-medium">{item.horseName}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {item.role === "provisional_owner"
+                      ? t("waitingTransferProvisional", {
+                          email: item.invitedOwnerEmail,
+                          stable: item.hostStableName ?? tCommon("horseFallback"),
+                        })
+                      : t("waitingTransferInvited", {
+                          stable: item.hostStableName ?? tCommon("horseFallback"),
+                        })}
+                  </p>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {item.role === "provisional_owner" ? (
+                    <Link
+                      href={`/horses/${item.horseId}/connect`}
+                      className={cn(buttonVariants({ variant: "default", size: "sm" }))}
+                    >
+                      {t("openConnect")}
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/ownership-transfers"
+                      className={cn(buttonVariants({ variant: "default", size: "sm" }))}
+                    >
+                      {t("waitingTransferAcceptLink")}
+                    </Link>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
         </section>
       ) : null}
     </div>

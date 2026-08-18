@@ -7,6 +7,7 @@ import {
   declineWorkplaceInvitation,
   fetchPendingOwnershipTransfers,
   fetchPendingRelationships,
+  fetchWaitingTransferHorses,
   fetchWorkplaces,
 } from "@/lib/api/auth/invites";
 import { queryKeys } from "@/lib/api/queryKeys";
@@ -23,6 +24,14 @@ export function usePendingOwnershipTransfers() {
   return useQuery({
     queryKey: queryKeys.ownershipTransfers.pending(),
     queryFn: fetchPendingOwnershipTransfers,
+    staleTime: 15_000,
+  });
+}
+
+export function useWaitingTransferHorses() {
+  return useQuery({
+    queryKey: queryKeys.users.waitingTransferHorses,
+    queryFn: fetchWaitingTransferHorses,
     staleTime: 15_000,
   });
 }

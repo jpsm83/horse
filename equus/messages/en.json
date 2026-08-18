@@ -158,6 +158,11 @@
         "openWorkplace": "Workplace tab",
         "viewAllRelationships": "All relationship invites",
         "viewAllWorkplaces": "All workplace invites",
+        "waitingTransferHeading": "Waiting ownership transfer",
+        "waitingTransferProvisional": "Ownership pending for {email} · hosted at {stable}",
+        "waitingTransferInvited": "You were invited to own this horse · hosted at {stable}",
+        "waitingTransferAcceptLink": "Review ownership transfer",
+        "viewAllOwnershipTransfers": "All ownership transfers",
         "getStartedTitle": "Get started",
         "getStartedDescription": "Sign in or create a free account to add horses and build your Equus presence.",
         "loadFailed": "Failed to load home content."

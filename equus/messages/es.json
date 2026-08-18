@@ -158,6 +158,11 @@
         "openWorkplace": "Pestaña Lugar de trabajo",
         "viewAllRelationships": "Todas las invitaciones de relación",
         "viewAllWorkplaces": "Todas las invitaciones de trabajo",
+        "waitingTransferHeading": "Transferencia de propiedad pendiente",
+        "waitingTransferProvisional": "Propiedad pendiente para {email} · alojado en {stable}",
+        "waitingTransferInvited": "Le invitaron a ser propietario de este caballo · alojado en {stable}",
+        "waitingTransferAcceptLink": "Revisar transferencia de propiedad",
+        "viewAllOwnershipTransfers": "Todas las transferencias de propiedad",
         "getStartedTitle": "Comenzar",
         "getStartedDescription": "Inicie sesión o cree una cuenta gratuita para añadir caballos y construir su presencia en Equus.",
         "loadFailed": "No se pudo cargar la página de inicio."

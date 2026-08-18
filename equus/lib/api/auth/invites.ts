@@ -3,6 +3,7 @@ import type { InviteRefPreview } from "@/lib/services/invitePreviewService";
 import type { PublicOwnershipTransfer } from "@/lib/services/ownershipTransferService";
 import type { PublicRelationship } from "@/lib/services/relationshipService";
 import type { PublicWorkplace } from "@/lib/services/workplaceRelationshipService";
+import type { WaitingTransferHorseItem } from "@/lib/services/waitingTransferService.ts";
 
 // --- Workplaces ---
 
@@ -79,6 +80,14 @@ export async function declineOwnershipTransfer(transferId: string): Promise<void
       body: JSON.stringify({ status: "declined" }),
     }),
   );
+}
+
+// --- Waiting transfer ---
+
+export async function fetchWaitingTransferHorses(): Promise<WaitingTransferHorseItem[]> {
+  const response = await fetchWithAuth("/api/v1/users/me/waiting-transfer-horses");
+  const data = await parseApiResponse<{ horses: WaitingTransferHorseItem[] }>(response);
+  return data.horses;
 }
 
 // --- Invite Preview ---

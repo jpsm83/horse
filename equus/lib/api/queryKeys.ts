@@ -16,6 +16,7 @@ export const queryKeys = {
     hub: (userId: string) => ["users", userId, "hub"] as const,
     navigation: ["users", "me", "navigation"] as const,
     workplaces: ["users", "me", "workplaces"] as const,
+    waitingTransferHorses: ["users", "me", "waiting-transfer-horses"] as const,
     notifications: (userId: string) => ["users", userId, "notifications"] as const,
   },
   horses: {
